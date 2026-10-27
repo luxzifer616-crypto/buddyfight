@@ -1,0 +1,1145 @@
+CardStat = 4569
+{
+global.CardName[CardStat] = "Lost World"
+
+global.CardText[CardStat] = "You cannot choose "+chr(34)+"Lost World"+chr(34)+" as your initial flag, and all flags may have up to two of this card in the deck.
+
+You may use <Lost World> cards. This card gets the abilities of the flag chosen by "+chr(34)+"Belost"+chr(34)+".
+
+"+chr(34)+"Belost"+chr(34)+" At the end of your opponent's turn, choose one of your flags, and you may pay 2 gauge. If you do, put this hand card on top of the chosen card, remove your deck from the fight, shuffle your Lost Deck and put it in the fight. You may only use "+chr(34)+"Belost"+chr(34)+" once per fight."
+
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 5
+}
+
+CardStat = 4570
+{
+global.CardName[CardStat] = "Oxideos Aralgeine"
+
+global.CardText[CardStat] = "When this card enters the field or is destroyed, destroy a card on your opponent's field.
+
+[Penetrate]"
+
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 1
+global.CardPower[CardStat] = 10000
+global.CardCrit[CardStat] = 4
+global.CardDefense[CardStat] = 7000
+global.Lostvader[CardStat] = 1
+global.DimensionDragon[CardStat] = 1
+}
+
+CardStat = 4585
+{
+global.CardName[CardStat] = "Light of Vile, Vanity Husk Destroyer"
+
+global.CardText[CardStat] = "This card on the field cannot be destroyed by your opponent's card effects.
+
+When this card attacks, destroy a monster on your opponent's field.
+
+[Triple Attack]"
+
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 1
+global.CardPower[CardStat] = 30000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 10000
+global.Lostvader[CardStat] = 1
+global.DimensionDragon[CardStat] = 1
+}
+
+CardStat = 4586
+{
+global.CardName[CardStat] = "Iregeit Delusion"
+
+global.CardText[CardStat] = "When this card attacks, draw a card!
+
+[Triple Attack]"
+
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 1
+global.CardPower[CardStat] = 15000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 7000
+global.Lostvader[CardStat] = 1
+global.DimensionDragon[CardStat] = 1
+}
+
+CardStat = 4587
+{
+global.CardName[CardStat] = "Agoniagill Dlhyvalam"
+
+global.CardText[CardStat] = "When this card is destroyed, you gain 3 life!
+
+[Move] [Penetrate]"
+
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 1
+global.CardPower[CardStat] = 15000
+global.CardCrit[CardStat] = 3
+global.CardDefense[CardStat] = 7000
+global.Lostvader[CardStat] = 1
+global.DimensionDragon[CardStat] = 1
+}
+
+CardStat = 4588
+{
+global.CardName[CardStat] = "Demonic Dragon Release, Vanity Husk Destroyer"
+
+global.CardText[CardStat] = "This card on the field cannot be destroyed by your opponent's card effects.
+
+When this card attacks, destroy or return to hand a card on your opponent's field.
+
+[Double Attack]"
+
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 1
+global.CardPower[CardStat] = 30000
+global.CardCrit[CardStat] = 3
+global.CardDefense[CardStat] = 10000
+global.Lostvader[CardStat] = 1
+global.DimensionDragon[CardStat] = 1
+}
+
+CardStat = 4589
+{
+global.CardName[CardStat] = "Whistle Fedwal Ugaine"
+
+global.CardText[CardStat] = "[Call Cost] [Pay 1 gauge & Put the top card of your deck into its soul]
+
+[Soulguard]"
+
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 1
+global.CardPower[CardStat] = 80000
+global.CardCrit[CardStat] = 8
+global.CardDefense[CardStat] = 8000
+global.Lostvader[CardStat] = 1
+global.DimensionDragon[CardStat] = 1
+}
+
+CardStat = 4590
+{
+global.CardName[CardStat] = "Hannel Kant Dauf"
+
+global.CardText[CardStat] = "[Penetrate] (If this card attacks and destroys your opponent's monster on the center, it deals damage to your opponent equal to its critical)"
+
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 1
+global.CardPower[CardStat] = 50000
+global.CardCrit[CardStat] = 5
+global.CardDefense[CardStat] = 10000
+global.Lostvader[CardStat] = 1
+global.DimensionDragon[CardStat] = 1
+}
+
+CardStat = 4591
+{
+global.CardName[CardStat] = "Dimension Jamming"
+
+global.CardText[CardStat] = "[Counter] Your opponent chooses and drops two hand cards. You may only cast "+chr(34)+"Dimension Jamming"+chr(34)+" once per turn."
+
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 3
+global.Lostvader[CardStat] = 1
+global.Destruction[CardStat] = 1
+}
+
+CardStat = 4592
+{
+global.CardName[CardStat] = "Carnage Destroy Blaster!!"
+
+global.CardText[CardStat] = "You may only cast this card if your opponent's life is 5 or less.
+
+Deal 5 damage to your opponent!"
+
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 4
+global.Lostvader[CardStat] = 1
+}
+
+CardStat = 4593
+{
+global.CardName[CardStat] = "Vanity Zero Blazer!!"
+
+global.CardText[CardStat] = "You may only cast this card if you have two or more "+chr(171)+"Lostvader"+chr(187)+" on your field.
+
+[Cast Cost] [Pay 3 gauge]
+
+Deal 10 damage to your opponent!"
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 4
+global.Lostvader[CardStat] = 1
+}
+
+CardStat = 4594
+{
+global.CardName[CardStat] = "Dimension Lifestream"
+
+global.CardText[CardStat] = "Choose and use one of the following two. You may only cast "+chr(34)+"Dimension Lifestream"+chr(34)+" once per turn.
+
+- You gain 10 life!
+- Your opponent's life becomes 10!"
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 3
+global.Lostvader[CardStat] = 1
+global.Recovery[CardStat] = 1
+}
+
+CardStat = 4595
+{
+global.CardName[CardStat] = "Dimension Draw"
+
+global.CardText[CardStat] = "Draw three cards. Then, drop two hand cards. You may only cast "+chr(34)+"Dimension Draw"+chr(34)+" once per turn."
+
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 3
+global.Lostvader[CardStat] = 1
+global.Draw[CardStat] = 1
+}
+
+CardStat = 4596
+{
+global.CardName[CardStat] = "Arlpow Peyduwallr"
+
+global.CardText[CardStat] = "[Call Cost] [Put up to two cards from your drop zone into its soul & Pay 1 gauge]
+
+[Penetrate] [Double Attack] [Soulguard] [Counterattack]"
+
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 1
+global.CardPower[CardStat] = 20000
+global.CardCrit[CardStat] = 3
+global.CardDefense[CardStat] = 10000
+global.Lostvader[CardStat] = 1
+global.DimensionDragon[CardStat] = 1
+}
+
+CardStat = 4597
+{
+global.CardName[CardStat] = "Deugaine Zascyth"
+
+global.CardText[CardStat] = "[Call Cost] [Pay 1 gauge]
+
+When this card enters the field, nullify all abilities of a card on your opponent's field and destroy it.
+
+[Double Attack]"
+
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 1
+global.CardPower[CardStat] = 10000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 10000
+global.Lostvader[CardStat] = 1
+global.DimensionDragon[CardStat] = 1
+}
+
+CardStat = 4598
+{
+global.CardName[CardStat] = "Dimension Absorb"
+
+global.CardText[CardStat] = "You may only cast this card during an attack on your opponent's turn.
+
+[Counter] Nullify the attack, deal 2 damage to your opponent, and you gain 2 life! This card cannot be nullified."
+
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 3
+global.Lostvader[CardStat] = 1
+global.Defense[CardStat] = 1
+}
+
+CardStat = 4599
+{
+global.CardName[CardStat] = "Vile Demonic Cannon, Lostless Maser"
+
+global.CardText[CardStat] = "[Penetrate] (If this card attacks and destroys your opponent's monster on the center, it deals damage to your opponent equal to its critical)"
+
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 2
+global.CardPower[CardStat] = 10000
+global.CardCrit[CardStat] = 5
+global.Lostvader[CardStat] = 1
+global.Weapon[CardStat] = 1
+}
+
+CardStat = 4600
+{
+global.CardName[CardStat] = "Dimension Mirror"
+
+global.CardText[CardStat] = "You may only cast this card during an attack on your opponent's turn, and if you have no monsters on your center.
+
+[Counter] Nullify the attack, and deal damage to your opponent equal to the total critical of all attacking monsters!"
+
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 3
+global.Lostvader[CardStat] = 1
+global.Defense[CardStat] = 1
+}
+
+CardStat = 4601
+{
+global.CardName[CardStat] = "Vanity Cells"
+
+global.CardText[CardStat] = "[Counter] Choose and use one of the following two.
+
+- During an attack on your opponent's turn, nullify the attack.
+- For this turn, you do not take damage from impact effects!"
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 3
+global.Lostvader[CardStat] = 1
+global.Defense[CardStat] = 1
+}
+
+CardStat = 4602
+{
+global.CardName[CardStat] = "Dimension Razor"
+
+global.CardText[CardStat] = "[Counter] Destroy two cards on your opponent's field."
+
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 3
+global.Lostvader[CardStat] = 1
+global.Destruction[CardStat] = 1
+}
+
+CardStat = 4603
+{
+global.CardName[CardStat] = "Vile Demonic Gun, Lostless Buster"
+
+global.CardText[CardStat] = "When this card attacks, your opponent chooses and drops a hand card, and you draw a card.
+
+[Double Attack]"
+
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 2
+global.CardPower[CardStat] = 10000
+global.CardCrit[CardStat] = 2
+global.Lostvader[CardStat] = 1
+global.Weapon[CardStat] = 1
+}
+
+CardStat = 4604
+{
+global.CardName[CardStat] = "Dimension Revive"
+
+global.CardText[CardStat] = "Call a monster from your drop zone by paying its [Call Cost], and for this turn, that monster gets critical+2! You may only cast "+chr(34)+"Dimension Revive"+chr(34)+" once per turn."
+
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 3
+global.Lostvader[CardStat] = 1
+global.Summon[CardStat] = 1
+}
+
+CardStat = 4617
+{
+global.CardName[CardStat] = "Zorune Zorken"
+
+global.CardText[CardStat] = "[Move] (At the start of each player's attack phase, you may put this card on the field to an open area)"
+
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 1
+global.CardPower[CardStat] = 20000
+global.CardCrit[CardStat] = 6
+global.CardDefense[CardStat] = 10000
+global.Lostvader[CardStat] = 1
+global.DimensionDragon[CardStat] = 1
+}
+
+CardStat = 4657
+{
+global.CardName[CardStat] = "Toliarzeg Fulgaine"
+
+global.CardText[CardStat] = "[Call Cost] [Pay 1 gauge & Put the top card of your deck into its soul]
+
+At the start of your attack phase, you may call a "+chr(171)+"Dimension Dragon"+chr(187)+" monster from your drop zone by paying its [Call Cost].
+
+[Penetrate] [Soulguard]"
+
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 1
+global.CardPower[CardStat] = 10000
+global.CardCrit[CardStat] = 3
+global.CardDefense[CardStat] = 7000
+global.Lostvader[CardStat] = 1
+global.DimensionDragon[CardStat] = 1
+}
+
+CardStat = 4658
+{
+global.CardName[CardStat] = "Dimension Breeding"
+
+global.CardText[CardStat] = "You may only cast this card if you have two or more "+chr(171)+"Lostvader"+chr(187)+" on your field.
+
+Put the top two cards of your deck into your gauge, you gain 2 life, and draw two cards. You may only cast "+chr(34)+"Dimension Bleeding"+chr(34)+" once per turn."
+
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 3
+global.Lostvader[CardStat] = 1
+global.Draw[CardStat] = 1
+}
+
+CardStat = 4659
+{
+global.CardName[CardStat] = "Vanity Husk Destroyer, "+chr(34)+"THE SKULL"+chr(34)+""
+
+global.CardText[CardStat] = "This card cannot be destroyed or [Rest] by your opponent's card effects.
+
+When this card attacks, destroy all cards on your opponent's field."
+
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 1
+global.CardPower[CardStat] = 30000
+global.CardCrit[CardStat] = 5
+global.CardDefense[CardStat] = 10000
+global.Lostvader[CardStat] = 1
+global.DimensionDragon[CardStat] = 1
+}
+
+CardStat = 4660
+{
+global.CardName[CardStat] = "Dimension Shadowgate"
+
+global.CardText[CardStat] = "[Set] (This card remains on the field)
+
+When you are attacked, your opponent may pay 1 life. If they do not, nullify the attack."
+
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 3
+global.Lostvader[CardStat] = 1
+global.Defense[CardStat] = 1
+}
+
+CardStat = 4661
+{
+global.CardName[CardStat] = "Dimension Revenge"
+
+global.CardText[CardStat] = "[Counter] Choose a monster in battle, and for this battle, give it power+100000, defense+100000 and [Counterattack]!
+
+([Counterattack]: If this card is still on the field after being attacked, destroy a monster that attacked with defense less than or equal to this card's power)"
+
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 3
+global.Lostvader[CardStat] = 1
+global.Enhance[CardStat] = 1
+}
+
+CardStat = 4429
+{
+global.CardName[CardStat] = "Vile Demonic Dragon, Vanity Husk Destroyer"
+
+global.CardText[CardStat] = "If this card is on the field, your opponent cannot gain life!
+
+This card on the field cannot be destroyed by your opponent's card effects.
+
+"+chr(34)+"Dimension Door -Origin-"+chr(34)+" When this card attacks, put a card from your opponent's field into the drop zone!
+
+[Double Attack]"
+
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 1
+global.CardPower[CardStat] = 30000
+global.CardCrit[CardStat] = 3
+global.CardDefense[CardStat] = 10000
+global.Lostvader[CardStat] = 1
+global.DimensionDragon[CardStat] = 1
+}
+
+CardStat = 4666
+{
+global.CardName[CardStat] = "Vanity Destruct Vanish"
+
+global.CardText[CardStat] = "[Cast Cost] [Pay 1 gauge]
+
+[Stand] a "+chr(171)+"Lostvader"+chr(187)+" on your field, and for this turn, that card gets critical+5 and [Penetrate]. Then, attack with that card."
+
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 4
+global.Lostvader[CardStat] = 1
+}
+
+CardStat = 4709
+{
+global.CardName[CardStat] = "Distortion Wall"
+
+global.CardText[CardStat] = "[Counter] For this turn, damage you take are reduced by 3."
+
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 3
+global.Lostvader[CardStat] = 1
+global.Defense[CardStat] = 1
+}
+
+CardStat = 4859
+{
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Episto Ira Gnitz"
+global.CardFlavor[CardStat] = "You are filled with desire, correct? You shall be filled with despair next."
+global.CardText[CardStat] = "[Call Cost] [Pay 10 gauge]
+
+When this card enters the field, put up to five cards from your drop zone into its soul.
+
+You cannot take damage by your opponent's monster effects.
+
+This card on the field cannot be [Rest] and its critical cannot be reduced by opponent's card effects.
+
+[Move] [Penetrate] [Triple Attack] [Soulguard] [Counterattack]"
+global.CardPower[CardStat] = 50000
+global.CardCrit[CardStat] = 5
+global.CardDefense[CardStat] = 10000
+global.Lostvader[CardStat] = 1
+global.DimensionDragon[CardStat] = 1
+}
+
+CardStat = 4860
+{
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Vile Vortex"
+global.CardFlavor[CardStat] = "I used to have some impossible wishes. Doesn't seem to matter anymore now."
+global.CardText[CardStat] = "For this turn, all [Call Cost], [Cast Cost] and [Equip Cost] of cards in your hand are lost. (You can use cards from your hand without paying the costs!)"
+global.Lostvader[CardStat] = 1
+}
+
+CardStat = 4866
+{
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Ankosred Noitdead"
+global.CardFlavor[CardStat] = "Monitoring your "+chr(34)+"anxiety"+chr(34)+" is my beautiful hobby. Let me take a good look at that face."
+global.CardText[CardStat] = "When this card enters the field or is destroyed, for this turn, a card on your opponent's field gets power-10000, defense-10000, and critical-3!
+
+When this card attacks, drop 1 of your opponent's gauge, and put the top card of your deck into your gauge.
+
+[Double Attack]"
+global.CardPower[CardStat] = 17000
+global.CardCrit[CardStat] = 3
+global.CardDefense[CardStat] = 5000
+global.Lostvader[CardStat] = 1
+global.DimensionDragon[CardStat] = 1
+}
+
+CardStat = 4915
+{
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Dimension Denial"
+global.CardFlavor[CardStat] = "You are powerless. Don't you know that is useless against me?"
+global.CardText[CardStat] = "You may only cast this card when your opponent cast a spell.
+
+[Counter] Nullify the spell cast by your opponent."
+global.Lostvader[CardStat] = 1
+global.Counter[CardStat] = 1
+}
+
+CardStat = 4941
+{
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Vile Demonic Deity Dragon, Vanity Epoch Destroyer"
+global.CardFlavor[CardStat] = "This marks the epoch of world destruction."
+global.CardText[CardStat] = "[Call Cost] [When a <Lost World> monster is put from your field into the drop zone, pay 2 gauge]
+
+This card on the field cannot be destroyed by your opponent's card effects.
+
+"+chr(34)+"Dimension Door -Impetus-"+chr(34)+" When this card enters the field, choose up to two cards on your opponent's field, drop the chosen cards' souls, and put the chosen cards into the drop zone.
+
+[Double Attack]"
+global.CardPower[CardStat] = 50000
+global.CardCrit[CardStat] = 3
+global.CardDefense[CardStat] = 10000
+global.Lostvader[CardStat] = 1
+global.DimensionDragon[CardStat] = 1
+}
+
+CardStat = 4944
+{
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Dimension Cruelty"
+global.CardFlavor[CardStat] = "I am better than you. You'll never reach where I am."
+global.CardText[CardStat] = "[Counter] Choose and use one of the following four.
+
+- Put up to three cards from your drop zone into your gauge.
+- [Stand] a card on your field.
+- [Rest] a card on your opponent's field.
+- Drop up to two souls from a card on your opponent's field."
+global.Lostvader[CardStat] = 1
+}
+
+CardStat = 4976
+{
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Invasion from the Deep and Vile"
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "You may only cast this card if you have a "+chr(171)+"Lostvader"+chr(187)+" on your field.
+
+Look at the top four cards of your deck, put up to two from among them into your hand, and put the rest into your gauge. You may only cast "+chr(34)+"Invasion from the Deep and Vile"+chr(34)+" once per turn."
+global.Lostvader[CardStat] = 1
+global.Get[CardStat] = 1
+}
+
+CardStat = 4996
+{
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Meren Kosgaard"
+global.CardFlavor[CardStat] = ""+chr(34)+"Death"+chr(34)+" is imminent."
+global.CardText[CardStat] = "When this card attacks, your opponent chooses and drops a hand card.
+
+[Double Attack]"
+global.CardPower[CardStat] = 12000
+global.CardCrit[CardStat] = 3
+global.CardDefense[CardStat] = 10000
+global.Lostvader[CardStat] = 1
+global.DimensionDragon[CardStat] = 1
+}
+
+CardStat = 5011
+{
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Effeslay Rallface"
+global.CardFlavor[CardStat] = "I want you to feel the chilling touch of disdain and hatred."
+global.CardText[CardStat] = "When this card enters the field, destroy all items and spells on your opponent's field.
+
+When this card is destroyed, destroy all monsters on your opponent's field."
+global.CardPower[CardStat] = 7000
+global.CardCrit[CardStat] = 3
+global.CardDefense[CardStat] = 5000
+global.Lostvader[CardStat] = 1
+global.DimensionDragon[CardStat] = 1
+}
+
+CardStat = 5012
+{
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Inummael Katarant"
+global.CardFlavor[CardStat] = "I have sworn to destruction. To destroy is my duty and justice."
+global.CardText[CardStat] = "Your opponent cannot draw cards by monster effects.
+
+When this card is destroyed, you may pay 1 gauge. If you do, return this card to hand.
+
+[Move] [Double Attack]"
+global.CardPower[CardStat] = 10000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 3000
+global.Lostvader[CardStat] = 1
+global.DimensionDragon[CardStat] = 1
+}
+
+CardStat = 5013
+{
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Nihility Vanguard, Vanity Epoch Destroyer"
+global.CardFlavor[CardStat] = "Wither, pitiful being."
+global.CardText[CardStat] = "[Call Cost] [When a <Lost World> monster is put from your field into the drop zone, pay 2 gauge]
+
+This card on the field cannot be destroyed by your opponent's card effects.
+
+When this card enters the field, choose up to two cards on your opponent's field, and for this turn, they get power-30000, defense-30000 and critical-3!
+
+[Double Attack]"
+global.CardPower[CardStat] = 50000
+global.CardCrit[CardStat] = 3
+global.CardDefense[CardStat] = 10000
+global.Lostvader[CardStat] = 1
+global.DimensionDragon[CardStat] = 1
+}
+
+
+CardStat = 5014
+{
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Dimension Zeggaine"
+global.CardFlavor[CardStat] = "How does one face it? How else but quivering in a corner of your room?"
+global.CardText[CardStat] = "You may only cast this card during an attack on your opponent's turn.
+
+[Counter] Nullify the attack, and put up to one "+chr(171)+"Lostvader"+chr(187)+" from your drop zone other than "+chr(34)+"Dimension Zeggaine"+chr(34)+" into your hand."
+global.Lostvader[CardStat] = 1
+global.Defense[CardStat] = 1
+}
+
+CardStat = 5015
+{
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Flourish of Nihility and Desperation"
+global.CardFlavor[CardStat] = "Through the people's negativity, they are flourishing quietly in the dark."
+global.CardText[CardStat] = "[Cast Cost] [Put seven cards from your drop zone into its soul]
+
+[Set] (This card remains on the field)
+
+[Counter] [Act] During an attack on your opponent's turn, drop a soul from this card. If you do, nullify the attack."
+global.Lostvader[CardStat] = 1
+global.Defense[CardStat] = 1
+}
+
+CardStat = 5028
+{
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Olektius Origenes"
+global.CardFlavor[CardStat] = "To be sent to Nihility is the lot you have drawn."
+global.CardText[CardStat] = "[Counter] [Act] Choose a card on your opponent's field, and you may drop a hand card. If you do, return the chosen card to hand.
+
+[Triple Attack]"
+global.CardPower[CardStat] = 12000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 7000
+global.Lostvader[CardStat] = 1
+global.DimensionDragon[CardStat] = 1
+}
+
+CardStat = 5029
+{
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 2
+global.CardName[CardStat] = "Vile Demonic Particles, Lostless Heizer"
+global.CardFlavor[CardStat] = "One shot… and all are reduced to particles."
+global.CardText[CardStat] = "The gauge cost written in this card's [Equip Cost] is reduced by 1 for each card on your field.
+
+[Equip Cost] [Pay 3 gauge]
+
+This card cannot be destroyed or leave the field by your opponent's card effects.
+
+This card can attack even if you have monsters on your center.
+
+[Penetrate] [Triple Attack]"
+global.CardPower[CardStat] = 30000
+global.CardCrit[CardStat] = 3
+global.Lostvader[CardStat] = 1
+global.Weapon[CardStat] = 1
+}
+
+CardStat = 5030
+{
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Dimension Wave"
+global.CardFlavor[CardStat] = "You're not looking good. What happened to that spunk of yours?"
+global.CardText[CardStat] = "[Cast Cost] [Destroy a monster on your field]
+
+[Counter] Put the top two cards of your deck into your gauge, you gain 2 life, and draw a card. You may only cast "+chr(34)+"Dimension Wave"+chr(34)+" once per turn."
+global.Lostvader[CardStat] = 1
+global.Draw[CardStat] = 1
+}
+
+CardStat = 5031
+{
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Day of Devastation"
+global.CardFlavor[CardStat] = "In millenniums long gone, countless worlds were razed under their hands."
+global.CardText[CardStat] = "[Counter] Choose one of the following two.
+
+- Destroy all monsters on your opponent's field, and deal 1 damage to your opponent for each card destroyed!
+- For this turn, all cards on your field cannot be destroyed, returned to hand, and their abilities cannot be nullified, by your opponent's card effects!"
+global.Lostvader[CardStat] = 1
+global.Destruction[CardStat] = 1
+}
+
+CardStat = 5046
+{
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Ker Phobmand"
+global.CardFlavor[CardStat] = "The order you created is not a foundation, but a fabrication. We decide the foundation."
+global.CardText[CardStat] = "When a "+chr(171)+"Lostvader"+chr(187)+" on your field attacks, destroy a card on your opponent's field, and deal 1 damage to your opponent!
+
+[Double Attack]"
+global.CardPower[CardStat] = 15000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 10000
+global.Lostvader[CardStat] = 1
+global.DimensionDragon[CardStat] = 1
+}
+
+CardStat = 5047
+{
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Katathlubach"
+global.CardFlavor[CardStat] = "D O N ' T R U N. I W A N T T O D E S T R O Y Y O U."
+global.CardText[CardStat] = "This card on the field cannot be returned to hand by your opponent's card effects.
+
+At the start of your final phase, you gain 1 life and deal 1 damage to your opponent for each "+chr(171)+"Lostvader"+chr(187)+" on your field!"
+global.CardPower[CardStat] = 15000
+global.CardCrit[CardStat] = 3
+global.CardDefense[CardStat] = 10000
+global.Lostvader[CardStat] = 1
+global.DimensionDragon[CardStat] = 1
+}
+
+
+CardStat = 5105
+{
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Dimension Gate"
+global.CardFlavor[CardStat] = "I'll send that to the furthest ends of Nihility."
+global.CardText[CardStat] = "You may only cast this card during an attack on your opponent's turn.
+
+[Counter] Nullify the attack, and put an attacking card into the drop zone."
+global.Lostvader[CardStat] = 1
+global.Defense[CardStat] = 1
+}
+
+CardStat = 5106
+{
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Dimension Gain"
+global.CardFlavor[CardStat] = "Let me show you the futility of your struggle."
+global.CardText[CardStat] = "[Counter] You gain 3 life. Then, if a "+chr(171)+"Lostvader"+chr(187)+" is on your field, you gain 5 life!!!"
+global.Lostvader[CardStat] = 1
+global.Recovery[CardStat] = 1
+}
+
+CardStat = 5107
+{
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = ""+chr(34)+"Fallen Fang"+chr(34)+" Orcaliner Odorio"
+global.CardFlavor[CardStat] = "The one whom they called "+chr(34)+"Fang Style Ninja"+chr(34)+" no longer exists…"
+global.CardText[CardStat] = "[Call Cost] [Put a "+chr(171)+"Lostvader"+chr(187)+" from your drop zone into its soul]
+
+Abilities of all cards on your field cannot be nullified by your opponent's card effects.
+
+Nullify the abilities of your opponent's monsters in front of this card.
+
+[Move] [Double Attack] [Soulguard]"
+global.CardPower[CardStat] = 15000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 5000
+global.Lostvader[CardStat] = 1
+global.DimensionDragon[CardStat] = 1
+global.Ninja[CardStat] = 1
+global.Water[CardStat] = 1
+}
+
+CardStat = 5108
+{
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 2
+global.CardName[CardStat] = "Vile Demonic Arms, Lostless Wall"
+global.CardFlavor[CardStat] = "An imposing wall of desolation."
+global.CardText[CardStat] = "Your opponent cannot call monsters by card effects.
+
+[Counter] [Act] During an attack on your opponent's turn, you may pay 1 gauge. If you do, nullify the attack.
+
+[Double Attack]"
+global.CardPower[CardStat] = 10000
+global.CardCrit[CardStat] = 2
+global.Lostvader[CardStat] = 1
+global.Weapon[CardStat] = 1
+}
+
+CardStat = 5109
+{
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Dimension Ruin"
+global.CardFlavor[CardStat] = "Why do you struggle in the face of your imminent ruin?"
+global.CardText[CardStat] = "[Counter] Choose and use one of the following two.
+
+- Put a monster from your drop zone into your hand.
+- Choose a "+chr(171)+"Lostvader"+chr(187)+" on your field, and for this turn, during the battle that it attacks alone, your opponent cannot [Counter]."
+global.Lostvader[CardStat] = 1
+global.Enhance[CardStat] = 1
+}
+
+CardStat = 5110
+{
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Aquinas Dogma"
+global.CardFlavor[CardStat] = "Strive, sweat and strain yourself just to realize all your efforts shall prune not even the lowest of our ranks."
+global.CardText[CardStat] = "At the start of your main phase, if this card is in your drop zone, you may pay 1 life. If you do, put this card from the drop zone into your hand.
+
+[Counter] [Act] During each player's attack phase, call this card from your hand."
+global.CardPower[CardStat] = 10000
+global.CardCrit[CardStat] = 3
+global.CardDefense[CardStat] = 10000
+global.Lostvader[CardStat] = 1
+global.DimensionDragon[CardStat] = 1
+}
+
+CardStat = 5116
+{
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Vile Demonic Husk Deity Dragon, Vanity End Destroyer"
+global.CardFlavor[CardStat] = "If the spiral of animus truly has no end, then it has nowhere to go but the Nihility."
+global.CardText[CardStat] = "You may only call "+chr(34)+"Vile Demonic Husk Deity Dragon, Vanity End Destroyer"+chr(34)+" once per game.
+[Call Cost] [If you have one or more hand cards, put all of them face down into its soul]
+
+When this card enters the field, put your entire deck face down into its soul.
+You cannot lose the fight, this card on the field cannot have its abilities nullified or its souls dropped by your opponent's card effects.
+
+"+chr(34)+"Dimension Door -Desist-"+chr(34)+" At the start of each player's turn, put a soul from this card into your hand.
+
+[Triple Attack] [Soulguard] [Lifelink Lose]"
+global.CardPower[CardStat] = 70000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 1000
+global.Lostvader[CardStat] = 1
+global.DimensionDragon[CardStat] = 1
+}
+
+CardStat = 5176
+{
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Gargantua Lost Dragon"
+global.CardFlavor[CardStat] = "G W A R... P O W E R... M O R E!!!"
+global.CardText[CardStat] = "[Call Cost] [Put a card from your drop zone into its soul & Pay 2 gauge]
+
+[Counter] [Act] During your turn, call up to one "+chr(171)+"Lostvader"+chr(187)+" monster from your hand on top of this card by paying its [Call Cost].
+
+If this card is in the soul of a monster, that monster gets [Soulguard].
+
+[Double Attack] [Soulguard]"
+
+global.CardPower[CardStat] = 17000
+global.CardCrit[CardStat] = 3
+global.CardDefense[CardStat] = 9000
+global.Lostvader[CardStat] = 1
+global.Dragod[CardStat] = 1
+global.DeityDragonTribe[CardStat] = 1
+}
+
+CardStat = 5177
+{
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Lost Cross Astrologia"
+global.CardFlavor[CardStat] = "Dreams? Hopes? Irrevelant! For all will be returned to the Nihility."
+global.CardText[CardStat] = "[Call Cost] [Put a card from your drop zone into its soul & Pay 2 gauge]
+
+If three or more "+chr(171)+"Lostvader"+chr(187)+" are on your field, all cards on your field get critical+2, [Penetrate] and [Counterattack].
+
+[Double Attack] [Soulguard]"
+
+global.CardPower[CardStat] = 16000
+global.CardCrit[CardStat] = 3
+global.CardDefense[CardStat] = 10000
+global.Lostvader[CardStat] = 1
+global.Astrodragon[CardStat] = 1
+}
+
+CardStat = 5178
+{
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Lost Thunderaxe, Agito"
+global.CardFlavor[CardStat] = "Links? Only as strong as the weakest link!"
+global.CardText[CardStat] = "[Call Cost] [Put a card from your drop zone into its soul & Pay 2 gauge]
+
+At the start of your attack phase, for this turn, all "+chr(171)+"Lostvader"+chr(187)+" on your field get [Triple Attack].
+
+[Penetrate] [Soulguard]"
+
+global.CardPower[CardStat] = 16000
+global.CardCrit[CardStat] = 3
+global.CardDefense[CardStat] = 8000
+global.Lostvader[CardStat] = 1
+global.LinkdragonOrder[CardStat] = 1
+}
+
+CardStat = 5760
+{
+global.CardName[CardStat] = "Lost World (Vile Ranma)"
+
+global.CardText[CardStat] = "You cannot choose "+chr(34)+"Lost World"+chr(34)+" as your initial flag, and all flags may have up to two of this card in the deck.
+
+You may use <Lost World> cards. This card gets the abilities of the flag chosen by "+chr(34)+"Belost"+chr(34)+".
+
+"+chr(34)+"Belost"+chr(34)+" At the end of your opponent's turn, choose one of your flags, and you may pay 2 gauge. If you do, put this hand card on top of the chosen card, remove your deck from the fight, shuffle your Lost Deck and put it in the fight. You may only use "+chr(34)+"Belost"+chr(34)+" once per fight."
+
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 5
+}
+
+CardStat = 6313
+{
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Black Wind, Ciel Garbird"
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "[Penetrate] [Quadruple Attack]"
+global.CardPower[CardStat] = 40000
+global.CardCrit[CardStat] = 4
+global.CardDefense[CardStat] = 40000
+global.Lostvader[CardStat] = 1
+global.Armordragon[CardStat] = 1
+global.BlueDragon[CardStat] = 1
+}
+
+CardStat = 6374
+{
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Knight of Dawn, Lostknight: Gilt Lance"
+global.CardFlavor[CardStat] = "I was once on this wrong path before. But in order to accompany Master, I shall step onto it once more."
+global.CardText[CardStat] = "[Call Cost] [Put a card from your drop zone into its soul & Pay 1 gauge]
+
+[Counter] [Act] "+chr(34)+"Oppress"+chr(34)+" During your turn, put this card on your opponent's open left or right. If this card is on that area, it becomes an oppressed area.
+
+When this card would be destroyed, you may pay 1 gauge. If you do, this card remains on the field.
+
+At the end of your turn, if this card is on an oppressed area, deal 3 damage to your opponent!
+
+[Double Attack] [Soulguard] [Counterattack]"
+global.CardPower[CardStat] = 15000
+global.CardCrit[CardStat] = 3
+global.CardDefense[CardStat] = 8000
+global.Drametal[CardStat] = 1
+global.Lostvader[CardStat] = 1
+}
+
+CardStat = 6375
+{
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Dimension Restraint"
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "[Counter] Choose and [Rest] up to one card on your opponent's field for each "+chr(171)+"Lostvader"+chr(187)+" on your field. Then, for this turn, the chosen cards cannot [Stand]." 
+global.Lostvader[CardStat] = 1
+global.Defense[CardStat] = 1
+}
+
+CardStat = 6433
+{
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "† White Flame Bloodeye † Pasion Eyes"
+global.CardFlavor[CardStat] = "My dark flame has sublimated into light! I now embrace both dark and light!"
+global.CardText[CardStat] = "[Call Cost] [Put up to three cards from your drop zone into its soul & Pay 2 gauge]
+
+During your opponent's attack phase, nullify the abilities of all monsters and items on your opponent's field. This ability cannot be nullified.
+
+[Counter] [Act] During your opponent's attack phase, if no cards are in battle, choose any number of [Stand] monsters on your opponent's field, and attack this card with the chosen monsters.
+This cards [Counterattack] destroys all attacking monsters with defense less than this card's power!
+
+[Triple Attack] [Soulguard] [Counterattack]"
+global.CardPower[CardStat] = 15000
+global.CardCrit[CardStat] = 3
+global.CardDefense[CardStat] = 13000
+global.DragonbloodSect[CardStat] = 1
+global.Lostvader[CardStat] = 1
+}
+
+CardStat = 6434
+{
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Dimension Drain"
+global.CardFlavor[CardStat] = "This Power! I'll take it!!... what? My face is too scary? I guess that was too much..."
+global.CardText[CardStat] = "You may only cast this card during an attack on your opponent's turn, and if no monsters are on your center.
+
+[Counter] Nullify the attack, and you gain 10 life!" 
+global.Lostvader[CardStat] = 1
+global.Defense[CardStat] = 1
+}
+
+CardStat = 6435
+{
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Dimension Slayer"
+global.CardFlavor[CardStat] = "Lostvaders couldn't accept what Destroyer did! Blood and Destruction!... All that they sought for was Destruction."
+global.CardText[CardStat] = "[Counter] [Stand] all cards on your field. Then, for this turn, all cards on your field can also attack during the final phase. If you [Stand] three or more cards, draw a card. You may only cast "+chr(34)+"Dimension Slayer"+chr(34)+" once per turn." 
+global.Lostvader[CardStat] = 1
+global.Enhance[CardStat] = 1
+}
+
+CardStat = 6436
+{
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Battle of Valiant"
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "[Counter] Draw two cards. Then, you gain 1 life for each different "+chr(171)+"Lostvader"+chr(187)+" on your field. You may only cast "+chr(34)+"Battle of Valiant"+chr(34)+" once per turn." 
+global.Lostvader[CardStat] = 1
+global.Draw[CardStat] = 1
+}
+
+CardStat = 6437
+{
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Rehabilitated Demonic Dragon, Vanity Revolve Destroyer"
+global.CardFlavor[CardStat] = "The possibility for mankind... I may have already seen it all through Ranma..."
+global.CardText[CardStat] = "If this card is on your field, your opponent cannot gain life!
+
+This card on the field cannot be destroyed or [Rest] by your opponent's card effects.
+
+"+chr(34)+"Dimension Door - Turnaround"+chr(34)+"  When this card attacks, choose up to two cards on your opponent's field, drop all souls of the chosen cards, and put the chosen cards into the drop zone!
+
+[Penetrate]"
+global.CardPower[CardStat] = 30000
+global.CardCrit[CardStat] = 5
+global.CardDefense[CardStat] = 10000
+global.Lostvader[CardStat] = 1
+global.DimensionDragon[CardStat] = 1
+}
+
+CardStat = 6438
+{
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Aprilist Dramis"
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "When this card is destroyed, drop the top 3 cards of your deck, and call up to 3 monsters from among them without paying their [Call Cost] to different areas.
+
+[Penetrate] [Soulguard]"
+global.CardPower[CardStat] = 15000
+global.CardCrit[CardStat] = 3
+global.CardDefense[CardStat] = 3000
+global.Lostvader[CardStat] = 1
+global.DimensionDragon[CardStat] = 1
+}
+
+CardStat = 6439
+{
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Alarro Delrillei"
+global.CardFlavor[CardStat] = "Cutting, slashing, chopping...! I'll never get enough of it!!"
+global.CardText[CardStat] = "At the end of the battle that this card attacked, choose and use one of the following two.
+
+- Put the top card of your deck into your gauge, you gain 1 life, and draw a card.
+- Drop 1 of your opponent's gauge, deal 1 damage to your opponent, and your opponent chooses and drops a hand card.
+
+[Double Attack]"
+global.CardPower[CardStat] = 14000
+global.CardCrit[CardStat] = 3
+global.CardDefense[CardStat] = 8000
+global.Lostvader[CardStat] = 1
+global.DimensionDragon[CardStat] = 1
+}
+
+CardStat = 6440
+{
+global.CardWorld[CardStat] = 12
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Vile Demonic Deity Dragon, Vanity Epoch Destroyer "+chr(34)+"Re:B"+chr(34)+""
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "[Call Cost] [When a <Lost World> monster is put from your field into the drop zone, pay 2 gauge]
+
+This card on the field cannot be destroyed by your opponent's card effects.
+
+"+chr(34)+"Dimension Door - Impetus -"+chr(34)+" When this card enters the field, choose up to one card on your opponent's field, for this turn, the chosen card cannot remain on the field by card effects, and put that card into the drop zone.
+
+[Double Attack]"
+global.CardPower[CardStat] = 50000
+global.CardCrit[CardStat] = 3
+global.CardDefense[CardStat] = 10000
+global.Lostvader[CardStat] = 1
+global.DimensionDragon[CardStat] = 1
+}

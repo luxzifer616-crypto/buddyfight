@@ -1,0 +1,4 @@
+n = x
+
+global.AllCard = 6573
+global.Venr = 138

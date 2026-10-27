@@ -1,0 +1,1968 @@
+CardStat = 5340
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 5
+global.CardName[CardStat] = "THE IDOLM@STER CINDERELLA GIRLS Theater"
+global.CardFlavor[CardStat] = ""
+global.CardText[CardStat] = "You may use <THE IDOLM@STER CINDERELLA GIRLS Theater> cards.
+
+At the end of your turn, if a buddy is on your field, you gain 1 life, draw a card, and put the top card of your deck face down into your buddy zone.
+
+Buddy on your field get power+2000 and defense+2000 for each face down card in your buddy zone!"
+
+global.THEIDOLMASTERCINDERELLAGIRLSTheater[CardStat] = 1
+}
+
+CardStat = 5438
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Hardworking Idol, Uzuki Shimamura"
+global.CardFlavor[CardStat] = "Fidget, fidget, fidget…"
+global.CardText[CardStat] = "If three or more different "+chr(171)+"Idol"+chr(187)+" are on your field, abilities of all "+chr(171)+"Idol"+chr(187)+" on your field cannot be nullified by your opponent's card effects, and they get critical+1!
+
+If a [Mio Honda] is on your field, all "+chr(171)+"Idol"+chr(187)+" on your field get [Penetrate].
+
+[Counter] [Act] During your attack phase, if a [Kyoko Igarashi] and [Miho Kohinata] are on your field, destroy a character on your opponent's center!"
+
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 4000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 4000
+global.Idol[CardStat] = 1
+global.Cute[CardStat] = 1
+}
+
+CardStat = 5439
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Idol Who Goes Straight Ahead, Rin Shibuya"
+global.CardFlavor[CardStat] = "From the words of just one person-"
+global.CardText[CardStat] = "If three or more different "+chr(171)+"Idol"+chr(187)+" are on your field, all "+chr(171)+"Idol"+chr(187)+" on your field cannot be returned to hand by your opponent's card effects, and they get power+5000 and defense+5000!
+
+When this card attacks, if an [Uzuki Shimamura] is on your field, draw a card.
+
+[Counter] [Act] If a [Karen Hojo] and [Nao Kamiya] are on your field, [Stand] all "+chr(171)+"Idol"+chr(187)+" on your field. You may only use this ability once per turn."
+
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 4000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 4000
+global.Idol[CardStat] = 1
+global.Cool[CardStat] = 1
+}
+
+CardStat = 5440
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "3-star Idol With Lots of Vitality, Mio Honda"
+global.CardFlavor[CardStat] = "That's the star we are shooting for, the star called "+chr(34)+"idol"+chr(34)+"…"
+global.CardText[CardStat] = "If three or more different "+chr(171)+"Idol"+chr(187)+" are on your field, all "+chr(171)+"Idol"+chr(187)+" on your field cannot be destroyed by your opponent's card effects, and they get power+10000!
+
+At the start of your attack phase, if a [Rin Shibuya] is on your field, for this turn, [Uzuki Shimamura], [Rin Shibuya] and [Mio Honda] on your field get [Triple Attack].
+
+[Aiko Takamori] and [Akane Hino] on your field get power+5000 and defense+5000!"
+
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 4000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 4000
+global.Idol[CardStat] = 1
+global.Passion[CardStat] = 1
+}
+
+CardStat = 5441
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Gothic Lolita Idol, Ranko Kanzaki"
+global.CardFlavor[CardStat] = "I don't want to be snatched from this world,so!"
+global.CardText[CardStat] = ""+chr(34)+"Be swallowed by the dark"+chr(34)+" When another "+chr(171)+"Idol"+chr(187)+" character enters your field, draw two cards. "+chr(34)+"Be swallowed by the dark"+chr(34)+" only activates once per turn.
+
+When this card attacks, if an [Asuka Ninomiya] is on your field, for this turn, [Asuka Ninomiya] and this card on your field get [Penetrate] and [Double Attack]."
+
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 3000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 3000
+global.Idol[CardStat] = 1
+global.Cool[CardStat] = 1
+}
+
+CardStat = 5442
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Happy Happy Idol, Kirari Moroboshi"
+global.CardFlavor[CardStat] = "Please give me a happy happy present"
+global.CardText[CardStat] = "[Call Cost] [Pay 3 gauge & Put the top three cards of your deck into its soul]
+
+If an [Anzu Futaba] is on your field, that card and this card get power+10000 and critical+2!
+
+During each player's attack phase, nullify the abilities of all cards on your opponent's field. This ability cannot be nullified.
+
+[Penetrate] [Triple Attack] [Soulguard] [Counterattack]"
+
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 10000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 10000
+global.Idol[CardStat] = 1
+global.Cool[CardStat] = 1
+}
+
+CardStat = 5443
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = ""+chr(34)+"Self-proclaimed"+chr(34)+" Cutest Idol in the World, Sachiko Koshimizu"
+global.CardFlavor[CardStat] = "Which part of me should I show off?"
+global.CardText[CardStat] = "[Counter] [Act] During an attack on your opponent's turn, pay 1 gauge. If you do, call this card from your hand, and change the target of the attack to this card.
+
+If a face down card is in your buddy zone, this card gets power+5000 and critical+1!
+
+When this card is destroyed, you may pay 1 life. If you do, return this card to hand."
+
+global.CardSize[CardStat] = 0
+global.CardPower[CardStat] = 2000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 2000
+global.Idol[CardStat] = 1
+global.Cute[CardStat] = 1
+}
+
+CardStat = 5444
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Reliable Assistant, Chihiro Senkawa"
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "[Act] Drop this hand card. If you do, look at the top six cards of your deck, put up to two "+chr(171)+"Idol"+chr(187)+" characters from among them into your hand, and put the rest on the bottom of your deck in any order."
+
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 1000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 1000
+global.Assistant[CardStat] = 1
+}
+
+CardStat = 5445
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Try New Things"
+global.CardFlavor[CardStat] = "Now...It is new, right?"
+global.CardText[CardStat] = "Put the top card of your deck into your gauge, you gain 1 life, and draw a card. Then, put this card face down into your buddy zone. You may only cast "+chr(34)+"Challenge New Things"+chr(34)+" once per turn."
+
+global.Charge[CardStat] = 1
+global.Recovery[CardStat] = 1
+global.Draw[CardStat] = 1
+}
+
+CardStat = 5446
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Flower Fairies Mage, Floral Yumi"
+global.CardFlavor[CardStat] = "So carefree-"
+global.CardText[CardStat] = "Look at the top three cards of your deck, put a card from among them into your hand, and put the rest into your gauge. Then, put this card face down into your buddy zone. You may only cast "+chr(34)+"Flower Fairies Mage, Floral Yumi"+chr(34)+" once per turn."
+global.Get[CardStat] = 1
+}
+
+CardStat = 5447
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Three Sister Detectives! Episode 4: Sexy & Guilty"
+global.CardFlavor[CardStat] = "Thanks to the trio, peace has been preserved!"
+global.CardText[CardStat] = "[Cast Cost] [Pay 2 life]
+
+[Counter] Choose and use one of the following three. 
+
+- Put the top card of your deck into your gauge for each face down card in your buddy zone.
+- Choose up to one character on your field for each face down card in your buddy zone, and [Stand] them.
+- Choose up to one card on your opponent's field for each face down card in your buddy zone, and destroy them."
+
+global.Charge[CardStat] = 1
+global.Enhance[CardStat] = 1
+global.Destruction[CardStat] = 1
+}
+
+CardStat = 5448
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "You Should Understand!"
+global.CardFlavor[CardStat] = "Idols are everyone's sweetheart!"
+global.CardText[CardStat] = "[Cast Cost] [Pay 2 gauge]
+
+[Counter] For this turn, "+chr(171)+"Idol"+chr(187)+" on your left and right cannot be destroyed. Then, for this turn, damage you take is reduced by 2."
+
+global.Defense[CardStat] = 1
+}
+
+CardStat = 5449
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Atsumi Munakata, Tallest Mountains Challenge! Three-Bout Battle!"
+global.CardFlavor[CardStat] = "	Okay! Go ahead."
+global.CardText[CardStat] = "[Cast Cost] [Pay 1 gauge]
+
+[Counter] Choose and use one of the following two.
+
+- For this turn, the next damage you take is reduced by 3.
+- If your opponent's cards attacked four times or more during this turn, for this turn, you will not take damage from attacks."
+
+global.Defense[CardStat] = 1
+}
+
+CardStat = 5450
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "New Member! Cats From the Neighborhood"
+global.CardFlavor[CardStat] = ""
+global.CardText[CardStat] = "You may only cast this card during an attack on your opponent's turn.
+
+[Counter] Nullify the attack. Then, if three or more «Band» is on your field, put the top card of your deck into your gauge, you gain 1 life, and draw a card."
+
+global.Defense[CardStat] = 1
+global.Cat[CardStat] = 1
+}
+
+CardStat = 5451
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Fluffy and Sweet Idol, Kanako Mimura"
+global.CardFlavor[CardStat] = "I feel like I'm inside a candy box"
+global.CardText[CardStat] = "[Call Cost] [Pay 2 gauge & Put the top two cards of your deck into its soul]
+
+If this card is on your center, damage you take is reduced by 2.
+
+[Counter] [Act] During your attack phase, [Rest] a "+chr(171)+"Cute"+chr(187)+" on your field other than [Kanako Mimura]. If you do, [Stand] this card, and put the top card of your deck into this card's soul.
+
+[Penetrate] [Soulguard]"
+
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 9000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 5000
+global.Idol[CardStat] = 1
+global.Cute[CardStat] = 1
+}
+
+CardStat = 5456
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Lost in Thought in Autumn"
+global.CardFlavor[CardStat] = ""
+global.CardText[CardStat] = "[Cast Cost] [Pay 1 gauge]
+
+Choose and use one of the following two. You may only cast "+chr(34)+"Lost in Thought in Autumn"+chr(34)+" once per turn. 
+
+- Put up to one "+chr(171)+"Idol"+chr(187)+" character from your deck into your hand, and shuffle your deck.
+- Put up to two "+chr(171)+"Idol"+chr(187)+" characters with different card names from your drop zone into your hand."
+
+global.Get[CardStat] = 1
+}
+
+CardStat = 5460
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Charisma High School Girl Idol, Mika Jougasaki"
+global.CardFlavor[CardStat] = "Leave it to me"
+global.CardText[CardStat] = "[Call Cost] [Pay 2 gauge & Put the top two cards of your deck into its soul]
+
+At the end of the battle that this card attacked, choose and use one of the following three. If a [Rika Jougasaki] is on your field, choose and use two times instead. (You can choose the same effect)
+
+- Deal 1 damage to your opponent!
+- Destroy a card on your opponent's field!
+- Return a card from your opponent's field to hand!
+
+[Double Attack] [Soulguard]"
+
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 10000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 6000
+global.Idol[CardStat] = 1
+global.Passion[CardStat] = 1
+}
+
+CardStat = 5461
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Chill Type Idol, Anzu Futaba"
+global.CardFlavor[CardStat] = "I'm happy with what I've got."
+global.CardText[CardStat] = "When your opponent's card attacks, change the target of the attack to your center "+chr(171)+"Idol"+chr(187)+".
+
+If [Kirari Moroboshi] is not on your field, this card cannot attack.
+
+When this card [Rest], deal 1 damage to your opponent, and your opponent chooses and drops a hand card.
+
+[Double Attack]"
+
+global.CardSize[CardStat] = 0
+global.CardPower[CardStat] = 1000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 1000
+global.Idol[CardStat] = 1
+global.Cute[CardStat] = 1
+}
+
+CardStat = 5462
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Preppy Idol, Shin Sato"
+global.CardFlavor[CardStat] = "Let's have a heart versus heart blaster battle"
+global.CardText[CardStat] = "[Call Cost] [Pay 2 gauge & Put the top two cards of your deck into its soul]
+
+At the start of each player's attack phase, if a [Nana Abe] is on your field, destroy a card on your opponent's field.
+
+When this card attacks, your opponent chooses and drops a hand card.
+
+[Double Attack] [Soulguard]"
+
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 6000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 6000
+global.Idol[CardStat] = 1
+global.Passion[CardStat] = 1
+}
+
+CardStat = 5463
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Shy Tsundere Type Idol, Nao Kamiya"
+global.CardFlavor[CardStat] = "Do you guys have an ideal wedding or something?"
+global.CardText[CardStat] = "When this card enters the field, you may drop a hand card. If you do, put up to one [Rin Shibuya] or [Karen Hojo] from your deck into your hand, and shuffle your deck.
+
+When this card link attacks with a [Karen Hojo], you gain 1 life, and draw a card.
+
+When this card link attacks with a [Rin Shibuya], destroy up to one card on your opponent's field, and deal 1 damage to your opponent!"
+
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 5000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 3000
+global.Idol[CardStat] = 1
+global.Cool[CardStat] = 1
+}
+
+CardStat = 5464
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Idol Who Acts Grown-up, Kanade Hayami"
+global.CardFlavor[CardStat] = "Let's see~ You might get better if you kiss enough times"
+global.CardText[CardStat] = "[Call Cost] [Pay 1 gauge & Put the top card of your deck into its soul]
+
+Cards on your opponent's field cannot link attack you directly.
+
+[Counter] [Act] If a card on your opponent's field is attacking alone, choose a character not in battle on your opponent's field, and you may pay 1 life. If you do, change the target of the attack to the chosen card. You may only use this ability once per turn.
+
+[Double Attack] [Soulguard]"
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 6000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 6000
+global.Idol[CardStat] = 1
+global.Cool[CardStat] = 1
+}
+
+CardStat = 5465
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Idol Calm As an Adult, Miyu Mifune"
+global.CardFlavor[CardStat] = "This is my favorite spot…"
+global.CardText[CardStat] = "[Call Cost] [Pay 1 gauge & Put the top card of your deck into its soul]
+
+[Counter] [Act] Choose a card on your opponent's field, and you may drop a hand card. If you do, [Rest] the chosen card. Then, if two or more face down cards are in your buddy zone, for this turn, the chosen card cannot [Stand]. You may only use this ability once per turn.
+
+[Double Attack] [Soulguard]"
+
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 4000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 8000
+global.Idol[CardStat] = 1
+global.Cool[CardStat] = 1
+}
+
+CardStat = 5466
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Bright & Elegant Idol, Sae Kobayakawa"
+global.CardFlavor[CardStat] = "I'm so sorry…… Mr. Producer."
+global.CardText[CardStat] = "[Counter] [Act] Choose a character on your opponent's field, and you may drop a hand card. If you do, return the chosen card to hand. You may only use this ability once per turn.
+
+When this card attacks, if a [Yuki Himekawa] and [Sachiko Koshimizu] are on your field, you gain 3 life!"
+
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 3000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 3000
+global.Idol[CardStat] = 1
+global.Cute[CardStat] = 1
+}
+
+CardStat = 5467
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Firm and Dependable Idol, Kyoko Igarashi"
+global.CardFlavor[CardStat] = "Make sure you help with the chores-!"
+global.CardText[CardStat] = "If a [Miho Kohinata] is on your field, all "+chr(171)+"Cute"+chr(187)+" on your field cannot be destroyed by your opponent's card effects.
+
+If an [Uzuki Shimamura] is on your field, all cards on your opponent's field get power-5000 and defense-5000!
+
+When this card attacks and destroys your opponent's characters, [Stand] this card."
+
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 6000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 1000
+global.Idol[CardStat] = 1
+global.Cute[CardStat] = 1
+}
+
+CardStat = 5468
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Donuts Idol, Noriko Shiina"
+global.CardFlavor[CardStat] = "It's got to be donuts."
+global.CardText[CardStat] = "During the battle that your [Yuka Nakano] is attacking a character on the center, your opponent cannot use [Counter].
+
+When this card attacks and destroys your opponent's characters or deals damage to your opponent, put the top two cards of your deck into your gauge, and you gain 2 life!"
+
+global.CardPower[CardStat] = 2000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 2000
+global.Idol[CardStat] = 1
+global.Cute[CardStat] = 1
+}
+
+CardStat = 5469
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Energetic Sexy Idol, Sanae Katagiri"
+global.CardFlavor[CardStat] = "Seems it went just as I planned!"
+global.CardText[CardStat] = "If you would call a "+chr(171)+"Passion"+chr(187)+", the gauge cost written in its [Call Cost] is reduced by 1.
+
+If a [Yuko Hori] is on your field, all "+chr(171)+"Passion"+chr(187)+" on your field get power+5000 and defense+5000!"
+
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 8000
+global.CardCrit[CardStat] = 3
+global.CardDefense[CardStat] = 5000
+global.Idol[CardStat] = 1
+global.Passion[CardStat] = 1
+}
+CardStat = 5470
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Biker Idol, Takumi Mukai"
+global.CardFlavor[CardStat] = "I never get tired..."
+global.CardText[CardStat] = "[Call Cost] [Pay 2 gauge & Put the top two cards of your deck into its soul]
+
+This card's attack cannot be nullified if it is attacking alone.
+
+If only one character is on your field, this card gets power+8000 and critical+3!
+
+When this card attacks, if another "+chr(171)+"Idol"+chr(187)+" is on your field, for this turn, this card gets [Double Attack].
+
+[Penetrate] [Soulguard]"
+
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 12000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 1000
+global.Idol[CardStat] = 1
+global.Passion[CardStat] = 1
+}
+
+CardStat = 5471
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Idol Who Really Loves Books, Fumika Sagisawa"
+global.CardFlavor[CardStat] = "This book looks good…"
+global.CardText[CardStat] = "[Call Cost] [Pay 2 gauge & Put the top two cards of your deck into its soul]
+
+When a character or item on your opponent's field is [Rest] by your card effects, deal 1 damage to your opponent!
+
+At the start of your opponent's attack phase, [Rest] up to one card on your opponent's field, and if an [Arisu Tachibana] is on your field, deal 2 damage to your opponent!
+
+[Double Attack] [Soulguard]"
+
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 10000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 8000
+global.Idol[CardStat] = 1
+global.Cool[CardStat] = 1
+}
+
+CardStat = 5472
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Half Russian and Japanese Idol, Anastasia"
+global.CardFlavor[CardStat] = "Welcome, master… Heehee?"
+global.CardText[CardStat] = "When this card enters the field, you may drop a hand card. If you do, put up to one [Minami Nitta] from your deck into your hand, and shuffle your deck.
+
+When this card attacks, you may put a card from your drop zone into the soul of a character on your field. If you do, draw a card.
+
+[Soulguard]"
+
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 4000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 4000
+global.Idol[CardStat] = 1
+global.Cool[CardStat] = 1
+}
+
+CardStat = 5473
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "When I Grow Up"
+global.CardFlavor[CardStat] = "No! It's me-"
+global.CardText[CardStat] = "If your cards would be dropped by your opponent's card effects, you may reveal this hand card and pay 1 life. If you do, your hand cards cannot be dropped by that effect.
+
+[Counter] Choose and use one of the following two.
+
+- Put the top two cards of your deck into your gauge, and you gain 2 life!
+- Drop up to two souls from a character on your opponent's field."
+
+global.Defense[CardStat] = 1
+}
+
+CardStat = 5474
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Idol With Glasses, Haruna Kamijo"
+global.CardFlavor[CardStat] = "Please take a closer look at my glasses!"
+global.CardText[CardStat] = "[Call Cost] [Pay 1 gauge]
+
+All characters on the field get "+chr(171)+"Glasses"+chr(187)+".
+
+This card gets critical+1 for each "+chr(171)+"Glasses"+chr(187)+" on the field!
+
+At the start of your attack phase, if three or more different "+chr(171)+"Idol"+chr(187)+" are on your field, you gain 1 life for each "+chr(171)+"Glasses"+chr(187)+" on the field."
+
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 8000
+global.CardDefense[CardStat] = 8000
+global.Idol[CardStat] = 1
+global.Cool[CardStat] = 1
+}
+
+CardStat = 5475
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Fashionable Idol, Karen Hojo"
+global.CardFlavor[CardStat] = "You two always overreact…"
+global.CardText[CardStat] = "If a [Nao Kamiya] is on your field, all "+chr(171)+"Cool"+chr(187)+" on your field cannot be destroyed by your opponent's card effects.
+
+If a [Rin Shibuya] is on your field, all "+chr(171)+"Cool"+chr(187)+" on your field get [Penetrate].
+
+When this card link attacks with another "+chr(171)+"Cool"+chr(187)+", [Stand] all attacking "+chr(171)+"Cool"+chr(187)+". This ability only activates once per turn."
+
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 5000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 3000
+global.Idol[CardStat] = 1
+global.Cool[CardStat] = 1
+}
+
+CardStat = 5476
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Hard-boiled Idol, Tomoe Murakami"
+global.CardFlavor[CardStat] = "I can now wear clothes with frills, though."
+global.CardText[CardStat] = "This card on the field cannot be destroyed by your opponent's card effects.
+
+[Counter] [Act] During the battle of this card, you may pay 1 gauge. If you do, for this battle, this card gets power+10000, defense+10000, [Penetrate] and [Counterattack]."
+
+global.CardPower[CardStat] = 2000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 2000
+global.Idol[CardStat] = 1
+global.Passion[CardStat] = 1
+}
+
+CardStat = 5477
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Slightly Shy Idol, Miho Kohinata"
+global.CardFlavor[CardStat] = "Such a cute teddy bear…"
+global.CardText[CardStat] = "When this card enters the field, you may drop a hand card. If you do, put up to one [Uzuki Shimamura] or [Kyoko Igarashi] from your deck into your hand, and shuffle your deck.
+
+If a [Kyoko Igarashi] is on your field, all "+chr(171)+"Cute"+chr(187)+" on your field get power+5000!
+
+[Counter] [Act] If an [Uzuki Shimamura] is on your field, [Stand] up to two "+chr(171)+"Cute"+chr(187)+" on your field. You may only use this ability once per turn."
+
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 3000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 5000
+global.Idol[CardStat] = 1
+global.Cute[CardStat] = 1
+}
+
+CardStat = 5478
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "I wasn't expecting this many"
+global.CardFlavor[CardStat] = "Oopsies"
+global.CardText[CardStat] = "[Set] (This card remains on the field)
+
+All buddy on your field cannot be destroyed or returned to hand and their abilities cannot be nullified by your opponent's card effects. This ability cannot be nullified.
+
+At the start of your final phase, [Stand] a buddy on your field, and it can attack during this final phase."
+
+global.Enhance[CardStat] = 1
+}
+
+CardStat = 5479
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Idol Who Does What She Wants, Frederica Miyamoto"
+global.CardFlavor[CardStat] = "Furu furu… Frederica~"
+global.CardText[CardStat] = "[Call Cost] [Pay 1 gauge & Put the top card of your deck into its soul]
+
+[Act] If a [Shiki Ichinose] and [Syuko Shiomi] are on your field, destroy a card on your opponent's field. You may only use this ability once per turn.
+
+When this card attacks, if three or more different "+chr(171)+"Idol"+chr(187)+" are on your field, put the top card of your deck into your gauge, and you gain 1 life!
+
+[Double Attack] [Soulguard]"
+
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 8000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 1000
+global.Idol[CardStat] = 1
+global.Cute[CardStat] = 1
+}
+
+CardStat = 5480
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Light and Airy Idol, Aiko Takamori"
+global.CardFlavor[CardStat] = "It will make me happy, too~"
+global.CardText[CardStat] = "When this card enters the field, you may drop a hand card. If you do, put up to one [Mio Honda] or [Akane Hino] from your deck into your hand, and shuffle your deck.
+
+[Mio Honda] on your field get power+5000 and defense+5000!
+
+[Counter] [Act] During an attack on your opponent's turn, you may pay 1 gauge. If you do, nullify the attack, and you gain 3 life! You may only use this ability once per turn."
+
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 3000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 6000
+global.Idol[CardStat] = 1
+global.Passion[CardStat] = 1
+}
+
+CardStat = 5481
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Charisma Junior-High Girl Idol, Rika Jougasaki"
+global.CardFlavor[CardStat] = "I feel hot after making this snowman!"
+global.CardText[CardStat] = "When this card enters the field, you may drop a hand card. If you do, put up to one [Mika Jougasaki] from your deck into your hand, and shuffle your deck.
+
+[Counter] [Act] Choose a "+chr(171)+"Passion"+chr(187)+" on your field, and you may pay 1 gauge. If you do. [Stand] the chosen card. You may only use this ability once per turn."
+
+global.CardPower[CardStat] = 2000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 1000
+global.Idol[CardStat] = 1
+global.Passion[CardStat] = 1
+}
+
+CardStat = 5482
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Idol Full of Innocence, Miria Akagi"
+global.CardFlavor[CardStat] = "It was so much fun-!"
+global.CardText[CardStat] = "When this card attacks, put the top card of your deck into your gauge and you gain 1 life! Then, if three or more different "+chr(171)+"Idol"+chr(187)+" are on your field, draw a card!
+
+[Counter] [Act] During an attack on your opponent's turn, you may return this card from the field to hand. If you do, nullify the attack, and if a [Rika Jougasaki] is on your field, deal 2 damage to your opponent!"
+
+global.CardPower[CardStat] = 3000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 1000
+global.Idol[CardStat] = 1
+global.Passion[CardStat] = 1
+}
+
+CardStat = 5483
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Gifted Idol, Shiki Ichinose"
+global.CardFlavor[CardStat] = "Oh, man, smells great~"
+global.CardText[CardStat] = "[Call Cost] [Pay 1 gauge & Put the top card of your deck into its soul]
+
+If a face down card is in your buddy zone, nullify [Soulguard] of all cards on your opponent's field.
+
+When this card attacks, if a [Frederica Miyamoto] or [Syuko Shiomi] is on your field, destroy a card on your opponent's field or return it to hand.
+
+[Double Attack] [Soulguard]"
+
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 6000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 3000
+global.Idol[CardStat] = 1
+global.Cute[CardStat] = 1
+}
+
+CardStat = 5484
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Idol With Individuality from Planet Usamin, Nana Abe"
+global.CardFlavor[CardStat] = "One, two, Usamin!"
+global.CardText[CardStat] = "[Call Cost] [Pay 3 gauge & Put the top three cards of your deck into its soul]
+
+If a face down card is in your buddy zone, this card's size on the field is reduced by 1.
+
+When this card attacks, you may put a hand card into your gauge. If you do, draw a card!
+
+At the start of your attack phase, you may drop three souls from this card. If you do, your life becomes 17!!
+
+[Double Attack] [Soulguard]"
+
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 7000
+global.CardCrit[CardStat] = 3
+global.CardDefense[CardStat] = 7000
+global.Idol[CardStat] = 1
+global.Cute[CardStat] = 1
+}
+
+CardStat = 5485
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Trick or NEET"
+global.CardFlavor[CardStat] = "…seems like a huge bother…"
+global.CardText[CardStat] = "[Cast Cost] [Pay 1 gauge & Pay 2 life]
+
+[Counter] Choose up to one card on your opponent's field for each face down card in your buddy zone, and for this turn, they get power-5000, defense-5000 and critical-3!"
+
+global.Defense[CardStat] = 1
+}
+
+CardStat = 5486
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Idol Who Wishes to Grow Up Faster, Arisu Tachibana"
+global.CardFlavor[CardStat] = "I want to grow up fast."
+global.CardText[CardStat] = "If a [Fumika Sagisawa] is on your field, that card and this card get power+5000 and critical+1!
+
+[Counter] [Act] During your opponent's turn, choose up to one card on your opponent's field, and you may return this card from the field to hand. If you do, [Rest] the chosen card, and if a [Fumika Sagisawa] is on your field, draw a card."
+
+global.CardPower[CardStat] = 1000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 1000
+global.Idol[CardStat] = 1
+global.Cool[CardStat] = 1
+}
+
+CardStat = 5487
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "What Are You Talking About?"
+global.CardFlavor[CardStat] = "Are they talking about ninjas!?"
+global.CardText[CardStat] = "[Cast Cost] [Pay 1 gauge]
+
+[Counter] [Rest] a card on your opponent's field. Then, if a face down card is in your buddy zone, [Rest] a card on your opponent's field."
+
+global.Defense[CardStat] = 1
+}
+
+CardStat = 5488
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Prim Elder Sister Idol, Minami Nitta"
+global.CardFlavor[CardStat] = "Ready?"
+global.CardText[CardStat] = "[Call Cost] [Pay 2 gauge & Put the top two cards of your deck into its soul]
+
+[Counter] [Act] If an [Anastasia] is on your field, choose up to two "+chr(171)+"Cool"+chr(187)+" on your field, and choose and use one of the following two. You may only use this ability once per turn.
+
+- Draw a card, and for this turn, the chosen cards get power+6000 and [Double Attack].
+- You gain 2 life, and for this turn, the chosen cards get defense+6000 and [Counterattack].
+
+[Soulguard]"
+
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 6000
+global.CardCrit[CardStat] = 3
+global.CardDefense[CardStat] = 6000
+global.Idol[CardStat] = 1
+global.Cool[CardStat] = 1
+}
+
+CardStat = 5489
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 4
+global.CardName[CardStat] = "SUNFLOWER"
+global.CardFlavor[CardStat] = ""
+global.CardText[CardStat] = "You may only cast this card if a buddy is on your field.
+
+[Cast Cost] [Pay 2 gauge]
+
+You gain 2 life, draw two cards, and deal 2 damage to your opponent! Then, end the final phase."
+
+global.Idol[CardStat] = 1
+global.Passion[CardStat] = 1
+}
+
+CardStat = 5490
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 4
+global.CardName[CardStat] = "There is only one etude"
+global.CardFlavor[CardStat] = ""
+global.CardText[CardStat] = "You may only cast this card if a buddy is on your field.
+
+[Cast Cost] [Pay 3 gauge]
+
+[Stand] all "+chr(171)+"Idol"+chr(187)+" on your field. Then, for this turn, all "+chr(171)+"Idol"+chr(187)+" on your field can attack during the final phase."
+
+global.Idol[CardStat] = 1
+global.Cool[CardStat] = 1
+}
+
+CardStat = 5491
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 4
+global.CardName[CardStat] = "Bling! Smiles in Full Bloom"
+global.CardFlavor[CardStat] = ""
+global.CardText[CardStat] = "You may only cast this card if your opponent's life is 5 or less, your cards attacked two times or more during this turn, and a buddy is on your field.
+
+[Cast Cost] [Pay 2 gauge]
+
+Deal 5 damage to your opponent! This damage cannot be reduced."
+global.Idol[CardStat] = 1
+global.Cute[CardStat] = 1
+}
+
+CardStat = 5500
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Kirari Robot's Steely Performance"
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "[Counter] Choose an "+chr(171)+"Idol"+chr(187)+" on your field. For this turn, the next time that card would be destroyed, nullify its destruction, and for this turn, it gets [Counterattack]."
+
+global.Defense[CardStat] = 1
+}
+
+CardStat = 5507
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "One-track Mind Idol, Mayu Sakuma"
+global.CardFlavor[CardStat] = "Does he love me? He loves me not…"
+global.CardText[CardStat] = "[Call Cost] [Pay 1 gauge & Put the top card of your deck into its soul]
+
+If two or more different "+chr(171)+"Idol"+chr(187)+" are on your field, all cards on your opponent's field get power-5000 and critical-2!
+
+If three or more face down cards are in your buddy zone, this card gets power+5000, defense+5000, critical+1 and [Triple Attack].
+
+[Soulguard]"
+
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 3000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 2000
+global.Idol[CardStat] = 1
+global.Cute[CardStat] = 1
+}
+
+CardStat = 5508
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "(Still Hasn't Changed)"
+global.CardFlavor[CardStat] = "She couldn't stay awake all night."
+global.CardText[CardStat] = "You may only cast this card if three or more different "+chr(171)+"Idol"+chr(187)+" are in your drop zone.
+
+Put up to one character from your drop zone into your hand, and for this turn, all buddy's power on your field becomes infinite. Then, return all cards from your drop zone to deck, and shuffle your deck. You may only cast "+chr(34)+"(Still Hasn't Changed)"+chr(34)+" once per fight."
+
+global.Get[CardStat] = 1
+}
+
+CardStat = 5606
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Like Pouring Water Over Yourself"
+global.CardFlavor[CardStat] = "Water splash! So heroic!"
+global.CardText[CardStat] = "You may only cast this card if an "+chr(171)+"Idol"+chr(187)+" is on your field.
+
+[Counter] Choose and use one of the following two.
+
+- Destroy a character on your opponent's field.
+- Return a character from your opponent's field to hand."
+global.Destruction[CardStat] = 1
+}
+
+CardStat = 5607
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Kendo Idol, Tamami Wakiyama"
+global.CardFlavor[CardStat] = "It's serious match!"
+global.CardText[CardStat] = "[Call Cost] [Pay 1 gauge]
+
+Nullify all abilities of your opponent's characters in battle with this card. This ability cannot be nullified.
+
+When this card attacks your opponent's characters, for this turn, this card gets power+10000!
+
+[Double Attack]"
+global.CardPower[CardStat] = 2000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 1000
+global.Idol[CardStat] = 1
+global.Cool[CardStat] = 1
+}
+
+CardStat = 5608
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Idol With Lots of Vitality, Kaoru Ryuzaki"
+global.CardFlavor[CardStat] = "The wisteria blossoms are awesome!"
+global.CardText[CardStat] = "[Counter] [Act] If three or more different size 0 "+chr(171)+"Idol"+chr(187)+" are on your field, [Stand] all characters on your field. You may only use this ability once per turn.
+
+When this card attacks, if another "+chr(171)+"Idol"+chr(187)+" is on your field, destroy up to one card on your opponent's field."
+global.CardPower[CardStat] = 2000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 1000
+global.Idol[CardStat] = 1
+global.Passion[CardStat] = 1
+}
+
+CardStat = 5609
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Strange Idol, Yoshino Yorita"
+global.CardFlavor[CardStat] = "What a nice breeze-"
+global.CardText[CardStat] = "When this card attacks, look at the top five cards of your deck, put up to one character from among them into your hand, and put the rest on the bottom of your deck in any order.
+
+At the end of the battle of this card, call up to one "+chr(171)+"Idol"+chr(187)+" character from your hand to another area by paying its [Call Cost]."
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 2000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 2000
+global.Idol[CardStat] = 1
+global.Passion[CardStat] = 1
+}
+
+CardStat = 5610
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Soccer Idol, Haru Yuuki"
+global.CardFlavor[CardStat] = "Then I'm gonna get serious, too!"
+global.CardText[CardStat] = "If three or more different size 0 "+chr(171)+"Idol"+chr(187)+" are on your field, all size 0 "+chr(171)+"Idol"+chr(187)+" on your field get power+10000!
+
+When this card attacks, if another "+chr(171)+"Idol"+chr(187)+" is on your field, deal 1 damage to your opponent!"
+global.CardPower[CardStat] = 4000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 1000
+global.Idol[CardStat] = 1
+global.Cool[CardStat] = 1
+}
+
+CardStat = 5611
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Military Idol, Aki Yamato"
+global.CardFlavor[CardStat] = "So I don't have to worry about that!!"
+global.CardText[CardStat] = "[Call Cost] [Pay 2 gauge & Put the top card of your deck into its soul]
+
+[Act] Choose a card on your opponent's field, and you may drop a hand card. If you do, destroy the chosen card.
+
+[Counter] [Act] If another "+chr(171)+"Idol"+chr(187)+" is on your field, you may pay 1 gauge. If you do, [Stand] this card. You may only use this ability once per turn.
+
+[Penetrate] [Soulguard]"
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 11000
+global.CardCrit[CardStat] = 4
+global.CardDefense[CardStat] = 6000
+global.Idol[CardStat] = 1
+global.Cool[CardStat] = 1
+}
+
+CardStat = 5612
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Negative Idol, Nono Morikubo"
+global.CardFlavor[CardStat] = "*Sip-"
+global.CardText[CardStat] = "If a [Syoko Hoshi] is on your field, all "+chr(171)+"Idol"+chr(187)+" on your field can attack your opponent even if they have characters on the center.
+
+[Counter] [Act] During your opponent's turn, choose an "+chr(171)+"Idol"+chr(187)+" on your field, and you may return this card from the field to hand. If you do, for this turn, the chosen card gets defense+5000!"
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 1000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 1000
+global.Idol[CardStat] = 1
+global.Cool[CardStat] = 1
+}
+
+CardStat = 5613
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Mountain Climbing Idol, Atsumi Munakata"
+global.CardFlavor[CardStat] = "Mountains!"
+global.CardText[CardStat] = "When this card attacks a character, for this battle, this card gets power+3000 for each of that character's size!
+
+If this card's power is 10000 or greater, this card gets [Penetrate]."
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 2000
+global.CardCrit[CardStat] = 3
+global.CardDefense[CardStat] = 2000
+global.Idol[CardStat] = 1
+global.Cute[CardStat] = 1
+}
+
+CardStat = 5614
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Neat Idol Who Loves the Flute, Yukari Mizumoto"
+global.CardFlavor[CardStat] = "It would be very curious, fun, and new…"
+global.CardText[CardStat] = "At the start of each player's attack phase, if three or more different "+chr(171)+"Idol"+chr(187)+" are on your field, for this turn, a card on your opponent's field gets power-5000, defense-5000 and critical-1!
+
+When your [Yuka Nakano] attacks, destroys your opponent's character or deals damage to your opponent, if a [Noriko Shiina] is on your field, you gain 2 life and draw a card."
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 4000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 4000
+global.Idol[CardStat] = 1
+global.Cute[CardStat] = 1
+}
+
+CardStat = 5615
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Rock'n Roll Passionate Idol, Ryo Matsunaga"
+global.CardFlavor[CardStat] = "Don't you think, Producer?"
+global.CardText[CardStat] = "[Call Cost] [Pay 1 gauge & Put the top card of your deck into its soul]
+
+During each player's attack phase, when another character enters your field, destroy a card on your opponent's field. This ability only activates once per turn.
+
+ At the start of your opponent's turn, return up to one other "+chr(171)+"Idol"+chr(187)+" from your field to hand.
+
+[Double Attack] [Soulguard]"
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 9000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 3000
+global.Idol[CardStat] = 1
+global.Cool[CardStat] = 1
+}
+
+CardStat = 5616
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Psychic Idol, Yuko Hori"
+global.CardFlavor[CardStat] = "As a psychic-in-training, this is great!!"
+global.CardText[CardStat] = "[Call Cost] [Pay 1 gauge & Put the top card of your deck into its soul]
+
+The size of all originally size 2 "+chr(171)+"Passion"+chr(187)+" on your field is reduced by 1.
+
+[Act] Choose two characters on your opponent's field, and you may drop a hand card. If you do, swap the chosen cards. You may only use this ability once per turn.
+
+[Soulguard]"
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 4000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 4000
+global.Idol[CardStat] = 1
+global.Passion[CardStat] = 1
+}
+
+CardStat = 5617
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Pottery Idol, Hajime Fujiwara"
+global.CardFlavor[CardStat] = "Can I help you?"
+global.CardText[CardStat] = "All "+chr(171)+"Idol"+chr(187)+" on your field cannot be [Rest] by your opponent's card effects.
+
+When this card attacks, if a face down card is in your buddy zone, draw a card."
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 5000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 1000
+global.Idol[CardStat] = 1
+global.Cool[CardStat] = 1
+}
+
+CardStat = 5618
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Gal-ish Idol, Rina Fujimoto"
+global.CardFlavor[CardStat] = "These things are still exciting, even if they have nothing to do with my career~!"
+global.CardText[CardStat] = "[Call Cost] [Pay 2 gauge & Put the top two cards of your deck into its soul]
+
+When your opponent's cards attack, change the target of the attack to this card.
+
+[Takumi Mukai] on your field gets critical+1!
+
+[Soulguard] [Counterattack]"
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 6000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 6000
+global.Idol[CardStat] = 1
+global.Cute[CardStat] = 1
+}
+
+CardStat = 5619
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Baseball Idol, Yuki Himekawa"
+global.CardFlavor[CardStat] = "And throw with all your strength-!!"
+global.CardText[CardStat] = "At the start of your attack phase, for this turn, an "+chr(171)+"Idol"+chr(187)+" on your field gets power+10000!
+
+When this card attacks, if a [Sae Kobayakawa] and [Sachiko Koshimizu] are on your field, deal 3 damage to your opponent!"
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 5000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 5000
+global.Idol[CardStat] = 1
+global.Passion[CardStat] = 1
+}
+
+CardStat = 5620
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Punk Eyepatch Idol, Mirei Hayasaka"
+global.CardFlavor[CardStat] = "My eyepatch is just for show..."
+global.CardText[CardStat] = "If three or more different "+chr(171)+"Idol"+chr(187)+" are on your field, this card's attack cannot be nullified if it is attacking alone.
+
+When this card attacks and deals damage to your opponent, destroy a character on your opponent's field. If two or more face down cards are in your buddy zone, destroy all cards on your opponent's field instead."
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 6000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 1000
+global.Idol[CardStat] = 1
+global.Cute[CardStat] = 1
+}
+
+CardStat = 5621
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Ninja Idol, Ayame Hamaguchi"
+global.CardFlavor[CardStat] = "Let us be on our way! Nin!"
+global.CardText[CardStat] = "This card can attack your opponent even if they have characters on the center.
+
+[Counter] [Act] Choose an "+chr(171)+"Idol"+chr(187)+" on your field, you may pay 1 life and drop a hand card. If you do, the next time the chosen card would leave the field, that card remains on the field."
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 5000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 1000
+global.Idol[CardStat] = 1
+global.Passion[CardStat] = 1
+}
+
+CardStat = 5622
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Osaka Girl Idol, Emi Namba"
+global.CardFlavor[CardStat] = "Your costume collection is growing, Suzuho-cchi."
+global.CardText[CardStat] = "When your opponent casts an event, deal 1 damage to your opponent! This ability only activates once per turn.
+
+When an attack of characters on your field is nullified by your opponent, deal 1 damage to your opponent! This ability only activates once per turn."
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 5000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 5000
+global.Idol[CardStat] = 1
+global.Passion[CardStat] = 1
+}
+
+CardStat = 5623
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Karate Idol, Yuka Nakano"
+global.CardFlavor[CardStat] = "Yellow lilies at your service!"
+global.CardText[CardStat] = "[Call Cost] [Pay 1 gauge & Put the top card of your deck into its soul]
+
+[Counter] [Act] Pay 1 life. If you do, for this turn, this card gets critical+1 and [Penetrate]. You may only use this ability once per turn.
+
+[Double Attack] [Soulguard]"
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 6000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 2000
+global.Idol[CardStat] = 1
+global.Cute[CardStat] = 1
+}
+
+CardStat = 5624
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Clumsy Shrine Maiden Idol, Karin Domyoji"
+global.CardFlavor[CardStat] = "Stay cautious… Stay cautious…"
+global.CardText[CardStat] = "When another "+chr(171)+"Idol"+chr(187)+" enters your field, drop up to one soul from a card on your opponent's field.
+
+When your "+chr(171)+"Idol"+chr(187)+" attacks, put up to one card from your opponent's drop zone on the bottom of their deck."
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 2000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 2000
+global.Idol[CardStat] = 1
+global.Cute[CardStat] = 1
+}
+
+CardStat = 5625
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Idol Who Admires Smiles, Hiromi Seki"
+global.CardFlavor[CardStat] = "Ah ha ha ha…"
+global.CardText[CardStat] = "If another "+chr(171)+"Idol"+chr(187)+" is on your field, this card gets power+6000!
+
+When your opponent's character is destroyed, draw a card. This ability only activates once per turn."
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 4000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 2000
+global.Idol[CardStat] = 1
+global.Cute[CardStat] = 1
+}
+
+CardStat = 5626
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Precocious Idol, Chie Sasaki"
+global.CardFlavor[CardStat] = "Me~ Mr. Producer's bride~"
+global.CardText[CardStat] = "[Counter] [Act] During your attack phase, return up to two other originally size 0 "+chr(171)+"Idol"+chr(187)+" from your field to hand. Then, call up to two size 0 "+chr(171)+"Idol"+chr(187)+" other than [Chie Sasaki] from your hand to separate open areas by paying their [Call Cost]. You may only use this ability once per turn.
+
+When this card attacks, if another "+chr(171)+"Idol"+chr(187)+" is on your field, you gain 2 life!"
+global.CardPower[CardStat] = 2000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 2000
+global.Idol[CardStat] = 1
+global.Cool[CardStat] = 1
+}
+
+CardStat = 5627
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Idol Who Loves Pranks, Yuzu Kitami"
+global.CardFlavor[CardStat] = "Hero……!"
+global.CardText[CardStat] = "[Counter] [Act] Choose a character with 3000 or less defense on your opponent's field, and you may pay 1 gauge. If you do, destroy the chosen card.
+
+When this card attacks, put the top two cards of your deck into your gauge."
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 3000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 3000
+global.Idol[CardStat] = 1
+global.Passion[CardStat] = 1
+}
+
+CardStat = 5628
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Anti-Aging Idol, Mizuki Kawashima"
+global.CardFlavor[CardStat] = "I know what you mean!"
+global.CardText[CardStat] = "[Call Cost] [Pay 1 gauge & Put the top card of your deck into its soul]
+
+If a face down card is in your buddy zone, the size of all originally size 2 "+chr(171)+"Cool"+chr(187)+" on your field is reduced by 1.
+
+At the start of each player's attack phase, you may put the top card of your deck into your gauge.
+
+[Double Attack] [Soulguard]"
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 6000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 6000
+global.Idol[CardStat] = 1
+global.Cool[CardStat] = 1
+}
+
+CardStat = 5629
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Lively Sports Idol, Yuuki Otokura"
+global.CardFlavor[CardStat] = "Oh! Mr. Producer!"
+global.CardText[CardStat] = "If another "+chr(171)+"Cute"+chr(187)+" is on your field, all "+chr(171)+"Cute"+chr(187)+" on your field get power+5000!
+
+When this card attacks, choose an "+chr(171)+"Idol"+chr(187)+" on your field, and you may pay 1 life. If you do, [Stand] this card and the chosen card. This ability only activates once per turn."
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 4000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 1000
+global.Idol[CardStat] = 1
+global.Cute[CardStat] = 1
+}
+
+CardStat = 5630
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Farm Idol, Shizuku Oikawa"
+global.CardFlavor[CardStat] = "Then being an idol would be even more fun for you."
+global.CardText[CardStat] = "[Call Cost] [Pay 2 gauge & Put the top two cards of your deck into its soul]
+
+At the start of each player's attack phase, destroy the characters on your opponent's left or right!
+
+If a [Sanae Katagiri] is on your field, all "+chr(171)+"Passion"+chr(187)+" on your field get critical+2!
+
+[Double Attack] [Soulguard]"
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 10000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 5000
+global.Idol[CardStat] = 1
+global.Passion[CardStat] = 1
+}
+
+CardStat = 5631
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Comedian Idol, Suzuho Ueda"
+global.CardFlavor[CardStat] = "I'm going to keep them in perfect condition."
+global.CardText[CardStat] = "[Act] Put this card from the field into the soul of another character on your field.
+
+[Counter] [Act] During each player's attack phase, if this card is in the soul of a character, call this card from the soul, and for this turn, this card gets critical+2!
+
+If this card is in the soul of a character, that character gets [Soulguard]."
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 1000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 1000
+global.Idol[CardStat] = 1
+global.Passion[CardStat] = 1
+}
+
+CardStat = 5632
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Costume Idol, Nina Ichihara"
+global.CardFlavor[CardStat] = "Please check it out, m'kay"
+global.CardText[CardStat] = "When this card enters the field, put up to three cards from your drop zone into this card's soul.
+
+If a size 0 character is in this card's soul, it gets power+5000!
+
+If a size 1 character is in this card's soul, it gets defense+5000!
+
+If a size 2 or greater character is in this card's soul, it gets critical+2!
+
+[Soulguard]"
+global.CardPower[CardStat] = 1000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 1000
+global.Idol[CardStat] = 1
+global.Passion[CardStat] = 1
+}
+
+CardStat = 5633
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Idol Who Loves Manga, Hina Araki"
+global.CardFlavor[CardStat] = "I have a school festival-themed gig coming up soon!"
+global.CardText[CardStat] = "All power and critical of "+chr(171)+"Idol"+chr(187)+" on your field cannot be reduced by your opponent's card effects.
+
+At the start of your attack phase, if another "+chr(171)+"Idol"+chr(187)+" is on your field, for this turn, an "+chr(171)+"Idol"+chr(187)+" on your field gets power+5000 and critical+1!"
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 5000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 5000
+global.Idol[CardStat] = 1
+global.Cool[CardStat] = 1
+}
+
+CardStat = 5634
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Floral Idol, Yumi Aiba"
+global.CardFlavor[CardStat] = "Under a blue sky surrounded by flowers."
+global.CardText[CardStat] = "[Call Cost] [Pay 1 gauge & Put the top card of your deck into its soul]
+
+At the start of your attack phase, call up to one size 1 or less "+chr(171)+"Idol"+chr(187)+" from your drop zone to another area by paying its [Call Cost].
+
+When an "+chr(171)+"Idol"+chr(187)+" on your field deals damage to your opponent, you gain 1 life!
+
+[Soulguard]"
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 4000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 4000
+global.Idol[CardStat] = 1
+global.Passion[CardStat] = 1
+}
+
+CardStat = 5635
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "The Trick Is To…"
+global.CardFlavor[CardStat] = "You did great, Koume!"
+global.CardText[CardStat] = "[Counter] Choose and use one of the following two.
+
+- For this turn, all characters on your field cannot be destroyed or [Rest] and their abilities cannot be nullified by your opponent's card effects.
+- For this turn and the next turn, all characters on the field cannot be returned to hand."
+global.Enhance[CardStat] = 1
+}
+
+CardStat = 5636
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Gal Type Idol, Yui Ohtsuki"
+global.CardFlavor[CardStat] = "Why don't you try being girly today?"
+global.CardText[CardStat] = "When this card attacks, if a face down card is in your buddy zone, drop up to 2 of your opponent's gauge.
+
+When an opponent's character is destroyed, you gain 2 life!"
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 6000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 3000
+global.Idol[CardStat] = 1
+global.Passion[CardStat] = 1
+}
+
+CardStat = 5637
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Lady-like Idol, Momoka Sakurai"
+global.CardFlavor[CardStat] = "The sorrow that comes after the sparkles."
+global.CardText[CardStat] = "If three or more different size 0 "+chr(171)+"Idol"+chr(187)+" are on your field, all size 0 "+chr(171)+"Idol"+chr(187)+" on your field get critical+1!
+
+[Counter] [Act] Choose an "+chr(171)+"Idol"+chr(187)+" on your field, and you may pay 1 gauge. If you do, for this turn, it gets power+5000 and [Penetrate]!"
+global.CardPower[CardStat] = 2000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 1000
+global.Idol[CardStat] = 1
+global.Cute[CardStat] = 1
+}
+
+CardStat = 5638
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "A Little Shy Idol, Miho Kohinata"
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "When this card enters the field, you may drop a hand card. If you do, put up to one [Uzuki Shimamura] or [Kyoko Igarashi] from your deck into your hand, and shuffle your deck.
+
+If [Kyoko Igarashi] is on your field, all "+chr(171)+"Cute"+chr(187)+" on your field get power+5000!
+
+[Counter] [Act] If [Uzuki Shimamura] is on your field, [Stand] up to two "+chr(171)+"Cute"+chr(187)+" on your field. You may only use this ability once per turn."
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 3000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 5000
+global.Idol[CardStat] = 1
+global.Cute[CardStat] = 1
+}
+
+CardStat = 5639
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Mushroom Idol, Syoko Hoshi"
+global.CardFlavor[CardStat] = "If you're going to cook, use these little guys too…"
+global.CardText[CardStat] = "[Call Cost] [Pay 2 gauge & Put the top card of your deck into its soul]
+
+At the start of your attack phase, you may drop a hand card. If you do, for this turn, this card gets power+30000 and critical+3!
+
+[Double Attack] [Soulguard]"
+global.CardPower[CardStat] = 3000
+global.CardDefense[CardStat] = 3000
+global.Idol[CardStat] = 1
+global.Passion[CardStat] = 1
+}
+
+CardStat = 5640
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "My Pace Idol, Airi Totoki"
+global.CardFlavor[CardStat] = "Isn't it a little hot in here?"
+global.CardText[CardStat] = "[Call Cost] [Pay 2 gauge & Put the top two cards of your deck into its soul]
+
+[Counter] [Act] You may drop a soul from this card. If your do, [Stand] this card.
+
+At the start of your final phase, if there are no souls in this card, put up to two cards from your drop zone into its soul.
+
+[Soulguard]"
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 10000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 5000
+global.Idol[CardStat] = 1
+global.Passion[CardStat] = 1
+}
+
+CardStat = 5641
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Idol Searching for Happiness, Chieri Ogata"
+global.CardFlavor[CardStat] = "Look! I found a four-leaf clover crystal."
+global.CardText[CardStat] = "Souls in all "+chr(171)+"Idol"+chr(187)+" on your field cannot be dropped by your opponent's card effects.
+
+All cards on your opponent's field get defense-5000 and critical-1!
+
+When a [Kanako Mimura] on your field attacks, deal 2 damage to your opponent!"
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 2000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 5000
+global.Idol[CardStat] = 1
+global.Cute[CardStat] = 1
+}
+
+CardStat = 5642
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Ranko Quest"
+global.CardFlavor[CardStat] = "You can't look!!"
+global.CardText[CardStat] = "You may only cast this card during an attack on your opponent's turn.
+
+[Counter] Nullify the attack. Then, if three or more "+chr(171)+"Idol"+chr(187)+" are on your field, you may put the top card of your deck into your gauge, you gain 1 life, and draw a card."
+global.Defense[CardStat] = 1
+}
+
+CardStat = 5643
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Flower-Viewing in the Off Season"
+global.CardFlavor[CardStat] = "Although, it's wisteria not cherry blossoms."
+global.CardText[CardStat] = "[Cast Cost] [Pay 1 gauge]
+
+Draw two cards. Then, if two or more face down cards are in your buddy zone, draw a card. You may only cast "+chr(34)+"Flower-Viewing in the Off Season"+chr(34)+" once per turn."
+global.Draw[CardStat] = 1
+}
+
+CardStat = 5644
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Kitty Cat Idol, Miku Maekawa"
+global.CardFlavor[CardStat] = "I was doing my secret training, meow." 
+global.CardText[CardStat] = "[Counter] [Act] During your attack phase, you may return an originally size 1 "+chr(171)+"Idol"+chr(187)+" other than [Miku Maekawa] from your field to hand. If you do, call up to one character from your hand with the same character name as the card returned to an open area by paying its [Call Cost]. You may only use this ability once per turn.
+
+When a [Riina Tada] enters your field, [Stand] this card!
+
+[Penetrate]"
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 5000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 1000
+global.Idol[CardStat] = 1
+global.Cute[CardStat] = 1
+}
+
+CardStat = 5645
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Mysterious Idol, Kaede Takagaki"
+global.CardFlavor[CardStat] = "The sea is a fantasy…"
+global.CardText[CardStat] = "[Call Cost] [Pay 2 gauge & Put the top two cards of your deck into its soul]
+
+If another "+chr(171)+"Idol"+chr(187)+" is on your field, abilities of all "+chr(171)+"Idol"+chr(187)+" on your field cannot be nullified by your opponent's card effects, and they get power+5000 and defense+5000!
+
+[Counter] [Act] Call an "+chr(171)+"Idol"+chr(187)+" character other than [Kaede Takagaki] from your drop zone to another area by paying its [Call Cost]. You may only use this ability once per turn.
+
+[Triple Attack] [Soulguard]"
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 8000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 8000
+global.Idol[CardStat] = 1
+global.Cool[CardStat] = 1
+}
+
+CardStat = 5646
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Rock'n Roll Idol, Riina Tada"
+global.CardFlavor[CardStat] = "Would I look cool if I could play guitar?"
+global.CardText[CardStat] = "When this card enters the field by card effects, for this turn, this card gets [Double Attack].
+
+If a [Miku Maekawa] is on your field, that card and this card get power+5000 and critical+1!
+
+If this card is attacking alone, and a [Natsuki Kimura] is on your field, this attack cannot be nullified, and damage dealt by this card cannot be reduced!
+
+[Penetrate]"
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 5000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 1000
+global.Idol[CardStat] = 1
+global.Cool[CardStat] = 1
+}
+
+CardStat = 5647
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Cool Rock'n Roll Idol, Natsuki Kimura"
+global.CardFlavor[CardStat] = "Fine, fine."
+global.CardText[CardStat] = "[Call Cost] [Pay 1 gauge & Put the top card of your deck into its soul]
+
+[Counter] [Act] Call this card from your hand by paying its [Call Cost].
+
+All "+chr(171)+"Idol"+chr(187)+" on your field cannot be returned to hand by your opponent's card effects.
+
+If a [Riina Tada] is on your field, this card gets critical+2!
+
+[Soulguard]"
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 5000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 1000
+global.Idol[CardStat] = 1
+global.Passion[CardStat] = 1
+}
+
+CardStat = 5648
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = ""+chr(34)+"Painful"+chr(34)+" Idol in the Middle of Puberty, Asuka Ninomiya"
+global.CardFlavor[CardStat] = "Something like this might not be bad at all…"
+global.CardText[CardStat] = "[Counter] [Act] During your opponent's turn, call this card from your hand.
+
+When this card enters the field, for this turn, [Ranko Kanzaki] on your field gets power+10000 and defense+10000!
+
+At the start of each player's turn, you may return this card from the field to hand."
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 5000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 1000
+global.Idol[CardStat] = 1
+global.Cool[CardStat] = 1
+}
+
+CardStat = 5649
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Spirit Sense Idol, Koume Shirasaka"
+global.CardFlavor[CardStat] = "…is scary…"
+global.CardText[CardStat] = "[Counter] [Act] Put the top card of your deck face down on the field as a "+chr(34)+""+chr(171)+"That Girl"+chr(187)+"/size 0/10000 power/1000 defense/3 critical"+chr(34)+" character. You may only use this ability once per turn.
+
+"+chr(171)+"That Girl"+chr(187)+" on your field can attack your opponent even if they have characters on the center."
+global.CardPower[CardStat] = 3000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 1000
+global.Idol[CardStat] = 1
+global.Cool[CardStat] = 1
+}
+
+CardStat = 5650
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Idol With Lots of Freedom, Syuko Shiomi"
+global.CardFlavor[CardStat] = "Thank you, producer."
+global.CardText[CardStat] = "[Call Cost] [Pay 1 gauge & Put the top card of your deck into its soul]
+
+When this card enters the field, you may drop a hand card. If you do, put up to one [Shiki Ichinose] or [Frederica Miyamoto] from your deck into your hand, and shuffle your deck.
+
+When a card on your opponent's field is destroyed or returned to hand by your card effects, you gain 2 life, and draw a card. This ability only activates once per turn.
+
+[Double Attack] [Soulguard]"
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 6000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 1000
+global.Idol[CardStat] = 1
+global.Cool[CardStat] = 1
+}
+
+CardStat = 5651
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Fervent Idol, Akane Hino"
+global.CardFlavor[CardStat] = "We're going to have fun-!!"
+global.CardText[CardStat] = "All "+chr(171)+"Passion"+chr(187)+" on your field cannot be [Rest] by your opponent's card effects!!
+
+At the start of your attack phase, if a [Mio Honda] and [Aiko Takamori] are on your field, for this turn, an "+chr(171)+"Idol"+chr(187)+" on your field gets critical+2, [Penetrate] and [Quadruple Attack]!!"
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 6000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 1000
+global.Idol[CardStat] = 1
+global.Passion[CardStat] = 1
+}
+
+CardStat = 5652
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Friendly Twin Idol, Hayate Hisakawa"
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "If there are two or more face-down cards on your buddy zone, this card gains power +5000, defense +5000, and critical +1!
+
+When [Nagi Hisakawa] on your field deals damage to your opponent, deal damage to your opponent equal to this character's critical!
+
+[Double Attack]"
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 6000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 1000
+global.Idol[CardStat] = 1
+global.Cool[CardStat] = 1
+}
+
+CardStat = 5653
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Friendly Twin Idol, Nagi Hisakawa"
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "If there are two or more face-down cards on your buddy zone, this card gains power +5000, defense +5000, and critical +1!
+
+When [Hayate Hisakawa] on your field stands, stand this card.
+
+[Penetrate]"
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 6000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 1000
+global.Idol[CardStat] = 1
+global.Passion[CardStat] = 1
+}
+
+CardStat = 5654
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Lady Follower Idol, Chiyo Shirayuki"
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "[Call Cost] [Pay 1 gauge & Put the top card of your deck into its soul]
+
+[Chitose Kurosaki] on your field gains power +5000 and defense +5000.
+
+At the start of your attack phase, you may pay two life. If you do, destroy all characters on your opponent's field.
+
+[Double Attack] [Soulguard]"
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 6000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 3000
+global.Idol[CardStat] = 1
+global.Cute[CardStat] = 1
+}
+
+CardStat = 5655
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Returnee Lady Idol, Chitose Kurosaki"
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "[Call Cost] [Pay 2 gauge & Put the top two cards of your deck into its soul]
+
+When this card attacks, deal one damage to your opponent, and you gain 1 life. After that, if there is [Chiyo Shirayuki] on your field, drop one of your opponent's gauge, and put the top card of your deck onto the gauge.
+
+[Double Attack] [Soulguard]"
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 10000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 6000
+global.Idol[CardStat] = 1
+global.Cute[CardStat] = 1
+}
+
+CardStat = 5656
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Catching Little Happiness Idol, Hotaru Shiragiku"
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "When your opponent draws cards from their card effects, if there are three or more different "+chr(171)+"Idol"+chr(187)+" on your field, your opponent choose and drop a hand card. This ability only activates once per turn."
+global.CardPower[CardStat] = 2000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 2000
+global.Idol[CardStat] = 1
+global.Cute[CardStat] = 1
+}
+
+CardStat = 5657
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Fortune Idol, Kako Takafuji"
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "[Call Cost] [Pay 2 gauge & Put the top two cards of your deck into its soul]
+
+For each card in your hand, this card gains power +2000!
+
+When you draw cards from your effects, draw a card. This ability only activates once per turn.
+
+[Double Attack] [Soulguard]"
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 8000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 8000
+global.Idol[CardStat] = 1
+global.Cool[CardStat] = 1
+}
+
+CardStat = 5658
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Dreaming Delusion Idol, Hinako Kita"
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "[Counter] [Act] During any player's attack phase, you may drop a hand card. If you do, put the top four cards of your deck to the gauge. This ability only activates once per turn.
+
+When this card attacks, choose one character on your opponent's field, that card cannot stand on your opponent's next stand phase."
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 4000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 4000
+global.Idol[CardStat] = 1
+global.Passion[CardStat] = 1
+}
+
+CardStat = 5659
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Aiming to be the Best Hero Idol, Hikaru Nanjo"
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "[Call Cost] [Pay 1 gauge]
+
+If three or more different "+chr(171)+"Idol"+chr(187)+" are on your field, all size 0 "+chr(171)+"Idol"+chr(187)+" on your field cannot be destroyed or returned to hand by your opponent's card effects.
+
+When this card link attacks with another "+chr(171)+"Idol"+chr(187)+", [Stand] a card in that link attack. This ability only activates once per turn."
+global.CardPower[CardStat] = 2000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 1000
+global.Idol[CardStat] = 1
+global.Passion[CardStat] = 1
+}
+
+CardStat = 5666
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 5
+global.CardName[CardStat] = "THE IDOLM@STER CINDERELLA GIRLS Theater (Alternate 1)"
+global.CardFlavor[CardStat] = ""
+global.CardText[CardStat] = "You may use <THE IDOLM@STER CINDERELLA GIRLS Theater> cards.
+
+At the end of your turn, if a buddy is on your field, you gain 1 life, draw a card, and put the top card of your deck face down into your buddy zone.
+
+Buddy on your field get power+2000 and defense+2000 for each face down card in your buddy zone!"
+
+global.THEIDOLMASTERCINDERELLAGIRLSTheater[CardStat] = 1
+}
+
+CardStat = 5667
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 5
+global.CardName[CardStat] = "THE IDOLM@STER CINDERELLA GIRLS Theater (Alternate 2)"
+global.CardFlavor[CardStat] = ""
+global.CardText[CardStat] = "You may use <THE IDOLM@STER CINDERELLA GIRLS Theater> cards.
+
+At the end of your turn, if a buddy is on your field, you gain 1 life, draw a card, and put the top card of your deck face down into your buddy zone.
+
+Buddy on your field get power+2000 and defense+2000 for each face down card in your buddy zone!"
+
+global.THEIDOLMASTERCINDERELLAGIRLSTheater[CardStat] = 1
+}
+
+CardStat = 5668
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 5
+global.CardName[CardStat] = "THE IDOLM@STER CINDERELLA GIRLS Theater (Alternate 3)"
+global.CardFlavor[CardStat] = ""
+global.CardText[CardStat] = "You may use <THE IDOLM@STER CINDERELLA GIRLS Theater> cards.
+
+At the end of your turn, if a buddy is on your field, you gain 1 life, draw a card, and put the top card of your deck face down into your buddy zone.
+
+Buddy on your field get power+2000 and defense+2000 for each face down card in your buddy zone!"
+
+global.THEIDOLMASTERCINDERELLAGIRLSTheater[CardStat] = 1
+}
+
+CardStat = 5669
+{
+global.CardWorld[CardStat] = 15
+global.CardType[CardStat] = 5
+global.CardName[CardStat] = "THE IDOLM@STER CINDERELLA GIRLS Theater (Alternate 4)"
+global.CardFlavor[CardStat] = ""
+global.CardText[CardStat] = "You may use <THE IDOLM@STER CINDERELLA GIRLS Theater> cards.
+
+At the end of your turn, if a buddy is on your field, you gain 1 life, draw a card, and put the top card of your deck face down into your buddy zone.
+
+Buddy on your field get power+2000 and defense+2000 for each face down card in your buddy zone!"
+
+global.THEIDOLMASTERCINDERELLAGIRLSTheater[CardStat] = 1
+}

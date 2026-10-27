@@ -1,0 +1,4160 @@
+CardStat = 694
+{
+global.CardName[CardStat] = "Checkmate"
+
+global.CardText[CardStat] = "You may only cast this card if you do not have a monster in the center, you have five or more different "+chr(171)+"Chess"+chr(187)+" in the drop zone, and your opponent has 4 life or less.
+
+Attack with a [Stand] "+chr(171)+"Chess"+chr(187)+" monster on your field. If you deal damage to your opponent with the attack, you win the game."
+global.CardFlavor[CardStat] = "Checkmate!"
+global.CardType[CardStat] = 4
+global.CardWorld[CardStat] = 8
+global.BT01[CardStat] = 1
+global.Chess[CardStat] = 1
+}
+
+CardStat = 695
+{
+global.CardName[CardStat] = "Blade of Athame"
+
+global.CardText[CardStat] = "When you equip this card, look at the top card of your deck, and put it on the top or the bottom of your deck."
+global.CardFlavor[CardStat] = "Also known as "+chr(34)+"Athame Sword"+chr(34)+". Packed with magic power, it is a ceremonial short sword."
+global.CardType[CardStat] = 2
+global.CardWorld[CardStat] = 8
+global.CardPower[CardStat] = 3000
+global.CardCrit[CardStat] = 1
+global.BT05[CardStat] = 1
+global.MagicPower[CardStat] = 1
+global.Weapon[CardStat] = 1
+}
+
+CardStat = 696
+{
+global.CardName[CardStat] = "Burning Bow"
+
+global.CardText[CardStat] = "[Equip Cost] Pay 2 gauge.
+
+You can attack with this card even if you have a monster in the center."
+global.CardFlavor[CardStat] = "The bow. The first weapon that humans made which overpowered animals."
+global.CardType[CardStat] = 2
+global.CardWorld[CardStat] = 8
+global.CardPower[CardStat] = 2000
+global.CardCrit[CardStat] = 1
+global.BT02[CardStat] = 1
+global.Weapon[CardStat] = 1
+global.Fire[CardStat] = 1
+}
+
+CardStat = 697
+{
+global.CardName[CardStat] = "Burning Dagger"
+
+global.CardText[CardStat] = ""
+global.CardFlavor[CardStat] = "Burning. Besides "+chr(34)+"flames"+chr(34)+", it also has a magical meaning to it."
+global.CardType[CardStat] = 2
+global.CardWorld[CardStat] = 8
+global.CardPower[CardStat] = 4000
+global.CardCrit[CardStat] = 1
+global.BT01[CardStat] = 1
+global.Weapon[CardStat] = 1
+}
+
+CardStat = 698
+{
+global.CardName[CardStat] = "Burning Sword"
+
+global.CardText[CardStat] = "[Equip Cost] Pay 1 gauge."
+global.CardFlavor[CardStat] = "Those who wield the powers of another world, can no longer be considered as a member of this world."
+global.CardType[CardStat] = 2
+global.CardWorld[CardStat] = 8
+global.CardPower[CardStat] = 4000
+global.CardCrit[CardStat] = 2
+global.BT01[CardStat] = 1
+global.Weapon[CardStat] = 1
+}
+
+CardStat = 699
+{
+global.CardName[CardStat] = "Arcana Flash"
+
+global.CardText[CardStat] = "[Cast Cost] [Pay 3 gauge]
+
+Reveal five cards from the top of your deck. For each monster with "+chr(34)+"Actor Knights"+chr(34)+" in its card name from among them, deal 1 damage to your opponent! Then, put the revealed cards on the bottom of your deck in any order."
+global.CardFlavor[CardStat] = "The mysterious light that shines, destroys all of his enemies."
+global.CardType[CardStat] = 3
+global.CardWorld[CardStat] = 8
+global.BT04[CardStat] = 1
+global.Tarot[CardStat] = 1
+global.FirePower[CardStat] = 1
+}
+
+CardStat = 700
+{
+global.CardName[CardStat] = "Battlefield Military Band"
+
+global.CardText[CardStat] = "[Set] (This card remains on the field)
+
+[Cast Cost] Pay 1 gauge.
+
+All monsters on your field get power+1000."
+global.CardFlavor[CardStat] = "Man or history does not move by efficiency alone. The military band playing for their allies in the front lines, shall call forth miracles."
+global.CardType[CardStat] = 3
+global.CardWorld[CardStat] = 8
+global.BT01[CardStat] = 1
+global.Fire[CardStat] = 1
+}
+
+CardStat = 701
+{
+global.CardName[CardStat] = "Buddy Charge"
+
+global.CardText[CardStat] = "Put the top card of your deck into the gauge. Then, if a buddy monster is on your field, put the top card of your deck into the gauge."
+global.CardFlavor[CardStat] = "Burning spirit, together with the bond."
+global.CardType[CardStat] = 3
+global.CardWorld[CardStat] = 8
+global.BT01[CardStat] = 1
+global.Promo[CardStat] = 1
+global.MagicPower[CardStat] = 1
+}
+
+CardStat = 702
+{
+global.CardName[CardStat] = "Buddy Help"
+
+global.CardText[CardStat] = "[Cast Cost] [Pay 3 gauge]
+
+Draw two cards."
+global.CardFlavor[CardStat] = "Make up for the shortcomings of each other, and grow together. That is a buddy."
+global.CardType[CardStat] = 3
+global.CardWorld[CardStat] = 8
+global.BT01[CardStat] = 1
+global.Promo[CardStat] = 1
+global.Water[CardStat] = 1
+}
+
+CardStat = 703
+{
+global.CardName[CardStat] = "Burn Ship Soul"
+
+global.CardText[CardStat] = "[Cast Cost] [Pay 3 gauge & Discard 1 card from your hand]
+
+Destroy a card on the field!"
+global.CardFlavor[CardStat] = "There is nothing I can't do!"
+global.CardType[CardStat] = 3
+global.CardWorld[CardStat] = 8
+global.BT05[CardStat] = 1
+global.Tarot[CardStat] = 1
+global.Destruction[CardStat] = 1
+}
+
+CardStat = 704
+{
+global.CardName[CardStat] = "Castling"
+
+global.CardText[CardStat] = "[Cast Cost] Pay 1 gauge. & Put a monster from your field into the drop zone.
+
+You may only cast this card when you have been attacked.
+
+[Counter] Nullify the attack."
+global.CardFlavor[CardStat] = "Castling. A brilliant move to switch the King and Rook."
+global.CardType[CardStat] = 3
+global.CardWorld[CardStat] = 8
+global.BT02[CardStat] = 1
+global.Chess[CardStat] = 1
+global.Defense[CardStat] = 1
+}
+
+CardStat = 705
+{
+global.CardName[CardStat] = "Celtic Cross Spread"
+
+global.CardText[CardStat] = "[Cast Cost] [Pay 1 gauge]
+
+Call a size 2 or less <Generic> monster from your drop zone by paying its [Call Cost]."
+global.CardFlavor[CardStat] = "Your failure, is a revelation that you had not focused on."
+global.CardType[CardStat] = 3
+global.CardWorld[CardStat] = 8
+global.BT05[CardStat] = 1
+global.Tarot[CardStat] = 1
+global.Enhance[CardStat] = 1
+}
+
+CardStat = 706
+{
+global.CardName[CardStat] = "Chessenergy"
+
+global.CardText[CardStat] = "[Cast Cost] Pay 2 gauge.
+
+[Counter] For this turn, give a monster on your field power+1000, defense+1000, and [Counterattack]. Then, if that card is a "+chr(171)+"Chess"+chr(187)+", give it power+3000, defense+3000! ([Counterattack]: If this monster is not destroyed after an attack, choose a monster that attacked with defense less than or equal to this monster's power, and destroy it.)"
+global.CardFlavor[CardStat] = "Training will not betray you, and the skills you learn will save you. Preparation is important in a fight."
+global.CardType[CardStat] = 3
+global.CardWorld[CardStat] = 8
+global.BT01[CardStat] = 1
+global.Chess[CardStat] = 1
+}
+
+CardStat = 707
+{
+global.CardName[CardStat] = "Destruction"
+
+global.CardText[CardStat] = "[Cast Cost] Discard a card from your hand.
+
+Destroy an item on the field."
+global.CardFlavor[CardStat] = "Advice! No need to worry about it. Items should be destroyed as soon as possible."
+global.CardType[CardStat] = 3
+global.CardWorld[CardStat] = 8
+global.BT01[CardStat] = 1
+global.Earth[CardStat] = 1
+}
+
+CardStat = 708
+{
+global.CardName[CardStat] = "Emperor Shield"
+
+global.CardText[CardStat] = "[Cast Cost] [Pay 5 gauge]
+
+If you have two or more "+chr(171)+"Tarot"+chr(187)+" on the field, you may choose not to pay the [Cast Cost] of this card.
+
+You may only cast this card when your opponent casts an impact.
+
+[Counter] Nullify the impact cast by your opponent. (Gargantua Punisher!! cannot be nullified, so it will not work!)"
+global.CardFlavor[CardStat] = "Now both parties have nothing left, it all boils down to a fist fight!"
+global.CardType[CardStat] = 3
+global.CardWorld[CardStat] = 8
+global.BT03[CardStat] = 1
+global.Tarot[CardStat] = 1
+global.MagicPower[CardStat] = 1
+}
+
+CardStat = 709
+{
+global.CardName[CardStat] = "Fool Aims for the Wilderness"
+
+global.CardText[CardStat] = "You may only cast this card if you have 5 or less life.
+
+Put the top card of your deck into the gauge, and gain 1 life."
+global.CardFlavor[CardStat] = "It will be a tough journey. However, it is even worse to live in regret."
+global.CardType[CardStat] = 3
+global.CardWorld[CardStat] = 8
+global.BT02[CardStat] = 1
+global.Tarot[CardStat] = 1
+}
+
+CardStat = 710
+{
+global.CardName[CardStat] = "Fool's Journey"
+
+global.CardText[CardStat] = "[Cast Cost] Pay 1 gauge. & Put an "+chr(34)+"Actor Knights the Fool"+chr(34)+" from your field into the drop zone.
+
+You may only cast this card if you have three or more different "+chr(171)+"Tarot"+chr(187)+" in the drop zone.
+
+Draw three cards!"
+global.CardFlavor[CardStat] = "The fool travels the world, and finds himself along the way."
+global.CardType[CardStat] = 3
+global.CardWorld[CardStat] = 8
+global.BT02[CardStat] = 1
+global.Tarot[CardStat] = 1
+}
+
+CardStat = 711
+{
+global.CardName[CardStat] = "Fortune-shield"
+
+global.CardText[CardStat] = "[Counter] Choose a monster in battle, and for this battle, give it defense+2000 and [Counterattack]! Then, if that card has "+chr(34)+"Actor Knights"+chr(34)+" in its card name, for this battle, give it defense+3000."
+global.CardFlavor[CardStat] = "To seize luck, or to let the destiny of winning slip by, depends on you."
+global.CardType[CardStat] = 3
+global.CardWorld[CardStat] = 8
+global.BT04[CardStat] = 1
+global.Tarot[CardStat] = 1
+global.Defense[CardStat] = 1
+}
+
+CardStat = 712
+{
+global.CardName[CardStat] = "Gambit"
+
+global.CardText[CardStat] = "(You can only have 1 copy of this card in all Flags !!)
+
+Return all of your monsters from the field to your hand. You may only cast "+chr(34)+"Gambit"+chr(34)+" once per turn."
+global.CardFlavor[CardStat] = "Gambit. By sacrificing a piece, it makes it easier for other to move and create a formation."
+global.CardType[CardStat] = 3
+global.CardWorld[CardStat] = 8
+global.BT02[CardStat] = 1
+global.Chess[CardStat] = 1
+global.Move[CardStat] = 1
+}
+
+CardStat = 713
+{
+global.CardName[CardStat] = "Justice Hammer"
+
+global.CardText[CardStat] = "[Cast Cost] [Pay 4 gauge]
+
+You may choose not to pay the [Cast Cost] of this card if you have 2 or more "+chr(171)+"Tarot"+chr(187)+" on the field.
+
+Destroy a card on the field!!"
+global.CardFlavor[CardStat] = "When all else fails, boom!"
+global.CardType[CardStat] = 3
+global.CardWorld[CardStat] = 8
+global.BT03[CardStat] = 1
+global.Tarot[CardStat] = 1
+global.MagicPower[CardStat] = 1
+}
+
+CardStat = 714
+{
+global.CardName[CardStat] = "Neutralize"
+
+global.CardText[CardStat] = "[Cast Cost] Discard a card from your hand.
+
+Destroy a spell on the field."
+global.CardFlavor[CardStat] = "Advice! It is possible to be shutdown with just one set spell. Always prepare the cards which can destroy them."
+global.CardType[CardStat] = 3
+global.CardWorld[CardStat] = 8
+global.BT01[CardStat] = 1
+global.Wind[CardStat] = 1
+}
+
+CardStat = 715
+{
+global.CardName[CardStat] = "One Oracle"
+
+global.CardText[CardStat] = "Put the top card of your deck into your drop zone. If the card is a monster, deal 1 damage to your opponent. If the card is not a monster, you gain 1 life.
+
+You may only cast "+chr(34)+"One Oracle"+chr(34)+" once per turn."
+global.CardFlavor[CardStat] = "It's simple, and thus easy to use."
+global.CardType[CardStat] = 3
+global.CardWorld[CardStat] = 8
+global.BT05[CardStat] = 1
+global.Tarot[CardStat] = 1
+}
+
+CardStat = 716
+{
+global.CardName[CardStat] = "Pawn Storm"
+
+global.CardText[CardStat] = "[Counter] Choose a monster in battle, and for this battle, that monster gets power+3000. Then, if that card is a "+chr(171)+"Chess"+chr(187)+", for this battle, that monster gets power+2000."
+global.CardFlavor[CardStat] = "Every soldier is vital, as the chance will definitely present itself. Courage is important in a fight."
+global.CardType[CardStat] = 3
+global.CardWorld[CardStat] = 8
+global.BT01[CardStat] = 1
+global.Chess[CardStat] = 1
+}
+
+CardStat = 717
+{
+global.CardName[CardStat] = "Royal Fork"
+
+global.CardText[CardStat] = "[Cast Cost] [Pay 2 gauge]
+
+Destroy a size 2 monster on the field!"
+
+global.CardFlavor[CardStat] = "A deadly and relentless blow to the opponent. Resolution is important in a fight."
+
+global.CardType[CardStat] = 3
+global.CardWorld[CardStat] = 8
+global.BT01[CardStat] = 1
+global.Chess[CardStat] = 1
+}
+
+CardStat = 718
+{
+global.CardName[CardStat] = "Skewer"
+
+global.CardText[CardStat] = "[Cast Cost] Pay 1 gauge.
+
+Destroy a size 1 monster on the field."
+global.CardFlavor[CardStat] = "The unavoidable blow after cornering the opponent. Reading your opponent is very important in a fight."
+global.CardType[CardStat] = 3
+global.CardWorld[CardStat] = 8
+global.BT01[CardStat] = 1
+global.Chess[CardStat] = 1
+}
+
+CardStat = 719
+{
+global.CardName[CardStat] = "Ultimate Buddy!"
+
+global.CardText[CardStat] = "[Cast Cost] [Pay 1 gauge]
+
+Put this card into your buddy monster's soul.
+
+If this card is on your buddy monster's soul, your buddy monster gets [Soulguard] and power+5000."
+global.CardFlavor[CardStat] = "The unavoidable blow after cornering the opponent. Reading your opponent is very important in a fight."
+global.CardType[CardStat] = 3
+global.CardWorld[CardStat] = 8
+global.BT02[CardStat] = 1
+global.Enhance[CardStat] = 1
+}
+
+CardStat = 720
+{
+global.CardName[CardStat] = "Actor Knights Hanged Man"
+
+global.CardText[CardStat] = "[Call Cost] [Pay 1 gauge]"
+global.CardFlavor[CardStat] = "I always assumed the fault was with others. Turns out I was wrong."
+global.CardType[CardStat] = 1
+global.CardWorld[CardStat] = 8
+global.CardSize[CardStat] = 0
+global.CardPower[CardStat] = 3000
+global.CardDefense[CardStat] = 3000
+global.CardCrit[CardStat] = 1
+global.BT03[CardStat] = 1
+global.Tarot[CardStat] = 1
+}
+
+CardStat = 721
+{
+global.CardName[CardStat] = "Actor Knights Death"
+
+global.CardText[CardStat] = "[Call Cost] [Pay 1 life]
+
+"+chr(34)+"Curse of the Tarot"+chr(34)+" When an attack by this card destroys your opponent's monster, deal 1 damage to your opponent!"
+global.CardFlavor[CardStat] = "The death of your physical body, or the death of your soul, which would you prefer?"
+global.CardType[CardStat] = 1
+global.CardWorld[CardStat] = 8
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 5000
+global.CardDefense[CardStat] = 2000
+global.CardCrit[CardStat] = 1
+global.BT05[CardStat] = 1
+global.Tarot[CardStat] = 1
+global.Death[CardStat] = 1
+global.Destruction[CardStat] = 1
+}
+
+CardStat = 722
+{
+global.CardName[CardStat] = "Actor Knights Emperor"
+
+global.CardText[CardStat] = "If you do not have another "+chr(171)+"Tarot"+chr(187)+" card on your field, this card cannot attack."
+global.CardFlavor[CardStat] = "There is no one left to stand in our way. But, is that really for the best?"
+global.CardType[CardStat] = 1
+global.CardWorld[CardStat] = 8
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 5000
+global.CardDefense[CardStat] = 5000
+global.CardCrit[CardStat] = 3
+global.BT05[CardStat] = 1
+global.Tarot[CardStat] = 1
+}
+
+CardStat = 723
+{
+global.CardName[CardStat] = "Actor Knights Empress"
+
+global.CardText[CardStat] = ""
+global.CardFlavor[CardStat] = "No conflict, greed or bias. A beautiful and balanced world. However, that was just an illusion created by the Empress."
+global.CardType[CardStat] = 1
+global.CardWorld[CardStat] = 8
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 2000
+global.CardDefense[CardStat] = 4000
+global.CardCrit[CardStat] = 1
+global.BT03[CardStat] = 1
+global.Tarot[CardStat] = 1
+}
+
+CardStat = 724
+{
+global.CardName[CardStat] = "Actor Knights Hermit"
+
+global.CardText[CardStat] = ""
+global.CardFlavor[CardStat] = "Learn, gain knowledge. That will light your path. Train, and become stronger. That will allow you to go further."
+global.CardType[CardStat] = 1
+global.CardWorld[CardStat] = 8
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 3000
+global.CardDefense[CardStat] = 3000
+global.CardCrit[CardStat] = 1
+global.BT02[CardStat] = 1
+global.Tarot[CardStat] = 1
+global.Academy[CardStat] = 1
+}
+
+CardStat = 725
+{
+global.CardName[CardStat] = "Actor Knights High Priest"
+
+global.CardText[CardStat] = "When you call a "+chr(171)+"Tarot"+chr(187)+" monster other than "+chr(34)+"Actor Knights High Priest"+chr(34)+", you gain 1 life. This ability can only be used once per turn."
+global.CardFlavor[CardStat] = "People often refer to those with no confidence in themselves as fools."
+global.CardType[CardStat] = 1
+global.CardWorld[CardStat] = 8
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 1000
+global.CardDefense[CardStat] = 5000
+global.CardCrit[CardStat] = 0
+global.BT03[CardStat] = 1
+global.Tarot[CardStat] = 1
+}
+
+CardStat = 726
+{
+global.CardName[CardStat] = "Actor Knights Lovers"
+
+global.CardText[CardStat] = ""
+global.CardFlavor[CardStat] = "Don't you have someone you wish to protect?
+Once you find that, it could be the end of your journey..."
+global.CardType[CardStat] = 1
+global.CardWorld[CardStat] = 8
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 0
+global.CardDefense[CardStat] = 6000
+global.CardCrit[CardStat] = 1
+global.BT02[CardStat] = 1
+global.Tarot[CardStat] = 1
+}
+
+CardStat = 727
+{
+global.CardName[CardStat] = "Actor Knights the Fool"
+
+global.CardText[CardStat] = "(It may seem weak at first glance, but it can be used in combination with a spell card to create a powerful effect!)"
+
+global.CardFlavor[CardStat] = "The fool goes on a journey. He will either gain the knowledge in order to survive, or he will lose his life."
+global.CardType[CardStat] = 1
+global.CardWorld[CardStat] = 8
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 1000
+global.CardDefense[CardStat] = 2000
+global.CardCrit[CardStat] = 2
+global.BT02[CardStat] = 1
+global.Tarot[CardStat] = 1
+}
+
+CardStat = 728
+{
+global.CardName[CardStat] = "Actor Knights the Magician"
+
+global.CardText[CardStat] = "When this card is destroyed, you may pay 1 gauge. If you do, draw a card!"
+global.CardFlavor[CardStat] = "The fool meets an illusionist. He states that he is sly and others are dumb. It also stated that he is afraid of others."
+global.CardType[CardStat] = 1
+global.CardWorld[CardStat] = 8
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 1000
+global.CardDefense[CardStat] = 1000
+global.CardCrit[CardStat] = 1
+global.BT02[CardStat] = 1
+global.Tarot[CardStat] = 1
+global.Wizard[CardStat] = 1
+}
+
+CardStat = 729
+{
+global.CardName[CardStat] = "Actor Knights Tower"
+
+global.CardText[CardStat] = ""
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardType[CardStat] = 1
+global.CardWorld[CardStat] = 8
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 5000
+global.CardDefense[CardStat] = 1000
+global.CardCrit[CardStat] = 1
+global.BT05[CardStat] = 1
+global.Tarot[CardStat] = 1
+global.Destruction[CardStat] = 1
+}
+
+CardStat = 730
+{
+global.CardName[CardStat] = "Attack Unit, Flying Bishop"
+
+global.CardText[CardStat] = ""
+global.CardFlavor[CardStat] = "Material advantage... the true battle rests on the numbers."
+global.CardType[CardStat] = 1
+global.CardWorld[CardStat] = 8
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 4000
+global.CardDefense[CardStat] = 2000
+global.CardCrit[CardStat] = 1
+global.BT01[CardStat] = 1
+global.Chess[CardStat] = 1
+}
+
+CardStat = 731
+{
+global.CardName[CardStat] = "Battle Unit, Knight Fighter"
+
+global.CardText[CardStat] = ""
+global.CardFlavor[CardStat] = "Jumping right into the battlefield."
+global.CardType[CardStat] = 1
+global.CardWorld[CardStat] = 8
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 2000
+global.CardDefense[CardStat] = 1000
+global.CardCrit[CardStat] = 2
+global.BT01[CardStat] = 1
+global.Chess[CardStat] = 1
+}
+
+CardStat = 732
+{
+global.CardName[CardStat] = "Combat Unit, Guardian Rook"
+
+global.CardText[CardStat] = ""
+global.CardFlavor[CardStat] = "You will be destroyed if you get too close."
+global.CardType[CardStat] = 1
+global.CardWorld[CardStat] = 8
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 4000
+global.CardDefense[CardStat] = 5000
+global.CardCrit[CardStat] = 0
+global.BT01[CardStat] = 1
+global.Chess[CardStat] = 1
+}
+
+CardStat = 733
+{
+global.CardName[CardStat] = "Mobile Unit, Soldier Pawn"
+
+global.CardText[CardStat] = ""
+global.CardFlavor[CardStat] = "Soldiers are not allowed to retreat."
+global.CardType[CardStat] = 1
+global.CardWorld[CardStat] = 8
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 3000
+global.CardDefense[CardStat] = 3000
+global.CardCrit[CardStat] = 1
+global.BT01[CardStat] = 1
+global.Chess[CardStat] = 1
+}
+
+CardStat = 734
+{
+global.CardName[CardStat] = "Actor Knights Chariot"
+
+global.CardText[CardStat] = ""
+global.CardFlavor[CardStat] = "Love, greed, knowledge, violence. The 4 driving force behind a chariot. Chasing dreams and crushing dreams along the way."
+global.CardType[CardStat] = 1
+global.CardWorld[CardStat] = 8
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 6000
+global.CardDefense[CardStat] = 1000
+global.CardCrit[CardStat] = 2
+global.BT03[CardStat] = 1
+global.Tarot[CardStat] = 1
+global.Destruction[CardStat] = 1
+}
+
+CardStat = 735
+{
+global.CardName[CardStat] = "Actor Knights High Priestess"
+
+global.CardText[CardStat] = ""
+
+global.CardFlavor[CardStat] = "The queen has spoken. Go forth. You only live once."
+global.CardType[CardStat] = 1
+global.CardWorld[CardStat] = 8
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 3000
+global.CardDefense[CardStat] = 7000
+global.CardCrit[CardStat] = 1
+global.BT02[CardStat] = 1
+global.Tarot[CardStat] = 1
+global.Defense[CardStat] = 1
+}
+
+CardStat = 736
+{
+global.CardName[CardStat] = "Actor Knights Justice"
+
+global.CardText[CardStat] = ""
+global.CardFlavor[CardStat] = "Not everyone will believe in your sense of justice. That's why we need law and order."
+global.CardType[CardStat] = 1
+global.CardWorld[CardStat] = 8
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 5000
+global.CardDefense[CardStat] = 2000
+global.CardCrit[CardStat] = 2
+global.BT03[CardStat] = 1
+global.Tarot[CardStat] = 1
+}
+
+CardStat = 737
+{
+global.CardName[CardStat] = "Actor Knights Devil"
+
+global.CardText[CardStat] = "This card cannot be called to the center.
+
+When this card enters the field, you may put another card with "+chr(34)+"Actor Knights»"+chr(34)+" in its name from your field into your gauge."
+global.CardFlavor[CardStat] = "Humans are beings that believe in what they believe, rather than reality."
+global.CardType[CardStat] = 1
+global.CardWorld[CardStat] = 8
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 6000
+global.CardDefense[CardStat] = 1000
+global.CardCrit[CardStat] = 2
+global.BT04[CardStat] = 1
+global.Tarot[CardStat] = 1
+}
+
+CardStat = 738
+{
+global.CardName[CardStat] = "Control Unit, Suppression Queen"
+
+global.CardText[CardStat] = ""
+global.CardFlavor[CardStat] = "Positional advantage... that is the shortcut to victory."
+global.CardType[CardStat] = 1
+global.CardWorld[CardStat] = 8
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 4000
+global.CardDefense[CardStat] = 3000
+global.CardCrit[CardStat] = 2
+global.BT01[CardStat] = 1
+global.Chess[CardStat] = 1
+}
+
+CardStat = 739
+{
+global.CardName[CardStat] = "Actor Knights Fortune"
+
+global.CardText[CardStat] = "This card cannot be called to the center.
+
+[Call Cost] [Pay 1 Gauge]
+
+"+chr(34)+"Wheel of Fortune"+chr(34)+" At the beginning of your attack phase, play "+chr(34)+"Rock-Paper-Scissors"+chr(34)+" with your opponent. If you win, you gain 2 life!"
+global.CardFlavor[CardStat] = "No flavor text."
+global.CardType[CardStat] = 1
+global.CardWorld[CardStat] = 8
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 3000
+global.CardDefense[CardStat] = 7000
+global.CardCrit[CardStat] = 2
+global.BT04[CardStat] = 1
+global.Tarot[CardStat] = 1
+}
+
+CardStat = 740
+{
+global.CardName[CardStat] = "Actor Knights Judgment"
+
+global.CardText[CardStat] = "[Call Cost] [Pay 3 gauge]
+
+When this card enters the field, if there are five or more "+chr(171)+"Tarot"+chr(187)+" in your drop zone, draw 2 cards, if there are five or more "+chr(171)+"Destruction"+chr(187)+" in your drop zone, destroy up to two cards, and if there are five or more "+chr(171)+"Defense"+chr(187)+" in your drop zone, you gain 3 life! (If all conditions are fulfilled, you can use them all!)"
+global.CardFlavor[CardStat] = "No flavor text."
+global.CardType[CardStat] = 1
+global.CardWorld[CardStat] = 8
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 6000
+global.CardDefense[CardStat] = 6000
+global.CardCrit[CardStat] = 3
+global.BT05[CardStat] = 1
+global.Tarot[CardStat] = 1
+global.Destruction[CardStat] = 1
+global.Defense[CardStat] = 1
+}
+
+CardStat = 741
+{
+global.CardName[CardStat] = "Actor Knights the World"
+
+global.CardText[CardStat] = "(This card cannot be used under any Flag!!)
+
+[Call Cost] [Pay 1 gauge]
+
+[Act] "+chr(34)+"Complete Dominance"+chr(34)+" You may pay 3 gauge, and choose an "+chr(34)+"Actor Knights the Fool"+chr(34)+" from your hand, and an "+chr(34)+"Actor Knights the Fool"+chr(34)+" from your drop zone, reveal them, and put them on the bottom of your deck. If you do, after this turn, you get another turn!"
+global.CardFlavor[CardStat] = "When you think that you know the world, you will be standing at the entrance."
+global.CardType[CardStat] = 1
+global.CardWorld[CardStat] = 8
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 5000
+global.CardDefense[CardStat] = 5000
+global.CardCrit[CardStat] = 2
+global.BT02[CardStat] = 1
+global.Tarot[CardStat] = 1
+}
+
+CardStat = 742
+{
+global.CardName[CardStat] = "King the Dominator"
+
+global.CardText[CardStat] = "[Cast Cost] Pay 2 gauge. & Put a "+chr(171)+"Chess"+chr(187)+" from your drop zone into this monster's soul.
+
+[Soulguard] (If this card would leave the field, you may discard one soul to prevent it)"
+global.CardFlavor[CardStat] = "He may be a king, but he is a warrior on the battlefield."
+global.CardType[CardStat] = 1
+global.CardWorld[CardStat] = 8
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 6000
+global.CardDefense[CardStat] = 3000
+global.CardCrit[CardStat] = 3
+global.BT01[CardStat] = 1
+global.Chess[CardStat] = 1
+}
+
+CardStat = 969
+{
+global.CardName[CardStat] = "Dragon Ein"
+
+global.CardText[CardStat] = "You may use cards with "+chr(34)+"Dragon"+chr(34)+" in its attribute and <Generic> cards.
+
+Your initial hand becomes four cards, your initial gauge becomes two cards, and your initial life becomes 12!"
+global.CardFlavor[CardStat] = "No flavor text."
+global.CardType[CardStat] = 5
+global.CardWorld[CardStat] = 8
+global.HBT01[CardStat] = 1
+}
+
+CardStat = 1085
+{
+global.CardName[CardStat] = "Buddy Sword"
+
+global.CardText[CardStat] = "[Equip Cost] [Pay 2 gauge & Pay 1 life]
+
+If a buddy monster is on your field, this card gets [Penetrate]."
+global.CardFlavor[CardStat] = "If your buddy is beside you, it's as though you gained the power of a hundred men!"
+global.CardType[CardStat] = 2
+global.CardWorld[CardStat] = 8
+global.CardPower[CardStat] = 5000
+global.CardCrit[CardStat] = 2
+global.HBT01[CardStat] = 1
+global.Weapon[CardStat] = 1
+}
+
+CardStat = 1086
+{
+global.CardName[CardStat] = "Damage Control"
+
+global.CardText[CardStat] = "[Set] (This card remains on the field)
+
+[Counter] [Act] Discard a card from your hand during your opponent's turn. If you do, the next damage dealt to you this turn is reduced by 2. If the card discarded is a "+chr(171)+"Battle Deity Robo"+chr(187)+", the next damage dealt to you this turn is reduced by 4 instead. You may only use this ability once per turn."
+global.CardFlavor[CardStat] = "A difficult card to pull off, be sure to use that strength to the extreme."
+global.CardType[CardStat] = 3
+global.CardWorld[CardStat] = 8
+global.HBT01[CardStat] = 1
+global.BattleDeityRobo[CardStat] = 1
+global.Defense[CardStat] = 1
+}
+
+CardStat = 1087
+{
+global.CardName[CardStat] = "Battle Deity Robo, Genbu"
+
+global.CardText[CardStat] = "[Call Cost] [Pay 2 gauge]"
+global.CardFlavor[CardStat] = "They appear in battles, to stop fights. By destroying both sides."
+global.CardType[CardStat] = 1
+global.CardWorld[CardStat] = 8
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 4000
+global.CardDefense[CardStat] = 4000
+global.CardCrit[CardStat] = 4
+global.HBT01[CardStat] = 1
+global.BattleDeityRobo[CardStat] = 1
+}
+
+CardStat = 1088
+{
+global.CardName[CardStat] = "Actor Knights the Star"
+
+global.CardText[CardStat] = "At the beginning of your main phase, you gain 1 life!"
+global.CardFlavor[CardStat] = "The radiant star, is the hope of men."
+global.CardType[CardStat] = 1
+global.CardWorld[CardStat] = 8
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 2000
+global.CardDefense[CardStat] = 1000
+global.CardCrit[CardStat] = 1
+global.HBT01[CardStat] = 1
+global.Tarot[CardStat] = 1
+global.Star[CardStat] = 1
+}
+
+CardStat = 1089
+{
+global.CardName[CardStat] = "Battle Deity Support"
+
+global.CardText[CardStat] = "[Counter] Choose a monster in battle, and for this turn, give it [Counterattack]! Then, if that monster is a "+chr(171)+"Battle Deity Robo"+chr(187)+", for this turn, it gets an additional power+4000 and defense+4000!"
+global.CardFlavor[CardStat] = "That is a bad move."
+global.CardType[CardStat] = 3
+global.CardWorld[CardStat] = 8
+global.HBT01[CardStat] = 1
+global.BattleDeityRobo[CardStat] = 1
+global.Enhance[CardStat] = 1
+}
+
+CardStat = 1090
+{
+global.CardName[CardStat] = "Actor Knights the Sun"
+
+global.CardText[CardStat] = ""
+global.CardFlavor[CardStat] = "The sun shines upon you. It is also testing you."
+global.CardType[CardStat] = 1
+global.CardWorld[CardStat] = 8
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 4000
+global.CardDefense[CardStat] = 6000
+global.CardCrit[CardStat] = 2
+global.HBT01[CardStat] = 1
+global.Tarot[CardStat] = 1
+global.Star[CardStat] = 1
+}
+
+CardStat = 1091
+{
+global.CardName[CardStat] = "Actor Knights the Moon"
+
+global.CardText[CardStat] = "[Call Cost] [Pay 1 gauge]"
+global.CardFlavor[CardStat] = "The moon is a mirror of your heart. To progress, or to return? Decide for yourself."
+global.CardType[CardStat] = 1
+global.CardWorld[CardStat] = 8
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 7000
+global.CardDefense[CardStat] = 3000
+global.CardCrit[CardStat] = 1
+global.HBT01[CardStat] = 1
+global.Tarot[CardStat] = 1
+global.Star[CardStat] = 1
+}
+
+CardStat = 1092
+{
+global.CardName[CardStat] = "Battle Deity Robo, Sky Dragon"
+
+global.CardText[CardStat] = "[Call Cost] [Pay 1 gauge]"
+global.CardFlavor[CardStat] = "Their bodies, were formed from the pieces of a board game."
+global.CardType[CardStat] = 1
+global.CardWorld[CardStat] = 8
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 6000
+global.CardDefense[CardStat] = 1000
+global.CardCrit[CardStat] = 2
+global.HBT01[CardStat] = 1
+global.BattleDeityRobo[CardStat] = 1
+}
+
+CardStat = 1093
+{
+global.CardName[CardStat] = "Battle Deity Robo, Nightmare"
+
+global.CardText[CardStat] = ""
+global.CardFlavor[CardStat] = "Nobody knows, when and where the Battle Deity Robo are made."
+global.CardType[CardStat] = 1
+global.CardWorld[CardStat] = 8
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 0
+global.CardDefense[CardStat] = 5000
+global.CardCrit[CardStat] = 2
+global.HBT01[CardStat] = 1
+global.BattleDeityRobo[CardStat] = 1
+}
+
+CardStat = 1140
+{
+global.CardName[CardStat] = "Great Fiend, Yamigedo"
+
+global.CardText[CardStat] = "[Call Cost] [Put one or more "+chr(171)+"Hundred Demons"+chr(187)+" monsters from your field into this card's soul & Pay 2 gauge]
+
+"+chr(34)+"Thunder Mine"+chr(34)+" When an attack of a card on your field is nullified by your opponent, deal 1 damage to your opponent!
+
+[Double Attack] [Soulguard]"
+global.CardFlavor[CardStat] = "Destroy, devour, turn everything into nothingness! This world can fall into darkness for all I care."
+global.CardType[CardStat] = 1
+global.CardWorld[CardStat] = 8
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 7000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 7000
+global.HBT02[CardStat] = 1
+global.HundredDemons[CardStat] = 1
+}
+
+CardStat = 1164
+{
+global.CardName[CardStat] = "Parade of Hundred Demons"
+
+global.CardText[CardStat] = "You may use cards with "+chr(34)+"Hundred Demons"+chr(34)+" in its attribute and <Generic> cards."
+global.CardFlavor[CardStat] = "Hundred Demons that creep in the darkness! Devour! Rampage! And destroy the world!"
+global.CardType[CardStat] = 5
+global.CardWorld[CardStat] = 8
+global.HTD02[CardStat] = 1
+global.HBT02[CardStat] = 1
+}
+
+CardStat = 1228
+{
+global.CardName[CardStat] = "Thunder Claw, Narukami"
+
+global.CardText[CardStat] = "[Counter] [Act] During your turn, destroy a monster on your center. If you do, for this turn, this card gets critical+1! You may only use this ability once per turn."
+global.CardFlavor[CardStat] = "I'll be taking your power!"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 2
+global.CardPower[CardStat] = 3000
+global.CardCrit[CardStat] = 2
+global.Weapon[CardStat] = 1
+global.HundredDemons[CardStat] = 1
+global.HBT02[CardStat] = 1
+}
+
+CardStat = 1259
+{
+global.CardName[CardStat] = "Battle Deity Robo, GIZAI Emperor"
+
+global.CardText[CardStat] = "If you are [Ride] on this card, you cannot call non-"+chr(171)+"Battle Deity Robo"+chr(187)+" monsters.
+
+[Counter] [Act] If this card is being attacked, you may discard a "+chr(171)+"Battle Deity Robo"+chr(187)+" from your hand. If you do, for this turn, this card gets [Counterattack]
+
+[Ride] [Pay 2 gauge]"
+global.CardFlavor[CardStat] = "To become a destroyer, or a savior. That all depends on you."
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 8000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 5000
+global.BattleDeityRobo[CardStat] = 1
+global.HBT02[CardStat] = 1
+}
+
+CardStat = 1276
+{
+global.CardName[CardStat] = "Battle Deity Robo, Azul Dragon"
+
+global.CardText[CardStat] = "[Call Cost] [Discard a card from your hand]
+
+[Counter] [Act] If this card is being attacked, you may discard a <Generic> card from your hand. If you do, nullify the attack."
+global.CardFlavor[CardStat] = "If they are the pieces on a grand chess board...... Wouldn't they be the blue dragons?"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 5000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 5000
+global.BattleDeityRobo[CardStat] = 1
+global.HBT02[CardStat] = 1
+}
+
+CardStat = 1277
+{
+global.CardName[CardStat] = "Battle Deity Robo, Search Whale"
+
+global.CardText[CardStat] = ""+chr(34)+"Search and Destroy"+chr(34)+" When this card attacks and destroys an opponent's monster, put the top card of your deck into your gauge."
+global.CardFlavor[CardStat] = "That stance is to cause enemy to underestimate you. Don't fool around."
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 5000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 2000
+global.BattleDeityRobo[CardStat] = 1
+global.HBT02[CardStat] = 1
+}
+
+CardStat = 1278
+{
+global.CardName[CardStat] = "Operation Restraint"
+
+global.CardText[CardStat] = "If you have another "+chr(171)+"Battle Deity Robo"+chr(187)+" on your field, you may cast this card without paying the [Cast Cost].
+
+[Cast Cost] [Discard a card from your hand]
+
+[Counter] For this turn, the next time damage would be dealt to you, it is reduced to 0."
+global.CardFlavor[CardStat] = "I won't let you!"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.BattleDeityRobo[CardStat] = 1
+global.MagicPower[CardStat] = 1
+global.HBT02[CardStat] = 1
+}
+
+CardStat = 1296
+{
+global.CardName[CardStat] = "Battle Deity Robo, Spear Kart"
+
+global.CardText[CardStat] = ""
+global.CardFlavor[CardStat] = "The reason to rush to the battle field. You won't hear it from these steel machines."
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 3000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 2000
+global.BattleDeityRobo[CardStat] = 1
+global.HBT02[CardStat] = 1
+}
+
+CardStat = 1297
+{
+global.CardName[CardStat] = "Battle Deity Robo, Missile Dog"
+
+global.CardText[CardStat] = "[Penetrate] (If this card attacks and destroys your opponent's monster in the center, this card deals damage to your opponent equal to its critical.)"
+global.CardFlavor[CardStat] = "Devices to stop battles? Crazed machines? What in the world are they?"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 3000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 3000
+global.BattleDeityRobo[CardStat] = 1
+global.HBT02[CardStat] = 1
+}
+
+CardStat = 1298
+{
+global.CardName[CardStat] = "Disturb"
+
+global.CardText[CardStat] = "[Cast Cost] [Pay 2 gauge]
+
+[Counter] [Rest] a size 2 or less monster on your opponent's field."
+global.CardFlavor[CardStat] = "Disturb...that is a "+chr(34)+"disruption tactic"+chr(34)+"."
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.MagicPower[CardStat] = 1
+global.HBT02[CardStat] = 1
+}
+
+CardStat = 1299
+{
+global.CardName[CardStat] = "Fall Back"
+
+global.CardText[CardStat] = "[Cast Cost] [Pay 1 life]
+
+Put a "+chr(171)+"Battle Deity Robo"+chr(187)+" monster from your drop zone into your hand."
+global.CardFlavor[CardStat] = "Losses are at 60%. It's... impossible to keep fighting!"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.Get[CardStat] = 1
+global.HBT02[CardStat] = 1
+}
+
+CardStat = 1300
+{
+global.CardName[CardStat] = "End of War"
+
+global.CardText[CardStat] = "You may only cast this card if you have two or more <Generic> monsters on your field.
+
+[Cast Cost] [Pay 3 gauge]
+
+Destroy all cards on the field."
+global.CardFlavor[CardStat] = "There used to be many, but there are now no more reasons to continue fighting."
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.Destruction[CardStat] = 1
+global.HBT02[CardStat] = 1
+}
+
+CardStat = 1329
+{
+global.CardName[CardStat] = "Evil Deity Evil Demon, Goku Yamigedo"
+
+global.CardText[CardStat] = "[Call Cost] [Pay 2 gauge & Put one or more "+chr(171)+"Hundred Demons"+chr(187)+" monsters from your field into this card's soul]
+
+"+chr(34)+"Thunder Mine"+chr(34)+" When a monster enters your opponent's field, deal 1 damage to your opponent! This ability only activates once per turn.
+
+[Penetrate] [Soulguard]"
+global.CardFlavor[CardStat] = "After eating it up, it proceeds to its next prey... its appetite will never be appeased."
+global.CardType[CardStat] = 1
+global.CardWorld[CardStat] = 8
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 7000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 7000
+global.HBT02[CardStat] = 1
+global.HundredDemons[CardStat] = 1
+}
+
+CardStat = 1388
+{
+global.CardName[CardStat] = "Battle Deity Robo, Dark Wolf"
+
+global.CardText[CardStat] = "[Act] Discard this card from your hand and pay 2 gauge. If you do, destroy an item on your opponent's field.
+
+[Counter] [Act] During your opponent's attack phase, discard this card from your hand and pay 3 gauge. If you do, destroy an item on your opponent's field."
+global.CardFlavor[CardStat] = "Tonight, the fangs of the wild beast bares."
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 2000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 2000
+global.BattleDeityRobo[CardStat] = 1
+global.PR[CardStat] = 1
+}
+
+CardStat = 1394
+{
+global.CardName[CardStat] = "Resurrected Evil Deity, Yamigedo"
+
+global.CardText[CardStat] = "[Call Cost] [Pay 2 gauge & Put one or more "+chr(171)+"Hundred Demons"+chr(187)+" monsters from your field into this card's soul]
+
+[Act] You may put a "+chr(171)+"Hundred Demons"+chr(187)+" from your hand into this card's soul. You may only use this ability once per turn.
+
+This card gets all "+chr(34)+"Thunder Mine"+chr(34)+" of cards in its soul.
+
+[Soulguard]"
+global.CardFlavor[CardStat] = ""
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 8000
+global.CardCrit[CardStat] = 3
+global.CardDefense[CardStat] = 5000
+global.HundredDemons[CardStat] = 1
+global.HEB03[CardStat] = 1
+}
+
+CardStat = 1462
+{
+global.CardName[CardStat] = "Unorthodox Arts, Shoraiabare Kandachi!"
+
+global.CardText[CardStat] = "[Cast Cost] [Pay 3 gauge]
+
+Choose cards on your opponent's field up to the number of "+chr(34)+"Thunder Mine"+chr(34)+" on cards in your drop zone. Destroy the chosen cards and deal damage to your opponent equal to the number of cards destroyed!!"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 4
+global.HundredDemons[CardStat] = 1
+global.HBT03[CardStat] = 1
+}
+
+CardStat = 1555
+{
+global.CardName[CardStat] = "Great Battle Deity Robo, KISIN Rakshasa"
+
+global.CardText[CardStat] = "[Call Cost] [Pay 2 gauge]
+
+If you are [Ride] on this card, you cannot call monsters other than "+chr(171)+"Battle Deity Robo"+chr(187)+".
+
+[Act] Discard a card from your hand. If you do, for this turn, this card gets [Penetrate].
+
+[Ride] [Pay 3 gauge & Pay 1 life]"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 7000
+global.CardCrit[CardStat] = 3
+global.CardDefense[CardStat] = 6000
+global.BattleDeityRobo[CardStat] = 1
+global.HBT03[CardStat] = 1
+}
+
+CardStat = 1556
+{
+global.CardName[CardStat] = "Barbed Wire"
+
+global.CardText[CardStat] = "[Counter] [Rest] an item on your opponent's field."
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.BattleDeityRobo[CardStat] = 1
+global.HBT03[CardStat] = 1
+}
+
+CardStat = 1557
+{
+global.CardName[CardStat] = "Battle Deity Robo, Mass Soldier"
+
+global.CardText[CardStat] = "[Counter] [Act] You may discard this card from your hand and pay 1 gauge. If you do, for this turn, an item on your opponent's field gets power-2000, defense-2000 and critical-2."
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 0
+global.CardPower[CardStat] = 1000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 1000
+global.BattleDeityRobo[CardStat] = 1
+global.HBT03[CardStat] = 1
+}
+
+CardStat = 1558
+{
+global.CardName[CardStat] = "Buddy Remodel"
+
+global.CardText[CardStat] = "[Set] (This card remains on the field)
+
+All your buddy monsters on your field get power+1000 and defense+1000!!"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.Enhance[CardStat] = 1
+global.Buddy[CardStat] = 1
+global.HBT03[CardStat] = 1
+}
+
+CardStat = 1585
+{
+global.CardName[CardStat] = "Hasted Evolution, Yamigedo"
+
+global.CardText[CardStat] = "[Counter] [Act] During your final phase, call up to one size 3 monster with "+chr(34)+"Yamigedo"+chr(34)+" in its card name from your deck by paying its [Call Cost], and shuffle your deck. You may only use this ability once per turn.
+
+"+chr(34)+"Thunder Mine"+chr(34)+" When an item on your opponent's field attacks, if this card is in the soul of a monster, deal 1 damage to your opponent! This ability only activates once per turn."
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 0
+global.CardPower[CardStat] = 1000
+global.CardCrit[CardStat] = 0
+global.CardDefense[CardStat] = 1000
+global.HundredDemons[CardStat] = 1
+global.HEB04[CardStat] = 1
+}
+
+CardStat = 1607
+{
+global.CardName[CardStat] = "Shrine of the Corrupted Fuchigami"
+
+global.CardText[CardStat] = "[Set] (This card remains on the field)
+
+During your turn, when a monster with "+chr(34)+"Thunder Mine"+chr(34)+" enters your field, draw a card. This ability only activates once per turn.
+
+You may only [Set] one "+chr(34)+"Shrine of the Corrupted Fuchigami"+chr(34)+" on your field."
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.Draw[CardStat] = 1
+global.HundredDemons[CardStat] = 1
+global.HEB04[CardStat] = 1
+}
+
+CardStat = 1633
+{
+global.CardName[CardStat] = "Hundred Demons Sorcery, Raijogeki"
+
+global.CardText[CardStat] = "You may only cast this card if you have 6 life or less.
+
+[Cast Cost] [Pay 1 gauge]
+
+Put up to two size 1 or lower "+chr(171)+"Hundred Demons"+chr(187)+" from your drop zone into your hand. You may only cast "+chr(34)+"Hundred Demons Sorcery, Raijageki"+chr(34)+" once per turn."
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.Get[CardStat] = 1
+global.HundredDemons[CardStat] = 1
+global.HEB04[CardStat] = 1
+}
+
+CardStat = 1689
+{
+global.CardName[CardStat] = "Specter of Darkness Wasteland, O-Yamigedo"
+
+global.CardText[CardStat] = "[Call Cost] [Put one or more "+chr(171)+"Hundred Demons"+chr(187)+" monsters from your field into this card's soul & Pay 3 gauge]
+
+"+chr(34)+"Thunder Mine"+chr(34)+" When your opponent draws a card, if you have 6 life or less, deal 1 damage to your opponent!
+
+[Double Attack] [Soulguard]"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 8000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 8000
+global.HundredDemons[CardStat] = 1
+global.HBT04[CardStat] = 1
+}
+
+CardStat = 1693
+{
+global.CardName[CardStat] = "Ruler of Hundred Demons, O-Yamigedo"
+
+global.CardText[CardStat] = "[Call Cost] [Pay 2 gauge & Put one or more "+chr(171)+"Hundred Demons"+chr(187)+" monsters from your field into this card's soul]
+
+"+chr(34)+"Thunder Mine"+chr(34)+" When a monster on your opponent's field attacks, deal 1 damage to your opponent! This ability only activates once per turn.
+
+[Penetrate] [Soulguard]"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 7000
+global.CardCrit[CardStat] = 3
+global.CardDefense[CardStat] = 5000
+global.HundredDemons[CardStat] = 1
+global.PR[CardStat] = 1
+}
+
+CardStat = 1808
+{
+global.CardName[CardStat] = "Battle Deity Robo City, Void Fort Mumyo"
+
+global.CardText[CardStat] = "[Call Cost] [Pay 2 gauge]
+
+If you are [Ride] on this card, you cannot call non-"+chr(171)+"Battle Deity Robo"+chr(187)+" monsters.
+
+[Counter] [Act] You may discard a card from your hand. If you do, for this turn, a card on your opponent's field gets power-2000 or defense-2000!!
+
+[Ride] [Pay 2 gauge]"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 6000
+global.CardCrit[CardStat] = 3
+global.CardDefense[CardStat] = 6000
+global.BattleDeityRobo[CardStat] = 1
+global.Destruction[CardStat] = 1
+global.HBT04[CardStat] = 1
+}
+
+CardStat = 1809
+{
+global.CardName[CardStat] = "Battle Deity Robo, Gaolion"
+
+global.CardText[CardStat] = "[Call Cost] [Pay 1 gauge]
+
+"+chr(34)+"Lion Howl"+chr(34)+" When this card enters the field, you may discard a "+chr(171)+"Battle Deity Robo"+chr(187)+" from your hand. If you do, draw two cards. "+chr(34)+"Lion Howl"+chr(34)+" only activates once per turn."
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 6000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 2000
+global.BattleDeityRobo[CardStat] = 1
+global.HBT04[CardStat] = 1
+}
+
+CardStat = 1810
+{
+global.CardName[CardStat] = "Operation Hound"
+
+global.CardText[CardStat] = "[Cast Cost] [Pay 3 gauge & Discard a card from your hand]
+
+Put a soul from a card on your opponent's field into his or her drop zone, then, destroy that card!!"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.BattleDeityRobo[CardStat] = 1
+global.Destruction[CardStat] = 1
+global.HBT04[CardStat] = 1
+}
+
+CardStat = 1811
+{
+global.CardName[CardStat] = "Battle Deity Robo, Stone General"
+
+global.CardText[CardStat] = "When this card is attacked, for this turn, nullify the attacking card's [Penetrate]."
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 4000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 4000
+global.BattleDeityRobo[CardStat] = 1
+global.HBT04[CardStat] = 1
+}
+
+CardStat = 1812
+{
+global.CardName[CardStat] = "Emergency Evade"
+
+global.CardText[CardStat] = "You may only cast this card when you are being attacked.
+
+[Cast Cost] [Pay 2 gauge & Discard a card from your hand]
+
+[Counter] Nullify the attack. This card cannot be nullified."
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.Defense[CardStat] = 1
+global.HBT04[CardStat] = 1
+}
+
+CardStat = 1813
+{
+global.CardName[CardStat] = "Battle Deity Robo Gun, Varian"
+
+global.CardText[CardStat] = "[Equip Cost] [Discard a card from your hand. If you do not have a <Generic> monster on your field, pay 2 gauge]
+
+[Act] [Rest] this card. If you do, deal 1 damage to your opponent!"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 2
+global.CardPower[CardStat] = 4000
+global.CardCrit[CardStat] = 1
+global.BattleDeityRobo[CardStat] = 1
+global.HBT04[CardStat] = 1
+}
+
+CardStat = 1886
+{
+global.CardName[CardStat] = "Battle Deity Robo, Old Kite"
+
+global.CardText[CardStat] = "When this card enters the field, you may discard a "+chr(171)+"Battle Deity Robo"+chr(187)+" from your hand or pay 2 life. If you do, put the top two cards of your deck into your gauge."
+global.CardFlavor[CardStat] = "A bird? No. A battling robot? No... it's a Battle Deity Robo!"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 3000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 4000
+global.BattleDeityRobo[CardStat] = 1
+global.DBT01[CardStat] = 1
+}
+
+CardStat = 1887
+{
+global.CardName[CardStat] = "Escape"
+
+global.CardText[CardStat] = "[Cast Cost] [Pay 1 gauge]
+
+[Set] (This card remains on the field)
+
+[Counter] [Act] During an attack on a size 2 or less monster on your field, you may pay 1 gauge. If you do, return that monster being attacked into your hand. You may only use this ability once per turn.
+
+You may only [Set] one "+chr(34)+"Escape"+chr(34)+" on your field."
+global.CardFlavor[CardStat] = "At most, retreat "+chr(34)+"tactically"+chr(34)+"."
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.BattleDeityRobo[CardStat] = 1
+global.Move[CardStat] = 1
+global.DBT01[CardStat] = 1
+}
+
+CardStat = 1908
+{
+global.CardName[CardStat] = "Battle Deity Robo, Dashogre"
+
+global.CardText[CardStat] = "[Counter] [Act] You may discard a <Generic> card from your hand. If you do, destroy a monster on the field with critical less than or equal to this card's critical!"
+global.CardFlavor[CardStat] = "Advance! Hit! Crush!"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 4000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 5000
+global.BattleDeityRobo[CardStat] = 1
+global.DBT01[CardStat] = 1
+}
+
+CardStat = 1909
+{
+global.CardName[CardStat] = "Battle Deity Robo, Cutcat"
+
+global.CardText[CardStat] = "When this card is discarded from your hand, you may pay 1 life. If you do, call this card from your drop zone."
+global.CardFlavor[CardStat] = "Stooop! That's not something to play around with!"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 3000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 2000
+global.BattleDeityRobo[CardStat] = 1
+global.DBT01[CardStat] = 1
+}
+
+CardStat = 1910
+{
+global.CardName[CardStat] = "Field Canceller"
+
+global.CardText[CardStat] = "[Cast Cost] [Pay 2 gauge & Discard a card from your hand]
+
+Destroy all spells on the field."
+global.CardFlavor[CardStat] = "Before an assault, there was destruction."
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.BattleDeityRobo[CardStat] = 1
+global.DBT01[CardStat] = 1
+}
+
+CardStat = 1911
+{
+global.CardName[CardStat] = "Evil Deity of Cataclysm, Hyakugan Yamigedo "+chr(34)+"Earth Half"+chr(34)+""
+global.CardText[CardStat] = "[Evil Deity]
+
+[Call Cost] [Pay 3 gauge]
+
+The abilities of this card cannot be nullified.
+
+[Act] Pay 1 gauge. If you do, for this turn, all originally size 2 or less "+chr(171)+"Hundred Demons"+chr(187)+" on your left and right become size 0.
+
+If this card would leave the field, you may put the top five cards of your deck into your drop zone. If you do, this card remains on the field.
+
+[Double Attack]"
+global.CardFlavor[CardStat] = "Swallowing the skies and devouring the earth, the real evil deity manifests on earth."
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 1000000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 5000
+global.Deity[CardStat] = 1
+global.HundredDemons[CardStat] = 1
+global.DBT01[CardStat] = 1
+}
+
+CardStat = 1912
+{
+global.CardName[CardStat] = "Evil Deity of Cataclysm, Hyakugan Yamigedo "+chr(34)+"Sky Half"+chr(34)+""
+global.CardText[CardStat] = "[Evil Deity]"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 1000000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 5000
+global.Deity[CardStat] = 1
+global.HundredDemons[CardStat] = 1
+global.DBT01[CardStat] = 1
+}
+
+CardStat = 1913
+{
+global.CardName[CardStat] = "Evil Deity Sorcery, Hyakuganho"
+
+global.CardText[CardStat] = "You may only cast this card if you have a monster with "+chr(34)+"Yamigedo"+chr(34)+" in its card name on your field.
+
+[Cast Cost] [Pay 1 gauge & Put three "+chr(171)+"Hundred Demons"+chr(187)+" monsters from your drop zone on the bottom of your deck in any order]
+
+Destroy a card on your opponent's field!"
+global.CardFlavor[CardStat] = "You cannot avoid it."
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.HundredDemons[CardStat] = 1
+global.DBT01[CardStat] = 1
+}
+
+CardStat = 1914
+{
+global.CardName[CardStat] = "Cataclysmic Invasion"
+
+global.CardText[CardStat] = "[Cast Cost] [Pay 1 gauge]
+
+Choose and use one of the following two. You may only cast "+chr(34)+"Cataclysmic Invasion"+chr(34)+" once per turn.
+
+- Put a card with "+chr(34)+"Yamigedo"+chr(34)+" in its card name from your deck into your hand, and shuffle your deck.
+- If a monster with "+chr(34)+"Yamigedo"+chr(34)+" in its card name is on your field, put a monster from your drop zone into your hand."
+global.CardFlavor[CardStat] = "Ruin, disaster and misfortune -- "+chr(34)+"Catastrophe"+chr(34)+" has befallen."
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.HundredDemons[CardStat] = 1
+global.DBT01[CardStat] = 1
+}
+
+CardStat = 1915
+{
+global.CardName[CardStat] = "Evil Deity Sorcery, Kodamagurai"
+
+global.CardText[CardStat] = "You may only cast this card if you have a monster with "+chr(34)+"Yamigedo"+chr(34)+" in its card name on your field.
+
+[Cast Cost] [Put three "+chr(171)+"Hundred Demons"+chr(187)+" monsters from your drop zone on the bottom of your deck in any order]
+
+[Counter] Destroy a size 2 or less monster on your opponent's field, and you gain 1 life."
+global.CardFlavor[CardStat] = "It continues to devour. Until the stars become nothing but waste in space."
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.HundredDemons[CardStat] = 1
+global.DBT01[CardStat] = 1
+}
+
+CardStat = 2239
+{
+global.CardName[CardStat] = "Great Battle Deity Robo, EMPEROR Dragon"
+
+global.CardText[CardStat] = "[Call Cost] [Pay 1 gauge]
+
+If you are [Ride] on this card, you cannot call monsters other than "+chr(171)+"Battle Deity Robo"+chr(187)+".
+
+When another "+chr(171)+"Battle Deity Robo"+chr(187)+" enters your field, destroy a monster on your opponent's field!
+
+[Ride] [Pay 2 gauge & Pay 2 life]"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 6000
+global.CardCrit[CardStat] = 3
+global.CardDefense[CardStat] = 6000
+global.BattleDeityRobo[CardStat] = 1
+global.DBT02[CardStat] = 1
+}
+
+CardStat = 2240
+{
+global.CardName[CardStat] = "Battle Deity Robo, Sightless Bear"
+
+global.CardText[CardStat] = "[Call Cost] [Pay 2 gauge]
+
+When this card enters the field, destroy a monster on your opponent’s field."
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 4000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 3000
+global.BattleDeityRobo[CardStat] = 1
+global.DBT02[CardStat] = 1
+}
+
+CardStat = 2241
+{
+global.CardName[CardStat] = "Battle Deity Robo, Silver Rabbit"
+
+global.CardText[CardStat] = "[Call Cost] [Pay 1 gauge]
+
+When this card enters the field, you may put a soul from a card on the field into the drop zone, or destroy a spell on your opponent's field."
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 0
+global.CardPower[CardStat] = 1000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 1000
+global.BattleDeityRobo[CardStat] = 1
+global.DBT02[CardStat] = 1
+}
+
+CardStat = 2295
+{
+global.CardName[CardStat] = "A Wise Move!"
+
+global.CardText[CardStat] = "[Cast Cost] [Pay 2 gauge & Pay 1 life]
+
+[Counter] Call a "+chr(171)+"Battle Deity Robo"+chr(187)+" monster or a size 1 monster from your drop zone by paying its [Call Cost]."
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 4
+global.BattleDeityRobo[CardStat] = 1
+global.DBT02[CardStat] = 1
+}
+
+CardStat = 2327
+{
+global.CardName[CardStat] = "Divine Guardians"
+
+global.CardText[CardStat] = "You may use card with <Guardians> in its attribute and <Generic> cards.
+
+Your initial hand becomes 6 cards, your initial gauge becomes one card, and your initial life becomes 12!"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 5
+global.PR[CardStat] = 1
+global.DEB03[CardStat] = 1
+global.DBT02A[CardStat] = 1
+}
+
+CardStat = 2328
+{
+global.CardName[CardStat] = "Searing Executioners"
+
+global.CardText[CardStat] = "You may use card with <Executioners>  in its attribute and <Generic> cards.
+
+Your initial hand becomes six cards, your initial gauge becomes four cards, and your initial life becomes 8!"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 5
+global.PR[CardStat] = 1
+global.DEB03[CardStat] = 1
+global.DBT02A[CardStat] = 1
+}
+
+CardStat = 2370
+{
+global.CardName[CardStat] = "Dragon Zwei"
+
+global.CardText[CardStat] = "You may use monsters with "+chr(34)+"Dragon"+chr(34)+" in its attribute.
+
+Your initial hand becomes four cards, your initial gauge becomes two cards, and your initial life becomes 20!"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 5
+global.PR[CardStat] = 1
+global.DBT03[CardStat] = 1
+}
+
+CardStat = 2497
+{
+global.CardName[CardStat] = "Sharpness Field"
+
+global.CardText[CardStat] = "[Set] (This card remains on the field)
+
+All monsters on you and your opponent's field get power+1000!
+
+All monsters on you and your opponent's field cannot be returned to hand."
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.BattleDeityRobo[CardStat] = 1
+global.DBT03[CardStat] = 1
+}
+
+CardStat = 2606
+{
+global.CardName[CardStat] = "Remove"
+
+global.CardText[CardStat] = "[Cast Cost] [Pay 1 gauge]
+
+Put up to two souls from a card on the field into the drop zone."
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.Destruction[CardStat] = 1
+global.DBT04[CardStat] = 1
+}
+
+CardStat = 2650
+{
+global.CardName[CardStat] = "Benefit"
+
+global.CardText[CardStat] = "[Call Cost] [Put a size 2 or less monster from your field into your drop zone]
+
+[Counter] Put the top card of your deck into your gauge and you gain 2 life."
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.Charge[CardStat] = 1
+global.Recovery[CardStat] = 1
+global.DBT04[CardStat] = 1
+}
+
+CardStat = 2681
+{
+global.CardName[CardStat] = "Killer Order"
+
+global.CardText[CardStat] = "[Cast Cost] [Pay 1 life]
+
+[Counter] Choose and use one of the following two.
+
+- Put the top two cards of your deck into your gauge. Then, if your opponent has two or more cards in their gauge more than yours, put the top two cards of your deck into your gauge.
+- Destroy a size 0 monster on your opponent's field."
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.BattleDeityRobo[CardStat] = 1
+global.PR[CardStat] = 1
+}
+
+CardStat = 2687
+{
+global.CardName[CardStat] = "Ghostly Spirit Yamigedo, "+chr(34)+"Hundred Demons Thunder Mine"+chr(34)+""
+
+global.CardText[CardStat] = "[Call Cost] [Pay 2 gauge & Put this card on top of a size 3 monster with "+chr(34)+"Yamigedo"+chr(34)+" in its card name on your field]
+
+"+chr(34)+"Thunder Mine"+chr(34)+" When an attack of a card on your field is nullified, if you have another "+chr(171)+"Hundred Demons"+chr(187)+" on your field, deal 2 damage to your opponent!!
+
+[Double Attack] [Soulguard]"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 4
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 9000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 7000
+global.HundredDemons[CardStat] = 1
+global.DCBT[CardStat] = 1
+}
+
+CardStat = 2782
+{
+global.CardName[CardStat] = "Explosive Claw, Raiko"
+
+global.CardText[CardStat] = "[Equip Cost] [Pay 1 gauge & Pay 1 life]
+
+All size 3 "+chr(171)+"Hundred Demons"+chr(187)+" monsters on your field get [Move].
+
+[Counter] [Act] During your turn, destroy a monster in your center. If you do, for this turn, this card gets [Double Attack]."
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 2
+global.CardPower[CardStat] = 4000
+global.CardCrit[CardStat] = 2
+global.HundredDemons[CardStat] = 1
+global.Weapon[CardStat] = 1
+global.DCBT[CardStat] = 1
+}
+
+CardStat = 2789
+{
+global.CardName[CardStat] = "Dragon Drei"
+
+global.CardText[CardStat] = "You cannot choose this card as your flag during the start of the fight. You may put this card into your deck and use it if your initial flag is "+chr(34)+"Dragon Zwei"+chr(34)+".
+
+You may use originally monster cards that have "+chr(34)+"Dragon"+chr(34)+" in its attribute.
+
+If your life would become 0, you may put this card on top of your "+chr(34)+"Dragon Zwei"+chr(34)+". If you do, put all cards on your field into your drop zone, and your life becomes 5!"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 5
+}
+
+CardStat = 2790
+{
+global.CardName[CardStat] = "Demonic Dragon Deity of the Black Sun, Gaen"
+
+global.CardText[CardStat] = "This card can only enter the field if your flag is "+chr(34)+"Dragon Drei"+chr(34)+"
+This card in [Transform] cannot be destroyed or returned to hand, and its abilities cannot be nullified.
+
+When you [Transform] into this card, your opponent cannot draw cards during their next turn.
+
+When this card attacks, destroy all monsters on your opponent's field.
+
+[Act] You may discard two size 3 or greater monsters from your hand and pay 2 gauge. If you do, you gain 5 life!
+
+[Transform] [Pay 3 gauge]"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 15000
+global.CardCrit[CardStat] = 5
+global.CardDefense[CardStat] = 12000
+global.Dragon[CardStat] = 1
+global.Deity[CardStat] = 1
+global.DCBT[CardStat] = 1
+}
+
+CardStat = 2865
+{
+global.CardName[CardStat] = "King the Dominator, "+chr(34)+"End Game"+chr(34)+""
+
+global.CardText[CardStat] = "[Call Cost] [Put a "+chr(171)+"Chess"+chr(187)+" from your drop zone into this card's soul & Pay 2 gauge]
+
+When this card enters the field, if there are five or more different "+chr(171)+"Chess"+chr(187)+" in your drop zone, your opponent's life becomes 4.
+
+When a "+chr(171)+"Chess"+chr(187)+" on your field attacks, for this turn, that card gets [Double Attack].
+
+[Soulguard]"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 4
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 6000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 3000
+global.Chess[CardStat] = 1
+global.XBT01[CardStat] = 1
+}
+
+CardStat = 2866
+{
+global.CardName[CardStat] = "Pawn the Promotion"
+
+global.CardText[CardStat] = "When this card enters the field, look at three cards from the top of your deck, put up to one "+chr(171)+"Chess"+chr(187)+" monster or impact from among them into your hand, and put the rest into your drop zone.
+
+This card can also attack during your final phase."
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 0
+global.CardPower[CardStat] = 3000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 1000
+global.Chess[CardStat] = 1
+global.XBT01[CardStat] = 1
+}
+
+CardStat = 2953
+{
+global.CardName[CardStat] = "Obstruct"
+
+global.CardText[CardStat] = "(This card cannot be used under any Flag!!)
+
+You may only cast this card during your opponent's turn.
+
+[Cast Cost] [Pay 1 life]
+
+[Counter] During this turn and the following turn, neither player can draw cards due to their own card effects."
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.Counter[CardStat] = 1
+global.XBT01[CardStat] = 1
+}
+
+CardStat = 2972
+{
+global.CardName[CardStat] = "Burst Claw, Raijin"
+
+global.CardText[CardStat] = "[Equip Cost] [Pay 1 gauge]
+
+This card can attack even if you have a monster on your center.
+
+Nullify [Penetrate] of all cards on your opponent's field."
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 2
+global.CardPower[CardStat] = 2000
+global.CardCrit[CardStat] = 2
+global.HundredDemons[CardStat] = 1
+global.Weapon[CardStat] = 1
+global.XSS01[CardStat] = 1
+}
+
+
+CardStat = 3007
+{
+global.CardName[CardStat] = "INV Stern Spirit, Kokujo Yamigedo"
+
+global.CardText[CardStat] = "[Call Cost] [Put one or more monsters from your field into this card's soul & Pay 3 gauge]
+
+"+chr(34)+"Thunder Mine"+chr(34)+" When a monster enters your opponent's field, deal 1 damage to your opponent!
+
+[Act] Choose a monster on your opponent's field, and discard a "+chr(171)+"Hundred Demons"+chr(187)+" monster or [Omni Lord] from your hand. If you do, destroy the chosen card.
+
+[Double Attack] [Soulguard]"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 8000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 8000
+global.HundredDemons[CardStat] = 1
+global.XSS01[CardStat] = 1
+}
+
+CardStat = 3060
+{
+global.CardName[CardStat] = "Dragon Ein (Summer)"
+
+global.CardText[CardStat] = "You may use cards with "+chr(34)+"Dragon"+chr(34)+" in its attribute and <Generic> cards.
+
+Your initial hand becomes four cards, your initial gauge becomes two cards, and your initial life becomes 12!"
+
+global.CardFlavor[CardStat] = "No flavor text."
+global.CardType[CardStat] = 5
+global.CardWorld[CardStat] = 8
+global.HBT01[CardStat] = 1
+}
+
+
+CardStat = 3073
+{
+global.CardName[CardStat] = "Evil Deity Sorcery, Unorthodox Miasma"
+
+global.CardText[CardStat] = "[Cast Cost] [Put three "+chr(171)+"Hundred Demons"+chr(187)+"monsters from your drop zone on the bottom of your deck in any order]
+
+Choose and use one of the following two.
+
+- If you have a monster with "+chr(34)+"Yamigedo"+chr(34)+" in its card name on your field, for this turn, nullify the abilities of all monsters on your opponent's field.
+- [Counter] For this turn, all "+chr(171)+"Hundred Demons"+chr(187)+" on your field cannot be destroyed by your opponent's card effects."
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.HundredDemons[CardStat] = 1
+global.XSS01[CardStat] = 1
+}
+
+CardStat = 3337
+{
+global.CardName[CardStat] = "The Chaos"
+
+global.CardText[CardStat] = "You may use "+chr(171)+"Chaos"+chr(187)+" cards.
+
+Your initial hand becomes four cards, your initial gauge becomes two cards, and your initial life becomes 10!
+
+You may put monsters of up to a total size of 99 on your field.
+
+All size 30 or greater monsters on your field cannot be destroyed, and their abilities cannot be nullified, by effects."
+global.CardType[CardStat] = 5
+global.CardWorld[CardStat] = 8
+global.PR[CardStat] = 1
+}
+
+CardStat = 3338
+{
+global.CardName[CardStat] = "Ruler of CHAOS, Geargod VII"
+
+global.CardText[CardStat] = "[Call Cost] [Pay 2 gauge]
+
+At the beginning of each player's attack phase, you may call a "+chr(171)+"Chaos"+chr(187)+" monster from your hand without paying its [Call Cost].
+
+"+chr(34)+"CHAOS Drain"+chr(34)+" If this card would leave the field, you may destroy a size 3 or less monster on your field. If you do, this card remains on the field.
+
+[Chaos Territory]"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 50000
+global.CardCrit[CardStat] = 3
+global.CardDefense[CardStat] = 6000
+global.Chaos[CardStat] = 1
+global.XBT02[CardStat] = 1
+}
+
+CardStat = 3345
+{
+global.CardName[CardStat] = "Control Armament, Geargod VII"
+
+global.CardText[CardStat] = "[Call Cost] [Pay 2 gauge]
+
+When this cards attack destroys a monster or deals damage to your opponent, destroy a monster on their field!
+
+"+chr(34)+"CHAOS Drain"+chr(34)+" If this card would leave the field, you may destroy a size 3 or less monster on your field. If you do, this card remains on your field.
+
+[Chaos Territory]"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 30000
+global.CardCrit[CardStat] = 3
+global.CardDefense[CardStat] = 5000
+global.Chaos[CardStat] = 1
+global.PR[CardStat] = 1
+}
+
+CardStat = 3346
+{
+global.CardName[CardStat] = "Launch the Autodeity"
+
+global.CardText[CardStat] = "Put up to one size 30 or greater monster from your deck into your hand, and shuffle your deck. You may only cast "+chr(34)+"Launch the Autodeity"+chr(34)+" once per turn."
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.Chaos[CardStat] = 1
+global.XBT02[CardStat] = 1
+}
+
+CardStat = 3347
+{
+global.CardName[CardStat] = "Chaos Wall, Barrier of Havoc"
+
+global.CardText[CardStat] = "You may only cast this card during an attack on your opponent's turn and if you have two or more "+chr(171)+"Chaos"+chr(187)+" on your field.
+
+[Counter] Nullify the attack, and put the top card of your deck into your gauge."
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.Defense[CardStat] = 1
+global.Chaos[CardStat] = 1
+global.XBT02[CardStat] = 1
+}
+
+CardStat = 3348
+{
+global.CardName[CardStat] = "The Manufactured Havoc, Geargod VII"
+
+global.CardText[CardStat] = "[Call Cost] [Put up to two monsters from your field into this card's soul & Pay 2 gauge]
+
+When this card enters the field, call up to one "+chr(171)+"Chaos"+chr(187)+" monster from your drop zone by paying its [Call Cost].
+
+[Soulguard] [CHAOS Territory] (If this card is on your center, you can put two monsters on your center, including this card.)"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 50000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 5000
+global.Chaos[CardStat] = 1
+global.XBT02[CardStat] = 1
+}
+
+CardStat = 3369
+{
+global.CardName[CardStat] = "Quintessence of Sapience, Geargod VII"
+
+global.CardText[CardStat] = "[Call Cost] [Put a monster from your field into this card's soul & Pay 2 gauge]
+
+If you have four or more "+chr(171)+"Chaos"+chr(187)+" monsters on your field, this card's attack cannot be nullified if it is attacking alone!!
+
+[Penetrate] [Soulguard] [CHAOS Territory] (If this card is on the center, you may put up to two monsters on your center.)"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 30000
+global.CardCrit[CardStat] = 3
+global.CardDefense[CardStat] = 6000
+global.Chaos[CardStat] = 1
+global.PR[CardStat] = 1
+}
+
+CardStat = 3473
+{
+global.CardName[CardStat] = "Chess Magic"
+
+global.CardText[CardStat] = "[Cast Cost] [Pay 1 gauge & Pay 1 life]
+
+Choose and use one of the following two.
+
+- If your opponent has no monsters on the center, move a monster on their left or right to the center.
+- [Counter] [Rest] a size 1 or less monster on your opponent's field."
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.Chess[CardStat] = 1
+global.Defense[CardStat] = 1
+}
+
+CardStat = 3542
+{
+global.CardName[CardStat] = "Around the World, Chibi Panda & Batzz "+chr(34)+"SD"+chr(34)+""
+
+global.CardText[CardStat] = "[Call Cost] [Pay 1 gauge & Pay 1 life]
+
+[Move] [Double Attack]"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 6000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 3000
+global.Buddy[CardStat] = 1
+}
+
+CardStat = 3543
+{
+global.CardName[CardStat] = "Time Sale"
+
+global.CardText[CardStat] = "You may cast this card without paying its [Cast Cost] if your life is 3 or less.
+
+[Cast Cost] [Pay 2 gauge & Pay 2 life]
+
+Draw two cards. You may only cast "+chr(34)+"Time Sale"+chr(34)+" once per turn."
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.Draw[CardStat] = 1
+}
+
+CardStat = 3544
+{
+global.CardName[CardStat] = "Neo Buddy Sword"
+
+global.CardText[CardStat] = "[Equip Cost] [Pay 1 gauge]
+
+When a buddy monster on your field attacks, you gain 2 life! This ability only activates once per turn."
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 2
+global.CardPower[CardStat] = 4000
+global.CardCrit[CardStat] = 2
+global.Buddy[CardStat] = 1
+global.Weapon[CardStat] = 1
+}
+
+CardStat = 3588
+{
+global.CardName[CardStat] = "Around the World, Athora "+chr(34)+"SD"+chr(34)+""
+
+global.CardText[CardStat] = "When this card enters the field, choose a monster on your opponent's field, and you may pay 1 gauge and drop a hand card. If you do, return all souls from the chosen card to hand.
+
+When this card attacks, you gain 1 life!"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 0
+global.CardPower[CardStat] = 2000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 1000
+global.Buddy[CardStat] = 1
+}
+
+CardStat = 3589
+{
+global.CardName[CardStat] = "Around the World, Abygale "+chr(34)+"SD"+chr(34)+""
+
+global.CardText[CardStat] = "[Counter] [Act] Choose a monster on your opponent's field, and you may discard this card from your hand. If you do, put the top two cards of your opponent's deck into the drop zone, and for this turn, the chosen card gets critical-1 for each monster among them! Then, if all the cards put were monsters, destroy the chosen card!!"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 0
+global.CardPower[CardStat] = 2000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 1000
+global.Buddy[CardStat] = 1
+}
+
+CardStat = 3590
+{
+global.CardName[CardStat] = "Loyalty"
+
+global.CardText[CardStat] = "[Cast Cost] [Pay 1 gauge]
+
+[Counter] Choose and use one of the following three.
+
+- For this turn, the next damage you take is reduced by 2.
+- Drop a soul from a monster on the field.
+- For this turn, your opponent cannot call more than three monsters."
+global.CardType[CardStat] = 3
+global.CardWorld[CardStat] = 8
+global.XSS03[CardStat] = 1
+global.Defense[CardStat] = 1
+}
+
+CardStat = 3593
+{
+global.CardName[CardStat] = "Thunder Emperor's Fangs"
+
+global.CardText[CardStat] = "You may use "+chr(171)+"Thunder Empire"+chr(187)+" cards.
+
+Your initial hand becomes seven cards, your initial gauge becomes one card, and your initial life becomes 11!"
+global.CardType[CardStat] = 5
+global.CardWorld[CardStat] = 8
+}
+
+CardStat = 3603
+{
+global.CardName[CardStat] = "Skill Binder"
+
+global.CardText[CardStat] = "[Cast Cost] [Pay 1 gauge]
+
+[Counter] [Rest] a card with [Penetrate] or [Double Attack] on your opponent's field."
+global.CardType[CardStat] = 3
+global.CardWorld[CardStat] = 8
+global.Defense[CardStat] = 1
+}
+
+CardStat = 3650
+{
+global.CardName[CardStat] = "Proto Chaos Machina, Geargod VIII"
+
+global.CardText[CardStat] = "[Call Cost] [When a monster on your center is destroyed, pay 2 gauge]
+
+If this card enters the field during your opponent's turn, you may call a size 3 or less "+chr(171)+"Chaos"+chr(187)+" monster from your drop zone to your center without paying its [Call Cost].
+
+"+chr(34)+"CHAOS Drain"+chr(34)+" If this card would leave the field, you may destroy a size 3 or less monster on your field. If you do, this card remains on the field.
+
+[Chaos Territory] [Penetrate]"
+
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 50000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 6000
+global.Chaos[CardStat] = 1
+global.XBT03[CardStat] = 1
+}
+
+CardStat = 3743
+{
+global.CardName[CardStat] = "Proto Deleter, Geargod ver.088"
+
+global.CardText[CardStat] = "[Call Cost] [Put any number of monsters from your field into this card's soul & Pay 3 gauge]
+
+When this card enters the field, you may call a size 3 or less "+chr(171)+"Chaos"+chr(187)+" monster from your drop zone without paying its [Call Cost].
+
+[Overkill] [Discard a card from your hand at the beginning of your opponent's attack phase] Destroy all monsters on your opponent's field, and you gain life equal to the number of cards destroyed!
+
+[CHAOS Territory] [Soulguard]"
+
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 60000
+global.CardCrit[CardStat] = 3
+global.CardDefense[CardStat] = 6000
+global.Chaos[CardStat] = 1
+}
+
+CardStat = 3770
+{
+global.CardName[CardStat] = "Parade of Hundred Demons (Yamigedo)"
+
+global.CardText[CardStat] = "You may use cards with «Hundred Demons»  in its attributes and <Generic> cards."
+
+global.CardFlavor[CardStat] = ""
+
+global.CardType[CardStat] = 5
+global.CardWorld[CardStat] = 8
+global.HundredDemons[CardStat] = 1
+}
+
+CardStat = 3825
+{
+global.CardName[CardStat] = "CHAOS Transcendant, Geargod ver.099"
+
+global.CardText[CardStat] = "[Call Cost] [Pay 3 gauge]
+
+"+chr(34)+"CHAOS Drain"+chr(34)+" If this card would leave the field, you may destroy a size 3 or less monster on your field. If you do, this card remains on your field.
+
+[Overkill] [Discard a card from your hand during your opponent's turn] Call up to three "+chr(171)+"Chaos"+chr(187)+" monsters from your drop zone without paying their [Call Cost]. Then, if your opponent's cards attack six times or more during this turn, end the turn. 
+
+[CHAOS Territory] [Penetrate]"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 70000
+global.CardCrit[CardStat] = 3
+global.CardDefense[CardStat] = 7000
+global.Chaos[CardStat] = 1
+}
+
+CardStat = 3848
+{
+global.CardName[CardStat] = "Mini Geargods Factory"
+
+global.CardText[CardStat] = "[Set] (This card remains on the field)
+
+At the beginning of your turn, put the top three cards of your deck into the drop zone, and put any number of monsters with "+chr(34)+"Mini Geargod"+chr(34)+" in their card names from among them into your hand.
+
+You may only [Set] one "+chr(34)+"Mini Geargods Factory"+chr(34)+" on your field."
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.Chaos[CardStat] = 1
+}
+
+CardStat = 3849
+{
+global.CardName[CardStat] = "Mini Geargod Green"
+
+global.CardText[CardStat] = "When this card attacks and destroys your opponent's monsters or deals damage to your opponent, you may put this card from the field into the drop zone. If you do, deal 2 damage to your opponent.
+
+[CHAOS Territory]"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 8000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 4000
+global.Chaos[CardStat] = 1
+}
+
+CardStat = 3850
+{
+global.CardName[CardStat] = "Mini Geargod Purple"
+
+global.CardText[CardStat] = "[Act] Choose a card with [Set] on your opponent's field, and you may pay 1 gauge, and put this card from the field into the drop zone. If you do, destroy the chosen card.
+
+[CHAOS Territory]"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 5000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 4000
+global.Chaos[CardStat] = 1
+}
+
+CardStat = 3851
+{
+global.CardName[CardStat] = "Mini Geargod Blue"
+
+global.CardText[CardStat] = "When your opponent's monsters attack, you may choose an attacking monster, pay 1 gauge, and put this card from the field into the drop zone. If you do, destroy the chosen card.
+
+[CHAOS Territory]"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 7000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 2000
+global.Chaos[CardStat] = 1
+}
+
+CardStat = 3852
+{
+global.CardName[CardStat] = "Mini Geargod Red"
+
+global.CardText[CardStat] = "[Act] Choose an item on your opponent's field, and you may pay 1 gauge, and put this card from the field into the drop zone. If you do, destroy the chosen card.
+
+[CHAOS Territory]"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 7000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 5000
+global.Chaos[CardStat] = 1
+}
+
+CardStat = 3853
+{
+global.CardName[CardStat] = "Mini Geargod Yellow"
+
+global.CardText[CardStat] = "When this card enters the field, you may pay 1 life. If you do, put a "+chr(34)+"Mini Geargods Factory"+chr(34)+" from your deck into your hand, and shuffle your deck.
+
+When this card attacks and destroys your opponent's monsters or deals damage to your opponent, you may put this card from the field into the drop zone. If you do, put a card from your opponent's gauge into the drop zone.
+
+[CHAOS Territory]"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 4000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 2000
+global.Chaos[CardStat] = 1
+}
+
+CardStat = 3863
+{
+global.CardName[CardStat] = "Chess Break"
+
+global.CardText[CardStat] = "Choose and use one of the following two.
+
+- Put up to two spells from your opponent's field on the bottom of their deck in any order.
+- [Counter] For this turn, a monster on your opponent's field gets power-2000 and critical-1!"
+global.CardType[CardStat] = 3
+global.CardWorld[CardStat] = 8
+global.Chess[CardStat] = 1
+}
+
+
+CardStat = 3901
+{
+global.CardName[CardStat] = "Mini Geargod Orange"
+
+global.CardText[CardStat] = "[Call Cost] [Pay 1 gauge]
+
+When this card enters the field, choose up to two monsters with "+chr(34)+"Mini Geargod"+chr(34)+" in their card names on your field, and for this turn, the chosen cards get [Double Attack].
+
+[CHAOS Territory]"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 6000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 6000
+global.Chaos[CardStat] = 1
+}
+
+CardStat = 3907
+{
+global.CardName[CardStat] = "Mini Geargod Gold"
+
+global.CardText[CardStat] = "[Call Cost] [Pay 2 gauge]
+
+"+chr(34)+"Mass Production"+chr(34)+" When this card enters the field, call up to three monsters with "+chr(34)+"Mini Geargod"+chr(34)+" in their card names from your drop zone to separate areas by paying their [Call Cost]. "+chr(34)+"Mass Production"+chr(34)+" only activates once per turn.
+
+[CHAOS Territory]"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 5000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 5000
+global.Chaos[CardStat] = 1
+}
+
+CardStat = 3918
+{
+global.CardName[CardStat] = "Mini Geargod Control Machine, Big Wisdom"
+
+global.CardText[CardStat] = "[Call Cost] [Pay 2 gauge]
+
+All monsters with "+chr(34)+"Mini Geargod"+chr(34)+" in their card names on your field get critical+1!
+
+At the beginning of each player's attack phase, you may call a monster with "+chr(34)+"Mini Geargod"+chr(34)+" in its card name from your drop zone by paying its [Call Cost].
+
+[CHAOS Territory]"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 40000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 6000
+global.Chaos[CardStat] = 1
+}
+
+CardStat = 3928
+{
+global.CardName[CardStat] = "Guru Bunbuku, Serious Mode!"
+
+global.CardText[CardStat] = "[Call Cost] [Put any number of cards from your hand into this card's soul]
+
+If this card has two or more different world names of cards in its soul, this card gets power+3000, defense+3000, critical+1 and [Penetrate].
+
+When this card attacks, if this card has four or more different world names of cards in its soul, deal 4 damage to your opponent!
+
+[Move] [Soulguard]"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 8000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 6000
+global.Deity[CardStat] = 1
+global.Guardians[CardStat] = 1
+global.Executioners[CardStat] = 1
+}
+
+CardStat = 3929
+{
+global.CardName[CardStat] = "Black Autodeity's Awakening"
+
+global.CardText[CardStat] = "You may only cast this card during an attack on your opponent's turn.
+
+[Cast Cost] [Pay 1 gauge]
+
+[Counter] Nullify the attack, and put up to one size 3 or less "+chr(171)+"Chaos"+chr(187)+" monster from your drop zone into your hand. If you have two or more "+chr(171)+"Chaos"+chr(187)+" on your field, this card cannot be nullified."
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.Chaos[CardStat] = 1
+}
+
+CardStat = 3939
+{
+global.CardName[CardStat] = "Buddy Option"
+
+global.CardText[CardStat] = "Choose and use one of the following two. 
+
+- For this turn, give a buddy on your field power+5000 and [Penetrate].
+- Put this card into the soul of a monster or item on your field.
+
+If this card is in the soul of a card on your field, abilities of this and all cards on your field cannot be nullified by your opponent's card effects."
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.ThunderEmpire[CardStat] = 1
+global.Buddy[CardStat] = 1
+}
+
+
+CardStat = 3940
+{
+global.CardName[CardStat] = "Genome Upgrader, Geargod ver.1000"
+
+global.CardText[CardStat] = "[Call Cost] [Put the top card of your deck into this card's soul & Pay 3 gauge]
+
+At the beginning of your attack phase, call up to one "+chr(171)+"Chaos"+chr(187)+" monster from your drop zone by paying its [Call Cost].
+
+[Overkill] [Discard a card from your hand during your main phase] Equip up to one "+chr(171)+"Chaos"+chr(187)+" item without paying its [Equip Cost] and call up to one "+chr(171)+"Chaos"+chr(187)+" monster without paying its [Call Cost] from your deck, and shuffle your deck.
+
+[CHAOS Territory] [Soulguard]"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 70000
+global.CardCrit[CardStat] = 3
+global.CardDefense[CardStat] = 7000
+global.Chaos[CardStat] = 1
+}
+
+CardStat = 3941
+{
+global.CardName[CardStat] = "Infinity the Chaos"
+
+global.CardText[CardStat] = "Before the game, put one "+chr(34)+"Infinity the Chaos"+chr(34)+" face down under "+chr(34)+"the Chaos"+chr(34)+".
+
+You may use "+chr(171)+"Chaos"+chr(187)+" cards, and put monsters up to a total size of Infinity.
+
+All size 30 or greater monsters on your field cannot be destroyed, and their abilities cannot be nullified, by effects.
+
+This card is treated as a card on your field. It cannot be destroyed, leave the flag area, and its abilities cannot be nullified, and it can attack even if you have monsters on your center!"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 4
+global.CardPower[CardStat] = 10000
+global.CardCrit[CardStat] = 3
+global.CardDefense[CardStat] = 10000
+global.Chaos[CardStat] = 1
+}
+
+CardStat = 3961
+{
+global.CardName[CardStat] = "Guru Bunbuku"
+
+global.CardText[CardStat] = "[Counter] [Act] Choose a monster on your field, and you may discard this card from your hand and pay 1 gauge. If you do, for this turn, the chosen card gets power+3000, defense+3000, critical+1, [Move] and [Penetrate]."
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 0
+global.CardPower[CardStat] = 1000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 1000
+global.Deity[CardStat] = 1
+global.Guardians[CardStat] = 1
+global.Executioners[CardStat] = 1
+}
+
+CardStat = 4017
+{
+global.CardName[CardStat] = "Mini Geargod Silver"
+
+global.CardText[CardStat] = "[Call Cost] [Pay 1 gauge]
+
+When this card enters the field, for this turn, give all monsters with "+chr(34)+"Mini Geargod"+chr(34)+" in their card names on your field power+3000 and [Penetrate].
+
+[CHAOS Territory]"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 4000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 4000
+global.Chaos[CardStat] = 1
+}
+
+CardStat = 4071
+{
+global.CardName[CardStat] = "Ultimate CHAOS, Geargod COMPLETE"
+
+global.CardText[CardStat] = "[Call Cost] [Put a monster with "+chr(34)+"Geargod"+chr(34)+" in its card name from your field into your drop zone]
+
+"+chr(34)+"CHAOS Drain"+chr(34)+" If this card would leave the field, if you destroy a size 3 or less monster on your field, it remains on the field.
+
+[Overkill:REBOOT] [Discard a card from your hand during your main phase] Call up to three monsters from your drop zone without paying their [Call Cost]. Then, if you have 3 life or less, your life becomes 10!!! ([Overkill:REBOOT] cannot be nullified, your opponent cannot [Counter] it, and may only be used once per game.)
+
+[CHAOS Territory]"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 100000
+global.CardCrit[CardStat] = 4
+global.CardDefense[CardStat] = 10000
+global.Chaos[CardStat] = 1
+}
+
+CardStat = 4072
+{
+global.CardName[CardStat] = "The Chaos Upgrade"
+
+global.CardText[CardStat] = "You may only cast this card if your initial flag is "+chr(34)+"the Chaos"+chr(34)+".
+
+If you have ten or more cards in your drop zone, put up to one face down card from under your flag face up on top of your flag, put up to one card with "+chr(34)+"Geargod"+chr(34)+" in its card name from your deck into your hand, and shuffle your deck. You may only cast "+chr(34)+"The Chaos Upgrade"+chr(34)+" once per turn."
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.Chaos[CardStat] = 1
+}
+
+CardStat = 4073
+{
+global.CardName[CardStat] = "Chaos Gear"
+
+global.CardText[CardStat] = "Draw a card for each monster on your field. Then, drop a hand card. You may only cast "+chr(34)+"Chaos Gear"+chr(34)+" once per turn."
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.Chaos[CardStat] = 1
+}
+
+CardStat = 4116
+{
+global.CardName[CardStat] = "Mini Geargod Rainbow"
+
+global.CardText[CardStat] = ""+chr(34)+"Rainbow Privilege"+chr(34)+" When a monster with "+chr(34)+"Mini Geargod"+chr(34)+" in its card name is put from your field into the drop zone, put the top card of your deck into your gauge, and draw a card. "+chr(34)+"Rainbow Privilege"+chr(34)+" only activates once per turn.
+
+[CHAOS Territory]"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 7000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 1000
+global.Chaos[CardStat] = 1
+}
+
+CardStat = 4117
+{
+global.CardName[CardStat] = "Mini Geargod Pink"
+
+global.CardText[CardStat] = "At the beginning of your opponent's attack phase, choose a card on your opponent's field, and you may put this card from the field into the drop zone. If you do, put a soul from the chosen card into the drop zone.
+
+[CHAOS Territory]"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 4000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 5000
+global.Chaos[CardStat] = 1
+}
+
+CardStat = 4118
+{
+global.CardName[CardStat] = "Chaos Millennium"
+
+global.CardText[CardStat] = "Put up to one "+chr(171)+"Chaos"+chr(187)+" monster from your drop zone into your hand. Then, if you have two or more "+chr(171)+"Chaos"+chr(187)+" monsters on your field, put the top two cards of your deck into your gauge, and if three or more, you gain 2 life! You may only cast "+chr(34)+"Chaos Millennium"+chr(34)+" once per turn."
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.Chaos[CardStat] = 1
+}
+
+CardStat = 4119
+{
+global.CardName[CardStat] = "Remote Control Child Mech, Mini Geargod Black"
+
+global.CardText[CardStat] = "[Call Cost] [Put up to two monsters from your field into this card's soul & Pay 2 gauge]
+
+[Counter] [Act] You may put a size 3 monster with "+chr(34)+"Mini Geargod"+chr(34)+" in its card name from your field into the drop zone. If you do, destroy a card on your opponent's field. This ability only activates once per turn.
+
+[CHAOS Territory] [Soulguard]"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 30000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 5000
+global.Chaos[CardStat] = 1
+}
+
+CardStat = 4120
+{
+global.CardName[CardStat] = "The Overkiller"
+
+global.CardText[CardStat] = "[Cast Cost] [Pay 1 gauge]
+
+[Counter] Choose and use one of the following two. You may only cast "+chr(34)+"The Overkiller"+chr(34)+" once per turn.
+
+- Choose a "+chr(171)+"Chaos"+chr(187)+" on your field, and for this turn, that card's attacks cannot be nullified if it is attacking alone.
+- [Counter] For this turn, a monster on your opponent's field gets critical-3!"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.Chaos[CardStat] = 1
+}
+
+CardStat = 4145
+{
+global.CardName[CardStat] = "Heavenly Specter, Yamigedo Mikazuchi"
+
+global.CardText[CardStat] = "[Call Cost] [Put one or more "+chr(171)+"Hundred Demons"+chr(187)+" monsters from your field into this card's soul & Pay 4 gauge]
+
+At the beginning of each player's turn, put up to one "+chr(171)+"Hundred Demons"+chr(187)+" from your deck into this card's soul, and shuffle your deck.
+
+This card gets the "+chr(34)+"Thunder Mine"+chr(34)+" of the cards in its soul.
+
+[Double Attack] [Soulguard]"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 9000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 9000
+global.HundredDemons[CardStat] = 1
+}
+
+CardStat = 4146
+{
+global.CardName[CardStat] = "Heavenly Claws, Raikiri"
+
+global.CardText[CardStat] = "This card can attack even if you have monsters on your center.
+
+When your opponent takes damage by "+chr(34)+"Thunder Mine"+chr(34)+" effects, put the top card of your deck into your gauge, and draw a card. This ability only activates once per turn."
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 2
+global.CardPower[CardStat] = 2000
+global.CardCrit[CardStat] = 1
+global.Weapon[CardStat] = 1
+global.HundredDemons[CardStat] = 1
+}
+
+CardStat = 4147
+{
+global.CardName[CardStat] = "White Supreme Dragon Deity of Creations, Gaen"
+
+global.CardText[CardStat] = "This card can only enter the field if your flag is "+chr(34)+"Dragon Drei"+chr(34)+".
+
+This card in [Transform] cannot be destroyed or returned to hand, and its abilities cannot be nullified.
+
+When you [Transform] into this card, draw until you have six hand cards!
+
+[Act] Discard a hand card. If you do, for this turn, this card gets [Penetrate] or [Double Attack].
+
+[Transform] [Pay 3 gauge]"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 15000
+global.CardCrit[CardStat] = 4
+global.CardDefense[CardStat] = 12000
+global.Dragon[CardStat] = 1
+global.Deity[CardStat] = 1
+}
+
+CardStat = 4148
+{
+global.CardName[CardStat] = "Crabgantua Punisher!!"
+
+global.CardText[CardStat] = "You may only cast this card if you have eaten four or more crab legs, and neither you nor your opponent has a monster in the center.
+
+Deal 4 damage to the opponent!! This card cannot be nullified and the damage cannot be reduced. In addition, everyone has to be silent while you keep eating crab."
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 4
+global.Seafood[CardStat] = 1
+}
+
+CardStat = 4183
+{
+global.CardName[CardStat] = "Backfeeding Source"
+
+global.CardText[CardStat] = "[Cast Cost] [Put a "+chr(171)+"Hundred Demons"+chr(187)+" from your drop zone on the bottom of your deck]
+
+[Counter] Put the top card of your deck into your gauge, and draw a card. Then, for this turn, if you have a monster with "+chr(34)+"Yamigedo"+chr(34)+" in its card name on your field, damage dealt to your opponent by your card effects cannot be reduced! You may only cast "+chr(34)+"Backfeeding Source"+chr(34)+" once per turn."
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.HundredDemons[CardStat] = 1
+}
+
+CardStat = 4311
+{
+global.CardName[CardStat] = "Gargantua Dragon"
+
+global.CardText[CardStat] = "You may use this card with all flags.
+
+[Call Cost] [Pay 1 gauge & Put the top card of your deck into its soul]
+
+[G.EVO] At the end of the battle of this card, call up to one "+chr(171)+"Dragod"+chr(187)+" monster from your hand on top of this card without paying its [Call Cost].
+
+[Double Attack] [Soulguard]"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 7000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 4000
+global.Dragod[CardStat] = 1
+global.DeityDragonTribe[CardStat] = 1
+}
+
+CardStat = 4312
+{
+global.CardName[CardStat] = "Pugilist Dragon, Gargantua Dragon"
+
+global.CardText[CardStat] = "You may use this card with all flags.
+
+[G.EVO] At the end of the battle of this card, call up to one "+chr(171)+"Dragod"+chr(187)+" monster from your hand on top of this card without paying its [Call Cost]."
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 7000
+global.CardCrit[CardStat] = 3
+global.CardDefense[CardStat] = 4000
+global.Dragod[CardStat] = 1
+global.DeityDragonTribe[CardStat] = 1
+}
+
+CardStat = 4313
+{
+global.CardName[CardStat] = "Awakened Deity, Gargantua Dragon"
+
+global.CardText[CardStat] = "You may use this card with all flags.
+
+[G.EVO] At the end of the battle of this card, call up to one "+chr(171)+"Dragod"+chr(187)+" monster from your hand on top of this card without paying its [Call Cost].
+
+[Penetrate] (If this card attacks and destroys your opponent's monster on the center, it deals damage to your opponent equal to its critical)"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 7000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 4000
+global.Dragod[CardStat] = 1
+global.DeityDragonTribe[CardStat] = 1
+}
+
+CardStat = 4314
+{
+global.CardName[CardStat] = "Little Deity, Garga "+chr(34)+"SD"+chr(34)+""
+
+global.CardText[CardStat] = "You may use this card with all flags.
+
+[Call Cost] [Pay 1 gauge]
+
+When this card enters the field, if you have another "+chr(171)+"Deity Dragon Tribe"+chr(187)+" on your field, destroy all monsters on your opponent's field."
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 3000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 1000
+global.Dragod[CardStat] = 1
+global.DeityDragonTribe[CardStat] = 1
+}
+
+CardStat = 4315
+{
+global.CardName[CardStat] = "Let's Eat Pizza-La! Yuga & Garga"
+
+global.CardText[CardStat] = "You may use this card with all flags.
+
+When this card enters the field, you gain 1 life for every "+chr(171)+"Deity Dragon Tribe"+chr(187)+" monster on your field!"
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 3000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 1000
+global.Dragod[CardStat] = 1
+global.DeityDragonTribe[CardStat] = 1
+}
+
+CardStat = 4316
+{
+global.CardName[CardStat] = "Garga "+chr(34)+"SD"+chr(34)+""
+
+global.CardText[CardStat] = "You may use this card with all flags.
+
+[Call Cost] [Pay 1 gauge]
+
+When this card enters the field, put up to one size 2 or greater "+chr(171)+"Dragod"+chr(187)+" monster from your drop zone into your hand."
+
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 3000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 1000
+global.Dragod[CardStat] = 1
+global.DeityDragonTribe[CardStat] = 1
+}
+
+CardStat = 4425
+{
+global.CardName[CardStat] = "Buddy Block!"
+
+global.CardText[CardStat] = "[Cast Cost] [Pay 1 gauge]
+
+[Counter] Choose and use one of the following two.
+
+- For this turn, the next damage you take is reduced by 3.
+- If your opponent's cards attacked four times or more during this turn, for this turn, you will not take damage from attacks."
+
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.Defense[CardStat] = 1
+global.Buddy[CardStat] = 1
+}
+
+CardStat = 4430
+{
+global.CardName[CardStat] = "Summer With Ace of Games! Yuga & Garga "+chr(34)+"SD"+chr(34)+""
+
+global.CardText[CardStat] = "You may use this card with all flags.
+
+If this month is July or August, this card gets power+3000, defense+3000, and critical+3!!
+
+When this card enters the field, you gain 1 life!
+
+[Penetrate]"
+
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 5000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 5000
+global.Dragod[CardStat] = 1
+global.DeityDragonTribe[CardStat] = 1
+}
+
+CardStat = 4754
+{
+global.CardName[CardStat] = "Daybreak Roar, Gargantua Dragon"
+
+global.CardText[CardStat] = "You may use this card with all flags.
+
+[Call Cost] [Pay 1 gauge and Put the top card of your deck into its soul]
+
+When this card attacks, if you have another "+chr(171)+"Deity Dragon Tribe"+chr(187)+" on your field, draw a card.
+
+[G.EVO] At the end of the battle of this card, call up to one "+chr(171)+"Dragod"+chr(187)+" monster from your hand on top of this card without paying its [Call Cost].
+
+[Move] [Soulguard]"
+global.CardType[CardStat] = 1
+global.CardWorld[CardStat] = 8
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 6000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 5000
+global.Dragod[CardStat] = 1
+global.DeityDragonTribe[CardStat] = 1
+}
+
+CardStat = 4755
+{
+global.CardName[CardStat] = "Yamigedo "+chr(34)+"SD"+chr(34)+""
+
+global.CardText[CardStat] = "[Counter] [Act] During your turn, choose a size 3 "+chr(171)+"Hundred Demons"+chr(187)+" monster on your field, and you may put this card from the field into the chosen card's soul. If you do, [Stand] the chosen card.
+
+"+chr(34)+"Thunder Mine"+chr(34)+" When your opponent draws cards by card effects, if this card is in the soul of a monster, deal 1 damage to your opponent!"
+global.CardType[CardStat] = 1
+global.CardWorld[CardStat] = 8
+global.CardSize[CardStat] = 0
+global.CardPower[CardStat] = 1000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 1000
+global.HundredDemons[CardStat] = 1
+}
+
+CardStat = 4775
+{
+global.CardName[CardStat] = "Fangslash Claws, Goraika"
+
+global.CardText[CardStat] = "This card can attack even if you have monsters on your center.
+
+All "+chr(171)+"Hundred Demons"+chr(187)+" monsters on your field cannot be destroyed by your opponent's card effects.
+
+[Counter] [Act] During your opponent's turn, choose a size 3 "+chr(171)+"Hundred Demons"+chr(187)+" on your field, and put this card from the field into the drop zone. If you do, for this turn, the chosen card gets power+10000, defense+10000 and [Counterattack]."
+global.CardType[CardStat] = 2
+global.CardWorld[CardStat] = 8
+global.CardPower[CardStat] = 3000
+global.CardCrit[CardStat] = 1
+global.HundredDemons[CardStat] = 1
+global.Weapon[CardStat] = 1
+}
+
+CardStat = 4780
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Recover Veil"
+global.CardFlavor[CardStat] = "What saved you was a mysterious veil of light."
+global.CardText[CardStat] = "If your hand cards would be dropped by your opponent's card effects, you may reveal this hand card and pay 1 life. If you do, your hand cards cannot be dropped by that effect.
+
+[Counter] Choose and use one of the following two.
+
+- Put the top two cards of your deck into your gauge.
+- For this turn, the next damage you take by attacks is reduced to 0."
+global.Defense[CardStat] = 1
+}
+
+CardStat = 4804
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Mini Geargod, White"
+global.CardFlavor[CardStat] = "The solitary assistant, White! I will be your opponent."
+global.CardText[CardStat] = "[Call Cost] [Put up to two monsters from your field into its soul & Pay 2 gauge]
+
+All cards with "+chr(34)+"Geargod"+chr(34)+" in their card names on your field get [Penetrate].
+
+[Counter] [Act] You may put two monsters with "+chr(34)+"Geargod"+chr(34)+" in their card names from your drop zone on the bottom of your deck in any order. If you do, [Stand] this card.
+
+[CHAOS Territory] [Soulguard]"
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 50000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 6000
+global.Chaos[CardStat] = 1
+}
+
+CardStat = 4957
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Deity Gargantua Dragon"
+global.CardFlavor[CardStat] = "My evolution cannot be stopped. Though, it is not a journey one accomplishes alone."
+global.CardText[CardStat] = "You may use this card with all flags, and if it is your buddy, you may use "+chr(171)+"Dragod"+chr(187)+" monsters from all worlds.
+[Call Cost] [Pay 1 gauge & Put the top card of your deck into its soul]
+
+[Counter] [Act] During your turn, call this card from the soul of a "+chr(171)+"Dragod"+chr(187)+" by paying its [Call Cost]!
+
+D-[G.EVO] At the end of the battle of this card, draw a card, then, call up to one "+chr(171)+"Dragod"+chr(187)+" monster from your hand on top of this card without paying its [Call Cost]! D-[G.EVO] only activates once per turn. (D-[G.EVO] is also treated as [G.EVO])
+[Move] [Penetrate] [Soulguard]"
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 10000
+global.CardCrit[CardStat] = 3
+global.CardDefense[CardStat] = 5000
+global.Dragod[CardStat] = 1
+global.DeityDragonTribe[CardStat] = 1
+}
+
+CardStat = 4961
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Radiant Combat Deity's Glory"
+global.CardFlavor[CardStat] = "Shine forth, small but brave intentions that guide us towards the future."
+global.CardText[CardStat] = "You may use this card with all flags.
+
+[Cast Cost] [Pay 1 gauge]
+
+[Counter] [G.EVO] Call up to one "+chr(171)+"Deity Dragon Tribe"+chr(187)+" monster with "+chr(34)+"Gargantua"+chr(34)+" in its card name from your drop zone on top of a "+chr(171)+"Dragod"+chr(187)+" monster on your field without paying its [Call Cost], and for this turn, it gets power+5000 and defense+5000! You may only cast "+chr(34)+"Radiant Combat Deity's Glory"+chr(34)+" once per turn."
+global.DeityDragonTribe[CardStat] = 1
+}
+
+CardStat = 4973
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Actor Knights Temperance"
+global.CardFlavor[CardStat] = "To desire or to cooperate. To dream or to compromise. The only one that can be shaken is yourself. Love yourself more."
+global.CardText[CardStat] = "When this card enters the field, you may put another "+chr(171)+"Tarot"+chr(187)+" monster from your field into your gauge."
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 2000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 2000
+global.Tarot[CardStat] = 1
+}
+
+CardStat = 5021
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Silver Soul Release, Deity Gargantua Dragon"
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "You may use this card with all flags, and if it is your buddy, you may use "+chr(171)+"Dragod"+chr(187)+" monsters from all worlds.
+
+If the silver from this card is scraped out, this card gets power+10000!
+
+D-[G.EVO] At the end of the battle of this card, draw a card. Then, call up to one "+chr(171)+"Dragod"+chr(187)+" monster from your hand on top of this card without paying its [Call Cost]! D-[G.EVO] only activates once per turn. (D-[G.EVO] is also treated as [G.EVO])
+
+[Penetrate]"
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 10000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 5000
+global.Dragod[CardStat] = 1
+global.DeityDragonTribe[CardStat] = 1
+}
+
+CardStat = 5128
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Gargantua Knight Dragon"
+global.CardFlavor[CardStat] = "Accept the powers I bestow upon you and fight, my warriors!"
+global.CardText[CardStat] = "[Dragod] (You may use this card with all flags)
+
+[Call Cost] [Pay 2 gauge & Put the top card of your deck into its soul]
+
+[G.BOOST-Base-] At the start of your attack phase, for this turn, all cards on your field get power+1000000! Then, if another "+chr(171)+"Deity Dragon Tribe"+chr(187)+" is on your field, for this turn, all "+chr(171)+"Deity Dragon Tribe"+chr(187)+" on your field get critical+2 and [Penetrate].
+
+[Double Attack] [Soulguard]"
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 10000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 3000
+global.Dragod[CardStat] = 1
+global.DeityDragonTribe[CardStat] = 1
+}
+
+CardStat = 5137
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Combat Deity Knight, Gargantua Knight Dragon"
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "[Dragod] (You may use this card with all flags)
+
+[Call Cost] [Pay 1 gauge & Put the top card of your deck into its soul]
+
+[G.BOOST-Base-] At the start of your attack phase, for this turn, all cards on your field get power+10000! Then, if another "+chr(171)+"Deity Dragon Tribe"+chr(187)+" is on your field, for this turn, all "+chr(171)+"Deity Dragon Tribe"+chr(187)+" on your field get [Penetrate].
+
+[Double Attack] [Soulguard]"
+
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 7000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 3000
+global.Dragod[CardStat] = 1
+global.DeityDragonTribe[CardStat] = 1
+}
+
+CardStat = 5138
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Awakened Deity Dragon, Gargantua Knight Dragon"
+global.CardFlavor[CardStat] = "Awaken now, my new warriors!"
+global.CardText[CardStat] = "[Dragod] (You may use this card with all flags).
+
+[Call Cost] [Pay 1 gauge & Put the top card of your deck into its soul]
+
+[G.BOOST-Base-] At the start of your attack phase, for this turn, all cards on your field get power+10000! Then, if another "+chr(171)+"Deity Dragon Tribe"+chr(187)+" is on your field, for this turn, all "+chr(171)+"Deity Dragon Tribe"+chr(187)+" on your field get critical+1!!
+
+[Double Attack] [Soulguard]"
+
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 7000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 3000
+global.Dragod[CardStat] = 1
+global.DeityDragonTribe[CardStat] = 1
+}
+
+CardStat = 5168
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Mini Geargod Skeleton"
+global.CardFlavor[CardStat] = "	I'm Skeleton... The secret weapon with limitless possibilities!"
+global.CardText[CardStat] = "You may only call "+chr(34)+"Mini Geargod Skeleton"+chr(34)+" once per turn.
+
+When this card enters the field, look at the top four cards of your deck, put any number of cards with "+chr(34)+"Geargod"+chr(34)+" in their card names from among them into your hand, and drop the rest.
+
+[CHAOS Territory]"
+
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 5000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 3000
+global.Chaos[CardStat] = 1
+}
+
+CardStat = 5169
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Vanguard & Buddyfight Ultra Big Card Fest 2019"
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "[Counter] Drop a hand card. If you do, for this turn, the next damage you take is reduced to 0.
+
+At the start of your main phase, if this card is in your drop zone, you may pay 1 gauge and drop a hand card. If you do, put this card from the drop zone into your hand."
+
+global.Buddy[CardStat] = 1
+}
+
+CardStat = 5170
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Buddyfight "+chr(34)+"the 5th anniversary"+chr(34)+""
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "You may only cast this card if your life is 5.
+
+[Counter] Choose and use one of the following two. 
+
+- Put the top five cards of your deck into your gauge, and you gain 5 life!
+- Destroy up to five cards on your opponent's field"
+
+global.Buddy[CardStat] = 1
+}
+
+CardStat = 5171
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Here Comes the Event! Garga "+chr(34)+"SD"+chr(34)+""
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "You may use this card with all flags.
+
+[Counter] "+chr(34)+"Here Comes The Event!"+chr(34)+" If this card is in the soul of a monster, call this card from the soul. "+chr(34)+"Here Comes The Event!"+chr(34)+" only activates once per turn. 
+
+At the end of the battle of this card, you may put this card from the field into the soul of a monster on your field."
+
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 3000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 1000
+global.Dragod[CardStat] = 1
+global.DeityDragonTribe[CardStat] = 1
+}
+
+CardStat = 5321
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "New Power, Gargantua Knight Dragon"
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "[Dragod] (You may use this card with all flags).
+
+[G.BOOST-Base-] At the start of your attack phase, for this turn, all cards on your field get power+10000! Then, if you have another «Deity Dragon Tribe» on your field, for this turn, this card gets critical+1."
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 7000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 3000
+global.Dragod[CardStat] = 1
+global.DeityDragonTribe[CardStat] = 1
+}
+
+CardStat = 5322
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Super Clash!! Geargod & Wisdom"
+global.CardFlavor[CardStat] = ""
+global.CardText[CardStat] = "[Cast Cost] [Pay 1 gauge]
+
+[Counter] Choose and use one of the following two. You may only cast "+chr(34)+"Super Clash!! Geargod & Wisdom"+chr(34)+" once per turn
+
+- Choose a "+chr(171)+"Chaos"+chr(187)+" on your field, and for this turn, the chosen card's power and critical cannot be reduced by your opponent's card effects.
+- Call a "+chr(171)+"Chaos"+chr(187)+" monster from your drop zone by paying its [Call Cost]."
+global.Summon[CardStat] = 1
+global.Chaos[CardStat] = 1
+}
+
+CardStat = 5341
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "CHAOS Vanguard, Geargod ver. ZERO"
+global.CardFlavor[CardStat] = "Finally, I can start my Buddyfight."
+global.CardText[CardStat] = "[Call Cost] [Pay 3 gauge]
+At the start of each player's attack phase, call up to one size 3 or less "+chr(171)+"Chaos"+chr(187)+" from your hand or drop zone without paying its [Call Cost].
+
+"+chr(34)+"CHAOS Drain"+chr(34)+" If this card would leave the field, you may destroy a size 3 or less monster on your field. If you do, this card remains on the field.
+
+[Overkill: REB00T] [During an attack on your opponent's turn, drop a hand card] Nullify the attack. Then, if your opponent's cards attacked four times or more during this turn, end the turn!!!
+
+[CHAOS Territory] [Double Attack]"
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 70000
+global.CardCrit[CardStat] = 3
+global.CardDefense[CardStat] = 7000
+global.Chaos[CardStat] = 1
+}
+
+CardStat = 5349
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Buddy Trust!"
+global.CardFlavor[CardStat] = "Trust overrides all kinds of powers."
+global.CardText[CardStat] = "[Cast Cost] [Pay 1 gauge]
+
+[Counter] Choose and use one of the following two.
+
+- For this turn, reduce the damage you would take from your opponent's monster effects by 2.
+- For this turn, all monsters on each player's field cannot be returned to hand."
+
+global.Buddy[CardStat] = 1
+}
+
+CardStat = 5363
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Chaos Wall, Absolute Barrier"
+global.CardFlavor[CardStat] = "The absolute barrier is unbreakable."
+global.CardText[CardStat] = "You may only cast this card during an attack on your opponent's turn, and if a size 3 or greater monster is on your field.
+
+[Counter] Nullify the attack, put the top card of your deck into your gauge, and you gain 1 life. Then, if two or more «Chaos» are on your field, draw a card, and this card cannot be nullified."
+global.Chaos[CardStat] = 1
+global.Defense[CardStat] = 1
+}
+
+CardStat = 5408
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 4
+global.CardName[CardStat] = "Holy Punisher!!"
+global.CardFlavor[CardStat] = "May the holy power crush you into atoms!"
+global.CardText[CardStat] = "You may only cast this card if your opponent life is 4 or less, and a monster with "+chr(34)+"Wehr"+chr(34)+" in its card name is on your field.
+
+[Cast Cost] [Pay 2 gauge]
+
+Deal 4 damage to your opponent!! This card cannot be nullified and the damage cannot be reduced. If your opponent's life would become 0 by this card, it cannot be changed by your opponent's cards. (Unrevivable)"
+
+global.DeityDragonTribe[CardStat] = 1
+}
+
+CardStat = 5546
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "LOTTERIA prawn burger!"
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "[Cast Cost] [Drop two hand cards]
+
+[Counter] Destroy all monsters on your opponent's field, and if you dropped two hand cards with the same name for the [Cast Cost], you gain 3 life!"
+global.Hamburger[CardStat] = 1
+}
+
+CardStat = 5547
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Double cheese LOTTERIA cheese burger!"
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "[Cast Cost] [Drop two hand cards]
+
+[Counter] [Rest] all monsters on your opponent's field, and if you dropped two hand cards with the same name for the [Cast Cost], put the top three cards of your deck into your gauge!"
+global.Hamburger[CardStat] = 1
+}
+
+CardStat = 5548
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Evil Deity Sorcery, Vicious Cataclysmic Circle"
+global.CardFlavor[CardStat] = "The eternal cataclysmic transmigration has begun."
+global.CardText[CardStat] = "[Cast Cost] [Pay 1 life]
+
+Choose and use one of the following two. You may only cast "+chr(34)+"Evil Deity Sorcery, Vicious Cataclysmic Circle"+chr(34)+" once per turn.
+
+- Put up to two monsters with different card names with "+chr(34)+"Yamigedo"+chr(34)+" in their card names from your deck into your hand, and shuffle your deck. If you put two, drop a hand card.
+- [Counter] Call a "+chr(171)+"Hundred Demons"+chr(187)+" monster from your drop zone by paying its [Call Cost]."
+global.HundredDemons[CardStat] = 1
+global.Get[CardStat] = 1
+global.Summon[CardStat] = 1
+}
+
+CardStat = 5549
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Cataclysmic Seed, Hyakugan Yamigedo Larva"
+global.CardFlavor[CardStat] = "The seed will not cease to grow until this world comes to an end."
+global.CardText[CardStat] = "When this card is put from your deck into your drop zone by card effects, you may call this card from your drop zone.
+
+"+chr(34)+"Cataclysmic Reincarnation"+chr(34)+" When this card enters the field, if a size 3 monster with "+chr(34)+"Yamigedo"+chr(34)+" in its card name is on your field, put up to one "+chr(171)+"Hundred Demons"+chr(187)+" from your drop zone into your hand. "+chr(34)+"Cataclysmic Reincarnation"+chr(34)+" only activates once per turn."
+global.CardPower[CardStat] = 3000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 1000
+global.HundredDemons[CardStat] = 1
+}
+
+CardStat = 5550
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Galloping Combat Deity, Gargantua Blade Centaur"
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "[Dragod] (You may use this card with all flags.)
+
+[Call Cost] [Pay 1 gauge & Put the top card of your deck into its soul]
+
+[G.BOOST-Craft-] At the start of your attack phase, for this turn, all monsters on your field get [Penetrate]. Then,  if another "+chr(171)+"Deity Dragon Tribe"+chr(187)+" is on your field, for this turn, all monsters on your field get [Double Attack].
+
+[Move] [Soulguard]"
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 7000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 3000
+global.Dragod[CardStat] = 1
+global.DeityDragonTribe[CardStat] = 1
+}
+
+CardStat = 5551
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Gargantua Bladecentaur"
+global.CardFlavor[CardStat] = "We will not stop! Push forward, warriors!"
+global.CardText[CardStat] = "[Dragod] (You may use this card with all flags)
+
+[Call Cost] [Pay 2 gauge & Put the top card of your deck into its soul]
+
+[G.BOOST-Craft-] At the start of your attack phase, for this turn, all cards on your field get [Double Attack]. If another "+chr(171)+"Deity Dragon Tribe"+chr(187)+" is on your field, for this turn, all cards on your field get [Triple Attack] instead.
+
+[Move] [Soulguard]"
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 10000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 3000
+global.Dragod[CardStat] = 1
+global.DeityDragonTribe[CardStat] = 1
+}
+
+CardStat = 5552
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Promise of Rainbow"
+global.CardFlavor[CardStat] = "Even though you've left once, I'll always be there for you."
+global.CardText[CardStat] = "When this card is put into the drop zone from your deck by your opponent's card effects, you may put this card from the drop zone into your hand.
+
+[Counter] Choose and use one of the following two. 
+
+- [Rest] a monster on your opponent's field.
+- For this turn, cards from your deck cannot be dropped by your opponent's card effects."
+global.Buddy[CardStat] = 1
+}
+
+CardStat = 5670
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Hundred Demons Sorcery, Thunderbolt Exploding Circle"
+global.CardFlavor[CardStat] = "We can keep going Yamigedo! We can do so much more with our power!"
+global.CardText[CardStat] = "You may only cast this card if a size 3 monster with "+chr(34)+"Yamigedo"+chr(34)+" in its card name is on your field.
+
+[Counter] Draw a card, then choose and use one of the following two.
+
+-[Stand] a "+chr(171)+"Hundred Demons"+chr(187)+" on your field.
+- Choose a monster on your field. You gain life equal to the chosen monster's size, and for this turn, the next time that card would be destroyed, nullify its destruction."
+global.Defense[CardStat] = 1
+global.HundredDemons[CardStat] = 1
+}
+
+CardStat = 5671
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Hyakurai Vortex"
+global.CardFlavor[CardStat] = "Once the chain of lightning is roused, the captured enemies will never escape."
+global.CardText[CardStat] = "[Set] (This card remains on the field)
+
+The abilities of all "+chr(171)+"Hundred Demons"+chr(187)+" on your field cannot be nullified and their souls cannot dropped by your opponent's card effects.
+
+When your opponent is dealt damage by your card effects, put the top card of your deck into your gauge, you gain 1 life, and draw a card. This ability only activates once per turn.
+
+You may only [Set] one "+chr(34)+"Hyakurai Vortex"+chr(34)+" on your field."
+global.HundredDemons[CardStat] = 1
+}
+
+CardStat = 5672
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Light Specter, Yamigedo Mikazuchi"
+global.CardFlavor[CardStat] = "In the distant future, people call it the "+chr(34)+"Benevolent Deity of Light"+chr(34)+"."
+global.CardText[CardStat] = "[Call Cost] [Put one or more "+chr(171)+"Hundred Demons"+chr(187)+" monsters from your field into its soul & Pay 2 gauge]
+
+At the end of your turn, you may pay 1 life. If you do, call up to one monster with "+chr(34)+"Yamigedo"+chr(34)+" in its card name from your hand or drop zone on top of this card without paying its [Call Cost].
+
+"+chr(34)+"Thunder Mine"+chr(34)+" When a card on your opponent's field attacks alone, deal 1 damage to your opponent!
+
+[Double Attack] [Soulguard]"
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 8000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 8000
+global.HundredDemons[CardStat] = 1
+}
+
+CardStat = 5673
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "The Convulsion"
+global.CardFlavor[CardStat] = "A leftover world is useless. I'll go eat up the next world...And that's it."
+global.CardText[CardStat] = "You may only cast this card if a size 3 monster with "+chr(34)+"Yamigedo"+chr(34)+" in its card name is on your field, and twenty or more "+chr(171)+"Hundred Demons"+chr(187)+" are in your drop zone.
+
+[Counter] Return all cards from your hand, gauge and drop zone to your deck, and shuffle it. Then, draw six cards, put the top two cards of your deck into your gauge, and your life becomes 10!! You may only cast "+chr(34)+"The Convulsion"+chr(34)+" once per game."
+global.HundredDemons[CardStat] = 1
+}
+
+CardStat = 5674
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 2
+global.CardName[CardStat] = "Giant Claw of Evil Deity, Gokurai"
+global.CardFlavor[CardStat] = "Soul of the evil deity resides in this claw. It will end the world with what's inside."
+global.CardText[CardStat] = "You may only equip this card if a size 3 monster with "+chr(34)+"Yamigedo"+chr(34)+" in its card name is on your field.
+[Equip Cost] [Pay 1 gauge & Pay 2 life]
+
+This card on the field cannot be destroyed or leave the field by your opponent's card effects.
+
+This card can attack even if there is a monster on your center.
+
+You cannot take damage if a size 3 monster with "+chr(34)+"Hyakugan"+chr(34)+" in its card name is on your center.
+
+[Penetrate] [Double Attack]"
+global.CardPower[CardStat] = 7000
+global.CardCrit[CardStat] = 2
+global.HundredDemons[CardStat] = 1
+global.Weapon[CardStat] = 1
+}
+
+CardStat = 5765
+{
+global.CardName[CardStat] = "Parade of Hundred Demons (Bolt & Yamigedo SD)"
+
+global.CardText[CardStat] = "You may use cards with «Hundred Demons»  in its attributes and <Generic> cards."
+
+global.CardFlavor[CardStat] = ""
+
+global.CardType[CardStat] = 5
+global.CardWorld[CardStat] = 8
+global.HundredDemons[CardStat] = 1
+}
+
+CardStat = 5766
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Mediator of Prosperity & Vanities, ReAc: Empress"
+global.CardFlavor[CardStat] = "No matter how foolish is sounds, she believes that happiness is kept through meditation."
+global.CardText[CardStat] = "[Counter] [Act] You may drop this hand card. If you do, for this turn, the next time your opponent would look at the entire deck, your opponent looks at the top four cards of the deck instead."
+
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 3000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 2000
+global.Tarot[CardStat] = 1
+}
+
+CardStat = 5767
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Gargantua Slash Wyvern"
+global.CardFlavor[CardStat] = "My wings are the fierce blades piercing through the dawn. My soul is soaring high in the sky!"
+global.CardText[CardStat] = "[Dragod]
+
+[Call Cost] [Pay 2 gauge & Put the top card of your deck into its soul]
+
+[G.BOOST-Will-] At the start of your attack phase, draw a card, and for this turn, all cards on your field get power+5000! Then, if another "+chr(171)+"Deity Dragon Tribe"+chr(187)+" is on your field, for this turn, at the end of the battles that cards on your field attack, you gain 1 life, and deal 1 damage to your opponent!
+
+[Move] [Double Attack] [Soulguard]"
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 10000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 3000
+global.Dragod[CardStat] = 1
+global.DeityDragonTribe[CardStat] = 1
+}
+
+CardStat = 5768
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Sweet Happy Time"
+global.CardFlavor[CardStat] = ""
+global.CardText[CardStat] = "[Cast Cost] [Pay 1 life]
+
+[Counter] Choose and use one of the following three.
+
+- For this turn, all monsters on your opponent's field get defense-10000!
+- For this turn, all monsters on your field cannot be [Rest] by your opponent's card effects!
+- For this turn, the abilities of all monsters on your field cannot be nullified by your opponent's card effects!"
+global.Buddy[CardStat] = 1
+}
+
+CardStat = 5955
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Keeper of Time, Time Ruler Dragon"
+global.CardFlavor[CardStat] = "Another deity, Time Ruler Dragon reigns. What is it plotting...?"
+global.CardText[CardStat] = "[Dragod] (You may use this card with all flags)
+
+[Call Cost] [Pay 1 gauge & Put the top card of your deck into its soul]
+
+"+chr(34)+"Wind Kronos"+chr(34)+" At the start of your turn, you may put a card from your drop zone into this card's soul until one card is in its soul.
+
+When this card attacks, put up to one monster from your opponent's field on the bottom of their deck.
+
+[Double Attack] [Soulguard]"
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 7000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 7000
+global.Dragod[CardStat] = 1
+global.TimeDragon[CardStat] = 1
+}
+
+CardStat = 5956
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Eon Reigning Deity, Time Ruler Dragon"
+global.CardFlavor[CardStat] = "I am the one and ALL. The deity who dominates everything."
+global.CardText[CardStat] = "[Dragod] (You may use this card with all flags.)
+
+[Call Cost] [Pay 2 gauge & Put the top two cards of your deck into its soul]
+
+"+chr(34)+"Wind Kronos"+chr(34)+" At the start of your turn, you may put cards from your drop zone into this card's soul until two cards are in this card's soul.
+
+When this card attacks, nullify all abilities of up to one card on your opponent's field, and put it on the bottom of your opponent's deck.
+
+[Double Attack] [Soulguard]"
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 8000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 8000
+global.Dragod[CardStat] = 1
+global.TimeDragon[CardStat] = 1
+}
+
+CardStat = 5957
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 5
+global.CardName[CardStat] = "Godclock"
+global.CardFlavor[CardStat] = "No flavor text."
+global.CardText[CardStat] = "Put one "+chr(34)+"Clock-I"+chr(34)+", "+chr(34)+"Clock-II"+chr(34)+" & "+chr(34)+"Clock-III"+chr(34)+" with this card, and start the fight with this side of the card.
+
+You may use "+chr(171)+"Time Dragon"+chr(187)+" cards, and your flags cannot be flipped face down by your opponent's card effects.
+
+At the end of your opponent's turn, if three of your flags are in [Reversal], you may put a monster with "+chr(34)+"Time Ruler"+chr(34)+" in its card name from your field or hand into the drop zone. If you do, [Reversal] (flip over) this card."
+global.Godclock[CardStat] = 1
+global.TimeDragon[CardStat] = 1
+}
+
+CardStat = 5958
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 5
+global.CardName[CardStat] = "Clock-I"
+global.CardFlavor[CardStat] = "No flavor text."
+global.CardText[CardStat] = "Start the fight with this side of the card.
+
+[Counter] [Act] "+chr(34)+"Horary Domination"+chr(34)+" You may put a hand card on the bottom of your deck and [Reversal] (flip over) this card. If you do, look at the top three cards of your deck, put one from among them into your hand, and drop the rest. You may only use "+chr(34)+"Horary Domination"+chr(34)+" once per turn."
+global.ClockI[CardStat] = 1
+global.TimeDragon[CardStat] = 1
+}
+
+CardStat = 5959
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 5
+global.CardName[CardStat] = "Clock-II"
+global.CardFlavor[CardStat] = "No flavor text."
+global.CardText[CardStat] = "Start the fight with this side of the card.
+
+[Counter] [Act] "+chr(34)+"Horary Domination"+chr(34)+" You may put a hand card on the bottom of your deck and [Reversal] (flip over) this card. If you do, draw a card, and if there are any cards in battle, end the battle. You may only use "+chr(34)+"Horary Domination"+chr(34)+" once per turn."
+global.ClockII[CardStat] = 1
+global.TimeDragon[CardStat] = 1
+}
+
+CardStat = 5960
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 5
+global.CardName[CardStat] = "Clock-III"
+global.CardFlavor[CardStat] = "No flavor text."
+global.CardText[CardStat] = "Start the fight with this side of the card.
+
+[Counter] [Act] "+chr(34)+"Horary Domination"+chr(34)+" Choose a "+chr(171)+"Time Dragon"+chr(187)+" monster in your drop zone, you may put a hand card on the bottom of your deck and [Reversal] (flip over) this card. If you do, call the chosen card by paying its [Call Cost]. You may only use "+chr(34)+"Horary Domination"+chr(34)+" once per turn."
+global.ClockIII[CardStat] = 1
+global.TimeDragon[CardStat] = 1
+}
+
+CardStat = 5961
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 5
+global.CardName[CardStat] = "Perfected Deity of Eon, The Endruler Dragon"
+global.CardFlavor[CardStat] = "I am the one who brings peace. Bow before me, you weak and foolish creatures."
+global.CardText[CardStat] = "All your flags in [Reversal] become one flag!
+
+You may use "+chr(171)+"Time Dragon"+chr(187)+" cards.
+
+This card is treated as a card on your field, it cannot be destroyed, leave the flag area, and its abilities cannot be nullified, and it cannot be flipped face down by your opponent's card effects and it can attack even if you have monsters on your center!"
+global.Dragod[CardStat] = 1
+global.TimeDragon[CardStat] = 1
+}
+
+CardStat = 5962
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 5
+global.CardName[CardStat] = "Perfected Deity of Eon, The Endruler Dragon"
+global.CardText[CardStat] = " "
+global.CardFlavor[CardStat] = "I am the one who brings peace. Bow before me, you weak and foolish creatures."
+global.Dragod[CardStat] = 1
+global.TimeDragon[CardStat] = 1
+}
+
+CardStat = 5963
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 5
+global.CardName[CardStat] = "Perfected Deity of Eon, The Endruler Dragon"
+global.CardText[CardStat] = " "
+global.CardFlavor[CardStat] = "I am the one who brings peace. Bow before me, you weak and foolish creatures."
+global.Dragod[CardStat] = 1
+global.TimeDragon[CardStat] = 1
+}
+
+CardStat = 5964
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 5
+global.CardName[CardStat] = "Perfected Deity of Eon, The Endruler Dragon"
+global.CardFlavor[CardStat] = "I am the one who brings peace. Bow before me, you weak and foolish creatures."
+global.CardText[CardStat] = ""+chr(34)+"Eternal Eon"+chr(34)+" When this card attacks alone, for this battle, stop the time of your opponent and all of your opponent's cards. Your opponent cannot [Counter] against this ability. (Card abilities cannot be declared and used in stopped time, and keyword abilities cannot be used. A player in stopped time cannot declare and use any cards and abilities.)
+
+[Triple Attack]"
+global.Dragod[CardStat] = 1
+global.TimeDragon[CardStat] = 1
+}
+
+CardStat = 6064
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Ultimate Garga"
+global.CardFlavor[CardStat] = "I'll head off to the future, together with my buddy! Don't even think about stopping us!"
+global.CardText[CardStat] = "[Call Cost] [Pay 3 gauge & Put the top two cards of your deck into its soul]
+
+Abilities of all cards on your field cannot be nullified by your opponent's card effects.
+
+[G.BOOST-Ex-] [Act] Choose up to one card each with [G.BOOST-Base-], [G.BOOST-Craft-] and [G.BOOST-Will-] in your drop zone, and for this turn, this card gets the chosen cards' [G.BOOST]. You may only use [G.BOOST-Ex-] once per turn. ([G.BOOST-Ex-] is also treated as [G.BOOST-Base-], [G.BOOST-Craft-] and [G.BOOST-Will-])
+
+[Dragod] [Move] [Soulguard] [Counterattack]"
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 15000
+global.CardCrit[CardStat] = 3
+global.CardDefense[CardStat] = 5000
+global.Dragod[CardStat] = 1
+global.DeityDragonTribe[CardStat] = 1
+}
+
+CardStat = 6065
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Deity of Eon, Time Ruler Dragon"
+global.CardFlavor[CardStat] = "There is no way you can reverse the flow of absolute time. Why can't you understand that it's meaningless to resist?"
+global.CardText[CardStat] = "[Dragod] (You may use this card with all flags)
+
+[Call Cost] [Pay 2 gauge & Put the top two cards of your deck into its soul]
+
+"+chr(34)+"Wind Kronos"+chr(34)+" At the start of your turn, you may put cards from your drop zone into this card's soul until two cards are in this card's soul.
+
+At the start of your opponent's attack phase, nullify all abilities of up to one card on your opponent's field, and put it on the bottom of your opponent's deck.
+
+[Double Attack] [Soulguard]"
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 8000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 8000
+global.Dragod[CardStat] = 1
+global.TimeDragon[CardStat] = 1
+}
+
+CardStat = 6066
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Soaring Combat Deity, Gargantua Slash Wyvern"
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "[Dragod] (You may use this card with all flags)
+
+[Call Cost] [Pay 1 Gauge & Put the top card of your deck into its soul]
+
+[G.BOOST-Will-] At the start of your attack phase, draw a card and, for this turn, all monsters on your field get power+3000. Then, if another "+chr(171)+"Deity Dragon Tribe"+chr(187)+" monster is on your field, for this turn, when a monster on your field attacks, you gain 2 life!
+
+[Double Attack] [Soulguard]"
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 7000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 3000
+global.Dragod[CardStat] = 1
+global.DeityDragonTribe[CardStat] = 1
+}
+
+CardStat = 6200
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Reaching the Zenith, Ultimate Garga"
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "[Call Cost] [Pay 2 gauge & Put the top card of your deck into its soul]
+
+[G.BOOST-Ex-] [Act] Choose a card with [G.BOOST] in your drop zone, and for this turn, this card gets the chosen card's [G.BOOST]. You may only use [G.BOOST-Ex-] once per turn. ([G.BOOST-Ex-] is also treated as [G.BOOST-Base-], [G.BOOST-Craft-] and [G.BOOST-Will-]).
+
+[Dragod] [Move] [Double Attack] [Soulguard]"
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 10000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 5000
+global.Dragod[CardStat] = 1
+global.DeityDragonTribe[CardStat] = 1
+}
+
+CardStat = 6201
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Grace of the Sun Deity"
+global.CardFlavor[CardStat] = ""+chr(34)+"So heart warming... This warmth must be coming from Bal's feelings...! Let's destroy this guy!"+chr(34)+""
+global.CardText[CardStat] = "[Counter] Choose and use one of the following two.
+
+- For this turn, you cannot take damage by your opponent's card effects.
+- Choose a card on your field, and for this turn, the chosen card cannot be destroyed or leave the field and its souls cannot be dropped or returned to deck by your opponent's card effects."
+global.Enhance[CardStat] = 1
+}
+
+CardStat = 6202
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 4
+global.CardName[CardStat] = "Overgod, "+chr(34)+"0"+chr(34)+""
+global.CardFlavor[CardStat] = "This really... feels great. Let's begin the correction of the world."
+global.CardText[CardStat] = "You cannot choose this card as your flag during the start of the fight. You may put this card into your deck.
+[Act] You may [Reversal] your "+chr(34)+"Perfected Deity of Eon, The Endruler Dragon"+chr(34)+". If you do, put this card from your hand on top of all of your flags.
+You may use "+chr(171)+"Time Dragon"+chr(187)+" cards, and this card is treated as a card on your field, it cannot be destroyed, leave the flag area, its abilities cannot be nullified, it cannot be flipped face down by your opponent's card effects and it can attack even if you have monsters on your center!
+[Act] "+chr(34)+"Eternal Eon"+chr(34)+" You may drop six hand cards and pay 6 gauge, or drop an "+chr(34)+"Overgod, "+chr(34)+"0"+chr(34)+""+chr(34)+" from your hand. If you do, for this turn, reduce the defense of all cards on your opponent's field to 0, and stop the time of your opponent and all of your opponent's cards. Your opponent cannot [Counter] against this ability."
+global.CardPower[CardStat] = 0
+global.CardCrit[CardStat] = 12
+global.CardDefense[CardStat] = 0
+global.Dragod[CardStat] = 1
+global.TimeDragon[CardStat] = 1
+}
+
+
+CardStat = 6203
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Gargantua Evolution"
+global.CardFlavor[CardStat] = "You do not simply force your ideals on others! I will break through, and show you the path to our future...!!"
+global.CardText[CardStat] = "You may use this card with all flags.
+
+Reveal three monsters with [G.BOOST] and different card names from your deck, flip them face down, shuffle them, and your opponent chooses one from among them. Put the chosen card by your opponent into your hand, and drop the rest. Then, shuffle your deck. You may only cast "+chr(34)+"Gargantua Evolution"+chr(34)+" once per turn."
+global.DeityDragonTribe[CardStat] = 1
+global.Get[CardStat] = 1
+}
+
+CardStat = 6204
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Time Marshal, Bashgraph"
+global.CardFlavor[CardStat] = "Understood. It's necessary to wipe out half of the world."
+global.CardText[CardStat] = "[Call Cost] [Pay 2 gauge & Put the top two cards of your deck into its soul]
+
+If your flag is "+chr(34)+"Overgod, "+chr(34)+"0"+chr(34)+""+chr(34)+", this card's size on the field is reduced by 12.
+
+When this card attacks, put all monsters from your opponent's field on the bottom of their deck!
+
+At the end of the battle that this card attacked, if there are no monsters on your opponent's field, deal 3 damage to your opponent!
+
+[Move] [Quadruple Attack] [Soulguard] [Counterattack]"
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 12000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 12000
+global.TimeDragon[CardStat] = 1
+}
+
+CardStat = 6205
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Time Scout, Luke"
+global.CardFlavor[CardStat] = "For the equilibrium of the world and the universe... Please disappear."
+global.CardText[CardStat] = "[Call Cost] [Pay 1 gauge]
+
+When this card enters the field, put up to one "+chr(34)+"Overgod, "+chr(34)+"0"+chr(34)+""+chr(34)+" from your deck or drop zone into your hand. If you searched your deck, shuffle it.
+
+If your flag is "+chr(34)+"Overgod, "+chr(34)+"0"+chr(34)+""+chr(34)+", this card gets power+10000, defense+10000, critical+2 and [Double Attack]."
+global.CardSize[CardStat] = 0
+global.CardPower[CardStat] = 2000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 2000
+global.TimeDragon[CardStat] = 1
+}
+
+CardStat = 6206
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Kronos Syn Mobius"
+global.CardFlavor[CardStat] = "It's useless no matter how many times you try! Everything will be void!"
+global.CardText[CardStat] = "You may only cast this card if your flags [Reversal] four times or more during this fight.
+
+[Counter] Return all cards from your hand, gauge and drop zone to your deck, and shuffle it. Then, draw six cards, put the top two cards of your deck into your gauge, and your life becomes 10!! You may only cast "+chr(34)+"Kronos Syn Mobius"+chr(34)+" once per fight."
+global.TimeDragon[CardStat] = 1
+}
+
+CardStat = 6207
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 4
+global.CardName[CardStat] = "Kronos Syn Finale"
+global.CardFlavor[CardStat] = "There's no way out now! The curtains will fall this time!!"
+global.CardText[CardStat] = "You may only cast this card if your opponent's life is 12 or less, and if your flags [Reversal] four times or more during this fight.
+
+[Cast Cost] [Pay 2 gauge]
+
+Deal 1 damage to your opponent for 12 times!"
+global.Dragod[CardStat] = 1
+global.TimeDragon[CardStat] = 1
+}
+
+CardStat = 6314
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Demonic Karma Dragon Deity of the Black Luster, Gaen "+chr(34)+"IF"+chr(34)+""
+global.CardFlavor[CardStat] = "I'll create a world where life can live without seperation. An ideal world where neither the weak nor the strong exist!!"
+global.CardText[CardStat] = "This card can only enter the field if your flag is "+chr(34)+"Dragon Drei"+chr(34)+".
+This card on the field cannot be destroyed or leave the field and its abilities cannot be nullified by your opponent's card effects.
+
+When you [Transform] into this card, draw two cards, and your opponent cannot draw cards by card effects during their next turn.
+
+The size of all monsters with "+chr(34)+"Azi Dahaka"+chr(34)+" in their card names on your field are reduced by 3.
+
+When this card attacks alone, it attacks your opponent and all their monsters instead.
+
+[Triple Attack] [Transform] [Pay 3 gauge]"
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 15000
+global.CardCrit[CardStat] = 3
+global.CardDefense[CardStat] = 12000
+global.Dragon[CardStat] = 1
+global.Deity[CardStat] = 1
+}
+
+CardStat = 6315
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Ultimate Garga "+chr(34)+"SD"+chr(34)+""
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "[Dragod]
+
+[Act] Put this card from your hand into the soul of a card with [G.BOOST] on your field.
+
+When the card with this card in its soul uses [G.BOOST], destroy up to one card on your opponent's field. If you destroyed, draw a card.
+
+Souls in the card with [G.BOOST] and this card in its soul cannot be dropped by your opponent's card effects."
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 5000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 5000
+global.DeityDragonTribe[CardStat] = 1
+global.Dragod[CardStat] = 1
+}
+
+CardStat = 6316
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Dear Friend"
+global.CardFlavor[CardStat] = "Some thing will never change even after separation. The Ace of Games will keep telling everyone the fun of Buddyfight, so that HE will always have a place to return to. Maybe one day, it will become the four of them."
+global.CardText[CardStat] = "[Cast Cost] [Drop a "+chr(171)+"Dragod"+chr(187)+" from your hand]
+
+Choose and use one of the following two. You may only cast "+chr(34)+"Dear Friend"+chr(34)+" once per turn.
+
+- Draw two cards. Then, if three or more different "+chr(171)+"Dragod"+chr(187)+" are in your drop zone, draw a card.
+- [Counter] For this turn, damage you take are reduced by 3."
+global.Draw[CardStat] = 1
+}
+
+CardStat = 6373
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Crevice of Dream & Reality, ReAc: Moon"
+global.CardFlavor[CardStat] = "Whether it be dream, or truth is all up to you."
+global.CardText[CardStat] = "[Counter] [Act] You may drop this card from your hand. If you do, choose and use one of the following three.
+
+- Put a card from your opponent's drop zone on the bottom of their deck.
+- During the attack phase of this turn, if you would be dealt 5 or greater damage, that damage is reduced to 0.
+- During this turn, the attack, defense and critical of all cards on your field cannot be reduced by your opponent's card effects."
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 3000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 2000
+global.Tarot[CardStat] = 1
+}
+
+CardStat = 6441
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Deity Gargantua Dragon "+chr(34)+"Re:B"+chr(34)+""
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "You may use this card with all flags, and if it is your buddy, you may use "+chr(171)+"Dragod"+chr(187)+" monsters from all worlds.
+[Call Cost] [Pay 2 gauge & Put the top card of your deck into its soul]
+[Counter] [Act] During your turn, call this card from a soul of a "+chr(171)+"Dragod"+chr(187)+" by paying its [Call Cost].
+[Counter] [Act] D-[G-EVO] During each player's attack phase, call up to one monster with both "+chr(171)+"Dragod"+chr(187)+" and "+chr(171)+"Deity Dragon Tribe"+chr(187)+" from your hand or drop zone on top of this card without paying its [Call Cost]. You may only use D-[G-EVO] once per turn. D-[G-EVO] is also treated as [G-EVO])
+[Move] [Double Attack] [Soulguard] [Counterattack]"
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 10000
+global.CardCrit[CardStat] = 3
+global.CardDefense[CardStat] = 5000
+global.DeityDragonTribe[CardStat] = 1
+global.Dragod[CardStat] = 1
+}
+
+CardStat = 6442
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Battle of Glory"
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "You may use this card with all flags.
+
+[Cast Cost] [Pay 1 life]
+
+[Counter] [G.EVO] Look at the top five cards of your deck, call up to one monster with both "+chr(171)+"Dragod"+chr(187)+" and "+chr(171)+"Deity Dragon Tribe"+chr(187)+" from among them without paying its [Call Cost] on top of a "+chr(171)+"Dragod"+chr(187)+" monster on your field, and put the rest on the bottom of your deck in any order. If you called, for this turn, that monster get power+5000 and defense+5000!"
+global.DeityDragonTribe[CardStat] = 1
+global.Summon[CardStat] = 1
+}
+
+CardStat = 6500
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Ruler of CHAOS, Geargod VII "+chr(34)+"Re:B"+chr(34)+""
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "[Call Cost] [Pay 2 gauge]
+
+[Counter] [Act] "+chr(34)+"CHAOS Command"+chr(34)+" During each player's attack phase, call up to a total of two "+chr(171)+"Chaos"+chr(187)+" monsters from your hand or drop zone without paying their [Call Cost]. You may only use "+chr(34)+"CHAOS Command"+chr(34)+" once per turn.
+
+"+chr(34)+"CHAOS Drain"+chr(34)+" If this card would leave the field, you may destroy a size 3 or less monster on your field. If you do, this card remains on your field.
+
+[CHAOS Territory] [Penetrate] [Double Attack]"
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 50000
+global.CardCrit[CardStat] = 3
+global.CardDefense[CardStat] = 6000
+global.Chaos[CardStat] = 1
+}
+
+CardStat = 6501
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Future Palette"
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "[Cast Cost] [Pay 1 gauge]
+
+[Counter] Put this card into the soul of a buddy on your field. If you do, draw a card.
+
+If this card is in the soul of your buddy, that card gets power+5000, defense+5000, [Soulguard], and it cannot be destroyed, leave the field or [Rest] by your opponent's card effects."
+global.Buddy[CardStat] = 1
+global.Enhance[CardStat] = 1
+}
+
+CardStat = 6502
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Great Fiend, Yamigedo "+chr(34)+"Re:B"+chr(34)+""
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "[Call Cost] [Put one or more "+chr(171)+"Hundred Demons"+chr(187)+" monsters from your field into its soul & Pay 3 gauge]
+
+This card gets the "+chr(34)+"Thunder Mine"+chr(34)+" of the cards in its soul.
+
+At the start of each player's turn, put up to a total of two "+chr(171)+"Hundred Demons"+chr(187)+" with different card names from your hand or deck into this card's soul. If you looked in your deck, shuffle it.
+
+"+chr(34)+"Thunder Mine"+chr(34)+" When an attack of cards on your field is nullified, deal 2 damage to your opponent!
+
+[Triple Attack] [Soulguard]"
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 8000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 8000
+global.HundredDemons[CardStat] = 1
+}
+
+CardStat = 6555
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Actor Knights Strength"
+global.CardFlavor[CardStat] = "If things like "+chr(34)+"Serenity"+chr(34)+" and "+chr(34)+"Eternity"+chr(34)+" are what you seek, you must strengthen yourself with determination. To live through no matter what happens."
+global.CardText[CardStat] = ""
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 5000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 5000
+global.Tarot[CardStat] = 1
+}
+
+CardStat = 6563
+{
+global.CardWorld[CardStat] = 8
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Buddy Sky Day"
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "[Counter] Put this card into the soul of a monster on your field.
+
+If this card is in the soul of your buddy, that card gets [Soulguard], its souls cannot be dropped by your opponent's card effects, and the abilities of that card and this card cannot be nullified by your opponent's card effects.
+
+At the start of each player's attack phase, if this card is in the soul of your buddy, destroy up to one card on your opponent's field. If your flag is "+chr(34)+"Lost World"+chr(34)+", put the chosen card into the drop zone instead."
+global.Enhance[CardStat] = 1
+}

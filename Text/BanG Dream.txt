@@ -1,0 +1,1186 @@
+CardStat = 5339
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 5
+global.CardName[CardStat] = "BanG Dream! Girls Band Party!PICO"
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "You may use <BanG Dream! Girls Band Party! PICO> cards.
+
+You may put characters of up to a total size of 5 on your field.
+
+You may put one additional <BanG Dream! Girls Band Party!PICO> character on your left and right."
+
+global.BanGDreamGirlsBandPartyPICO[CardStat] = 1
+}
+
+CardStat = 5370
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Spirit Babanbo's Prayers"
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "[Counter] Choose and use one of the following two. 
+
+- Put the top two cards of your deck into your gauge, and for this turn, damage you take by your opponent's card effects are reduced by 1.
+- For this turn and the next turn, all characters on the field cannot be returned to hand."
+global.Fairy[CardStat] = 1
+global.Defense[CardStat] = 1
+}
+
+CardStat = 5371
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Ghost Story Cornet Loop"
+global.CardFlavor[CardStat] = "	I need…… something to drink……"
+global.CardText[CardStat] = "You may only cast this card during your opponent's attack phase.
+
+[Counter] Choose and use one of the following two. 
+
+- Your opponent cannot cast events until the end of your next main phase.
+- For this turn, the next damage you take is reduced to 0."
+global.Defense[CardStat] = 1
+global.ChocoCornet[CardStat] = 1
+}
+
+CardStat = 5372
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = ""+chr(34)+"Labyrinth Jelly Fish"+chr(34)+", Kanon Matsubara"
+global.CardFlavor[CardStat] = "It's easy to lose track of you, Misaki-chan."
+global.CardText[CardStat] = "When this card enters the field, if another "+chr(171)+"Hello, Happy World!"+chr(187)+" is on your field, put the top card of your deck into your gauge, and draw a card.
+
+[Counter] [Act] Choose another "+chr(171)+"Hello, Happy World!"+chr(187)+" on your field, and [Rest] this card. If you [Rest], [Stand] the chosen card. You may only use this ability once per turn."
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 3000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 3000
+global.HelloHappyWorld[CardStat] = 1
+global.Band[CardStat] = 1
+}
+
+CardStat = 5373
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = ""+chr(34)+"Kitazawa Mark is the Mark of Vitality"+chr(34)+", Hagumi Kitazawa"
+global.CardFlavor[CardStat] = "We're Kitazawa Meat Shop! Have some of our specialty croquettes!"
+global.CardText[CardStat] = "[Counter] [Act] If this card is in the soul of a "+chr(171)+"Hello, Happy World!"+chr(187)+" on your field, you may pay 1 gauge. If you do, [Stand] that card. You may only use this ability once per turn.
+
+During the attack phase, when you gain life, draw a card, and for this turn, all power and critical of "+chr(171)+"Hello, Happy World!"+chr(187)+" on your field cannot be reduced by your opponent's card effects. This ability only activates once per turn."
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 5000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 3000
+global.HelloHappyWorld[CardStat] = 1
+global.Band[CardStat] = 1
+}
+
+CardStat = 5374
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = ""+chr(34)+"Nonsensical One-man Show"+chr(34)+", Kaoru Seta"
+global.CardFlavor[CardStat] = "A musical…! …how fleeting!"
+global.CardText[CardStat] = "If this card is on your field or in the soul of a "+chr(171)+"Hello, Happy World!"+chr(187)+" character on your field, all "+chr(171)+"Hello, Happy World!"+chr(187)+" characters on your field can attack your opponent even if your opponent has characters on the center.
+
+When you gain life, for this turn, if a "+chr(171)+"Hello, Happy World!"+chr(187)+" on your field attacks alone, its damage cannot be reduced."
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 6000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 3000
+global.HelloHappyWorld[CardStat] = 1
+global.Band[CardStat] = 1
+}
+
+CardStat = 5375
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = ""+chr(34)+"Blackish Fallen Angel Something Something Dark Waves"+chr(34)+", Ako Udagawa"
+global.CardFlavor[CardStat] = "Mark my words, I'll find the culprit!"
+global.CardText[CardStat] = "[Act] If a [Rinko Shirokane] or [Tomoe Udagawa] is on your field, destroy a character on your opponent's field or return it to hand. You may only use this ability once per turn.
+
+"+chr(34)+"Something with the Dark Waves, Boom!"+chr(34)+" When your opponent casts an event, draw a card, and deal 1 damage to your opponent! You may only use "+chr(34)+"Something with the Dark Waves, Boom!"+chr(34)+" once per turn."
+
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 3000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 6000
+global.Roselia[CardStat] = 1
+global.Band[CardStat] = 1
+}
+
+CardStat = 5376
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "CiRCLE Starry Night"
+global.CardFlavor[CardStat] = "Ya-y!"
+global.CardText[CardStat] = "Look at the top four cards of your deck, put up to two "+chr(171)+"Band"+chr(187)+" characters from among them into your hand, and put the rest into your gauge. You may only cast "+chr(34)+"CiRCLE Starry Night"+chr(34)+" once per turn."
+global.Get[CardStat] = 1
+}
+
+CardStat = 5377
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = ""+chr(34)+"One with Common Sense in a Bear"+chr(34)+", Misaki Okusawa"
+global.CardFlavor[CardStat] = "W-We're the ones that broke it, though."
+global.CardText[CardStat] = "When this card enters the field, you may drop a hand card. If you do, put up to one [Kokoro Tsurumaki] or [Michelle] from your deck into your hand, and shuffle your deck.
+
+If this card is on your field or in the soul of a "+chr(171)+"Hello, Happy World!"+chr(187)+" character, all "+chr(171)+"Hello, Happy World!"+chr(187)+" on your field cannot be destroyed or returned to hand by your opponent's card effects."
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 3000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 3000
+global.HelloHappyWorld[CardStat] = 1
+global.Band[CardStat] = 1
+}
+
+CardStat = 5378
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = ""+chr(34)+"Sadness Metronome"+chr(34)+", Sayo Hikawa"
+global.CardFlavor[CardStat] = "Toyama-san actually flew."
+global.CardText[CardStat] = "All "+chr(171)+"Roselia"+chr(187)+" on your field cannot be destroyed or returned to hand by your opponent's card effects.
+
+If a [Yukina Minato] or [Hina Hikawa] is on your field, this card gets critical+1!
+
+When this card attacks a character alone, it attacks all of your opponent's characters instead!"
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 6000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 3000
+global.Roselia[CardStat] = 1
+global.Band[CardStat] = 1
+}
+
+CardStat = 5379
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = ""+chr(34)+"Samurai from Europe"+chr(34)+", Eve Wakamiya"
+global.CardFlavor[CardStat] = "The style of traditional Japanese sleepwear!"
+global.CardText[CardStat] = "Abilities of all "+chr(171)+"Pastel*Palettes"+chr(187)+" on your field cannot be nullified by your opponent's card effects.
+
+When you cast an event, for this turn, this card gets [Double Attack]. This ability only activates once per turn.
+
+When this card attacks, you may put a card from your drop zone into the soul of a character on your center. If you do, you gain 1 life and draw a card."
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 4000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 4000
+global.PastelPalettes[CardStat] = 1
+global.Band[CardStat] = 1
+}
+
+CardStat = 5380
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = ""+chr(34)+"Out-of-control Machine Nerd"+chr(34)+", Maya Yamato"
+global.CardFlavor[CardStat] = "I'm supporting sales!"
+global.CardText[CardStat] = "All "+chr(171)+"Pastel*Palettes"+chr(187)+" on your field cannot have their souls dropped by your opponent's card effects, and damage your opponent takes by your card effects cannot be reduced!
+
+When your opponent's cards attack, change the target of the attack to the "+chr(171)+"Pastel*Palettes"+chr(187)+" on your center.
+
+"+chr(171)+"Pastel*Palettes"+chr(187)+" on your center gets [Counterattack]!"
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 5000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 5000
+global.PastelPalettes[CardStat] = 1
+global.Band[CardStat] = 1
+}
+
+CardStat = 5381
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = ""+chr(34)+"Ramen Broth Caring Sister"+chr(34)+", Tomoe Udagawa"
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "When a card on your opponent's field is destroyed or returned to hand by your card effects, deal 1 damage to your opponent!
+
+[Act] If another "+chr(171)+"Afterglow"+chr(187)+" or [Ako Udagawa] is on your field, put up to two cards from your opponent's drop zone on the bottom of their deck in any order. If you put one or more, draw a card. You may only use this ability once per turn."
+
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 4000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 4000
+global.Afterglow[CardStat] = 1
+global.Band[CardStat] = 1
+}
+
+CardStat = 5382
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = ""+chr(34)+"Rallying Misfire"+chr(34)+", Himari Uehara"
+global.CardFlavor[CardStat] = "W-We gotta call an ambulance!"
+global.CardText[CardStat] = "When this card enters the field or attacks, return up to one character from your opponent's field to hand.
+
+If another "+chr(171)+"Afterglow"+chr(187)+" is on your field, all cards on your opponent's field get power-5000 and defense-5000!
+
+When a card on your opponent's field is destroyed or returned to hand by your card effects, if another "+chr(171)+"Afterglow"+chr(187)+" is on your field, your opponent chooses and drops a hand card. This ability only activates once per turn."
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 4000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 4000
+global.Afterglow[CardStat] = 1
+global.Band[CardStat] = 1
+}
+
+CardStat = 5383
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = ""+chr(34)+"Cornet at First Sight"+chr(34)+", Rimi Ushigome"
+global.CardFlavor[CardStat] = "Saya-chan's pastries are so delicious."
+global.CardText[CardStat] = "All "+chr(171)+"Poppin'Party"+chr(187)+" on your field cannot be destroyed or returned to hand by your opponent's card effects.
+
+When this card attacks, if a [Kasumi Toyama] is on your field, choose and use one of the following two.
+
+- Put the top three cards of your deck into your gauge.
+- You gain 3 life!"
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 6000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 2000
+global.PoppinParty[CardStat] = 1
+global.Band[CardStat] = 1
+}
+
+CardStat = 5384
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = ""+chr(34)+"Chasing Rabbits in the Garden"+chr(34)+", Tae Hanazono"
+global.CardFlavor[CardStat] = "Then, I want to have rabbits on the stage."
+global.CardText[CardStat] = "If you have three or more different "+chr(171)+"Poppin'Party"+chr(187)+" on your field, all «Poppin'Party» on your field get [Penetrate].
+
+When this card attacks and destroys your opponent's character, [Stand] this card.
+
+If you have a [Kasumi Toyama] on your field, this card's attacks cannot be nullified if it is attacking alone."
+
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 7000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 2000
+global.PoppinParty[CardStat] = 1
+global.Band[CardStat] = 1
+}
+
+CardStat = 5385
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 4
+global.CardName[CardStat] = "Spreading Smiles Throughout the World, "+chr(34)+"Hello, Happy World!"+chr(34)+""
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "[Call Cost] [Put five "+chr(171)+"Hello, Happy World!"+chr(187)+" characters with different character names from your field into its soul & Pay 2 gauge]
+
+You cannot take damage by your opponent's character effects.
+
+When this card attacks and destroys your opponent's characters or deals damage to your opponent, if your life is 22 or greater, you win the fight.
+
+[Double Attack] [Soulguard]"
+global.CardSize[CardStat] = 5
+global.CardPower[CardStat] = 25000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 20000
+global.HelloHappyWorld[CardStat] = 1
+global.Band[CardStat] = 1
+}
+
+CardStat = 5386
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 4
+global.CardName[CardStat] = "Blue Rose Blooming at the Peak, "+chr(34)+"Roselia"+chr(34)+""
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "[Call Cost] [Put five "+chr(171)+"Roselia"+chr(187)+" characters with different character names from your field into its soul & Pay 2 gauge]
+
+At the end of the battle that this card attacked, choose and use one of the following three.
+
+- Draw a card!
+- Deal 1 damage to your opponent!
+- Destroy a card on your opponent's field!
+
+[Penetrate] [Soulguard] [Counterattack]"
+global.CardSize[CardStat] = 5
+global.CardPower[CardStat] = 25000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 25000
+global.Roselia[CardStat] = 1
+global.Band[CardStat] = 1
+}
+
+CardStat = 5387
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 4
+global.CardName[CardStat] = "Light and Airy Idol Band, "+chr(34)+"Pastel*Palettes"+chr(34)+""
+global.CardFlavor[CardStat] = "No flavor text."
+global.CardText[CardStat] = "[Call Cost] [Put five "+chr(171)+"Pastel*Palettes"+chr(187)+" characters with different cards names from your field into its soul & Pay 2 gauge]
+
+Abilities of this card on your field cannot be nullified by your opponent's card effects, and damage your opponent takes by your card effects cannot be reduced.
+
+At the start of each player's attack phase, put up to one card from your drop zone into this card's soul, and deal 2 damage to your opponent!
+
+[Double Attack] [Soulguard] [Counterattack]"
+global.CardSize[CardStat] = 5
+global.CardPower[CardStat] = 25000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 25000
+global.PastelPalettes[CardStat] = 1
+global.Band[CardStat] = 1
+}
+
+CardStat = 5388
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 4
+global.CardName[CardStat] = "Classic Rock Among Childhood Friends, "+chr(34)+"Afterglow"+chr(34)+""
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "[Call Cost] [Put five "+chr(171)+"Afterglow"+chr(187)+" characters with different character names from your field into its soul & Pay 2 gauge]
+
+When a card on your opponent's field is destroyed or returned to hand by your card effects, drop 1 of your opponent's gauge, deal 1 damage to your opponent, and your opponent chooses and drops a hand card.
+
+[Counter] [Act] During the attack phase and final phase, choose a card on your opponent's field, and you may drop a soul from this card. If you do, destroy the chosen card or return it to hand.
+
+[Double Attack] [Soulguard]"
+global.CardSize[CardStat] = 5
+global.CardPower[CardStat] = 25000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 20000
+global.Afterglow[CardStat] = 1
+global.Band[CardStat] = 1
+}
+
+CardStat = 5389
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 4
+global.CardName[CardStat] = "Up and Coming Superstars, "+chr(34)+"Poppin'Party"+chr(34)+""
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "[Call Cost] [Put five "+chr(171)+"Poppin'Party"+chr(187)+" characters with different character names from your field into its soul & Pay 2 gauge]
+
+This card on the field cannot have its souls dropped by your opponent's card effects.
+
+This card gets critical+1 for each card in its soul!
+
+[Counter] [Act] Drop a soul from this card. If you do, [Stand] this card.
+
+[Penetrate] [Soulguard]"
+global.CardSize[CardStat] = 5
+global.CardPower[CardStat] = 30000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 10000
+global.PoppinParty[CardStat] = 1
+global.Band[CardStat] = 1
+}
+
+CardStat = 5390
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = ""+chr(34)+"Unmoving Max Skill"+chr(34)+", Rinko Shirokane"
+global.CardFlavor[CardStat] = "Sorry, Ako-chan…"
+global.CardText[CardStat] = "Abilities of all "+chr(171)+"Roselia"+chr(187)+" on your field cannot be nullified by your opponent's card effects.
+
+When this card enters the field, if another "+chr(171)+"Roselia"+chr(187)+" is on your field, put the top card of your deck into your gauge, and draw a card.
+
+At the end of the battle that this card attacked, deal 1 damage to your opponent!"
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 3000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 6000
+global.Roselia[CardStat] = 1
+global.Band[CardStat] = 1
+}
+
+CardStat = 5391
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = ""+chr(34)+"Genius Next Door"+chr(34)+", Hina Hikawa"
+global.CardFlavor[CardStat] = "Shinin' good!!"
+global.CardText[CardStat] = "If a [Aya Maruyama] or [Sayo Hikawa] is on your field, this card gets power+3000 and defense+3000!
+
+When this card enters the field, if another "+chr(171)+"Pastel*Palettes"+chr(187)+" is on your field, put the top card of your deck into your gauge, and draw a card.
+
+When a character on your center is destroyed, deal 1 damage to your opponent!"
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 4000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 4000
+global.PastelPalettes[CardStat] = 1
+global.Band[CardStat] = 1
+}
+
+CardStat = 5392
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = ""+chr(34)+"Great Ordinary"+chr(34)+", Tsugumi Hazawa"
+global.CardFlavor[CardStat] = "Comments about our concert are up!"
+global.CardText[CardStat] = "Nullify all abilities of your opponent's characters in front of this card. This ability cannot be nullified.
+
+When a card on your opponent's field is destroyed or returned to hand by your card effects, if another "+chr(171)+"Afterglow"+chr(187)+" is on your field, put the top card of your deck into your gauge,you gain 1 life and draw a card. This ability only activates once per turn."
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 3000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 4000
+global.Afterglow[CardStat] = 1
+global.Band[CardStat] = 1
+}
+
+CardStat = 5393
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = ""+chr(34)+"Fermentation Girl"+chr(34)+", Saya Yamabuki"
+global.CardFlavor[CardStat] = "Oh, but I did find a cute snare case."
+global.CardText[CardStat] = "Abilities of all "+chr(171)+"Poppin'Party"+chr(187)+" on your field cannot be nullified by your opponent's card effects.
+
+[Counter] [Act] During your attack phase, reveal the top card of your deck. If the card revealed is a "+chr(171)+"Poppin'Party"+chr(187)+", for this turn, this card gets [Double Attack]. Then, put the card revealed into your hand. You may only use this ability once per turn."
+
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 5000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 2000
+global.PoppinParty[CardStat] = 1
+global.Band[CardStat] = 1
+}
+
+CardStat = 5394
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Live House "+chr(34)+"CiRCLE"+chr(34)+""
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "[Set] (This card remains on the field)
+
+During your turn, when a "+chr(171)+"Band"+chr(187)+" character enters your field, put up to one "+chr(171)+"Band"+chr(187)+" character with a different card name from your deck into your hand, and shuffle your deck. Then, put the top card of your deck into your gauge. This ability only activates once per turn.
+
+You may only [Set] one "+chr(34)+"Live House "+chr(34)+"CiRCLE"+chr(34)+""+chr(34)+" on your field."
+global.Band[CardStat] = 1
+global.Charge[CardStat] = 1
+}
+
+CardStat = 5395
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Marina Tsukishima"
+global.CardFlavor[CardStat] = "Thank you so much for today."
+global.CardText[CardStat] = "[Act] Drop this hand card. If you do, look at the top four cards of your deck, put up to one "+chr(171)+"Band"+chr(187)+" from among them into your hand, and put the rest on the bottom of your deck in any order.
+
+If your "+chr(171)+"Band"+chr(187)+" character would leave the field, you may put this card from your drop zone on the bottom of your deck and pay 1 life. If you do, that card remains on the field."
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 1000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 4000
+global.Personnel[CardStat] = 1
+}
+
+CardStat = 5396
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = ""+chr(34)+"Goddess of Affection"+chr(34)+", Lisa Imai"
+global.CardFlavor[CardStat] = "Strange for you to praise another band~"
+global.CardText[CardStat] = "If a [Yukina Minato] is on your field, all "+chr(171)+"Roselia"+chr(187)+" on your field get [Penetrate].
+
+When this card enters the field, you may drop a hand card. If you do, put up to one [Yukina Minato] from your deck into your hand, and shuffle your deck.
+
+At the end of the battle that this card attacked, draw a card."
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 6000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 3000
+global.Roselia[CardStat] = 1
+global.Band[CardStat] = 1
+}
+
+CardStat = 5397
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = ""+chr(34)+"Smiling Iron Mask"+chr(34)+", Chisato Shirasagi"
+global.CardFlavor[CardStat] = "That's your catch phrase, Hina-chan."
+global.CardText[CardStat] = "When this card enters the field, you may drop a hand card. If you do, put up to one [Aya Maruyama] from your deck into your hand, and shuffle your deck.
+
+[Counter] [Act] During an attack on your opponent's turn, if an [Aya Maruyama] is on your field, you may pay 1 gauge. If you do, nullify the attack, and deal 1 damage to your opponent! You may only use this ability once per turn."
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 5000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 5000
+global.PastelPalettes[CardStat] = 1
+global.Band[CardStat] = 1
+}
+
+CardStat = 5398
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = ""+chr(34)+"Go My Way"+chr(34)+", Moca Aoba"
+global.CardFlavor[CardStat] = "Welcome, would you like some coffee-?"
+global.CardText[CardStat] = "If you would call a "+chr(171)+"Band"+chr(187)+", the gauge cost written in its [Call Cost] is reduced by 1.
+
+When this card enters the field, you may drop a hand card. If you do, put up to one [Ran Mitake] from your deck into your hand, and shuffle your deck.
+
+When this card attacks, if a [Ran Mitake] is on your field, your opponent chooses and drops a hand card."
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 5000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 5000
+global.Afterglow[CardStat] = 1
+global.Band[CardStat] = 1
+}
+
+CardStat = 5399
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = ""+chr(34)+"Sweet and Spicy Personality"+chr(34)+", Arisa Ichigaya"
+global.CardFlavor[CardStat] = "Yeesh, I thought we were done for."
+global.CardText[CardStat] = ""+chr(34)+"I-It's not that I like it!"+chr(34)+" When this card enters the field, you may drop a "+chr(171)+"Poppin'Party"+chr(187)+" from your hand. If you do, put the top card of your deck into your gauge, you gain 1 life and draw two cards. "+chr(34)+"I-It's not that I like it!"+chr(34)+" only activates once per turn.
+
+[Counter] [Act] [Stand] a [Kasumi Toyama] on your field. You may only use this ability once per turn."
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 4000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 2000
+global.PoppinParty[CardStat] = 1
+global.Band[CardStat] = 1
+}
+
+CardStat = 5400
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = ""+chr(34)+"Endless Wave of Smiles"+chr(34)+", Kokoro Tsurumaki"
+global.CardFlavor[CardStat] = "Merry Christmas!"
+global.CardText[CardStat] = "[Call Cost] [Pay 2 gauge & Put the top two cards of your deck into its soul]
+
+When this card enters the field, put up to one "+chr(34)+"Michelle Land"+chr(34)+"  from your deck into your hand, and shuffle your deck.
+
+When this card attacks and destroys your opponent's characters or deals damage to your opponent, if this card is on your center, you gain 1 life for each "+chr(171)+"Hello, Happy World!"+chr(187)+" character on your field!
+
+[Double Attack] [Soulguard]"
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 8000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 8000
+global.HelloHappyWorld[CardStat] = 1
+global.Band[CardStat] = 1
+}
+
+CardStat = 5401
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = ""+chr(34)+"Blooming Rose of Purple Flames"+chr(34)+", Yukina Minato"
+global.CardFlavor[CardStat] = "Sorry I'm late."
+global.CardText[CardStat] = "[Call Cost] [Pay 2 gauge & Put the top two cards of your deck into its soul]
+
+If this card is on your center, and three or more different "+chr(171)+"Roselia"+chr(187)+" are on your field, all "+chr(171)+"Roselia"+chr(187)+" on your field get power+10000, defense+10000 and critical+1!
+
+At the start of your attack phase, if the total power of cards on your field is 40000 or greater, for this turn, all "+chr(171)+"Roselia"+chr(187)+" on your field get [Double Attack].
+
+[Soulguard] [Counterattack]"
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 7000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 7000
+global.Roselia[CardStat] = 1
+global.Band[CardStat] = 1
+}
+
+CardStat = 5402
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = ""+chr(34)+"Bouncy Ego Search"+chr(34)+", Aya Maruyama"
+global.CardFlavor[CardStat] = "Yay---!"
+global.CardText[CardStat] = "[Call Cost] [Pay 2 gauge & Put the top two cards of your deck into its soul]
+
+If this card is on your center, and three or more different "+chr(171)+"Pastel*Palettes"+chr(187)+" are on your field, all "+chr(171)+"Pastel*Palettes"+chr(187)+" on your field cannot be destroyed or returned to hand by your opponent's card effects, and they get power+5000 and defense+5000!
+
+At the start of each player's final phase, if this card is on your center, deal 2 damage to your opponent!
+
+[Double Attack] [Soulguard]"
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 7000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 7000
+global.PastelPalettes[CardStat] = 1
+global.Band[CardStat] = 1
+}
+
+CardStat = 5403
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = ""+chr(34)+"Defiant Red Mesh"+chr(34)+", Ran Mitake"
+global.CardFlavor[CardStat] = "It's nothing special……"
+global.CardText[CardStat] = "[Call Cost] [Pay 2 gauge & Put the top two cards of your deck into its soul]
+
+When this card enters the field or attacks, if this card is on your center, and three or more different "+chr(171)+"Afterglow"+chr(187)+" are on your field, drop 1 of your opponent's gauge, and destroy a card on your opponent's field or return it to hand.
+
+[Double Attack] [Soulguard]"
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 9000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 3000
+global.Afterglow[CardStat] = 1
+global.Band[CardStat] = 1
+}
+
+CardStat = 5404
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = ""+chr(34)+"Starry Charisma"+chr(34)+", Kasumi Toyama"
+global.CardFlavor[CardStat] = "Good morning-!"
+global.CardText[CardStat] = "[Call Cost] [Pay 2 gauge & Put the top two cards of your deck into its soul]
+
+If this card is on your center, and three or more different "+chr(171)+"Poppin'Party"+chr(187)+" are on your field, all "+chr(171)+"Poppin'Party"+chr(187)+" on your field get power+15000 and critical+2!
+
+At the start of your attack phase, if this card is on your center, call up to one "+chr(171)+"Poppin'Party"+chr(187)+" character other than [Kasumi Toyama] from your deck by paying its [Call Cost], and shuffle your deck.
+
+[Soulguard]"
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 8000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 2000
+global.PoppinParty[CardStat] = 1
+global.Band[CardStat] = 1
+}
+
+CardStat = 5407
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Bear DJ, Michelle"
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "You may have any number of "+chr(34)+"Bear DJ, Michelle"+chr(34)+" in your deck.
+
+[Call Cost] [Put this on top of a character on your field & Pay 1 gauge]
+
+If a [Misaki Okusawa] is in this card's soul, it gets critical+2 and [Penetrate].
+
+[Double Attack] [Soulguard]"
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 8000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 8000
+global.HelloHappyWorld[CardStat] = 1
+global.Band[CardStat] = 1
+}
+
+CardStat = 5415
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "-Revolution-"
+global.CardFlavor[CardStat] = ""
+global.CardText[CardStat] = "If two or more different "+chr(171)+"Roselia"+chr(187)+" are on your field, put the top three cards of your deck into your gauge. Then, if three or more, you gain 3 life, and if four or more, draw three cards. You may only cast "+chr(34)+"-Revolution-"+chr(34)+" once per turn."
+
+global.Charge[CardStat] = 1
+global.Draw[CardStat] = 1
+global.Recovery[CardStat] = 1
+}
+
+CardStat = 5416
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "CiRCLE's Collapse!?"
+global.CardFlavor[CardStat] = "CiRCLE… is gone~~~~~~~~~!"
+global.CardText[CardStat] = "You may only cast this card during an attack on your opponent's turn.
+
+[Cast Cost] [Pay 1 gauge]
+
+[Counter] Nullify the attack. Then, if your opponent's cards attacked four times or more during this turn, end this phase."
+global.Defense[CardStat] = 1
+}
+
+
+CardStat = 5417
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "What About the Garlic?"
+global.CardFlavor[CardStat] = ""
+global.CardText[CardStat] = "You may only cast this card if an "+chr(171)+"Afterglow"+chr(187)+" is on your field.
+
+[Call Cost] [Pay 1 gauge]
+
+Your opponent chooses and drops a hand card, and you draw two cards. You may only cast "+chr(34)+"What About the Garlic?"+chr(34)+" once per turn."
+global.Draw[CardStat] = 1
+}
+
+CardStat = 5426
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Begone Evil Spirits!!"
+global.CardFlavor[CardStat] = "Chesutoooo!!"
+global.CardText[CardStat] = "[Cast Cost] [Pay 1 life]
+
+[Counter] Choose and use one of the following three.
+
+- [Stand] a character on your field.
+- [Rest] a character on your opponent's field.
+- For this turn, a character on your oponent's field gets critical-3!"
+global.Defense[CardStat] = 1
+}
+
+CardStat = 5427
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Pastel's Pajama Party!"
+global.CardFlavor[CardStat] = "Yay! Pajama party!"
+global.CardText[CardStat] = "You may only cast this card if a "+chr(171)+"Pastel*Palettes"+chr(187)+" is on your field.
+
+[Cast Cost] [Pay 1 gauge]
+
+Draw two cards. Then, put this card into the soul of a "+chr(171)+"Pastel*Palettes"+chr(187)+" on your field. You may only cast "+chr(34)+"Pastel's Pajama Party!"+chr(34)+" once per turn."
+global.Draw[CardStat] = 1
+}
+
+CardStat = 5428
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Party at CiRCLE!"
+global.CardFlavor[CardStat] = "Twinkling Joyful Shopping District Frenzy Bushido Party"
+global.CardText[CardStat] = "You may only cast this card if five or more different "+chr(171)+"Band"+chr(187)+" are in your drop zone.
+
+[Cast Cost] [Pay 3 gauge]
+
+[Counter] For this turn, all characters on your field cannot be destroyed, and you cannot take damage. Then, return all cards from your drop zone to deck, and shuffle your deck. You may only cast "+chr(34)+"Party at CiRCLE!"+chr(34)+" once per fight."
+global.Defense[CardStat] = 1
+}
+
+CardStat = 5432
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Charisma of a Sparkling and Heart-Pounding"
+global.CardFlavor[CardStat] = ""
+global.CardText[CardStat] = "[Counter] Put this card into the soul of a «Poppin'Party» character on your field.
+
+When a «Poppin'Party» character with this card in its soul attacks, for this turn, that card gets [Double Attack]. This ability only activates once per turn."
+
+global.Defense[CardStat] = 1
+}
+
+CardStat = 5433
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "The Wave Attack of Sparkling and Heart-Pounding"
+global.CardFlavor[CardStat] = ""
+global.CardText[CardStat] = "[Counter] Put this card into the soul of a «Hello, Happy World!» character on your field.
+
+At the end of the battle that a «Hello, Happy World!» character with this card in its soul attacked, you gain 2 life!"
+
+global.Recovery[CardStat] = 1
+}
+
+CardStat = 5434
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Sparkling and Heart-Pounding Egosearching"
+global.CardFlavor[CardStat] = ""
+global.CardText[CardStat] = "[Counter] Put this card into the soul of a «Pastel Palettes» character on your field.
+
+At the end of the battle that a «Pastel Palettes» character with this card in its soul attacked, deal 1 damage to your opponent!"
+
+global.FirePower[CardStat] = 1
+}
+
+CardStat = 5435
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Purple Rose of Mad Sparkling and Heart-Pounding"
+global.CardFlavor[CardStat] = ""
+global.CardText[CardStat] = "[Counter] Put this card into the soul of a «Roselia» character on your field.
+
+If this card is in the soul of a «Roselia», it gets power+3000, and defense+3000!"
+
+global.Enhance[CardStat] = 1
+}
+
+CardStat = 5436
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Red Mesh of Sparkling and Heart-Pounding"
+global.CardFlavor[CardStat] = ""
+global.CardText[CardStat] = "[Counter] Put this card into the soul of an «Afterglow» character on your field.
+
+At the end of the battle that an «Afterglow» character with this card in its soul attacked, destroy or return to hand a character on your opponent's field."
+
+global.Destruction[CardStat] = 1
+global.Move[CardStat] = 1
+}
+
+CardStat = 5437
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Hello Happy's Winter Mountain Hike"
+global.CardFlavor[CardStat] = ""
+global.CardText[CardStat] = "You may only cast this card if a "+chr(171)+"Hello, Happy World!"+chr(187)+" is on your field.
+
+[Cast Cost] [Pay 1 gauge]
+
+Draw two cards. Then, if a "+chr(171)+"Band"+chr(187)+" is [Set] on your field, you gain 3 life! You may only cast "+chr(34)+"Hello Happy's Winter Mountain Hike"+chr(34)+" once per turn."
+global.Recovery[CardStat] = 1
+global.Draw[CardStat] = 1
+}
+
+CardStat = 5450
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "New band Members! Neighborhood Stray Cat"
+global.CardFlavor[CardStat] = "From today, these cats will be… New band members!"
+global.CardText[CardStat] = "You may only cast this card during an attack on your opponent's turn.
+
+[Counter] Nullify the attack. Then, if three or more "+chr(171)+"Band"+chr(187)+" are on your field, put the top card of your deck into your gauge, you gain 1 life and draw a card."
+global.Defense[CardStat] = 1
+global.Cat[CardStat] = 1
+}
+
+CardStat = 5452
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Poppin'Party Appears"
+global.CardFlavor[CardStat] = ""
+global.CardText[CardStat] = "[Cast Cost] [Pay 2 gauge]
+
+[Counter] [Stand] all "+chr(171)+"Poppin'Party"+chr(187)+" on your field. If you [Stand] five cards, draw a card. You may only cast "+chr(34)+"Poppin'Party Appears"+chr(34)+" once per turn."
+global.Star[CardStat] = 1
+global.Enhance[CardStat] = 1
+}
+
+CardStat = 5453
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "BanG Dream Ring"
+global.CardFlavor[CardStat] = "Okay, let's do it!"
+global.CardText[CardStat] = "[Cast Cost] [Pay 1 gauge]
+
+Draw two cards. Then, you gain 1 life for each different "+chr(171)+"Band"+chr(187)+" character on your field. You may only cast "+chr(34)+"BanG Dream Ring"+chr(34)+" once per turn."
+
+global.Draw[CardStat] = 1
+global.Recovery[CardStat] = 1
+}
+
+CardStat = 5454
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Rescuing Kokoro"
+global.CardFlavor[CardStat] = "Michelle!"
+global.CardText[CardStat] = "[Cast Cost] [Pay 1 gauge]
+
+Choose and use one of the following two. You may only cast "+chr(34)+"Rescuing Kokoro"+chr(34)+" once per turn.
+
+- Put up to two "+chr(171)+"Band"+chr(187)+" characters with different card names from your drop zone into your hand.
+- [Counter] Call a "+chr(171)+"Band"+chr(187)+" character from your hand or drop zone by paying its [Call Cost]."
+
+global.Get[CardStat] = 1
+global.Summon[CardStat] = 1
+}
+
+CardStat = 5455
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Toonk…"
+global.CardFlavor[CardStat] = "Ooh……"
+global.CardText[CardStat] = "[Counter] Choose and use one of the following three. 
+
+- [Stand] a "+chr(171)+"Roselia"+chr(187)+" character on your field.
+- Choose a "+chr(171)+"Roselia"+chr(187)+" character on your field, and for this turn, it gets power+10000!
+- Choose a "+chr(171)+"Roselia"+chr(187)+" character on your field, and for this turn, it gets defense+10000!"
+global.Enhance[CardStat] = 1
+global.Cat[CardStat] = 1
+}
+
+CardStat = 5457
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Idol Surf Board Chicken Race!"
+global.CardFlavor[CardStat] = "One will ride the surf board, and anotherr will push. Get close to the edge of the mud pool for PR time, but don't fall off!"
+global.CardText[CardStat] = "Put this card into the soul of a "+chr(171)+"Pastel*Palettes"+chr(187)+" character on your field.
+
+If this card is in the soul of a "+chr(171)+"Pastel*Palettes"+chr(187)+", damage you take are reduced by 2.
+
+At the start of each player's final phase, if this card is in the soul of a "+chr(171)+"Pastel*Palettes"+chr(187)+", deal 1 damage to your opponent!"
+global.FirePower[CardStat] = 1
+global.FireDefense[CardStat] = 1
+}
+
+CardStat = 5458
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Michelle Land"
+global.CardFlavor[CardStat] = ""
+global.CardText[CardStat] = "[Set] (This card remains on the field)
+
+All "+chr(171)+"Hello, Happy World!"+chr(187)+" characters on your field get power+5000 and their souls cannot be dropped by your opponent's card effects.
+
+[Act] Drop the top three cards of your deck, and put any number of [Michelle] from among them into your hand. You may only use this ability once per turn."
+global.Get[CardStat] = 1
+global.Band[CardStat] = 1
+}
+
+CardStat = 5459
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 4
+global.CardName[CardStat] = "Hello, Happy Sky Jam!"
+global.CardFlavor[CardStat] = "I thought it'd be a lot of fun if we played music while skydiving."
+global.CardText[CardStat] = "You may only cast this card if the total size of "+chr(171)+"Hello, Happy World!"+chr(187)+" characters on your field is 3 or greater.
+
+[Cast Cost] [Pay 2 gauge]
+
+Destroy all cards on your opponent's field, and you gain 1 life and deal 1 damage to your opponent for each card destroyed!"
+global.HelloHappyWorld[CardStat] = 1
+global.Band[CardStat] = 1
+}
+
+CardStat = 5499
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Body Made of Cornets"
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "For this turn, when a "+chr(171)+"Poppin'Party"+chr(187)+" character on your field attacks, destroy up to one card on your opponent's field, and deal 1 damage to your opponent! You may only cast "+chr(34)+"Body Made of Cornets"+chr(34)+" once per turn."
+global.FirePower[CardStat] = 1
+global.ChocoCornet[CardStat] = 1
+}
+
+CardStat = 5236
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Sparkling and Heart-Pounding, Girls Band Party!PICO"
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = ""+chr(171)+"Band"+chr(187)+" on your field get power+1000!"
+
+global.CardSize[CardStat] = 1
+global.CardPower[CardStat] = 500
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 500
+global.Band[CardStat] = 1
+}
+
+CardStat = 5492
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Thinking About Fries"
+global.CardFlavor[CardStat] = "Fries…! Fries, fries, fries…"
+global.CardText[CardStat] = "If your hand cards would be dropped by your opponent's card effects, you may reveal this hand card and pay 1 life. If you do, your hand cards cannot be dropped by that effect.
+
+[Counter] Choose and use one of the following two.
+
+- Put the top two cards of your deck into your gauge, and you gain 2 life!
+- Destroy a size 1 or less character on your opponent's field."
+global.Fries[CardStat] = 1
+}
+
+CardStat = 5493
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 4
+global.CardName[CardStat] = "Clothes for a New Holy War"
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "You may only cast this card if the total size of "+chr(171)+"Roselia"+chr(187)+" characters on your field is 3 or greater.
+
+[Cast Cost] [Pay 3 gauge]
+
+[Stand] all "+chr(171)+"Roselia"+chr(187)+" on your field, and you get another attack phase."
+global.Roselia[CardStat] = 1
+global.Band[CardStat] = 1
+}
+
+CardStat = 5494
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 4
+global.CardName[CardStat] = "Newbie Idols, Commercial with Swimsuits"
+global.CardFlavor[CardStat] = "The let's get to the games and win that PR time."
+global.CardText[CardStat] = "You may only cast this card during your opponent's final phase, if your opponent's life is 5 or less, and the total size of "+chr(171)+"Pastel*Palettes"+chr(187)+" characters on your field is 3 or greater.
+
+[Cast Cost] [Pay 2 gauge]
+
+[Counter] Deal 5 damage to your opponent!! This card cannot be nullified, and its damage cannot be reduced."
+global.PastelPalettes[CardStat] = 1
+global.Band[CardStat] = 1
+}
+
+CardStat = 5495
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 4
+global.CardName[CardStat] = "Light and Cute Classic Rock Spirit Band"
+global.CardFlavor[CardStat] = "Ha ha ha-!"
+global.CardText[CardStat] = "You may only cast this card if a card on your opponent's field was destroyed or returned to hand during this turn, and the total size of "+chr(171)+"Afterglow"+chr(187)+" characters on your field is 3 or greater.
+
+[Cast Cost] [Pay 3 gauge]
+
+Drop up to three cards from your opponent's gauge, deal 3 damage to your opponent, and you gain 3 life!!"
+global.Afterglow[CardStat] = 1
+global.Band[CardStat] = 1
+}
+
+CardStat = 5496
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 4
+global.CardName[CardStat] = "How to Build Shining Excitement"
+global.CardFlavor[CardStat] = "I can't take this~~~!"
+global.CardText[CardStat] = "You may only cast this card if your opponent's life is 5 or less, and the total size of "+chr(171)+"Poppin'Party"+chr(187)+" characters on your field is 3 or greater.
+
+[Cast Cost] [Pay 2 gauge]
+
+Deal 5 damage to your opponent! This card cannot be nullified, and its damage cannot be reduced."
+
+global.PoppinParty[CardStat] = 1
+global.Band[CardStat] = 1
+}
+
+CardStat = 5497
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Twin Rhythm"
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "[Cast Cost] [Pay 1 gauge]
+[Counter] Choose a card on your opponent's field, and [Rest] it. For this turn, the chosen card cannot [Stand]!"
+global.Defense[CardStat] = 1
+}
+
+CardStat = 5498
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Rock and Roll Baby, Dudes!"
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "You may only cast this card if a total size of 3 or greater "+chr(171)+"Afterglow"+chr(187)+" characters are on your field.
+
+[Counter] Draw a card, and choose and use one of the following two.
+
+- Destroy up to two characters on your opponent's field.
+- Return up to two characters from your opponent's field to hand."
+global.Destruction[CardStat] = 1
+global.Move[CardStat] = 1
+}
+
+CardStat = 5660
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 5
+global.CardName[CardStat] = "BanG Dream! Girls Band Party!PICO (Poppin Party)"
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "You may use <BanG Dream! Girls Band Party! PICO> cards.
+
+You may put characters of up to a total size of 5 on your field.
+
+You may put one additional <BanG Dream! Girls Band Party!PICO> character on your left and right."
+
+global.BanGDreamGirlsBandPartyPICO[CardStat] = 1
+}
+
+CardStat = 5661
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 5
+global.CardName[CardStat] = "BanG Dream! Girls Band Party!PICO (Afterglow)"
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "You may use <BanG Dream! Girls Band Party! PICO> cards.
+
+You may put characters of up to a total size of 5 on your field.
+
+You may put one additional <BanG Dream! Girls Band Party!PICO> character on your left and right."
+
+global.BanGDreamGirlsBandPartyPICO[CardStat] = 1
+}
+
+CardStat = 5662
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 5
+global.CardName[CardStat] = "BanG Dream! Girls Band Party!PICO (Happy World)"
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "You may use <BanG Dream! Girls Band Party! PICO> cards.
+
+You may put characters of up to a total size of 5 on your field.
+
+You may put one additional <BanG Dream! Girls Band Party!PICO> character on your left and right."
+
+global.BanGDreamGirlsBandPartyPICO[CardStat] = 1
+}
+
+CardStat = 5663
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 5
+global.CardName[CardStat] = "BanG Dream! Girls Band Party!PICO (Pastel Palettes)"
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "You may use <BanG Dream! Girls Band Party! PICO> cards.
+
+You may put characters of up to a total size of 5 on your field.
+
+You may put one additional <BanG Dream! Girls Band Party!PICO> character on your left and right."
+
+global.BanGDreamGirlsBandPartyPICO[CardStat] = 1
+}
+
+CardStat = 5664
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 5
+global.CardName[CardStat] = "BanG Dream! Girls Band Party!PICO (Roselia)"
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "You may use <BanG Dream! Girls Band Party! PICO> cards.
+
+You may put characters of up to a total size of 5 on your field.
+
+You may put one additional <BanG Dream! Girls Band Party!PICO> character on your left and right."
+
+global.BanGDreamGirlsBandPartyPICO[CardStat] = 1
+}
+
+CardStat = 5665
+{
+global.CardWorld[CardStat] = 14
+global.CardType[CardStat] = 5
+global.CardName[CardStat] = "BanG Dream! Girls Band Party!PICO (Alternate)"
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "You may use <BanG Dream! Girls Band Party! PICO> cards.
+
+You may put characters of up to a total size of 5 on your field.
+
+You may put one additional <BanG Dream! Girls Band Party!PICO> character on your left and right."
+
+global.BanGDreamGirlsBandPartyPICO[CardStat] = 1
+}

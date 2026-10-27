@@ -1,0 +1,1000 @@
+CardStat = 5856
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Memories of Only Us Two"
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "[Set] (This card remains on the field.)
+
+Souls in all cards on your field cannot be dropped by your opponent's card effects.
+
+All cards on your opponent's field cannot attack characters on your left and right.
+
+[Counter] [Act] You may drop a hand card. If you do, for this turn, the next damage you take is reduced to 0. You may only use this ability once per turn."
+global.Defense[CardStat] = 1
+}
+
+CardStat = 5857
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Battle Tracto Max"
+global.CardFlavor[CardStat] = "Let's combine, Gridman!"
+global.CardText[CardStat] = "[Counter] [Act] [Transform] into up to one "+chr(34)+"Max Gridman"+chr(34)+" from your hand or drop zone by paying its [Transform] cost. You may only use this ability once per turn.
+
+[Counter] [Act] If this card is in the soul of a [Gridman] or [Powered Zenon], you may pay 1 gauge. If you do, for this turn, the next damage you take is reduced by 3."
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 4000
+global.CardCrit[CardStat] = 3
+global.CardDefense[CardStat] = 3000
+global.AssistWeapon[CardStat] = 1
+}
+
+CardStat = 5858
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Gonglee, the Sexual Kaiju"
+global.CardFlavor[CardStat] = "Akane: "+chr(34)+"Yeah, caught him!"+chr(34)+""
+global.CardText[CardStat] = "[Call Cost] [Pay 1 gauge & Put the top card of your deck into its soul]
+
+"+chr(34)+"Shadow Dive"+chr(34)+" This card can attack your opponent even if they have characters on the center!
+
+When this card deals damage to your opponent, draw a card.
+
+[Double Attack] [Soulguard]"
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 10000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 5000
+global.Kaiju[CardStat] = 1
+}
+
+
+CardStat = 5859
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Akane's Declaration of War"
+global.CardFlavor[CardStat] = "Akane: "+chr(34)+"I'm gonna let this kaiju loose on the festival and tear up the school."+chr(34)+""
+global.CardText[CardStat] = "For this turn, all [Alexis] and "+chr(171)+"Kaiju"+chr(187)+" on your field cannot be destroyed, returned to hand or [Rest] by your opponent's card effects. Then, if an [Akane Shinjo] is on your field, draw a card. You may only cast "+chr(34)+"Akane's Declaration of War"+chr(34)+" once per turn."
+global.Enhance[CardStat] = 1
+}
+
+CardStat = 5860
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Instance Abreaction"
+global.CardFlavor[CardStat] = "Now, to put it in motion. Instance Abreaction!"
+global.CardText[CardStat] = "Choose and use one of the following two. You may only cast "+chr(34)+"Instance Abreaction"+chr(34)+" once per turn.
+
+- Put up to one [Alexis] from your deck into your hand, and shuffle your deck.
+- [Counter] Call a "+chr(171)+"Kaiju"+chr(187)+" character from your drop zone by paying its [Call Cost]."
+global.Get[CardStat] = 1
+global.Summon[CardStat] = 1
+}
+
+CardStat = 5861
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Go'yavec, the Troublesome Kaiju"
+global.CardFlavor[CardStat] = "Akane: "+chr(34)+"I know it's cheap to scale up, but our guest is being cheap too."+chr(34)+""
+global.CardText[CardStat] = "[Call Cost] [Pay 3 gauge]"
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 50000
+global.CardCrit[CardStat] = 5
+global.CardDefense[CardStat] = 30000
+global.Kaiju[CardStat] = 1
+}
+
+CardStat = 5862
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Anti (Kaiju Form), the Perseverance Kaiju"
+global.CardFlavor[CardStat] = "Gridman! I'll crush you, you bastard!"
+global.CardText[CardStat] = "[Call Cost] [Put an "+chr(34)+"Anti (Human Form)"+chr(34)+" from your field or drop zone into its soul & Pay 1 gauge]
+
+Abilities of this card on the field cannot be nullified.
+
+[Counter] [Act] "+chr(34)+"Anti Gridman"+chr(34)+" During each player's attack phase, choose an originally character on your opponent's field, and for this turn, this card gets all abilities originally written on the chosen card. You may only use "+chr(34)+"Anti Gridman"+chr(34)+" once per turn.
+
+[Soulguard]"
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 8000
+global.CardCrit[CardStat] = 3
+global.CardDefense[CardStat] = 8000
+global.Kaiju[CardStat] = 1
+}
+
+CardStat = 5863
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Zegga, the Self Constraining Kaiju"
+global.CardFlavor[CardStat] = "Alexis: "+chr(34)+"A human that makes a kaiju is kaiju themselves."+chr(34)+""
+global.CardText[CardStat] = "[Call Cost] [Put an [Akane Shinjo] from your field and the top three cards of your deck into its soul & Pay 3 gauge]
+When this card attacks alone, it attacks all of your opponent's characters and your opponent instead.
+
+At the end of the battle that this card attacked, if no characters are on your opponent's field, your opponent chooses and drops a hand card, and deal 2 damage to your opponent!
+
+When this card is put from your field into the drop zone, put up to one [Akane Shinjo] from your drop zone into your hand.
+
+[Triple Attack] [Soulguard] [Counterattack]"
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 12000
+global.CardCrit[CardStat] = 3
+global.CardDefense[CardStat] = 12000
+global.Kaiju[CardStat] = 1
+}
+
+CardStat = 5864
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Bujac, the Horde Kaiju"
+global.CardFlavor[CardStat] = "Akane: "+chr(34)+"Even in dreams I can't reach them?"+chr(34)+""
+global.CardText[CardStat] = "[Call Cost] [Pay 2 gauge & Put the top two cards of your deck into its soul]
+
+[Counter] [Act] During your opponent's turn, choose a character or item on your opponent's field, and you may pay 1 gauge. If you do, draw a card, and for this turn, nullify all abilities of the chosen card and [Rest] it. You may only use this ability once per turn.
+
+[Double Attack] [Soulguard] [Counterattack]"
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 8000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 8000
+global.Kaiju[CardStat] = 1
+}
+
+CardStat = 5865
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Devadadan, the Karma Kaiju"
+global.CardFlavor[CardStat] = "	Akane: "+chr(34)+"My beam counter was perfect～"+chr(34)+""
+global.CardText[CardStat] = "[Call Cost] [Pay 1 gauge & Put the top card of your deck into its soul]
+
+[Counter] [Act] For this turn, the next time you would take damage by card effects and this card is on your field, it is reduced to 0, and deal 1 damage to your opponent for each damage reduced!
+
+[Soulguard] [Counterattack]"
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 6000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 11000
+global.Kaiju[CardStat] = 1
+}
+
+
+CardStat = 5866
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Anonymous B, the **** Kaiju"
+global.CardFlavor[CardStat] = "Alexis: "+chr(34)+"Looks like something came out from inside. Is this okay?"+chr(34)+""
+global.CardText[CardStat] = "This card can only be called by "+chr(34)+"Anonymous A, the **** Kaiju"+chr(34)+" effects.
+
+This card on the field cannot be destroyed, returned to hand or [Rest] by your opponent's card effects.
+
+When this card attacks, choose and use one of the following three.
+
+- Deal 2 damage to your opponent!
+- Destroy up to two cards on your opponent's field!
+- Return up to two cards on your opponent's field to hand!
+
+[Penetrate] [Triple Attack]"
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 15000
+global.CardCrit[CardStat] = 3
+global.CardDefense[CardStat] = 8000
+global.Kaiju[CardStat] = 1
+}
+
+CardStat = 5867
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Anonymous A, the **** Kaiju"
+global.CardFlavor[CardStat] = "Alexis: "+chr(34)+"You're finished? You're fine with this one?"+chr(34)+""
+global.CardText[CardStat] = "When this card is destroyed, you gain 3 life!
+
+At the start of your opponent's final phase, you may destroy this card on the field.
+
+At the end of the turn that this card is destroyed, call up to one "+chr(34)+"Anonymous B, the **** Kaiju"+chr(34)+" from your hand or deck. If you looked in your deck, shuffle it."
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 5000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 5000
+global.Kaiju[CardStat] = 1
+}
+
+CardStat = 5868
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Mecha Ghoulghilas, the Revenge Kaiju"
+global.CardFlavor[CardStat] = "Akane: "+chr(34)+"My kaiju will never lose to that!"+chr(34)+""
+global.CardText[CardStat] = "[Call Cost] [Pay 2 gauge & Put the top two cards of your deck into its soul]
+
+[Counter] [Act] During each player's attack phase, choose a card on your opponent's field, and you may drop a hand card. If you do, nullify all abilities of the chosen card, and destroy it. You may only use this ability once per turn.
+
+[Penetrate] [Double Attack] [Soulguard]"
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 10000
+global.CardCrit[CardStat] = 3
+global.CardDefense[CardStat] = 10000
+global.Kaiju[CardStat] = 1
+}
+
+CardStat = 5869
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Ghoulghilas, the Bombast Kaiju"
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "[Call Cost] [Pay 1 gauge & Put the top card of your deck into its soul]
+
+[Counter] [Act] During each player's attack phase, choose a character on your opponent's field, and you may drop a hand card. If you do, destroy the chosen card. If you destroyed, deal 1 damage to your opponent!
+
+[Double Attack] [Penetrate]"
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 6000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 6000
+global.Kaiju[CardStat] = 1
+}
+
+CardStat = 5870
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Full Powered Gridman"
+global.CardFlavor[CardStat] = "Hyperlink Combine, Full Powered Gridman!"
+global.CardText[CardStat] = "This card cannot be called.
+
+[Counter] [Act] [Transform] into this card from your hand by paying its [Transform] cost.
+
+If four or more different "+chr(171)+"Assist Weapon"+chr(187)+" are in this card's soul, this card gets [Penetrate] and [Quadruple Attack], and during the battle that this card is attacking your opponent's character, they cannot use [Counter].
+
+[Transform] [Put this on top of a [Gridman] you are [Transform] into & Pay 3 gauge. Then, put up to a total of fou "+chr(171)+"Assist Weapon"+chr(187)+" with different card names from your hand or drop zone into its soul]"
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 25000
+global.CardCrit[CardStat] = 5
+global.CardDefense[CardStat] = 18000
+global.Superhero[CardStat] = 1
+}
+
+CardStat = 5871
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Powered Zenon"
+global.CardFlavor[CardStat] = "War God Combine, Powered Zenon!"
+global.CardText[CardStat] = "[Call Cost] [Put up to a total of four "+chr(171)+"Assist Weapon"+chr(187)+" with different card names from your hand or drop zone into its soul & Pay 2 gauge]
+
+This card on the field cannot be [Rest] and its abilities cannot be nullified by your opponent's card effects.
+
+[Counter] [Act] If an "+chr(171)+"Assist Weapon"+chr(187)+" is in this card's soul, [Stand] this card. You may only use this ability once per turn.
+
+[Move] [Penetrate] [Double Attack] [Soulguard]"
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 15000
+global.CardCrit[CardStat] = 3
+global.CardDefense[CardStat] = 8000
+global.AssistWeapon[CardStat] = 1
+}
+
+CardStat = 5872
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Max Gridman"
+global.CardFlavor[CardStat] = "Heracles Combine, Max Gridman!"
+global.CardText[CardStat] = "This card cannot be called.
+
+This card's power and critical on the field cannot be reduced by your opponent's card effects.
+
+[Penetrate] [Double Attack] [Transform] [Put a [Battle Tracto Max] from your field or drop zone into its soul & Put this on top of a [Gridman] you are [Transform] into & Pay 2 gauge]"
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 14000
+global.CardCrit[CardStat] = 6
+global.CardDefense[CardStat] = 13000
+global.Superhero[CardStat] = 1
+}
+
+CardStat = 5873
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Sky Gridman"
+global.CardFlavor[CardStat] = "Grid... Above!?"
+global.CardText[CardStat] = "This card cannot be called.
+
+When this card attacks, you gain 1 life and deal 1 damage to your opponent!
+
+[Quadruple Attack] [Transform] [Put a [Sky Vitter] from your field or drop zone into its soul & Put this on top of a [Gridman] you are [Transform] into & Pay 2 gauge]"
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 13000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 13000
+global.Superhero[CardStat] = 1
+}
+
+CardStat = 5874
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Gridknight"
+global.CardFlavor[CardStat] = "In order to crush you, I will fight together with you."
+global.CardText[CardStat] = "[Call Cost] [Put an "+chr(34)+"Anti (Human Form)"+chr(34)+" from your field or drop zone into its soul & Pay 2 gauge]
+
+This card on the field cannot be destroyed or returned to hand by your opponent's card effects.
+
+If you are [Transform] into [Gridman], damage you take is reduced by 2.
+
+When this card attacks an opponent's character, drop all souls from that character.
+
+[Triple Attack] [Soulguard]"
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 10000
+global.CardCrit[CardStat] = 3
+global.CardDefense[CardStat] = 10000
+global.Superhero[CardStat] = 1
+}
+
+CardStat = 5875
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Gridman"
+global.CardFlavor[CardStat] = "There won't be a next! It all ends here, Alexis Kerib!"
+global.CardText[CardStat] = "This card cannot be called.
+
+Damage your opponent takes by your cards cannot be reduced.
+
+When this card attacks, deal 3 damage to your opponent!
+
+[Penetrate] [Quadruple Attack] [Transform] [Put a [Yuta Hibiki], [Samurai Calibur], [Max], [Borr] and [Vit] each from your [Gridman] soul or drop zone into its soul, and put this on top of a [Gridman] you are [Transform] into]"
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 30000
+global.CardCrit[CardStat] = 4
+global.CardDefense[CardStat] = 15000
+global.Superhero[CardStat] = 1
+}
+
+CardStat = 5876
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Buster Gridman"
+global.CardFlavor[CardStat] = "Full Armor Combine, Buster Gridman!"
+global.CardText[CardStat] = "This card cannot be called.
+
+[Counter] [Act] Choose a card on your opponent's field, and pay 1 gauge. If you do, destroy the chosen card. If you destroyed, drop 1 of your opponent's gauge.
+
+[Penetrate] [Triple Attack] [Transform] [Put a [Buster Borr] from your field or drop zone into its soul & Put this on top of a [Gridman] you are [Transform] into & Pay 2 gauge]"
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 13000
+global.CardCrit[CardStat] = 4
+global.CardDefense[CardStat] = 12000
+global.Superhero[CardStat] = 1
+}
+
+CardStat = 5877
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Buster Borr"
+global.CardFlavor[CardStat] = "You sit quiet there for a bit. Let's combine while we can."
+global.CardText[CardStat] = "[Counter] [Act] [Transform] into up to one "+chr(34)+"Buster Gridman"+chr(34)+" from your hand or drop zone by paying its [Transform] cost. You may only use this ability once per turn.
+
+During the battle that this card in the soul of a [Gridman] or [Powered Zenon] is attacking alone, damage dealt to your opponent by that card cannot be reduced.
+
+[Penetrate]"
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 3000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 2000
+global.AssistWeapon[CardStat] = 1
+}
+
+CardStat = 5878
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 2
+global.CardName[CardStat] = "Primal Accepter"
+global.CardFlavor[CardStat] = "Gridman: "+chr(34)+"That is your and my Primal Accepter."+chr(34)+""
+global.CardText[CardStat] = "If this card is in the soul of a [Gridman], that card cannot be destroyed or leave the field and its abilities cannot be nullified by your opponent's cards.
+
+[Counter] [Act] During an attack on your opponent's turn, you may drop this hand card. If you do, nullify the attack."
+global.CardPower[CardStat] = 0
+global.CardCrit[CardStat] = 0
+global.Superhero[CardStat] = 1
+}
+
+CardStat = 5879
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Alexis Kerib"
+global.CardFlavor[CardStat] = "I think you misunderstand me. I'm fine with you becoming a kaiju yourself."
+global.CardText[CardStat] = "[Call Cost] [Pay 2 gauge & Put the top two cards of your deck into its soul]
+
+If you do not have an item equipped, all "+chr(171)+"Kaiju"+chr(187)+" characters' size on your field is reduced by 4.
+
+If a "+chr(171)+"Kaiju"+chr(187)+" character is on your field, this card on your left or right cannot be destroyed.
+
+[Counter] [Act] Call up to one "+chr(171)+"Kaiju"+chr(187)+" character from your hand to another area by paying its [Call Cost]. You may only use this ability once per turn.
+
+[Double Attack] [Soulguard]"
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 8000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 8000
+global.QuestionMark[CardStat] = 1
+}
+
+CardStat = 5880
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Sho Utsumi"
+global.CardFlavor[CardStat] = "What am I...? I'm... Yuta's friend."
+global.CardText[CardStat] = "Soul in all [Gridman] on your field cannot be dropped by your opponent's card effects.
+
+[Act] "+chr(34)+"It's a staple of the Ultra series"+chr(34)+" If another "+chr(171)+"Gridman Alliance"+chr(187)+" or [Gridman] is on your field, [Rest] this card. If you do, put the top two cards of your deck into your gauge, and draw a card. You may only use "+chr(34)+"It's a staple of the Ultra series"+chr(34)+" once per turn."
+global.CardSize[CardStat] = 0
+global.CardPower[CardStat] = 0
+global.CardCrit[CardStat] = 0
+global.CardDefense[CardStat] = 1000
+global.HighSchoolStudent[CardStat] = 1
+global.GridmanAlliance[CardStat] = 1
+}
+
+CardStat = 5881
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Akane Shinjo"
+global.CardFlavor[CardStat] = "I wish I could stay in a dream forever."
+global.CardText[CardStat] = "This card on the field cannot be destroyed or returned to hand by your opponent's card effects.
+
+When this card enters the field, put up to one [Alexis] or "+chr(171)+"Kaiju"+chr(187)+" character from your deck into your hand, and shuffle your deck.
+
+[Counter] [Act] "+chr(34)+"There's something I wanna try out"+chr(34)+" During your attack phase, if an originally size 4 or greater "+chr(171)+"Kaiju"+chr(187)+" is on your field, you may return this card from the field to hand. If you do, put the top two cards of your deck into your gauge, and draw two cards. You may only use "+chr(34)+"There's something I wanna try out"+chr(34)+" once per turn."
+global.CardSize[CardStat] = 0
+global.CardPower[CardStat] = 1000
+global.CardCrit[CardStat] = 0
+global.CardDefense[CardStat] = 1000
+global.HighSchoolStudent[CardStat] = 1
+global.God[CardStat] = 1
+}
+
+CardStat = 5882
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Rikka Takarada"
+global.CardFlavor[CardStat] = "If you do that, Hibiki won't have any place to come back to"
+global.CardText[CardStat] = "All [Gridman] on your field cannot be [Rest] by your opponent's card effects.
+
+[Act] "+chr(34)+"It'll have to wait till he come back..."+chr(34)+" If another "+chr(171)+"Gridman Alliance"+chr(187)+" or [Gridman] is on your field, [Rest] this card. If you do, draw three cards, and put a card from your hand on the bottom of your deck. You may only use "+chr(34)+"It'll have to wait till he come back..."+chr(34)+" once per turn."
+global.CardSize[CardStat] = 0
+global.CardPower[CardStat] = 0
+global.CardCrit[CardStat] = 0
+global.CardDefense[CardStat] = 1000
+global.HighSchoolStudent[CardStat] = 1
+global.GridmanAlliance[CardStat] = 1
+}
+
+CardStat = 5883
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Borr"
+global.CardFlavor[CardStat] = "Yup, better be thankful for my drills!"
+global.CardText[CardStat] = "[Counter] [Act] "+chr(34)+"Access Code! Buster Borr!"+chr(34)+" Drop this hand card. If you do, choose and use one of the following two. You may only use "+chr(34)+"Access Code! Buster Borr!"+chr(34)+" once per turn.
+
+- During your main phase, put up to one "+chr(34)+"Buster Borr"+chr(34)+" and up to one "+chr(34)+"Buster Gridman"+chr(34)+" from your deck into your hand, and shuffle your deck.
+- For this turn, damage you take is reduced by 1!"
+global.CardSize[CardStat] = 0
+global.CardPower[CardStat] = 1000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 1000
+global.NeonGenesisJuniorHighStudent[CardStat] = 1
+}
+
+CardStat = 5884
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Yuta Hibiki"
+global.CardFlavor[CardStat] = "Something only I can do... It's what... I must do."
+global.CardText[CardStat] = "When this card enters the field, put up to one "+chr(34)+"Gridman (Primal Fighter)"+chr(34)+" or "+chr(34)+"Primal Accepter"+chr(34)+" from your deck into your hand, and shuffle your deck.
+
+When you [Transform], you may put this card from your field into the soul of a [Gridman] on your field. If you do, draw a card, and put a card from your hand on the bottom of your deck."
+global.CardSize[CardStat] = 0
+global.CardPower[CardStat] = 0
+global.CardCrit[CardStat] = 0
+global.CardDefense[CardStat] = 1000
+global.HighSchoolStudent[CardStat] = 1
+global.GridmanAlliance[CardStat] = 1
+}
+
+CardStat = 5885
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Max"
+global.CardFlavor[CardStat] = "Probably, huh...... It's truly vexing, watching you..."
+global.CardText[CardStat] = "[Counter] [Act] "+chr(34)+"Access code! Battle Tracto Max!"+chr(34)+" Drop this hand card. If you do, choose and use one of the following two. You may only use "+chr(34)+"Access code! Battle Tracto Max!"+chr(34)+" once per turn.
+
+- During your main phase, put up to one "+chr(34)+"Battle Tracto Max"+chr(34)+" and up to one "+chr(34)+"Max Gridman"+chr(34)+" from your deck into your hand, and shuffle your deck.
+- For this turn, all cards on your opponent's field get critical-1!"
+global.CardSize[CardStat] = 0
+global.CardPower[CardStat] = 2000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 1000
+global.NeonGenesisJuniorHighStudent[CardStat] = 1
+}
+
+CardStat = 5886
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Anti (Human Form)"
+global.CardFlavor[CardStat] = "Pay your debts. I was taught that it's good manners."
+global.CardText[CardStat] = "At the start of your attack phase, if a [Rikka Takarada] or [Akane Shinjo] is on your field, for this turn, this card gets power+5000 and [Double Attack].
+
+[Counter] [Act] During each player's attack phase, you may put this card from the field into the drop zone. If you do, choose up to one "+chr(34)+"Perseverance Kaiju, Anti (Kaiju Form)"+chr(34)+" or "+chr(34)+"Gridknight"+chr(34)+" from your hand or deck, and call it by paying its [Call Cost]. If you looked in your deck, shuffle it."
+global.CardSize[CardStat] = 0
+global.CardPower[CardStat] = 1000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 1000
+global.Kaiju[CardStat] = 1
+}
+
+CardStat = 5887
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Everyone, dish it out!"
+global.CardFlavor[CardStat] = ""
+global.CardText[CardStat] = "Look at the top four cards of your deck, put any number of "+chr(171)+"Neon Genesis Junior High Student"+chr(187)+" or "+chr(171)+"Assist Weapon"+chr(187)+" with different card names from among them into your hand, and put the rest on the bottom of your deck in any order. You may only cast "+chr(34)+"Everyone, dish it out!"+chr(34)+" once per turn."
+global.Get[CardStat] = 1
+}
+
+CardStat = 5888
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Samurai Calibur"
+global.CardFlavor[CardStat] = "From now on, keep doing what you can do."
+global.CardText[CardStat] = "[Counter] [Act] "+chr(34)+"Access code! Gridman Calibur!"+chr(34)+" Drop this hand card. If you do, choose and use one of the following two. You may only use "+chr(34)+"Access code! Gridman Calibur!"+chr(34)+" once per turn.
+
+- During your main phase, put up to one "+chr(34)+"Gridman Calibur"+chr(34)+" from your deck into your hand, and shuffle your deck. If you do, draw a card.
+- For this turn, the next time your life would become 0, it becomes 1 instead!"
+global.CardSize[CardStat] = 0
+global.CardPower[CardStat] = 2000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 1000
+global.NeonGenesisJuniorHighStudent[CardStat] = 1
+}
+
+CardStat = 5889
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Giant Alexis Kerib"
+global.CardFlavor[CardStat] = "What a nostalgic look that is, Gridman."
+global.CardText[CardStat] = "[Call Cost] [Put this on top of an "+chr(34)+"Alexis Kerib"+chr(34)+" on your field & Put an [Akane Shinjo] from your field or hand into its soul & Pay 2 gauge]
+
+[Counter] [Act] During your attack phase, call this card from your hand by paying its [Call Cost].
+
+If you do not have an item equipped, this card's size on the field is reduced by 1.
+
+When this card is put from the field into the drop zone, you may pay 1 gauge. If you do, put this card from the drop zone into your hand.
+
+[Move] [Penetrate] [Quadruple Attack] [Soulguard] [Counterattack]"
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 20000
+global.CardCrit[CardStat] = 3
+global.CardDefense[CardStat] = 15000
+global.QuestionMark[CardStat] = 1
+}
+
+CardStat = 5890
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Gridman (Primal Fighter)"
+global.CardFlavor[CardStat] = "That's right. You and I must awaken."
+global.CardText[CardStat] = "This card cannot be called.
+
+When this card attacks, draw a card.
+
+[Double Attack] [Transform] [Put this on top of your equipped "+chr(34)+"Primal Accepter"+chr(34)+"] (If you do, equip this card from your hand, and this equipped card will be treated as an item instead of a character)"
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 10000
+global.CardCrit[CardStat] = 3
+global.CardDefense[CardStat] = 10000
+global.Superhero[CardStat] = 1
+}
+
+CardStat = 5891
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "What Each Person Must Do"
+global.CardFlavor[CardStat] = "Let's go, Rikka! Everyone's waiting."
+global.CardText[CardStat] = "[Cast Cost] [Pay 1 life]
+
+Choose and use one of the following two. You may only cast "+chr(34)+"What Each Person Must Do"+chr(34)+" once per turn.
+
+- Put up to one character from your deck into your drop zone, and shuffle your deck. Then, put the top card of your deck into your gauge for each of that card's size.
+- [Counter] For this turn, a card on your field gets power+10000 and defense+10000!"
+global.Charge[CardStat] = 1
+global.Enhance[CardStat] = 1
+}
+
+CardStat = 5914
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Making Kaiju"
+global.CardFlavor[CardStat] = "Alexis: "+chr(34)+"Another kaiju? Something bad must have happened, huh?"+chr(34)+""
+global.CardText[CardStat] = "[Set] (This card remains on the field)
+
+All [Alexis] and "+chr(171)+"Kaiju"+chr(187)+" on your field get power+5000 and their abilities cannot be nullified by your opponent's card effects.
+
+If you would call a "+chr(171)+"Kaiju"+chr(187)+" by card effects, the gauge cost written in its [Call Cost] is reduced by 1.
+
+When a "+chr(171)+"Kaiju"+chr(187)+" character enters your field, you gain 1 life and draw a card. This ability only activates once per turn.
+
+You may only [Set] one "+chr(34)+"Making Kaiju"+chr(34)+" on your field."
+global.Kaiju[CardStat] = 1
+}
+
+CardStat = 5915
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Junk"
+global.CardFlavor[CardStat] = "Can you hear me... Can you hear me, you there?"
+global.CardText[CardStat] = "[Set] (This card remains on the field)
+
+All [Gridman] and "+chr(171)+"Assist Weapon"+chr(187)+" on your field get power+2000 and defense+2000!
+
+[Counter] [Act] During your attack phase, if you are [Transform] into [Gridman], call up to one "+chr(171)+"Assist Weapon"+chr(187)+" character from your hand or drop zone by paying its [Call Cost]. You may only use this ability once per turn."
+global.Enhance[CardStat] = 1
+}
+
+CardStat = 5916
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Transform! Gridman!"
+global.CardFlavor[CardStat] = "You'll have to Access Flash with me when you're ready."
+global.CardText[CardStat] = "[Set] (This card remains on the field)
+
+When you [Transform], draw two cards. Then, put this card into your drop zone. For this turn, you cannot [Set] "+chr(34)+"Transform! Gridman!"+chr(34)+".
+
+You may only [Set] one "+chr(34)+"Transform! Gridman!"+chr(34)+" on your field."
+global.Draw[CardStat] = 1
+}
+
+CardStat = 5917
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Kaiju Girl Anosillus the 2nd"
+global.CardFlavor[CardStat] = "My predecessor owes a lot to you."
+global.CardText[CardStat] = "[Counter] [Act] Choose a card on your field, and you may drop this hand card and pay 1 gauge. If you do, [Stand] the chosen card. Then, if the card [Stand] is a [Gridman], draw a card."
+global.CardSize[CardStat] = 0
+global.CardPower[CardStat] = 0
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 1000
+global.Kaiju[CardStat] = 1
+}
+
+CardStat = 5918
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Rikka's Request"
+global.CardFlavor[CardStat] = "Akane: "+chr(34)+"A pass holder...... Telling me to get lost?"+chr(34)+" Rikka: "+chr(34)+"Not even close. So wherever you go, you're just like me."+chr(34)+""
+global.CardText[CardStat] = "[Cast Cost] [Pay 1 life]
+
+Choose and use one of the following two. You may only cast "+chr(34)+"Rikka's Request"+chr(34)+" once per turn.
+
+- Put up to one event with [Set] from your deck into your hand, and shuffle your deck.
+- [Counter] Draw a card, and for this turn, you cannot take damage by your opponent's card effects."
+global.Get[CardStat] = 1
+global.Defense[CardStat] = 1
+}
+
+CardStat = 5919
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Heart Driven Into a Corner"
+global.CardFlavor[CardStat] = "Sorry... this had to happen."
+global.CardText[CardStat] = "You may cast this card without paying its [Cast Cost] if your life is 5 or less.
+
+[Cast Cost] [Pay 2 gauge]
+
+[Counter] Choose and use one of the following two.
+- Destroy up to two cards on your opponent's field.
+- [Rest] up to two cards on your opponent's field."
+global.Destruction[CardStat] = 1
+}
+
+CardStat = 5920
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "The Insanity Known As Delight"
+global.CardFlavor[CardStat] = "He's dead. I did it... I finally won."
+global.CardText[CardStat] = "[Cast Cost] [Drop a hand card]
+
+Look at the top five cards of your deck, put up to a total of two [Akane Shinjo], [Alexis] or "+chr(171)+"Kaiju"+chr(187)+" characters from among them into your hand, and put the rest into your gauge. You may only cast "+chr(34)+"The Insanity Known As Delight"+chr(34)+" once per turn."
+global.Get[CardStat] = 1
+}
+
+CardStat = 5921
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 2
+global.CardName[CardStat] = "Gridman Calibur"
+global.CardFlavor[CardStat] = "Use me, Gridman!"
+global.CardText[CardStat] = "[Counter] [Act] During your turn, choose up to one card on your opponent's field, and you may put this card from your hand into the soul of a [Gridman] on your field. If you do, destroy the chosen card.
+
+If this card is in the soul of a [Gridman] or [Powered Zenon], that card gets power+5000!"
+global.CardPower[CardStat] = 5000
+global.CardCrit[CardStat] = 1
+global.AssistWeapon[CardStat] = 1
+}
+
+CardStat = 5922
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "World Like a Dream"
+global.CardFlavor[CardStat] = "Akane: "+chr(34)+"Rikka, you're the best… Such an honest girl."+chr(34)+""
+global.CardText[CardStat] = "Look at the top three cards of your deck, put up to one card from among them into your hand, and put the rest into your gauge. Then, if a [Rikka Takarada] or [Akane Shinjo] is on your field, you gain 2 life! You may only cast "+chr(34)+"World Like a Dream"+chr(34)+" once per turn."
+global.Get[CardStat] = 1
+}
+
+CardStat = 5923
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "JUNK SHOP Aya"
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "[Set] 
+
+You may only [Set] one "+chr(34)+"JUNK SHOP Aya"+chr(34)+" on your field.
+
+During your main phase, this card and all "+chr(171)+"Gridman Alliance"+chr(187)+" on your field cannot be destroyed, returned to hand or be [Rest] by your opponent's card effects.
+
+When a "+chr(171)+"Gridman Alliance"+chr(187)+" character enters your field, you gain 1 life and draw a card. This ability only activates once per turn."
+global.Enhance[CardStat] = 1
+}
+
+CardStat = 5924
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Diriver, the Malice Kaiju"
+global.CardFlavor[CardStat] = "Alexis: "+chr(34)+"That's... a kaiju from a plan Anti devised."+chr(34)+""
+global.CardText[CardStat] = "[Call Cost] [Pay 2 gauge & Put the top two cards of your deck into its soul]
+
+You may put an additional "+chr(171)+"Diriver UFO"+chr(187)+" on this card's area.
+
+[Counter] [Act] If "+chr(171)+"Diriver UFO"+chr(187)+" is not on your field, put the top card of your deck face down on the field as a "+chr(34)+""+chr(171)+"Diriver UFO"+chr(187)+" "+chr(171)+"Kaiju"+chr(187)+"/size 4/7000 power/7000 defense/2 critical"+chr(34)+" character.
+
+[Double Attack] [Soulguard]"
+global.CardSize[CardStat] = 3
+global.CardPower[CardStat] = 7000
+global.CardCrit[CardStat] = 2
+global.CardDefense[CardStat] = 7000
+global.Kaiju[CardStat] = 1
+}
+
+CardStat = 5925
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Special Signature to Save a Soul"
+global.CardFlavor[CardStat] = "Gridman: "+chr(34)+"Enter the battle code! The access code is..."+chr(34)+""
+global.CardText[CardStat] = "You may only cast this card if a [Rikka Takarada] or [Sho Utsumi] is on your field.
+
+[Counter] Choose and use one of the following two. You may only cast "+chr(34)+"Special Signature to Save a Soul"+chr(34)+" once per turn.
+
+- You gain 2 life for each different "+chr(171)+"Neon Genesis Junior High Student"+chr(187)+" in your drop zone!
+- [Transform] into up to one "+chr(34)+"Gridman"+chr(34)+" from your hand or drop zone by paying its [Transform] cost."
+global.Recovery[CardStat] = 1
+global.Summon[CardStat] = 1
+}
+
+CardStat = 5926
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Amidst Memories"
+global.CardFlavor[CardStat] = ""
+global.CardText[CardStat] = "You may cast this card without paying its [Cast Cost] if a [Rikka Takarada] or [Akane Shinjo] is on your field.
+
+[Cast Cost] [Pay 2 gauge]
+
+Draw three cards. Then, drop two hand cards. You may only cast "+chr(34)+"Amidst Memories"+chr(34)+" once per turn."
+global.Draw[CardStat] = 1
+}
+
+CardStat = 5927
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Vit"
+global.CardFlavor[CardStat] = "Yeah, hello. I'm on standby today."
+global.CardText[CardStat] = "[Counter] [Act] "+chr(34)+"Access Code! Sky Vitter!"+chr(34)+" Drop this hand card. If you do, choose and use one of the following two. You may only use "+chr(34)+"Access Code! Sky Vitter!"+chr(34)+" once per turn.
+
+- During your main phase, put up to one "+chr(34)+"Sky Vitter"+chr(34)+" and up to one "+chr(34)+"Sky Gridman"+chr(34)+" from your deck into your hand, and shuffle your deck.
+- For this turn, the next damage you take is reduced to 0!"
+global.CardSize[CardStat] = 0
+global.CardPower[CardStat] = 1000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 1000
+global.NeonGenesisJuniorHighStudent[CardStat] = 1
+}
+
+CardStat = 5928
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 1
+global.CardName[CardStat] = "Sky Vitter"
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "[Counter] [Act] [Transform] into up to one "+chr(34)+"Sky Gridman"+chr(34)+" from your hand or drop zone by paying its [Transform] cost. You may only use this ability once per turn.
+
+When this card in the soul of a [Gridman] or [Powered Zenon] is attacking a character alone, it attacks all of your opponent's characters instead.
+
+[Move] [Double Attack]"
+global.CardSize[CardStat] = 2
+global.CardPower[CardStat] = 3000
+global.CardCrit[CardStat] = 1
+global.CardDefense[CardStat] = 3000
+global.AssistWeapon[CardStat] = 1
+}
+
+CardStat = 5929
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Access Flash"
+global.CardFlavor[CardStat] = "Access Flash!"
+global.CardText[CardStat] = "Choose and use one of the following two. You may only cast "+chr(34)+"Access Flash"+chr(34)+" once per turn.
+
+- Put up to one [Gridman] from your deck into your hand, and shuffle your deck.
+- [Counter] [Stand] a [Gridman] on your field."
+global.Get[CardStat] = 1
+global.Enhance[CardStat] = 1
+}
+
+CardStat = 5930
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Awakening"
+global.CardFlavor[CardStat] = "I am a Hyper Agent... I am Gridman."
+global.CardText[CardStat] = "You may only cast this card if twelve or more cards are in your drop zone.
+
+[Counter] Return all cards from your drop zone to deck, and shuffle your deck. Then, put the top two cards of your deck into your gauge, and your life becomes 10! You may only cast "+chr(34)+"Awakening"+chr(34)+" once per fight."
+global.Recovery[CardStat] = 1
+}
+
+CardStat = 5931
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "God's Story"
+global.CardFlavor[CardStat] = "Yeah, she's twisted beyond belief..."
+global.CardText[CardStat] = "[Cast Cost] [Put three characters from your drop zone on the bottom of your deck in any order]
+
+[Counter] Choose and use one of the following two. You may only cast "+chr(34)+"God's Story"+chr(34)+" once per turn.
+
+- Put the top three cards of your deck into your gauge, and you gain 3 life!
+- [Stand] up to three cards on your field."
+global.Enhance[CardStat] = 1
+}
+
+CardStat = 5932
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Special Dog"
+global.CardFlavor[CardStat] = ""
+global.CardText[CardStat] = "If your hand cards would be dropped by your opponent's card effects, you may reveal this hand card and pay 1 life. If you do, your hand cards cannot be dropped by that effect.
+
+[Counter] Choose and use one of the following two.
+
+- Put the top two cards of your deck into your gauge, and you gain 2 life!
+- Drop up to two souls from a character on your opponent's field."
+global.Defense[CardStat] = 1
+}
+
+CardStat = 5933
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Inherited Glass Bead"
+global.CardFlavor[CardStat] = "Yuta: "+chr(34)+"I can't join you. Gridman is calling me."+chr(34)+""
+global.CardText[CardStat] = "You may only cast this card during an attack on your opponent's turn.
+
+[Counter] Nullify the attack. Then, if two more more different characters are on your field, put the top card of your deck into your gauge, you gain 1 life and draw a card."
+global.Defense[CardStat] = 1
+}
+
+CardStat = 5934
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "Pulling the Plug"
+global.CardFlavor[CardStat] = ""
+global.CardText[CardStat] = "[Cast Cost] [Pay 1 gauge]
+
+[Counter] Choose and use one of the following two.
+
+- For this turn, the next damage you take is reduced by 3.
+- If your opponent's cards attacked four times or more during this turn, for this turn, you cannot take damage by attacks."
+global.Defense[CardStat] = 1
+}
+
+CardStat = 5935
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 5
+global.CardName[CardStat] = "SSSS.Gridman"
+global.CardFlavor[CardStat] = "This needs to be translated."
+global.CardText[CardStat] = "You may use <SSSS.Gridman> cards."
+}
+
+CardStat = 5936
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 3
+global.CardName[CardStat] = "You're Not a Kaiju"
+global.CardFlavor[CardStat] = ""
+global.CardText[CardStat] = "[Cast Cost] [Pay 1 gauge]
+
+Put up to two characters with different card names from your drop zone into your hand. You may only cast "+chr(34)+"You're Not a Kaiju"+chr(34)+" once per turn."
+global.Get[CardStat] = 1
+}
+
+CardStat = 6033
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 4
+global.CardName[CardStat] = "Grid Beam"
+global.CardFlavor[CardStat] = "Grid Beam!"
+global.CardText[CardStat] = "You may only cast this card if your cards attacked two times or more during this turn, and you are [Transform] into a [Gridman].
+
+[Cast Cost] [Pay 3 gauge].
+
+Deal 5 damage to your opponent!"
+global.Superhero[CardStat] = 1
+global.FirePower[CardStat] = 1
+}
+
+CardStat = 6034
+{
+global.CardWorld[CardStat] = 17
+global.CardType[CardStat] = 4
+global.CardName[CardStat] = "Grid Fixer Beam"
+global.CardFlavor[CardStat] = "Gridman: "+chr(34)+"Fixer Beam is the power to fix this world."+chr(34)+""
+global.CardText[CardStat] = "You may only cast this card if you are [Transform] into a "+chr(34)+"Gridman"+chr(34)+".
+
+Nullify all abilities of cards on your opponent's field, drop all their souls, and put them into the drop zone. Then, you gain 10 life, and draw until you have six hand cards! You may only cast "+chr(34)+"Grid Fixer Beam"+chr(34)+" once per fight."
+global.Superhero[CardStat] = 1
+global.Recovery[CardStat] = 1
+}
