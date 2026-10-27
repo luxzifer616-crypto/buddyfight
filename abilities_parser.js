@@ -101,8 +101,48 @@
     if (!t) return null;
     const np = { raw: t, qty: { n: 1, upTo: false, all: false, any: false, each: false }, ref: null, self: false, filter: {}, zone: null, excludeSelf: false, topN: null, soulOf: null };
 
-    // --- references to earlier choices ---
+    // call trailers that don't change which card is chosen
+    t = t.replace(/\s+(?:by paying (?:its|their) \[call cost\]|without paying (?:its|their) \[call cost\])/ig, "")
+      .replace(/\s+to (?:an? |the )?(?:open|another|separate|different|empty) (?:areas?|monster zones?)(?: on (?:your|the) field)?$/i, "")
+      .replace(/\s+to (?:an? )?(?:open )?areas? on your field$/i, "").trim();
+    // "from your hand or drop zone" -> two source zones
+    let altArea = null;
+    t = t.replace(/\bfrom your (hand|drop zone) or (?:your )?(hand|drop zone)\b/i, (mm, a1, a2) => { altArea = lc(a2); return "from your " + a1; });
+    if (altArea) { const inner = parseNP(t); if (inner && inner.zone) inner.zone.alt = altArea; if (inner) inner.raw = np.raw; return inner; }
+    // --- "the rest" (cards looked at / revealed that were not taken) ---
     let m;
+    if (/^(?:the rest|the remaining cards?|the other cards?|the others|the rest of (?:the|those) cards)$/i.test(t)) {
+      np.ref = "rest"; np.qty.all = true; np.qty.n = 99; return np;
+    }
+    // --- "... from among them" picks from the cards just looked at / revealed ---
+    let amongThem = false;
+    t = t.replace(/\s*(?:from )?among (?:them|those cards|those|the revealed cards|the cards looked at)\b/i, () => { amongThem = true; return ""; }).trim();
+    t = t.replace(/^(?:a )?total of (\w+)\b|^(?:up to )?(\w+) in total\b/i, (mm, a1, a2) => { const v = toNum(a1 || a2); return v ? "up to " + a1 || a2 : mm; });
+    t = t.replace(/^total (\w+)\b/i, (mm, a1) => (toNum(a1) ? "up to " + a1 : mm));
+    if (amongThem) {
+      t = t.replace(/^up to (?:a )?total of (\w+)\b/i, "up to $1");
+      // "up to one «A» and up to one «B»": up to (1+1) cards that are «A» or «B»
+      const parts = t.split(/,? and up to /i);
+      if (parts.length > 1) {
+        const subs = parts.map((x, i) => parseNP(i ? "up to " + x : x));
+        if (subs.some(x => !x || x.junk || x.ref || x.self)) return null;
+        // only merge when every part filters the same way (all by tribe, or all by name), else "and" would become "both"
+        const kinds = new Set(subs.map(x => (x.filter.tribes ? "t" : "") + (x.filter.names ? "n" : "")));
+        if (kinds.size > 1) return null;
+        const merged = subs[0];
+        merged.qty.n = subs.reduce((n, x) => n + (x.qty.n || 1), 0); merged.qty.upTo = true;
+        ["tribes", "names", "types"].forEach(k => { const all = [].concat(...subs.map(x => (x.filter[k] || []))); if (all.length) merged.filter[k] = Array.from(new Set(all)); });
+        if (subs.some(x => !(x.filter.types || []).length)) delete merged.filter.types;
+        merged.raw = np.raw; merged.ref = "looked"; merged.zone = null; merged.anyOf = true;
+        return merged;
+      }
+      if (!t || /^(?:one|1|a card|cards?)$/i.test(t)) t = t || "a card";
+      const inner = parseNP(t);
+      if (!inner || inner.self || (inner.ref && inner.ref !== "chosen")) return null;
+      inner.raw = np.raw; inner.ref = "looked"; inner.zone = null; delete inner.refTail;
+      return inner;
+    }
+
     if ((m = t.match(/^(?:the chosen|the selected|that|those|these|the same|the discarded|the revealed|the called|the dropped)\s+(card|cards|monster|monsters|item|items|spell|spells|character|characters)(?:\s+(.*))?$/i)) ||
         (m = t.match(/^(it|them|they)(?:\s+(.*))?$/i))) {
       np.ref = "chosen";
@@ -111,6 +151,11 @@
       np.refTail = tail;
       // e.g. "that card on the field" - zone words are ignored, it IS the chosen card
       return np;
+    }
+    // --- "the «X» with this card in its soul" / "that «X»" from a soul card: the soul's host ---
+    if ((m = t.match(/^(?:the|that) (.+?) (?:with|that has) this card in (?:its|their) soul$/i))) {
+      const inner = parseNP("a " + m[1]);
+      np.ref = "host"; np.hostFilter = inner ? inner.filter : {}; return np;
     }
     // --- this card ---
     if ((m = t.match(/^this (?:card|monster|item|spell|impact|flag|character|card on the field)(?:'s (soul|power|defense|critical|size))?(?:\s+(.*))?$/i))) {
@@ -122,12 +167,16 @@
     if ((m = t.match(/^(?:its|this card's) soul$/i))) { np.self = true; np.zone = { owner: "host", area: "soul" }; return np; }
 
     // --- "the top N cards of your deck" ---
-    if ((m = t.match(/^the top (?:(card)|(?:(\w+) )?cards?)(?: of (your|your opponent's|their) deck)?$/i)) ) {
-      np.topN = m[1] ? 1 : (toNum(m[2]) || 1);
-      np.zone = { owner: m[3] ? ownerOf(m[3]) : "you", area: "deck", top: true };
+    if ((m = t.match(/^(?:the top (?:(card)|(?:(\w+) )?cards?)(?: (?:of|from) (your|your opponent's|their|each player's|both players') deck)?|(?:the )?top of (your|your opponent's|their) deck|(\w+) cards? from the top of (your|your opponent's|their|each player's|both players') deck)$/i)) ) {
+      np.topN = m[1] || m[4] ? 1 : (toNum(m[2] || m[5]) || 1);
+      const w = m[3] || m[4] || m[6];
+      const both = /each player's|both players'/i.test(w || "");
+      np.zone = { owner: both ? "both" : (w ? ownerOf(w) : "you"), area: "deck", top: true };
       np.qty.n = np.topN;
+      if (both) { np.qty.all = true; np.qty.n = 99; }
       return np;
     }
+    if ((m = t.match(/^the (?:card|cards) revealed$|^the revealed cards?$/i))) { np.ref = "chosen"; np.qty.all = true; return np; }
     if ((m = t.match(/^the (top|bottom) card of (your|your opponent's|their) deck$/i))) {
       np.topN = 1; np.qty.n = 1; np.zone = { owner: ownerOf(m[2]), area: "deck", top: lc(m[1]) === "top", bottom: lc(m[1]) === "bottom" };
       return np;
@@ -159,6 +208,8 @@
     q = q.replace(/\b(?:an|one) opponent's\s+/ig, () => { if (!np.zone) np.zone = { owner: "opp", area: "field" }; return " "; });
     q = q.replace(/\bbuddy (?=monsters?)/ig, () => { np.filter.buddy = true; return ""; });
     q = q.replace(/\bwith ([\d,]+) or (less|more|greater) power or (?:with )?(?:([\d,]+) or (?:less|more|greater) )?defense\b/ig, (mm, v, cmp) => { np.filter.powerOrDef = { n: +v.replace(/,/g, ""), cmp: /less/i.test(cmp) ? "le" : "ge" }; return " "; });
+    // "a hand card" / "two hand cards" = card(s) in your hand
+    if (!/^this\b/i.test(q)) q = q.replace(/\bhand (cards?)\b/ig, (mm, w) => { if (!np.zone) np.zone = { owner: "you", area: "hand" }; return w; });
     let topFlag = false;
     q = q.replace(/\bfrom the top of (your|your opponent's|their|the opponent's) deck\b/ig, (mm, w) => { topFlag = true; return "from " + w + " deck"; });
     // --- zone phrase(s) ---
@@ -270,7 +321,9 @@
 
   cr(/^during (?:your|this) turn$/i, () => ({ t: "turn", who: "you" }));
   cr(/^during your opponent's turn$/i, () => ({ t: "turn", who: "opp" }));
-  cr(/^during (?:your|the) (main|attack|final|start|end) phase$/i, (m) => ({ t: "phase", phase: lc(m[1]) }));
+  cr(/^during your (main|attack|final|start|end) phase$/i, (m) => ({ t: "phase", phase: lc(m[1]), who: "you" }));
+  cr(/^during (?:your opponent's|the opponent's|their) (main|attack|final|start|end) phase$/i, (m) => ({ t: "phase", phase: lc(m[1]), who: "opp" }));
+  cr(/^during the (main|attack|final|start|end) phase$/i, (m) => ({ t: "phase", phase: lc(m[1]) }));
   cr(/^during (?:an? )?attack(?: on your opponent's turn)?$/i, () => ({ t: "underAttack" }));
   cr(/^(?:if )?(?:you are|it is) (?:during|in) (?:an|the) attack on your opponent's turn$/i, () => ({ t: "underAttack" }));
   cr(/^during an attack on your opponent's turn$/i, () => ({ t: "underAttack" }));
@@ -347,7 +400,7 @@
   cr(/^you have only (?:one|1) monsters? on your field$/i, () => ({ t: "monsterCount", who: "you", n: 1, cmp: "eq" }));
   cr(/^(?:your opponent|they) (?:has|have) (\d+|one|two|three) or (more|less) monsters$/i, (m) => ({ t: "monsterCount", who: "opp", n: toNum(m[1]), cmp: CMP(m[2]) }));
 
-  cr(/^you (?:have )?(?:cast|casted|cast a) (.+) this turn$/i, (m) => ({ t: "castThisTurn", np: parseNP(m[1]) }));
+  cr(/^you (?:have )?(?:cast|casted|cast a) (.+?) (?:during )?this turn$/i, (m) => ({ t: "castThisTurn", np: parseNP(m[1]) }));
   cr(/^you (?:have )?attacked this turn$/i, () => ({ t: "attackedThisTurn" }));
 
   cr(/^you have (?:an? |another )?(.+?) (?:item )?equipped$/i, (m) => ({ t: "itemEquipped", np: parseNP(m[1].replace(/\s+item$/i, "")), any: /^(?:item|card)$/i.test(m[1].trim()) }));
@@ -362,7 +415,7 @@
   cr(/^there is a card in battle$/i, () => ({ t: "inBattle" }));
   cr(/^during each player's (attack|main|final) phase$/i, (m) => ({ t: "phase", phase: lc(m[1]) }));
   cr(/^(?:your|a) opponent's cards? attacked (\w+) times? or more during this turn$|^your opponent's cards attacked (\w+) times or more during this turn$/i, (m) => ({ t: "oppAttackCount", n: toNum(m[1] || m[2]) }));
-  cr(/^your cards attacked (\w+) times or more during this turn$/i, (m) => ({ t: "myAttackCount", n: toNum(m[1]) }));
+  cr(/^your cards (?:have )?attacked (\w+) times or more (?:during|in) this turn$/i, (m) => ({ t: "myAttackCount", n: toNum(m[1]) }));
   ABX.parseCondition = function (text) {
     const t = stripEnd(ABX.norm(text)).replace(/^(?:if|when|while)\s+/i, "");
     if (!t) return null;
@@ -897,6 +950,12 @@
   const SUBJ_THIS = "this (?:card|monster|item|spell|impact|flag)";
   tr(new RegExp("^(?:when|whenever|each time) " + SUBJ_THIS + " enters the field(?: (?:from|by) .+?)?$", "i"), () => ({ event: "enter", self: true }));
   tr(new RegExp("^(?:when|whenever|each time) " + SUBJ_THIS + " (?:is |was )?(?:called|put onto the field)$", "i"), () => ({ event: "enter", self: true }));
+  // "attacks and destroys ... (or deals damage ...)", "attacks and deals damage ...", "is attacked"
+  const OPP_MON = "(?:an? |your |the )?(?:opponent's |your opponent's )?(?:monsters?|cards?)(?: on your opponent's field)?";
+  tr(new RegExp("^(?:when|whenever|each time) " + SUBJ_THIS + " attacks and (?:destroys " + OPP_MON + " or deals damage to (?:your|the) opponent|deals damage to (?:your|the) opponent or destroys " + OPP_MON + ")$", "i"), () => ({ event: "attackOutcome", self: true }));
+  tr(new RegExp("^(?:when|whenever|each time) " + SUBJ_THIS + " attacks and destroys " + OPP_MON + "$", "i"), () => ({ event: "attackDestroys", self: true }));
+  tr(new RegExp("^(?:when|whenever|each time) " + SUBJ_THIS + " attacks and deals damage to (?:your|the) opponent$", "i"), () => ({ event: "dealsDamage", self: true }));
+  tr(new RegExp("^(?:when|whenever|each time) " + SUBJ_THIS + " (?:is|gets) attacked$", "i"), () => ({ event: "attacked", self: true }));
   tr(new RegExp("^(?:when|whenever|each time) " + SUBJ_THIS + " attacks(?: (.+))?$", "i"), (m) => ({ event: "attack", self: true, target: m[1] ? parseNP(m[1]) : null }));
   tr(new RegExp("^(?:when|whenever|each time) " + SUBJ_THIS + " (?:attacks|attacked) and (?:is )?(?:blocked|not nullified)$", "i"), () => ({ event: "attack", self: true }));
   tr(new RegExp("^(?:when|whenever|each time) " + SUBJ_THIS + " (?:is )?(?:destroyed|put into the drop zone|put from the field into the drop zone|put from the field to the drop zone|leaves the field|is put to the drop zone)(?: by (?:your opponent's|an opponent's) (?:card|attack|card effect|effect)s?)?$", "i"), (m) => ({ event: "leave", self: true, byOpp: /opponent/i.test(m[0]), destroyedOnly: /destroyed/i.test(m[0]) && !/leaves|put/i.test(m[0]) }));
@@ -1039,7 +1098,17 @@
     for (const sent of sentences) {
       if (!stripEnd(sent)) continue;
       // static "this card gets X if..." sentences are handled in the static pass
-      const r = ABX.parseSentenceSteps(sent, { conds: [] });
+      // "Call this card ... if your cards have attacked three times or more" -> "If ..., call this card ..."
+      // (a trailing condition used to be swallowed into the noun phrase and silently ignored)
+      let sentP = sent;
+      const tm = stripEnd(sent).match(/^(?!if\b)(.+?)(?<!\b(?:even|as|what|see|check))(?<!\beven),?\s+if (.+?)$/i);
+      let trailingUnread = false;
+      if (tm && !/\bif you do\b/i.test(tm[2])) {
+        if (ABX.parseCondition(stripEnd(tm[2]))) sentP = "If " + stripEnd(tm[2]) + ", " + tm[1] + ".";
+        else if (!/,/.test(tm[2]) && /^(?:call|you may call|put|draw|destroy|deal|you gain)\b/i.test(tm[1])) trailingUnread = true;
+      }
+      const r = ABX.parseSentenceSteps(sentP, { conds: [] });
+      if (trailingUnread) r.unparsed.push(sent);
       if (r.unparsed.length || (!r.steps.length)) {
         ab.unparsed.push(sent);
       }
@@ -1071,10 +1140,16 @@
       if (isKeywordOnlyLine(line)) { out.abilities.push({ kind: "keyword", raw: line, steps: [], unparsed: [] }); continue; }
       if (RULE_LINE.test(low)) { out.abilities.push(ABX.parseRuleLine(line, card)); continue; }
       // modal bullets
-      if (/^- ?/.test(line) && modal) { const opt = ABX.parseAbilityLine(line, card); modal.options.push(opt); continue; }
+      if (/^- ?/.test(line) && modal) { const opt = ABX.parseAbilityLine(line, card); Object.defineProperty(opt, "bulleted", { value: true }); modal.options.push(opt); continue; }
+      // Options written without "- " bullets: the lines right after the lead-in, up to the stated count.
+      if (modal && !modal.options.some(o => o.bulleted) && modal.options.length < modal.expect) {
+        const opt = ABX.parseAbilityLine(line, card); modal.options.push(opt); continue;
+      }
       ab = ABX.parseAbilityLine(line, card);
       if (/choose and use one of the following|choose one of the following|use one of the following/i.test(low)) {
         ab.kind = "modal"; ab.options = []; modal = ab;
+        const cntWord = (low.match(/following (two|three|four|five)\b/) || [])[1];
+        Object.defineProperty(ab, "expect", { value: cntWord ? { two: 2, three: 3, four: 4, five: 5 }[cntWord] : (/^use one of the following abilities/i.test(low) || /following abilities/i.test(low) ? 99 : 0), enumerable: false });
       } else if (!/^- ?/.test(line)) { modal = null; }
       out.abilities.push(ab);
     }

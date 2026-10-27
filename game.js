@@ -1005,8 +1005,9 @@ function getUnitEffectiveCombatStats(fighter, unit) {
   if (window.ABX && ABX.staticBonus) {
     const sb = ABX.staticBonus(fighter, unit);
     power += sb.power; defense += sb.defense; crit += sb.crit;
-    if (sb.pen) pen = true; if (sb.da) da = true; if (sb.ta) ta = true;
+    if (sb.pen) pen = true; if (sb.da) da = true; if (sb.ta) ta = true; if (sb.qa) qa = true;
   }
+  if (unit.tempQA) qa = true;
 
   if (unit.defenseZeroTurn) {
     defense = 0;
@@ -4185,7 +4186,7 @@ const battle = {
       if (s.includes("when your flag [reversal]")) {
         if (s.includes("gain 2 life")) f.life += 2;
         if (s.includes("deal 2 damage")) enemy.life -= 2;
-        const oppPos = ["center", "left", "right"].find(p => enemy.monsters[p]);
+        const oppPos = ["center", "left", "right"].find(p => enemy.monsters[p] && !this.isEffectProtected(oppSide, p, "destroyed", oppSide === "plr" ? "opp" : "plr"));
         if (oppPos && (s.includes("destroy") || s.includes("return"))) {
           this.destroyMonster(oppSide, oppPos);
         }
@@ -4592,7 +4593,7 @@ const battle = {
         m.tempDef = 0;
         m.tempCrit = 0;
         m.tempCA = false;
-        m.tempDA = false; m.tempTA = false; m.tempSG = false; m.tempMove = false;
+        m.tempDA = false; m.tempTA = false; m.tempQA = false; m.tempSG = false; m.tempMove = false;
         m.tempIndestructible = false;
         m.actUsed = false;
 
@@ -4618,7 +4619,7 @@ const battle = {
       u.tempDef = 0;
       u.tempCrit = 0;
       u.tempCA = false;
-      u.tempDA = false; u.tempTA = false; u.tempSG = false; u.tempMove = false;
+      u.tempDA = false; u.tempTA = false; u.tempQA = false; u.tempSG = false; u.tempMove = false;
       u.tempIndestructible = false;
       u.tempPen = false;
     };
@@ -4762,7 +4763,8 @@ const battle = {
 
     // Move to the Attack Phase only once the Link Attack can really start
     // (before, a failed attempt left you stuck in the Attack Phase, unable to call monsters).
-    if (this.phase === "main") this.phase = "attack";
+    // Stay in the Main Phase while picking link attackers: the Attack Phase starts when the attack is
+    // declared (initiateAttackWithDefenseCheck). Cancelling therefore never leaves you stuck in the Attack Phase.
     this.linkAttackers = [];
     this.pendingAction = { type: "link_select" };
     this.setPrompt("🔗 LINK ATTACK: Click 2 or more of your standing Monsters/Item to link them together, then click an Enemy Target to strike with combined Power!");
@@ -5053,7 +5055,7 @@ const battle = {
           bLink.textContent = `🔗 Start Link Attack with "${card.name}"`;
           bLink.onclick = () => {
             this.closeCardBanner();
-            if (this.phase === "main") this.phase = "attack";
+            // Phase switches to Attack only when the attack is declared (see initiateAttackWithDefenseCheck).
             this.linkAttackers = [zonePos];
             this.pendingAction = { type: "link_select" };
             this.setPrompt(`🔗 LINK ATTACK started with "${card.name}": Click another standing Monster/Item on your field to link, then click an Enemy Target!`);
@@ -5095,7 +5097,8 @@ const battle = {
         actionsEl.appendChild(bBoard);
       }
 
-      if ((card.move || unit.tempMove) && zonePos !== "item") {
+      const abxMove = !!(window.ABX && ABX.staticBonus && ABX.staticBonus(this.getFighter(side), unit).move);
+      if ((card.move || unit.tempMove || abxMove) && zonePos !== "item") {
         const openZones = ["left", "center", "right"].filter(p => !f.monsters[p]);
         if (openZones.length > 0) {
           const bMove = document.createElement("button");
@@ -5391,9 +5394,11 @@ const battle = {
 
     if (sLower.includes("destroy a") || sLower.includes("destroy all") || sLower.includes("destroy up to one") || sLower.includes("bottom of their deck")) {
       const oppSide = side === "plr" ? "opp" : "plr";
-      const targets = ["center", "left", "right"].filter(p => enemy.monsters[p]);
+      const toDeck = sLower.includes("bottom of their deck") || sLower.includes("bottom of your opponent");
+      // Skip monsters protected by a "cannot be destroyed / leave the field" ability.
+      const targets = ["center", "left", "right"].filter(p => enemy.monsters[p] && !this.isEffectProtected(oppSide, p, toDeck ? "put into deck" : "destroyed", side));
       if (targets.length > 0) {
-        if (sLower.includes("bottom of their deck") || sLower.includes("bottom of your opponent")) {
+        if (toDeck) {
           const m = enemy.monsters[targets[0]];
           if (m) {
             if (m.soul) enemy.drop.push(...m.soul);
@@ -6203,7 +6208,8 @@ const battle = {
 
     if ((c.skill || "").toLowerCase().includes("destroy all monsters")) {
       ["left", "center", "right"].forEach(pos => {
-        if (enemy.monsters[pos]) this.destroyMonster(side === "plr" ? "opp" : "plr", pos);
+        const es = side === "plr" ? "opp" : "plr";
+        if (enemy.monsters[pos] && !this.isEffectProtected(es, pos, "destroyed", side)) this.destroyMonster(es, pos);
       });
     }
 
@@ -6472,6 +6478,8 @@ const battle = {
 
     this.pendingAction = null;
     this.linkAttackers = [];
+    // Declaring an attack from the Main Phase starts the Attack Phase (fires "start of attack phase" abilities once).
+    if (attSide === this.activeSide && this.phase === "main") this.phase = "attack";
     this.renderBattle();
 
     // Check if Perfected Deity of Eon, The Endruler Dragon attacks alone -> "Eternal Eon" stops opponent's time for this battle!
@@ -6859,7 +6867,8 @@ const battle = {
     }
 
     // Trigger [Counterattack] (either native or granted by a [Counter] buff spell!) if the defending monster is still on the field!
-    if (defenderSurvived && defFighter.monsters[targetPos] && (defender.card.ca || defender.tempCA)) {
+    const abxCA = !!(window.ABX && ABX.staticBonus && defFighter.monsters[targetPos] && ABX.staticBonus(defFighter, defender).ca);
+    if (defenderSurvived && defFighter.monsters[targetPos] && (defender.card.ca || defender.tempCA || abxCA)) {
       attUnits.forEach(({ zone, unit }) => {
         if (zone !== "item" && attFighter.monsters[zone]) {
           const attEff = getUnitEffectiveCombatStats(attFighter, unit);
@@ -6874,12 +6883,21 @@ const battle = {
     return destroyedFlag;
   },
 
+  // True when the monster at side/pos can't be removed by `bySide`'s card effect (ABX protection auras,
+  // "cannot be destroyed / leave the field" for this turn, etc.).
+  isEffectProtected(side, pos, kind, bySide) {
+    const u = this.getFighter(side).monsters[pos];
+    if (!u || !window.ABX || !ABX.core || !ABX.core.isProtected) return false;
+    try { return !!ABX.core.isProtected(u, side, kind, { side: bySide }); } catch (e) { return false; }
+  },
+
   destroyMonster(side, pos) {
     const f = this.getFighter(side);
     const m = f.monsters[pos];
     if (!m) return false;
 
-    if ((m.card.sg || m.tempSG) && m.soul && m.soul.length > 0) {
+    const abxSG = !!(window.ABX && ABX.staticBonus && ABX.staticBonus(f, m).sg);
+    if ((m.card.sg || m.tempSG || abxSG) && m.soul && m.soul.length > 0) {
       const discardedSoul = m.soul.pop();
       const soulCard = CARD_MAP.get(discardedSoul);
       const fromZoneId = `z-${side}-${pos}`;

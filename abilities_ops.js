@@ -129,7 +129,8 @@
       ctx.bind.looked = ids.map((id, i) => ({ k: "zone", side, area: "deck", id, card: cardOf(id), pending: true, idx: i }));
       return ids.length > 0;
     },
-    check: (s) => false      // look needs a follow-up pick op ("from among them"); not owned yet
+    // the follow-up steps pick "from among them" / move "the rest"; anything left returns to the top of the deck
+    check: (s) => (s.n || 0) > 0
   };
   OPS.reveal = {
     run(s, ctx) {
@@ -190,7 +191,10 @@
   OPS.move = {
     async run(s, ctx) {
       let refs;
-      if (s.np.ref) refs = (ctx.bind[s.np.ref === "chosen" ? "chosen" : s.np.ref] || []).slice();
+      if (s.np.ref === "looked") {
+        const cands = refsFor(s.np, ctx);
+        refs = s.np.qty.all ? cands : await pick(cands, s.np, ctx, { intent: "help", title: `${ctx.card.name} — choose from among them`, subtitle: ABX.clean(s.np.raw) });
+      } else if (s.np.ref) refs = s.np.ref === "rest" ? refsFor(s.np, ctx) : (ctx.bind[s.np.ref === "chosen" ? "chosen" : s.np.ref] || []).slice();
       else {
         const cands = refsFor(s.np, ctx);
         refs = await pick(cands, s.np, ctx, { intent: s.np.zone && s.np.zone.owner === "opp" ? "harm" : "help", title: `${ctx.card.name} — choose`, subtitle: ABX.clean(s.np.raw), ordered: s.order === "any" });
@@ -306,11 +310,11 @@
         r.unit.tempPower = (r.unit.tempPower || 0) + (s.mods.power || 0) * mult;
         r.unit.tempDef = (r.unit.tempDef || 0) + (s.mods.defense || 0) * mult;
         r.unit.tempCrit = (r.unit.tempCrit || 0) + (s.mods.critical || 0) * mult;
-        (s.mods.kws || []).forEach(k => { if (k === "penetrate") r.unit.tempPen = true; if (k === "counterattack") r.unit.tempCA = true; if (k === "double attack") { r.unit.tempDA = true; r.unit.attacksLeft = Math.max(r.unit.attacksLeft || 0, 2); } if (k === "triple attack") { r.unit.tempTA = true; r.unit.attacksLeft = Math.max(r.unit.attacksLeft || 0, 3); } if (k === "soulguard") r.unit.tempSG = true; if (k === "move") r.unit.tempMove = true; });
+        (s.mods.kws || []).forEach(k => { if (k === "penetrate") r.unit.tempPen = true; if (k === "counterattack") r.unit.tempCA = true; if (k === "double attack") { r.unit.tempDA = true; r.unit.attacksLeft = Math.max(r.unit.attacksLeft || 0, 2); } if (k === "triple attack") { r.unit.tempTA = true; r.unit.attacksLeft = Math.max(r.unit.attacksLeft || 0, 3); } if (k === "quadruple attack") { r.unit.tempQA = true; r.unit.attacksLeft = Math.max(r.unit.attacksLeft || 0, 4); } if (k === "soulguard") r.unit.tempSG = true; if (k === "move") r.unit.tempMove = true; });
       });
       fresh(); return ch.length > 0;
     },
-    check: (s) => s.mods && (s.mods.kws || []).every(k => ["penetrate", "counterattack", "double attack", "triple attack", "soulguard", "move"].includes(k)) && !(s.np && s.np.zone && !["field", "center", "left", "right"].includes(s.np.zone.area))
+    check: (s) => s.mods && (s.mods.kws || []).every(k => ["penetrate", "counterattack", "double attack", "triple attack", "quadruple attack", "soulguard", "move"].includes(k)) && !(s.np && s.np.zone && !["field", "center", "left", "right"].includes(s.np.zone.area))
   };
 
   /* ---------- call ---------- */
@@ -319,24 +323,27 @@
       const f = ctx.f;
       let cands;
       if (s.np.self) cands = ctx.selfRef && ctx.selfRef.card && ctx.selfRef.card.type === "Monster" ? [ctx.selfRef] : [];
+      else if (s.np.ref === "looked") cands = refsFor(s.np, ctx).filter(r => r.card && r.card.type === "Monster");
       else if (s.np.ref) cands = (ctx.bind.chosen || []).filter(r => r.k === "zone" && ["drop", "hand", "deck"].includes(r.area) && r.card && r.card.type === "Monster");
       else {
         const area = (s.np.zone && s.np.zone.area) || "hand";
         if (!["hand", "drop zone", "deck"].includes(area)) return false;
         cands = refsFor(Object.assign({}, s.np, { zone: Object.assign({}, s.np.zone || {}, { owner: "you", area }) }), ctx).filter(r => r.card.type === "Monster");
+        if (s.np.zone && s.np.zone.alt) cands = cands.concat(refsFor(Object.assign({}, s.np, { zone: { owner: "you", area: s.np.zone.alt } }), ctx).filter(r => r.card.type === "Monster"));
       }
       cands = cands.filter(r => {
         if (!s.pay) return true;
         const cost = parseCardCost(r.card.cost, r.card.skill, f, r.card);
         return f.gauge.length >= cost.gauge && f.life > cost.life && ABX.canPayExtras(ctx.side, r.card, -1);
       });
-      const ch = (s.np.ref || s.np.self) ? cands : await pick(cands, s.np, ctx, { intent: "help", title: `${ctx.card.name} — call`, subtitle: ABX.clean(s.np.raw) });
+      const ch = ((s.np.ref && s.np.ref !== "looked") || s.np.self) ? cands : await pick(cands, s.np, ctx, { intent: "help", title: `${ctx.card.name} — call`, subtitle: ABX.clean(s.np.raw) });
       let n = 0;
       for (const r of ch) {
         const pos = (s.pos && s.pos !== "open area") ? s.pos : (SLOTS.find(p => !f.monsters[p]) || "center");
         const cost = s.pay ? parseCardCost(r.card.cost, r.card.skill, f, r.card) : { gauge: 0, life: 0 };
         if (s.pay && (f.gauge.length < cost.gauge || f.life <= cost.life)) continue;
-        if (r.area !== "hand") { const arr = f[r.area]; const i = arr.indexOf(r.id); if (i < 0) continue; arr.splice(i, 1); f.hand.push(r.id); }
+        if (r.pending) { r.pending = false; f.hand.push(r.id); }  // a looked-at / revealed card is already out of the deck
+        else if (r.area !== "hand") { const arr = f[r.area]; const i = arr.indexOf(r.id); if (i < 0) continue; arr.splice(i, 1); f.hand.push(r.id); }
         const hi = (r.area === "hand" && f.hand[r.idx] === r.id) ? r.idx : f.hand.lastIndexOf(r.id);
         if (hi < 0) continue;
         for (let g = 0; g < cost.gauge; g++) f.drop.push(f.gauge.pop());
@@ -443,12 +450,14 @@
       const ch = s.np.ref || s.np.self || s.np.qty.all ? refs : await pick(refs, s.np, ctx, { intent: "harm", title: `${ctx.card.name} — choose`, subtitle: ABX.clean(s.np.raw) });
       ch.forEach(r => {
         const u = r.unit; u.abxNo = u.abxNo || {};
-        (s.kinds || []).forEach(k => { u.abxNo[k] = k === "stand" ? true : B.turnCount; });
+        const ks = new Set(s.kinds || []);
+        if (ABX.protectKinds) ABX.protectKinds(s).forEach(k => ks.add(k));
+        ks.forEach(k => { u.abxNo[k] = k === "stand" ? true : B.turnCount; });
         if ((s.kinds || []).includes("destroyed")) u.tempIndestructible = true;
       });
       fresh(); return ch.length > 0;
     },
-    check: (s) => s.np && (s.kinds || []).length > 0 && (s.kinds || []).every(k => ["attack", "stand", "destroyed", "returned to hand", "rest", "nullified", "put into the drop zone"].includes(k)) && (s.duration === "turn" || !!s.duration || true) && !(s.np.zone && !["field", "center", "left", "right"].includes(s.np.zone.area))
+    check: (s) => s.np && (s.kinds || []).length > 0 && (s.kinds || []).every(k => ["attack", "stand", "destroyed", "returned to hand", "rest", "nullified", "put into the drop zone", "put to other areas", "leave the field"].includes(k)) && (s.duration === "turn" || !!s.duration || true) && !(s.np.zone && !["field", "center", "left", "right"].includes(s.np.zone.area))
   };
   core.isRestricted = function (unit, kind) { return !!(unit && unit.abxNo && unit.abxNo[kind] === B.turnCount); };
 
