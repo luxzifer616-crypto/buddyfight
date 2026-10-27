@@ -642,7 +642,7 @@
   ar(/^end the turn$/i, () => ({ op: "endTurn" }));
   ar(/^nullify (?:the|that) attack$/i, () => ({ op: "nullifyAttack" }));
   ar(/^nullify the attack(?: and (.+))?$/i, (m) => ({ op: "nullifyAttack" }));
-  ar(/^nullify (?:that|the) (?:spell|card|impact|cast)$/i, () => ({ op: "nullifyCast" }));
+  ar(/^nullify (?:that|the) (?:spell|card|impact|cast)$/i, (m) => ({ op: "nullifyCast", what: /impact/i.test(m[0]) ? "impact" : /spell/i.test(m[0]) ? "spell" : "any" }));
   ar(/^look at the top (\d+|one|two|three|four|five|six|seven|eight|nine|ten) cards? of your deck$/i, (m) => ({ op: "look", n: toNum(m[1]), who: "you" }));
   ar(/^look at the top (\d+|one|two|three|four|five|six|seven) cards? of your opponent's deck$/i, (m) => ({ op: "look", n: toNum(m[1]), who: "opp" }));
   ar(/^look at (?:your|your opponent's) hand$/i, () => ({ op: "noop" }));
@@ -852,7 +852,7 @@
   ar(/^(?:this card's size on the field|the size of this card on your (?:field|left or right)|this card on the field gets size|this card's size) (?:is )?(?:reduced|gets reduced) by (\d+)$/i, (m) => SDEF("sizeMod", { delta: -(+m[1]) }));
   ar(/^(?:this card on the field gets size reduced by|reduce the size of this card on your field by) (\d+)$/i, (m) => SDEF("sizeMod", { delta: -(+m[1]) }));
   ar(/^(?:that card|this card) becomes (?:a )?size 0(?: monster)?(?: until it leaves the field| as long as .+)?$/i, (m) => ({ op: "setSize0", np: /^this/i.test(m[0]) ? { self: true, qty: { n: 1 }, filter: {}, raw: "this card" } : { ref: "chosen", qty: { n: 1 }, filter: {}, raw: "that card" } }));
-  ar(/^the size of (?:all )?(?:originally size (\d+) )?(.+?) on your field is reduced by (\d+)$/i, (m) => { const np = parseNP(m[2] + " on your field"); return np ? SDEF("sizeModOthers", { np, delta: -(+m[3]), origSize: m[1] ? +m[1] : null }) : null; });
+  ar(/^the size of (?:all )?(?:originally size (\d+)( or less)? )?(.+?) on your field is reduced by (\d+)$/i, (m) => { const np = parseNP(m[3] + " on your field"); return np ? SDEF("sizeModOthers", { np, delta: -(+m[4]), origSize: m[1] ? +m[1] : null, origLe: !!m[2] }) : null; });
   ar(/^the gauge cost written in its \[call cost\] is reduced by (\d+)$/i, (m) => SDEF("callCostReduce", { delta: +m[1] }));
   ar(/^the \[(cast|call|equip) cost\] of each of your (.+?) is reduced by (\d+) gauge$/i, (m) => SDEF("costReduceFor", { kind: lc(m[1]), np: parseNP(m[2]), delta: +m[3] }));
 
@@ -885,7 +885,7 @@
   ar(/^then,? put the (?:revealed )?cards? (?:revealed )?on the bottom of (?:your|the) deck(?: in any order)?$/i, (m) => ({ op: "move", np: { ref: "revealed", qty: { all: true, n: 99 }, filter: {}, raw: "revealed" }, to: { area: "deck", owner: "you", end: "bottom" }, order: /any order/i.test(m[0]) ? "any" : null }));
   ar(/^put the (?:revealed )?cards? revealed on the bottom of (?:your|the) deck$/i, () => ({ op: "move", np: { ref: "revealed", qty: { all: true, n: 99 }, filter: {}, raw: "revealed" }, to: { area: "deck", owner: "you", end: "bottom" } }));
   ar(/^put the revealed cards on the bottom of your deck(?: in any order)?$/i, (m) => ({ op: "move", np: { ref: "revealed", qty: { all: true, n: 99 }, filter: {}, raw: "revealed" }, to: { area: "deck", owner: "you", end: "bottom" }, order: /any order/i.test(m[0]) ? "any" : null }));
-  ar(/^nullify the (spell|impact|call|cast)(?: cast| that was cast)? (?:by your opponent|of your opponent)?$|^nullify the (?:spell|impact) cast by your opponent$|^nullify the call$/i, (m) => ({ op: "nullifyCast" }));
+  ar(/^nullify the (spell|impact|call|cast)(?: cast| that was cast)? (?:by your opponent|of your opponent)?$|^nullify the (?:spell|impact) cast by your opponent$|^nullify the call$/i, (m) => ({ op: "nullifyCast", what: /call/i.test(m[0]) ? "call" : /impact/i.test(m[0]) ? "impact" : /spell/i.test(m[0]) ? "spell" : "any" }));
   ar(/^nullify the attack if it is not a link attack$|^if it is not a link attack,? nullify the attack$/i, () => ({ op: "nullifyAttack", unlessLink: true }));
   ar(/^that (?:card|monster)? ?remains on (?:the|your) field$|^this card remains on (?:the|your) field$|^(?:it|that card) remains on (?:the|your) field$/i, () => ({ op: "preventLeave" }));
   ar(/^(?:you may )?prevent (?:it|that card|this card) from leaving the field$/i, () => ({ op: "preventLeave" }));
@@ -925,7 +925,7 @@
   ar(/^your opponent cannot \[counter\](?: against this ability)?$/i, () => ({ op: "noCounter" }));
   ar(/^(?:you )?pay (\d+|a|one|two|three) gauge and \[rest\] this card$/i, (m) => ({ op: "pay", gauge: toNum(m[1]), cost: true, restSelf: true }));
   ar(/^(?:then,? )?you take (\d+|one|two|three) damage$/i, (m) => ({ op: "damage", who: "you", n: toNum(m[1]) }));
-  ar(/^(?:the )?(?:power|defense|critical) of (.+?) cannot be reduced(?: by your opponent's card effects)?$/i, (m) => { const np = parseNP(m[1]); return np ? SDEF("noStatReduce", { np }) : null; });
+  ar(/^(?:the )?(power|defense|critical) of (.+?) cannot be reduced( by your opponent's card effects)?$/i, (m) => { const np = parseNP(m[2]); return np ? SDEF("noStatReduce", { np, stat: lc(m[1]), byOpp: !!m[3] }) : null; });
   ar(/^this card is (?:also )?treated as "[^"]+"$/i, () => SDEF("alsoTreatedAs"));
   ar(/^play "rock-paper-scissors" with your opponent(?: only once)?$/i, () => ({ op: "rps" }));
   ar(/^start the fight with this side of the card$/i, () => ({ op: "noop" }));
@@ -1128,11 +1128,13 @@
   tr(new RegExp("^(?:when|whenever|each time) " + SUBJ_THIS + " enters the field(?: (?:from|by) .+?)?$", "i"), () => ({ event: "enter", self: true }));
   tr(new RegExp("^(?:when|whenever|each time) " + SUBJ_THIS + " (?:is |was )?(?:called|put onto the field)$", "i"), () => ({ event: "enter", self: true }));
   // "attacks and destroys ... (or deals damage ...)", "attacks and deals damage ...", "is attacked"
-  const OPP_MON = "(?:an? |your |the )?(?:opponent's |your opponent's )?(?:monsters?|cards?)(?: on your opponent's field)?";
+  const OPP_MON = "(?:an? |your |the )?(?:opponent's |your opponent's )?(?:monsters?|cards?|characters?)(?: on your opponent's field)?";
   tr(new RegExp("^(?:when|whenever|each time) " + SUBJ_THIS + " attacks and (?:destroys " + OPP_MON + " or deals damage to (?:your|the) opponent|deals damage to (?:your|the) opponent or destroys " + OPP_MON + ")$", "i"), () => ({ event: "attackOutcome", self: true }));
   tr(new RegExp("^(?:when|whenever|each time) " + SUBJ_THIS + " attacks and destroys " + OPP_MON + "$", "i"), () => ({ event: "attackDestroys", self: true }));
   tr(new RegExp("^(?:when|whenever|each time) " + SUBJ_THIS + " attacks and deals damage to (?:your|the) opponent$", "i"), () => ({ event: "dealsDamage", self: true }));
   tr(new RegExp("^(?:when|whenever|each time) " + SUBJ_THIS + " (?:is|gets) attacked$", "i"), () => ({ event: "attacked", self: true }));
+  tr(new RegExp("^(?:when|whenever|each time) " + SUBJ_THIS + " attacks or (?:when )?(?:this card )?(is destroyed|deals damage to (?:your|the) opponent|(?:this card's |its )?attack is nullified)$", "i"), (m) => ({ event: "attack", self: true, also: /destroyed/i.test(m[1]) ? "leave" : /damage/i.test(m[1]) ? "dealsDamage" : null }));
+  tr(new RegExp("^(?:when|whenever|each time) " + SUBJ_THIS + " attacks (?:the |a |your opponent's )?(left or right|right or left|left|right|center) (?:monster|card)s?$", "i"), (m) => ({ event: "attack", self: true, targetPos: lc(m[1]).split(" or ") }));
   tr(new RegExp("^(?:when|whenever|each time) " + SUBJ_THIS + " attacks(?: (.+))?$", "i"), (m) => ({ event: "attack", self: true, target: m[1] ? parseNP(m[1]) : null }));
   tr(new RegExp("^(?:when|whenever|each time) " + SUBJ_THIS + " (?:attacks|attacked) and (?:is )?(?:blocked|not nullified)$", "i"), () => ({ event: "attack", self: true }));
   tr(new RegExp("^(?:when|whenever|each time) " + SUBJ_THIS + " (?:is )?(?:destroyed|put into the drop zone|put from the field into the drop zone|put from the field to the drop zone|leaves the field|is put to the drop zone)(?: by (?:your opponent's|an opponent's) (?:card|attack|card effect|effect)s?)?$", "i"), (m) => ({ event: "leave", self: true, byOpp: /opponent/i.test(m[0]), destroyedOnly: /destroyed/i.test(m[0]) && !/leaves|put/i.test(m[0]) }));
@@ -1157,7 +1159,7 @@
   tr(/^(?:when|whenever|each time) (?:a|an|another) (.+?) (?:on|from) (?:your|the|your opponent's) field is destroyed$/i, (m) => ({ event: "otherDestroyed", np: parseNP(m[1] + " " + (/opponent's field/i.test(m[0]) ? "on your opponent's field" : "on your field")), opp: /opponent's field/i.test(m[0]) }));
   tr(/^(?:when|whenever|each time) (?:a|an|another) (.+?) on your field attacks$/i, (m) => ({ event: "otherAttack", np: parseNP(m[1] + " on your field") }));
   tr(/^(?:when|whenever|each time) (?:you|your opponent) (?:take|takes|are dealt|is dealt) damage$|^(?:when|whenever|each time) damage is dealt to you$/i, (m) => ({ event: "damaged", who: /your opponent/i.test(m[0]) ? "opp" : "you" }));
-  tr(/^(?:when|whenever|each time) (?:you|your opponent) (?:gain|gains) life$/i, () => ({ event: "lifeGain" }));
+  tr(/^(?:when|whenever|each time) (?:you|your opponent) (?:gain|gains) life$/i, (m) => ({ event: "lifeGain", who: /opponent/i.test(m[0]) ? "opp" : "you" }));
   tr(/^(?:when|whenever|each time) (?:a|an) (.+?) (?:is destroyed|leaves the field)$/i, (m) => ({ event: "otherDestroyed", np: parseNP(m[1]) }));
   tr(new RegExp("^(?:when|whenever|each time) " + SUBJ_THIS + " deals damage to your opponent$", "i"), () => ({ event: "dealsDamage", self: true }));
   tr(/^(?:when|whenever|each time) (?:your|a) (.+?) deals damage to your opponent$/i, (m) => ({ event: "dealsDamage", np: parseNP(m[1] + " on your field") }));

@@ -59,7 +59,7 @@ function createEnv(opts = {}) {
   sandbox.globalThis = sandbox;
   const ctx = vm.createContext(sandbox);
   const load = (file) => vm.runInContext(fs.readFileSync(path.join(ROOT, file), "utf8"), ctx, { filename: file });
-  const files = opts.files || ["cards_data.js", "game.js", "impact_monsters.js", "abilities_parser.js", "abilities_ui.js", "abilities_engine.js", "abilities_ops.js"];
+  const files = opts.files || ["cards_data.js", "game.js", "impact_monsters.js", "abilities_parser.js", "abilities_ui.js", "abilities_engine.js", "abilities_ops.js", "abilities_more.js"];
   files.forEach((f) => { if (fs.existsSync(path.join(ROOT, f))) load(f); });
   // flush timers (animations etc.) so everything resolves synchronously
   const flush = (max = 5000) => { let n = 0; while (timers.length && n++ < max) { const t = timers.shift(); try { t.fn(); } catch (e) { sandbox.__timerErrors = (sandbox.__timerErrors || []); sandbox.__timerErrors.push(String(e && e.stack || e)); } } };

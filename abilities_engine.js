@@ -103,7 +103,8 @@
   const TRIG_OK = {
     enter: t => t.self, attack: t => t.self && !(t.target && t.target.junk), dealsDamage: t => t.self || !!t.np, damaged: () => true, attackDestroys: t => t.self, attackOutcome: t => t.self, attacked: t => t.self, link: t => t.self, discardedFromHand: t => t.self, otherAttack: t => !!t.np, oppAttack: () => true, battleEnd: () => true,
     turnStart: () => true, turnEnd: () => true, phaseStart: t => ["start", "draw", "main", "attack", "final", "turn"].includes(t.phase),
-    otherEnter: t => !!t.np, otherDestroyed: t => !!t.np && !t.np.self, youCast: () => true, oppCast: () => true, leave: t => t.self && !t.byOpp
+    otherEnter: t => !!t.np, otherDestroyed: t => !!t.np && !t.np.self, youCast: () => true, oppCast: () => true, leave: t => t.self && !t.byOpp,
+    lifeGain: () => true, equipped: t => t.self, soulEmpty: t => t.self
   };
   function triggerSupported(t) { return !!t && !!TRIG_OK[t.event] && TRIG_OK[t.event](t); }
   ABX.triggerSupported = triggerSupported;
@@ -116,7 +117,7 @@
       if (c0 && staticBoosts(c0).abs.includes(ab)) return true;
       if (!(ab.conds || []).every(condExecutable)) return false;
       if (ab.steps.every(x => x.op === "shield" && (!x.cond || condExecutable(x.cond)))) return true;   // continuous damage reduction
-      return ab.steps.every(x => (x.op === "shield" && ab.steps.some(y => y.op !== "shield") && (!x.cond || condExecutable(x.cond))) || (x.op === "restrict" && x.np && x.np.self && !x.duration && (x.kinds || []).length > 0 && x.kinds.every(k => k === "attack") && (!x.cond || condExecutable(x.cond))) || (x.op === "static" && (x.kind === "protect" || x.kind === "attackThrough" || x.kind === "unnullifiable" || x.kind === "sizeMod" || x.kind === "cannotAttack" || x.kind === "noAttackPos")) || (x.op === "restrict" && isAuraRestrict(ab, c0, x) && (!x.cond || condExecutable(x.cond))) || (x.op === "noop" && x.note === "unnullifiable-ok") || (x.op === "boost" && c0 && staticBoosts(c0).abs.length && false));
+      return ab.steps.every(x => (x.op === "shield" && ab.steps.some(y => y.op !== "shield") && (!x.cond || condExecutable(x.cond))) || (x.op === "restrict" && x.np && x.np.self && !x.duration && (x.kinds || []).length > 0 && x.kinds.every(k => k === "attack") && (!x.cond || condExecutable(x.cond))) || (x.op === "static" && (x.kind === "protect" || x.kind === "attackThrough" || x.kind === "unnullifiable" || x.kind === "unreducible" || x.kind === "sizeMod" || x.kind === "cannotAttack" || x.kind === "noAttackPos" || (x.kind === "noStatReduce" && x.np && !x.np.junk) || (x.kind === "sizeModOthers" && x.np && !x.np.junk && (!x.cond || condExecutable(x.cond))))) || (x.op === "nullifyAbilities" && x.np && /in battle with this card/i.test(x.np.raw || "") && (!x.cond || condExecutable(x.cond))) || (x.op === "restrict" && isAuraRestrict(ab, c0, x) && (!x.cond || condExecutable(x.cond))) || (x.op === "noop" && x.note === "unnullifiable-ok") || (x.op === "boost" && c0 && staticBoosts(c0).abs.length && false));
     }
     if (ab.kind === "modal") {
       if (!(ab.options && ab.options.length && ab.options.every(o => ABX.isExecutable(o)))) return false;
@@ -678,6 +679,7 @@
   async function decideOptional(s, ctx) {
     if (OPS[s.op] && OPS[s.op].canDo && !OPS[s.op].canDo(s, ctx)) return false;
     if (!costAffordable(s, ctx)) return false;
+    if (ctx.preApproved) return true;   // already chosen in a response window
     if (ctx.auto || sideIsAuto(ctx.side)) {
       if (F(ctx.side).isBot && s.op === "pay" && s.life) return F(ctx.side).life > 6;
       return true;
@@ -711,7 +713,9 @@
     opts = opts || {};
     ABX.stats.runs++;
     const f = F(side), e = F(otherSide(side));
-    const ctx = { side, f, e, card, unit: unit || null, ab, bind: { chosen: [], revealed: [], looked: [] }, lastDone: true, event: opts.event || null, auto: !!opts.auto, log: [], hostArea: opts.hostArea || (unit ? "field" : null), soulHost: opts.soulHost || null, selfRef: opts.selfRef || null };
+    const ctx = { side, f, e, card, unit: unit || null, ab, bind: { chosen: [], revealed: [], looked: [] }, lastDone: true, event: opts.event || null, auto: !!opts.auto, log: [], hostArea: opts.hostArea || (unit ? "field" : null), soulHost: opts.soulHost || null, selfRef: opts.selfRef || null, preApproved: !!opts.preApproved };
+    // "This card cannot be nullified, and its damage cannot be reduced" / "This damage cannot be reduced" (written after the damage)
+    if ((ab.steps || []).some(x => x.op === "static" && !x.cond && (x.kind === "unreducible" || (x.kind === "unnullifiable" && x.noReduce)))) ctx.unreducible = true;
     if (ab.kind === "modal") {
       await runSteps(ab.steps || [], ctx);
       if (!ctx.lastDone) return ctx;
@@ -764,7 +768,7 @@
   // Is this an activated ability usable right now?
   // [Act]s used from the field (ones that discard / call "this card from your hand" are hand abilities)
   const FROM_HAND_RE = /\bthis card from (?:your )?hand\b|\bthis hand card\b|\b(?:discard|drop) this card\b/i;
-  ABX.actAbilities = function (card) { return abilitiesOf(card, a => a.kind === "act" && ABX.isExecutable(a) && !(a.steps || []).some(x => x.op === "call" && x.np && x.np.self) && !FROM_HAND_RE.test(a.cleaned || "")); };
+  ABX.actAbilities = function (card) { return abilitiesOf(card, a => a.kind === "act" && !(a.trigger && a.trigger.event === "oppCast") && ABX.isExecutable(a) && !(a.steps || []).some(x => x.op === "call" && x.np && x.np.self) && !FROM_HAND_RE.test(a.cleaned || "")); };
   ABX.canUseAct = function (side, card, ab, unit) {
     const f = F(side), e = F(otherSide(side));
     const ctx = { side, f, e, card, unit, ab, bind: { chosen: [], revealed: [], looked: [] }, lastDone: true, auto: true, log: [], hostArea: "field" };
@@ -875,19 +879,20 @@
     return ABX.queue(async () => {
       const us = new Set(units.map(u => u.unit));
       const defUnit = ["left", "center", "right"].includes(targetPos) ? F(defSide).monsters[targetPos] : null;
-      const tgtOK = (t) => !t.target || (defUnit && matchFilter(defUnit.card, t.target.filter || {}, { unit: defUnit, side: defSide }, { f: F(defSide) }));
+      const tgtOK = (t) => (!t.targetPos || t.targetPos.includes(targetPos)) && (!t.target || (defUnit && matchFilter(defUnit.card, t.target.filter || {}, { unit: defUnit, side: defSide }, { f: F(defSide) })));
+      if (ABX.applyBattleNullify) ABX.applyBattleNullify(attSide, units.map(u => u.unit), defSide, defUnit);
       await fireTriggers((t, src, side) => (t.event === "attack" && t.self && tgtOK(t) && side === attSide && us.has(src.unit)) ||
         (t.event === "link" && t.self && units.length > 1 && side === attSide && us.has(src.unit)) ||
         (t.event === "otherAttack" && side === attSide && src.unit && !us.has(src.unit) && !t.np.self && units.some(u => matchFilter(u.unit.card, t.np.filter || {}, { unit: u.unit, side: attSide }, { f: F(attSide) }))) ||
         (t.event === "oppAttack" && side === defSide) ||
-        (t.event === "attacked" && t.self && side === defSide && defUnit && src.unit === defUnit), { name: "attack", attSide, defSide });
+        (t.event === "attacked" && t.self && side === defSide && defUnit && src.unit === defUnit), { name: "attack", attSide, defSide, attUnits: units.map(u => u.unit), defUnit });
     }).catch(() => {});
   };
   ABX.fireAttackOutcome = function (attSide, units, defSide, outcome) {
     return ABX.queue(async () => {
       const us = new Set(units.map(u => u.unit));
       if (outcome && outcome.dealtDamage) {
-        await fireTriggers((t, src, side) => (t.event === "dealsDamage" && side === attSide && (t.self ? us.has(src.unit) : units.some(u => t.np && matchFilter(u.unit.card, t.np.filter || {}, { unit: u.unit, side: attSide }, { f: F(attSide) })))) ||
+        await fireTriggers((t, src, side) => (t.event === "attack" && t.also === "dealsDamage" && side === attSide && us.has(src.unit)) || (t.event === "dealsDamage" && side === attSide && (t.self ? us.has(src.unit) : units.some(u => t.np && matchFilter(u.unit.card, t.np.filter || {}, { unit: u.unit, side: attSide }, { f: F(attSide) })))) ||
           (t.event === "damaged" && ((t.who === "opp" ? side === attSide : side === defSide))), { name: "dealsDamage" });
       }
       if (outcome && (outcome.destroyedMonster || outcome.dealtDamage)) {
@@ -916,6 +921,7 @@
     });
   };
   ABX.fireBattleEnd = function (attSide, units) {
+    if (ABX.clearBattleNullify) ABX.clearBattleNullify();
     return ABX.queue(() => fireTriggers((t, src, side) => t.event === "battleEnd" && side === attSide && (!t.self || units.some(u => u.unit === src.unit)), { name: "battleEnd" }));
   };
   ABX.fireTurnEvent = function (kind, phase) {
@@ -935,10 +941,75 @@
     return ABX.queue(() => fireTriggers((t, src, s) => (t.event === "youCast" && s === side || t.event === "oppCast" && s !== side) &&
       (!t.np || matchFilter(card, t.np.filter || {}, { side }, { f: F(side) })), { name: "cast" }));
   };
+  // "When you equip this card, ..."
+  ABX.fireEquipped = function (side, card, unit) {
+    return ABX.queue(async () => {
+      const f = F(side);
+      for (const ab of abilitiesOf(card, a => a.kind === "triggered" && a.trigger && a.trigger.event === "equipped" && ABX.isExecutable(a))) {
+        if (f.item !== unit || onceUsed(f, card, ab, unit)) continue;
+        const probe = { side, f, e: F(otherSide(side)), card, unit, ab, bind: { chosen: [], revealed: [], looked: [] }, lastDone: true, auto: true, log: [], hostArea: "field", event: { name: "equipped" } };
+        if (!(ab.conds || []).every(c => evalCond(c, probe))) continue;
+        markOnce(f, card, ab, unit);
+        announce(card, ab);
+        await runAbility(side, card, ab, unit, { event: { name: "equipped" } });
+      }
+    });
+  };
+  // "When you gain life" / "When your opponent gains life". Gains made while these triggers run do not trigger again
+  // (otherwise "when you gain life, ... you gain 1 life" would loop forever).
+  let lifeDepth = 0;
+  ABX.fireLifeGain = function (side) {
+    if (lifeDepth || ABX.noLifeEvents || B.matchOver) return;
+    return ABX.queue(async () => {
+      lifeDepth++;
+      try { await fireTriggers((t, src, s) => t.event === "lifeGain" && (t.who === "opp" ? s !== side : s === side), { name: "lifeGain", side }); }
+      finally { lifeDepth--; }
+    });
+  };
+  // "When the number of cards in this card's soul becomes 0"
+  ABX.fireSoulEmpty = function (side, unit) {
+    return ABX.queue(() => fireTriggers((t, src, s) => t.event === "soulEmpty" && s === side && src.unit === unit, { name: "soulEmpty" }));
+  };
+  // Watch life totals and soul sizes without touching every place in game.js that changes them.
+  const soulSeen = new WeakMap();
+  function sideOfF(f) { return B.plr === f ? "plr" : B.opp === f ? "opp" : null; }
+  function watchLife(f) {
+    if (!f || typeof f !== "object") return;
+    const d = Object.getOwnPropertyDescriptor(f, "life");
+    if (!d || d.get) return;
+    let v = f.life;
+    Object.defineProperty(f, "life", {
+      configurable: true, enumerable: true,
+      get() { return v; },
+      set(n) { const old = v; v = n; if (typeof n === "number" && typeof old === "number" && n > old && ABX.enabled !== false) { const sd = sideOfF(f); if (sd) ABX.fireLifeGain(sd); } }
+    });
+  }
+  ABX.watchFighters = function () {
+    try {
+      [B.plr, B.opp].forEach(watchLife);
+      ["plr", "opp"].forEach(side => {
+        const f = B.getFighter && B.getFighter(side);
+        if (!f || !f.monsters) return;
+        fieldUnits(f, true).forEach(x => {
+          const u = x.unit, n = (u.soul || []).length, prev = soulSeen.get(u);
+          soulSeen.set(u, n);
+          if (prev > 0 && n === 0 && ABX.enabled !== false && !B.matchOver) ABX.fireSoulEmpty(side, u);
+        });
+      });
+    } catch (e) { if (ABX.debug) console.error(e); }
+  };
+  (function hookRender() {
+    const orig = B.renderBattle;
+    if (typeof orig !== "function" || orig.__abxWrapped) return;
+    const w = function () { const r = orig.apply(this, arguments); ABX.watchFighters(); return r; };
+    w.__abxWrapped = true;
+    B.renderBattle = w;
+  })();
+
   // "When this card is destroyed / leaves the field": the card is already gone, so run with no unit.
   ABX.fireLeave = function (side, card, byAttack) {
     return ABX.queue(async () => {
-      for (const ab of abilitiesOf(card, a => a.kind === "triggered" && a.trigger && a.trigger.event === "leave" && a.trigger.self && !a.trigger.byOpp && ABX.isExecutable(a))) {
+      for (const ab of abilitiesOf(card, a => a.kind === "triggered" && a.trigger && ((a.trigger.event === "leave" && a.trigger.self && !a.trigger.byOpp) || (a.trigger.event === "attack" && a.trigger.also === "leave")) && ABX.isExecutable(a))) {
         const f = F(side);
         if (onceUsed(f, card, ab, null)) continue;
         const probe = { side, f, e: F(otherSide(side)), card, unit: null, ab, bind: { chosen: [], revealed: [], looked: [] }, lastDone: true, auto: true, log: [], hostArea: "drop", event: { name: "leave" } };
@@ -1061,7 +1132,7 @@
       if (SPECIAL_LEGACY.test(a.raw || a.cleaned || "")) return;
       const boostOk = x => x.op === "boost" && x.np && !x.np.junk && !(x.np.zone && !["field", "center", "left", "right", "soul"].includes(x.np.zone.area)) && (x.mods.kws || []).every(k => STATIC_KW.includes(k)) && (!x.cond || condExecutable(x.cond));
       // Protection parts of a mixed line ("... get [Penetrate], and cannot be destroyed ...") are enforced by isProtected.
-      const sideOk = x => x.op === "shield" || (x.op === "restrict" && isAuraRestrict(a, card, x)) || (x.op === "static" && x.kind === "protect") || (x.op === "noop" && x.note === "unnullifiable-ok");
+      const sideOk = x => x.op === "shield" || (x.op === "restrict" && isAuraRestrict(a, card, x)) || (x.op === "static" && ["protect", "unnullifiable", "unreducible", "noStatReduce"].includes(x.kind)) || (x.op === "noop" && x.note === "unnullifiable-ok");
       if (!a.steps.some(boostOk) || !a.steps.every(x => boostOk(x) || sideOk(x))) return;
       if (!(a.conds || []).every(condExecutable) || a.trigger) return;
       r.abs.push(a);
@@ -1103,7 +1174,8 @@
               else hit = refsFor(st.np, ctx, { owner: "you", area: "field" }).some(r => r.unit === unit);
               if (!hit) continue;
               const mult = st.each ? refsFor(st.each, ctx, { owner: "you", area: "field" }).length : 1;
-              out.power += (st.mods.power || 0) * mult; out.defense += (st.mods.defense || 0) * mult; out.crit += (st.mods.critical || 0) * mult;
+              const lock = (stat, v) => (v < 0 && ABX.statLocked && ABX.statLocked(mySide, unit, stat, side !== mySide) ? 0 : v);
+              out.power += lock("power", (st.mods.power || 0) * mult); out.defense += lock("defense", (st.mods.defense || 0) * mult); out.crit += lock("critical", (st.mods.critical || 0) * mult);
               (st.mods.kws || []).forEach(k => { if (k === "penetrate") out.pen = true; if (k === "double attack") out.da = true; if (k === "triple attack") out.ta = true; if (k === "counterattack") out.ca = true; if (k === "soulguard") out.sg = true; if (k === "move") out.move = true; if (k === "quadruple attack") out.qa = true; });
             }
           }
@@ -1136,6 +1208,7 @@
 
   ABX.attackUnnullifiable = function (bc) {
     for (const u of bc.attUnits || []) {
+      if (u.abxUnnull && u.abxUnnull.turn === B.turnCount && !(u.abxUnnull.cond === "alone" && bc.attUnits.length > 1)) return true;
       for (const ab of abilitiesOf(u.card, a => a.kind === "static")) {
         for (const st of ab.steps || []) {
           if (st.op !== "static" || st.kind !== "unnullifiable") continue;
@@ -1150,6 +1223,35 @@
     return false;
   };
 
+  // "The size of all (originally size N) «X» on your field is reduced by N" from OTHER cards on the same field / set spells,
+  // plus the same text on a non-[Set] spell cast this turn (kept in f.abxSizeMods).
+  function sizeModMatches(m, card, unit, srcUnit, ctx) {
+    if (m.origSize != null && !(m.origLe ? (card.size || 0) <= m.origSize : (card.size || 0) === m.origSize)) return false;
+    if (!isMonsterCard(card)) return false;
+    if (m.np.excludeSelf && srcUnit && unit && srcUnit === unit) return false;
+    if (/\bother\b/i.test(m.np.raw || "") && srcUnit && unit === srcUnit) return false;
+    return matchFilter(card, m.np.filter || {}, unit ? { unit, side: ctx.side } : null, ctx);
+  }
+  function othersSizeDelta(side, f, card, unit) {
+    let d = 0;
+    (f.abxSizeMods || []).forEach(m => { if (m.turn === B.turnCount && sizeModMatches(m, card, unit, null, { side, f, e: F(otherSide(side)), bind: {} })) d += m.delta; });
+    const srcs = fieldUnits(f, true).map(x => ({ unit: x.unit, card: x.unit.card }));
+    (f.setSpells || []).forEach(c => srcs.push({ unit: null, card: c }));
+    for (const src of srcs) {
+      if (src.unit && src.unit.abxNullified === B.turnCount) continue;
+      for (const ab of abilitiesOf(src.card, a => (a.kind === "static" || (a.kind === "spell" && src.card.set && !src.unit)) && !(a.unparsed && a.unparsed.length))) {
+        const ctx = { side, f, e: F(otherSide(side)), card: src.card, unit: src.unit, bind: {} };
+        if (!(ab.conds || []).every(c => condExecutable(c) && evalCond(c, ctx))) continue;
+        for (const m of ab.steps || []) {
+          if (m.op !== "static" || m.kind !== "sizeModOthers" || !m.np || m.np.junk) continue;
+          if (m.cond && !(condExecutable(m.cond) && evalCond(m.cond, ctx))) continue;
+          if (sizeModMatches(m, card, unit, src.unit, ctx)) d += m.delta || 0;
+        }
+      }
+    }
+    return d;
+  }
+
   // Size changes from "this card's size is reduced by N" statics (only the ones the old text code does not already do).
   const LEGACY_SIZE = /dragod|reversal|overgod/i;
   let inSize = 0;
@@ -1157,9 +1259,11 @@
     if (inSize || !card) return 0;
     const side = B.plr === fighter ? "plr" : B.opp === fighter ? "opp" : null;
     if (!side) return 0;
+    if (unit && unit.abxSize0) return -99;   // "That card becomes size 0 until it leaves the field"
     inSize++;
     let d = 0;
     try {
+      d += othersSizeDelta(side, fighter, card, unit);
       for (const ab of abilitiesOf(card, a => a.kind === "static" && !(a.unparsed && a.unparsed.length))) {
         if (LEGACY_SIZE.test(ab.raw || ab.cleaned || "")) continue;
         const sm = (ab.steps || []).find(x => x.op === "static" && x.kind === "sizeMod");
@@ -1188,12 +1292,12 @@
   // ---- [Act]s used from the hand on your own turn ----
   //  "You may discard this card from your hand. If you do, ..."  /  "Put this hand card into the soul of ..."
   //  "[Counter] [Act] During your attack phase, call this card from your hand by paying its [Call Cost]."
-  ABX.handUseActs = (card) => abilitiesOf(card, a => a.kind === "act" && ABX.isExecutable(a) &&
+  ABX.handUseActs = (card) => abilitiesOf(card, a => a.kind === "act" && !(a.trigger && a.trigger.event === "oppCast") && ABX.isExecutable(a) &&
     !(a.conds || []).some(c => c.t === "underAttack" || (c.t === "turn" && c.who === "opp") || (c.t === "phase" && c.who === "opp")) &&
     (FROM_HAND_RE.test(a.cleaned || "") || (isSelfCallAct(a) && /from your hand/i.test(a.cleaned || ""))));
   // [Counter] hand abilities (e.g. "[Counter] [Act] You may drop this card from hand. If you do, you gain 3 life.")
   // can also be used when the opponent attacks.
-  ABX.counterHandUseActs = (card) => abilitiesOf(card, a => a.kind === "act" && ABX.isExecutable(a) && (a.tags || []).includes("counter") && !isSelfCallAct(a) && FROM_HAND_RE.test(a.cleaned || ""));
+  ABX.counterHandUseActs = (card) => abilitiesOf(card, a => a.kind === "act" && !(a.trigger && a.trigger.event === "oppCast") && ABX.isExecutable(a) && (a.tags || []).includes("counter") && !isSelfCallAct(a) && FROM_HAND_RE.test(a.cleaned || ""));
   ABX.canUseHandAct = function (side, handIdx, ab) {
     const f = F(side), card = cardOf(f.hand[handIdx]);
     if (!card) return { ok: false, reason: "That card is no longer in your hand." };

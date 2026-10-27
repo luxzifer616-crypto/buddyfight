@@ -780,7 +780,7 @@ function fighterHasDragodOnField(fighter) {
   return getAllFieldUnits(fighter).some(u => u.card && (u.card.attrs || []).some(a => a.toLowerCase() === "dragod"));
 }
 
-function getEffectiveCardSize(fighter, card) {
+function getEffectiveCardSize(fighter, card, unit) {
   if (!card || card.size === null || card.size === undefined) return 0;
   let sz = card.size;
   const s = (card.skill || "").toLowerCase();
@@ -802,7 +802,7 @@ function getEffectiveCardSize(fighter, card) {
     const redMatch = s.match(/size\s+(?:on\s+the\s+field\s+)?(?:is\s+|gets\s+)?reduced\s+by\s+(\d+)/i);
     if (redMatch) sz -= parseInt(redMatch[1], 10);
   }
-  if (window.ABX && ABX.sizeDelta) sz += ABX.sizeDelta(fighter, card);
+  if (window.ABX && ABX.sizeDelta) sz += ABX.sizeDelta(fighter, card, unit);
   return Math.max(0, sz);
 }
 
@@ -1008,6 +1008,12 @@ function getUnitEffectiveCombatStats(fighter, unit) {
     if (sb.pen) pen = true; if (sb.da) da = true; if (sb.ta) ta = true; if (sb.qa) qa = true;
   }
   if (unit.tempQA) qa = true;
+  // "Nullify the attacking card's [Penetrate]" (ABX, for this turn)
+  if (window.ABX && ABX.kwNullified) {
+    if (ABX.kwNullified(unit, "penetrate")) pen = false;
+    if (ABX.kwNullified(unit, "double attack")) da = false;
+    if (ABX.kwNullified(unit, "triple attack")) ta = false;
+  }
 
   if (unit.defenseZeroTurn) {
     defense = 0;
@@ -3695,7 +3701,7 @@ const battle = {
     let total = 0;
     ["left", "center", "right"].forEach(pos => {
       const m = fighter.monsters[pos];
-      if (m && m.card) total += getEffectiveCardSize(fighter, m.card);
+      if (m && m.card) total += getEffectiveCardSize(fighter, m.card, m);
     });
     return total;
   },
@@ -4664,6 +4670,10 @@ const battle = {
         ? "⚔️ Attack Phase (First Round: only 1 attack this turn): Click a Monster/Item/Flag to Attack, or click '🔗 Link Attack' to combine attackers (a Link Attack counts as your 1 attack)!"
         : "⚔️ Attack Phase: Click a Monster/Item/Flag to Attack, [Move], or click '🔗 Link Attack' to combine multiple attackers!");
       this.renderBattle();
+    } else if (this.phase === "attack" && !(window.ABX && ABX.attackPhaseEnded && ABX.attackPhaseEnded()) && window.ABX && ABX.takeExtraAttack && ABX.takeExtraAttack(this.activeSide)) {
+      this.setPrompt("⚔️ Extra Attack Phase! Your standing cards can attack again.");
+      if (ABX.fireTurnEvent) ABX.fireTurnEvent("phaseStart", "attack");
+      this.renderBattle();
     } else if (this.phase === "attack") {
       this.phase = "final";
       this.setPrompt("🔥 Final Phase: Cast an Impact card to finish the fight, or click End Turn!");
@@ -4679,7 +4689,15 @@ const battle = {
     this.linkAttackers = [];
     if (this.imTurnEnd) this.imTurnEnd(this.activeSide);
     if (window.ABX && ABX.fireTurnEvent) ABX.fireTurnEvent("turnEnd");
-    const nextSide = this.activeSide === "plr" ? "opp" : "plr";
+    let nextSide = this.activeSide === "plr" ? "opp" : "plr";
+    // "After this turn, you get another turn" (ABX)
+    if (window.ABX && ABX.takeExtraTurn && ABX.takeExtraTurn(this.activeSide)) {
+      nextSide = this.activeSide;
+      this.turnCount++;
+      this.showCutin("EXTRA TURN!", `${this.getFighter(nextSide).name} takes another turn!`, null);
+      this.startTurn(nextSide);
+      return;
+    }
     this.turnCount++;
     if (this.mode === "online_p2p") {
       // Online: hand the turn over and let the friend's device run its own Start Phase,
@@ -6077,6 +6095,29 @@ const battle = {
     if (isBuddyCall) f.buddyCalled = true;
 
     this.animateCardFlight(fromHandId, toZoneId, c.img, isBuddyCall ? "🌟 BUDDY CALL!" : "🐉 CALL!", 0, () => {
+      // The opponent may answer with "Nullify the call" (ABX). A nullified monster goes to the drop zone with its soul.
+      if (!isAbilityCall && window.ABX && ABX.castWindow) {
+        ABX.castWindow(side, c, "call").then(nullified => {
+          if (nullified && f.monsters[zonePos] === unit) {
+            f.monsters[zonePos] = null;
+            f.drop.push(...(unit.soul || []), ...(unit.pairedHalfIds && unit.pairedHalfIds.length ? unit.pairedHalfIds : [c.id]));
+            if (isBuddyCall) f.buddyCalled = false;
+            this.showCutin("NULLIFIED!", `The call of "${c.name}" was nullified!`, c.img);
+            this.setPrompt(`🚫 The call of "${c.name}" was nullified!`);
+            this.renderBattle();
+            return;
+          }
+          this.afterMonsterCallLanded(side, c, unit, isBuddyCall);
+        }, () => this.afterMonsterCallLanded(side, c, unit, isBuddyCall));
+        return;
+      }
+      this.afterMonsterCallLanded(side, c, unit, isBuddyCall);
+    });
+  },
+
+  afterMonsterCallLanded(side, c, unit, isBuddyCall) {
+    const f = this.getFighter(side);
+    {
       if (isBuddyCall) {
         f.life += 1;
         this.showCutin("BUDDY CALL!", `${c.name} (+1 Buddy Gift Life!)`, c.img);
@@ -6090,7 +6131,7 @@ const battle = {
       } else if (s.includes("when this card enters the field") || parseDeckSearchCriteria(c)) {
         this.promptOptionalAbility(side, c, unit);
       }
-    });
+    }
   },
 
   equipCardFromHand(side, handIdx, modeLabel = "Equip") {
@@ -6141,6 +6182,7 @@ const battle = {
       }
       this.setPrompt(`🗡️ Equipped "${c.name}" (Pow ${c.power || 0} / Crit ${c.crit || 1})!`);
       this.renderBattle();
+      if (window.ABX && ABX.fireEquipped) ABX.fireEquipped(side, c, f.item);
     });
   },
 
@@ -6166,6 +6208,24 @@ const battle = {
     const destId = c.set ? `z-${side}-set` : `z-${side}-drop`;
 
     this.animateCardFlight(fromHandId, destId, c.img, c.set ? "🔮 [SET]!" : "✨ CAST!", 0, () => {
+      // The opponent may answer with "Nullify the spell cast by your opponent" (ABX) before it resolves.
+      if (window.ABX && ABX.castWindow) {
+        ABX.castWindow(side, c, "spell").then(nullified => {
+          if (!nullified) { this.resolveCastSpell(side, c, cid); return; }
+          f.drop.push(cid);
+          this.showCutin("NULLIFIED!", `"${c.name}" was nullified!`, c.img);
+          this.setPrompt(`🚫 "${c.name}" was nullified by ${enemy.name}!`);
+          this.renderBattle();
+        }, () => this.resolveCastSpell(side, c, cid));
+        return;
+      }
+      this.resolveCastSpell(side, c, cid);
+    });
+  },
+
+  resolveCastSpell(side, c, cid) {
+    const f = this.getFighter(side);
+    {
       if (c.set) {
         f.setSpells.push(c);
         this.showCutin("[SET]!", c.name, c.img);
@@ -6193,7 +6253,7 @@ const battle = {
       }
 
       if (window.ABX && ABX.ownsSpell && ABX.ownsSpell(c)) ABX.fireSpell(side, c); else this.executeCardAbilityEffect(side, c, null);
-    });
+    }
   },
 
   castImpactFromHand(side, handIdx) {
@@ -6239,8 +6299,12 @@ const battle = {
       if (dmgMatch) dmg = parseInt(dmgMatch[1], 10);
     }
 
+    const resolveImpact = () => {
     this.showCutin("FINAL PHASE — IMPACT!", `${c.name} (${dmg} Damage!)`, c.img);
-    enemy.life -= dmg;
+    const es0 = side === "plr" ? "opp" : "plr";
+    // damage shields work against Impacts too, unless the card says its damage cannot be reduced
+    if (window.ABX && ABX.core && ABX.core.applyDamage) ABX.core.applyDamage(es0, dmg, { kind: "impact", unreducible: /cannot be reduced/i.test(c.skill || "") });
+    else enemy.life -= dmg;
 
     if ((c.skill || "").toLowerCase().includes("destroy all monsters")) {
       ["left", "center", "right"].forEach(pos => {
@@ -6251,6 +6315,18 @@ const battle = {
 
     this.checkWinCondition();
     this.renderBattle();
+    };
+    // The opponent may answer with "Nullify the impact cast by your opponent" (ABX).
+    if (window.ABX && ABX.castWindow) {
+      ABX.castWindow(side, c, "impact").then(nullified => {
+        if (!nullified) { resolveImpact(); return; }
+        this.showCutin("NULLIFIED!", `"${c.name}" was nullified!`, c.img);
+        this.setPrompt(`🚫 Impact "${c.name}" was nullified by ${enemy.name}!`);
+        this.renderBattle();
+      }, resolveImpact);
+      return;
+    }
+    resolveImpact();
   },
 
   onZoneClick(zoneSide, zonePos) {
@@ -6502,8 +6578,24 @@ const battle = {
     return valid;
   },
 
+  // "End the attack phase" (ABX): move the attacker to the Final Phase once the current battle is over.
+  abxCheckEndAttack(attSide) {
+    if (!(window.ABX && ABX.attackPhaseEnded && ABX.attackPhaseEnded())) return false;
+    if (this.activeSide !== attSide || this.phase !== "attack") return false;
+    this.phase = "final";
+    if (!this.getFighter(attSide).isBot) this.setPrompt("🛑 Your attack phase was ended by a card effect — Final Phase.");
+    return true;
+  },
+
   initiateAttackWithDefenseCheck(attSide, attackerZones, targetPos) {
     const attFighter = this.getFighter(attSide);
+    if (attSide === this.activeSide && window.ABX && ABX.attackPhaseEnded && ABX.attackPhaseEnded() && (this.phase === "attack" || this.phase === "final")) {
+      this.pendingAction = null; this.linkAttackers = [];
+      if (this.phase === "attack") this.phase = "final";
+      this.setPrompt("🛑 The attack phase was ended by a card effect — you can't attack any more this turn.");
+      this.renderBattle();
+      return;
+    }
     const defSide = attSide === "plr" ? "opp" : "plr";
     const defFighter = this.getFighter(defSide);
 
@@ -6818,6 +6910,7 @@ const battle = {
       defFighter.timeStoppedThisBattle = false;
       if (this.imOnNullified) this.imOnNullified(attSide, units);
       this.setPrompt(`🛡️ Attack by ${attDisplayNames} was nullified by ${defFighter.name}'s [Counter]!`);
+      this.abxCheckEndAttack(attSide);
       this.renderBattle();
       if (attSide === "opp" && this.opp.isBot && this.oppContinueCallback) {
         setTimeout(this.oppContinueCallback, 650);
@@ -6837,6 +6930,11 @@ const battle = {
         if (units.length > 1 && (unit.card.skill || "").toLowerCase().includes("link attacks")) { combinedPower += 2000; }
       });
     }
+    // an "is attacked" ability may have nullified [Penetrate]
+    if (window.ABX && ABX.kwNullified && units.some(({ unit }) => ABX.kwNullified(unit, "penetrate"))) {
+      anyPenetrate = units.some(({ unit }) => getUnitEffectiveCombatStats(attFighter, unit).pen);
+    }
+    const unreducible = !!(window.ABX && ABX.attackUnreducible && ABX.attackUnreducible(attSide, units));
     units.slice(1).forEach(({ zone, unit }) => {
       this.animateAttackStrike(attSide, zone, defSide, targetPos, unit.card.img);
     });
@@ -6852,12 +6950,12 @@ const battle = {
         outcome.dealtDamage = outcome.destroyedMonster && targetPos === "center" && anyPenetrate;
       } else {
         let finalDmg = combinedCrit;
-        if (defFighter.tempDamageReduce && defFighter.tempDamageReduce > 0) {
+        if (defFighter.tempDamageReduce && defFighter.tempDamageReduce > 0 && !unreducible) {
           finalDmg = Math.max(0, finalDmg - defFighter.tempDamageReduce);
           defFighter.tempDamageReduce = 0;
         }
         // ABX damage shields ("the next damage you take from attacks is reduced to 0", continuous reductions, ...)
-        if (window.ABX && ABX.core && ABX.core.applyDamage) finalDmg = ABX.core.applyDamage(defSide, finalDmg, { kind: "attack" });
+        if (window.ABX && ABX.core && ABX.core.applyDamage) finalDmg = ABX.core.applyDamage(defSide, finalDmg, { kind: "attack", unreducible });
         else defFighter.life -= finalDmg;
         outcome.dealtDamage = finalDmg > 0;
         this.setPrompt(`💥 ${units.length > 1 ? "LINK ATTACK " : ""}DIRECT HIT! ${attDisplayNames} dealt ${finalDmg} Critical damage to ${defFighter.name}!`);
@@ -6868,6 +6966,7 @@ const battle = {
       if (this.imAfterBattle && !this.matchOver) this.imAfterBattle(attSide, units, outcome);
       if (window.ABX && ABX.fireBattleEnd && !this.matchOver) ABX.fireBattleEnd(attSide, units);
       if (window.ABX && ABX.fireAttackOutcome && !this.matchOver) ABX.fireAttackOutcome(attSide, units, defSide, outcome);
+      this.abxCheckEndAttack(attSide);
 
       if (attSide === "opp" && this.opp.isBot && this.oppContinueCallback) {
         setTimeout(this.oppContinueCallback, 650);
@@ -6902,11 +7001,12 @@ const battle = {
         defenderSurvived = !destroyed;
         if (targetPos === "center" && anyPenetrate && destroyed) {
           let penDmg = combinedCrit;
-          if (defFighter.tempDamageReduce && defFighter.tempDamageReduce > 0) {
+          const unreducible = !!(window.ABX && ABX.attackUnreducible && ABX.attackUnreducible(attSide, attUnits));
+          if (defFighter.tempDamageReduce && defFighter.tempDamageReduce > 0 && !unreducible) {
             penDmg = Math.max(0, penDmg - defFighter.tempDamageReduce);
             defFighter.tempDamageReduce = 0;
           }
-          if (window.ABX && ABX.core && ABX.core.applyDamage) penDmg = ABX.core.applyDamage(defSide, penDmg, { kind: "attack" });
+          if (window.ABX && ABX.core && ABX.core.applyDamage) penDmg = ABX.core.applyDamage(defSide, penDmg, { kind: "attack", unreducible });
           else defFighter.life -= penDmg;
           this.showCutin("PENETRATE!", `${attNames} deals ${penDmg} Piercing Damage!`, attUnits[0].unit.card.img);
         }
@@ -7132,6 +7232,15 @@ const battle = {
         let botImpactTried = false;
         const runNextBotAttack = () => {
           if (!stillThisMatch()) return;
+          if (this.activeSide === "opp" && window.ABX && ABX.attackPhaseEnded && ABX.attackPhaseEnded()) step = attackers.length;
+          else if (this.activeSide === "opp" && step >= attackers.length && window.ABX && ABX.takeExtraAttack && ABX.takeExtraAttack("opp")) {
+            // "You get another attack phase": go round again with whatever is still standing
+            attackers.length = 0;
+            ["left", "center", "right"].filter(p => bot.monsters[p]).forEach(p => attackers.push(p));
+            if (bot.item && (!bot.monsters.center || bot.item.isEndrulerFlag)) attackers.push("item");
+            step = 0;
+            this.setPrompt("⚔️ Rival gets an extra Attack Phase!");
+          }
           if (this.activeSide === "opp" && step >= attackers.length && !botImpactTried && this.imBotCall) {
             // Final Phase: the bot may call one Impact Monster, and it may attack right away.
             botImpactTried = true;
@@ -7150,7 +7259,10 @@ const battle = {
             setTimeout(() => {
               if (stillThisMatch() && this.activeSide === "opp") {
                 if (this.imTurnEnd) this.imTurnEnd("opp");
+                if (window.ABX && ABX.fireTurnEvent) ABX.fireTurnEvent("turnEnd");
                 this.turnCount++;
+                // "After this turn, you get another turn" (ABX)
+                if (window.ABX && ABX.takeExtraTurn && ABX.takeExtraTurn("opp")) { this.startTurn("opp"); return; }
                 this.startTurn("plr");
               }
             }, 600);
