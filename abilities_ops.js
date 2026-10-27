@@ -64,10 +64,10 @@
   OPS.shield = {
     run(s, ctx) {
       const S = st(ctx.f);
-      S.shields.push({ mode: s.mode, reduceBy: s.reduceBy || 0, toZero: !!s.toZero, gainLife: s.gainLife || 0, from: s.from || null, turn: B.turnCount });
+      S.shields.push({ mode: s.mode, reduceBy: s.reduceBy || 0, toZero: !!s.toZero, capTo: s.capTo != null ? s.capTo : null, gainLife: s.gainLife || 0, from: s.from || null, turn: B.turnCount });
       return true;
     },
-    check: (s) => s.mode === "next" || s.mode === "turn"
+    check: (s) => s.mode === "next" || s.mode === "turn" || s.mode === "nextTurn"
   };
 
   /* ---------- costs ---------- */
@@ -90,6 +90,15 @@
   OPS.discard = {
     async run(s, ctx) {
       const f = ctx.f;
+      if (s.self) {   // "discard this card from your hand": only works while the card is in the hand
+        const sr = ctx.selfRef;
+        if (!sr || sr.area !== "hand") return false;
+        const i = f.hand[sr.idx] === sr.id ? sr.idx : f.hand.indexOf(sr.id);
+        if (i < 0) return false;
+        f.hand.splice(i, 1); f.drop.push(sr.id); sr.area = "drop"; sr.idx = f.drop.length - 1;
+        ABX.fireDiscarded && ABX.fireDiscarded(ctx.side, cardOf(sr.id));
+        fresh(); return true;
+      }
       let cands = f.hand.map((id, i) => ({ k: "zone", side: ctx.side, area: "hand", idx: i, id, card: cardOf(id) }));
       if (s.np && s.np.filter) cands = cands.filter(r => core.matchFilter(r.card, s.np.filter, r, ctx));
       if (s.all) { const ids = f.hand.splice(0); f.drop.push(...ids); fresh(); return ids.length > 0; }
@@ -327,9 +336,11 @@
       else if (s.np.ref) cands = (ctx.bind.chosen || []).filter(r => r.k === "zone" && ["drop", "hand", "deck"].includes(r.area) && r.card && r.card.type === "Monster");
       else {
         const area = (s.np.zone && s.np.zone.area) || "hand";
-        if (!["hand", "drop zone", "deck"].includes(area)) return false;
+        if (area === "soul") cands = refsFor(s.np, ctx).filter(r => r.k === "soul" && r.card && r.card.type === "Monster");
+        else if (!["hand", "drop zone", "deck"].includes(area)) return false;
+        else {
         cands = refsFor(Object.assign({}, s.np, { zone: Object.assign({}, s.np.zone || {}, { owner: "you", area }) }), ctx).filter(r => r.card.type === "Monster");
-        if (s.np.zone && s.np.zone.alt) cands = cands.concat(refsFor(Object.assign({}, s.np, { zone: { owner: "you", area: s.np.zone.alt } }), ctx).filter(r => r.card.type === "Monster"));
+        }
       }
       cands = cands.filter(r => {
         if (!s.pay) return true;
@@ -337,19 +348,42 @@
         return f.gauge.length >= cost.gauge && f.life > cost.life && ABX.canPayExtras(ctx.side, r.card, -1);
       });
       const ch = ((s.np.ref && s.np.ref !== "looked") || s.np.self) ? cands : await pick(cands, s.np, ctx, { intent: "help", title: `${ctx.card.name} — call`, subtitle: ABX.clean(s.np.raw) });
+      // "on top of this card / a «X» on your field": that monster's spot; it and its soul go into the new card's soul
+      let topHost = null;
+      if (s.np.onTop) {
+        if (s.np.onTop.self) topHost = ctx.unit && ctx.unit !== f.item ? ctx.unit : null;
+        else {
+          const hs = refsFor(s.np.onTop.np, ctx, { owner: "you", area: "field" }).filter(r => r.unit && r.k === "unit");
+          const hc = await pick(hs, Object.assign({}, s.np.onTop.np, { qty: { n: 1 } }), ctx, { intent: "help", title: `${ctx.card.name} — call on top of which monster?` });
+          topHost = hc[0] && hc[0].unit;
+        }
+        if (!topHost || !core.posOfUnit(f, topHost)) return false;
+      }
       let n = 0;
       for (const r of ch) {
-        const pos = (s.pos && s.pos !== "open area") ? s.pos : (SLOTS.find(p => !f.monsters[p]) || "center");
+        let pos = (s.pos && s.pos !== "open area") ? s.pos : (SLOTS.find(p => !f.monsters[p]) || "center");
+        let under = null;
+        if (topHost) { pos = core.posOfUnit(f, topHost); if (!pos) break; under = topHost; }
+        else if (s.pay && ABX.onTopCost(r.card)) {   // its [Call Cost] puts it on top of another monster
+          const hs = ABX.onTopHosts(ctx.side, r.card);
+          const hc = await pick(hs, { qty: { n: 1 }, raw: "the monster to call it on top of" }, ctx, { intent: "help", title: `${r.card.name} — call on top of which monster?` });
+          if (!hc[0]) continue;
+          under = hc[0].unit; pos = core.posOfUnit(f, under);
+        }
         const cost = s.pay ? parseCardCost(r.card.cost, r.card.skill, f, r.card) : { gauge: 0, life: 0 };
         if (s.pay && (f.gauge.length < cost.gauge || f.life <= cost.life)) continue;
-        if (r.pending) { r.pending = false; f.hand.push(r.id); }  // a looked-at / revealed card is already out of the deck
+        if (r.k === "soul") { const id = detach(r); if (id == null) continue; f.hand.push(id); }   // from a soul
+        else if (r.pending) { r.pending = false; f.hand.push(r.id); }  // a looked-at / revealed card is already out of the deck
         else if (r.area !== "hand") { const arr = f[r.area]; const i = arr.indexOf(r.id); if (i < 0) continue; arr.splice(i, 1); f.hand.push(r.id); }
         const hi = (r.area === "hand" && f.hand[r.idx] === r.id) ? r.idx : f.hand.lastIndexOf(r.id);
         if (hi < 0) continue;
         for (let g = 0; g < cost.gauge; g++) f.drop.push(f.gauge.pop());
         f.life -= cost.life;
+        let underIds = null;
+        if (under) { underIds = (under.soul || []).concat([under.card.id]); f.monsters[pos] = null; }
         B.completeMonsterCall(ctx.side, pos, hi, false, true);
-        if (!f.monsters[pos]) continue;
+        if (!f.monsters[pos]) { if (underIds) { f.drop.push(...underIds); } continue; }
+        if (underIds) { f.monsters[pos].soul.unshift(...underIds); topHost = null; }
         ctx.calledPos = pos;
         if (s.pay && ABX.hasExtras(r.card)) await ABX.payExtras(ctx.side, r.card, f.monsters[pos]);
         n++;
@@ -357,7 +391,7 @@
       return n > 0;
     },
     check: (s) => !!s.np && !s.np.junk && (s.free || s.pay || s.np.self || s.np.ref) && !s.np.soulOf && s.np.qty &&
-      (s.np.self ? /hand|drop zone/i.test((s.np.selfTail || "") + " " + (s.np.raw || "")) : (s.np.ref || (s.np.zone && ["hand", "drop zone", "deck"].includes(s.np.zone.area))))
+      (s.np.self ? /hand|drop zone/i.test((s.np.selfTail || "") + " " + (s.np.raw || "")) : (s.np.ref || (s.np.zone && ["hand", "drop zone", "deck", "soul"].includes(s.np.zone.area)))) && !(s.np.onTop && s.np.onTop.np && s.np.onTop.np.junk)
   };
   OPS.redirectAttack = {
     run(s, ctx) {
@@ -460,6 +494,26 @@
     check: (s) => s.np && (s.kinds || []).length > 0 && (s.kinds || []).every(k => ["attack", "stand", "destroyed", "returned to hand", "rest", "nullified", "put into the drop zone", "put to other areas", "leave the field"].includes(k)) && (s.duration === "turn" || !!s.duration || true) && !(s.np.zone && !["field", "center", "left", "right"].includes(s.np.zone.area))
   };
   core.isRestricted = function (unit, kind) { return !!(unit && unit.abxNo && unit.abxNo[kind] === B.turnCount); };
+
+  /* ---------- "the next time that card would be destroyed this turn, it remains on the field" ---------- */
+  OPS.saveOnce = {
+    run(s, ctx) {
+      const refs = s.np.self ? refsFor(s.np, ctx) : (ctx.bind.chosen || []).filter(r => r.unit);
+      let n = 0;
+      refs.forEach(r => { if (!r.unit) return; r.unit.abxSave = { turn: B.turnCount, life: s.life || 0, side: ctx.side, by: ctx.card.name }; if (s.kw === "counterattack") r.unit.tempCA = true; n++; });
+      fresh(); return n > 0;
+    },
+    check: (s) => !!s.np && (s.np.self || !!s.np.ref)
+  };
+  // Called by battle.destroyMonster: true = the destruction is replaced (the monster stays).
+  core.useSave = function (side, unit) {
+    const sv = unit && unit.abxSave;
+    if (!sv || sv.turn !== B.turnCount) return false;
+    delete unit.abxSave;
+    if (sv.life) F(sv.side || side).life += sv.life;
+    if (B.setPrompt) B.setPrompt(`🛡️ "${unit.card.name}" stays on the field ("${sv.by}")!`);
+    return true;
+  };
 
   /* ---------- statics / markers handled elsewhere ---------- */
   OPS.static = { run() { return true; }, check: (s) => s.kind === "protect" };

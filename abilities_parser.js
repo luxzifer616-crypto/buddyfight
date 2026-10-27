@@ -105,10 +105,26 @@
     t = t.replace(/\s+(?:by paying (?:its|their) \[call cost\]|without paying (?:its|their) \[call cost\])/ig, "")
       .replace(/\s+to (?:an? |the )?(?:open|another|separate|different|empty) (?:areas?|monster zones?)(?: on (?:your|the) field)?$/i, "")
       .replace(/\s+to (?:an? )?(?:open )?areas? on your field$/i, "").trim();
-    // "from your hand or drop zone" -> two source zones
+    // "... on top of this card" / "on top of a «X» monster on your field": the called card goes on top (the old card
+    // and its soul become the new card's soul)
+    let onTop = null;
+    t = t.replace(/\s+on top of (this card|this monster|.+?)$/i, (mm, w) => { onTop = /^this (?:card|monster)$/i.test(w) ? { self: true } : { np: parseNP(w) }; return ""; }).trim();
+    if (onTop) {
+      if (onTop.np && (!onTop.np || onTop.np.junk)) return null;
+      const inner = parseNP(t);
+      if (inner) { inner.onTop = onTop; inner.raw = np.raw; }
+      return inner;
+    }
+    // "from your hand or drop zone" / "from your deck or drop zone" -> two source zones
     let altArea = null;
-    t = t.replace(/\bfrom your (hand|drop zone) or (?:your )?(hand|drop zone)\b/i, (mm, a1, a2) => { altArea = lc(a2); return "from your " + a1; });
-    if (altArea) { const inner = parseNP(t); if (inner && inner.zone) inner.zone.alt = altArea; if (inner) inner.raw = np.raw; return inner; }
+    t = t.replace(/\bfrom your (hand|drop zone|deck) or (?:your )?(hand|drop zone|deck)\b/i, (mm, a1, a2) => { altArea = lc(a2); return "from your " + a1; });
+    if (altArea) {
+      const inner = parseNP(t);
+      if (inner && inner.zone) inner.zone.alt = altArea;
+      if (inner && inner.parts) inner.parts.forEach(p => { if (p.zone) p.zone.alt = altArea; });
+      if (inner) inner.raw = np.raw;
+      return inner;
+    }
     // --- "the rest" (cards looked at / revealed that were not taken) ---
     let m;
     if (/^(?:the rest|the remaining cards?|the other cards?|the others|the rest of (?:the|those) cards)$/i.test(t)) {
@@ -117,25 +133,25 @@
     // --- "... from among them" picks from the cards just looked at / revealed ---
     let amongThem = false;
     t = t.replace(/\s*(?:from )?among (?:them|those cards|those|the revealed cards|the cards looked at)\b/i, () => { amongThem = true; return ""; }).trim();
-    t = t.replace(/^(?:a )?total of (\w+)\b|^(?:up to )?(\w+) in total\b/i, (mm, a1, a2) => { const v = toNum(a1 || a2); return v ? "up to " + a1 || a2 : mm; });
+    // "up to a total of two", "a total of two", "two in total"
+    t = t.replace(/^up to (?:a )?total of (\w+)\b/i, "up to $1");
+    t = t.replace(/^(?:a )?total of (\w+)\b|^(?:up to )?(\w+) in total\b/i, (mm, a1, a2) => (toNum(a1 || a2) ? "up to " + (a1 || a2) : mm));
     t = t.replace(/^total (\w+)\b/i, (mm, a1) => (toNum(a1) ? "up to " + a1 : mm));
+    // "up to one «A» and up to one «B» (from your deck)": separate picks, each with its own count
+    if (/^up to \w+ /i.test(t) && /,? and up to \w+ /i.test(t)) {
+      const zm = t.match(/\s+(from your (?:deck|drop zone|hand|gauge))$/i);
+      const body = zm ? t.slice(0, t.length - zm[0].length) : t;
+      const pieces = body.split(/,? and up to /i).map((x, i) => (i ? "up to " + x : x).trim());
+      const subs = pieces.map(x => parseNP(x + (zm && !amongThem ? " " + zm[1] : "")));
+      if (subs.some(x => !x || x.junk || x.ref || x.self || x.parts)) return null;
+      if (amongThem) subs.forEach(x => { x.ref = "looked"; x.zone = null; });
+      np.parts = subs;
+      np.qty = { n: subs.reduce((n, x) => n + (x.qty.n || 1), 0), upTo: true, all: false, any: false, each: false };
+      np.zone = amongThem ? null : subs[0].zone;
+      if (amongThem) np.ref = "looked";
+      return np;
+    }
     if (amongThem) {
-      t = t.replace(/^up to (?:a )?total of (\w+)\b/i, "up to $1");
-      // "up to one «A» and up to one «B»": up to (1+1) cards that are «A» or «B»
-      const parts = t.split(/,? and up to /i);
-      if (parts.length > 1) {
-        const subs = parts.map((x, i) => parseNP(i ? "up to " + x : x));
-        if (subs.some(x => !x || x.junk || x.ref || x.self)) return null;
-        // only merge when every part filters the same way (all by tribe, or all by name), else "and" would become "both"
-        const kinds = new Set(subs.map(x => (x.filter.tribes ? "t" : "") + (x.filter.names ? "n" : "")));
-        if (kinds.size > 1) return null;
-        const merged = subs[0];
-        merged.qty.n = subs.reduce((n, x) => n + (x.qty.n || 1), 0); merged.qty.upTo = true;
-        ["tribes", "names", "types"].forEach(k => { const all = [].concat(...subs.map(x => (x.filter[k] || []))); if (all.length) merged.filter[k] = Array.from(new Set(all)); });
-        if (subs.some(x => !(x.filter.types || []).length)) delete merged.filter.types;
-        merged.raw = np.raw; merged.ref = "looked"; merged.zone = null; merged.anyOf = true;
-        return merged;
-      }
       if (!t || /^(?:one|1|a card|cards?)$/i.test(t)) t = t || "a card";
       const inner = parseNP(t);
       if (!inner || inner.self || (inner.ref && inner.ref !== "chosen")) return null;
@@ -158,6 +174,7 @@
       np.ref = "host"; np.hostFilter = inner ? inner.filter : {}; return np;
     }
     // --- this card ---
+    if ((m = t.match(/^this hand card$/i))) { np.self = true; np.selfTail = "from your hand"; return np; }
     if ((m = t.match(/^this (?:card|monster|item|spell|impact|flag|character|card on the field)(?:'s (soul|power|defense|critical|size))?(?:\s+(.*))?$/i))) {
       np.self = true;
       if (m[1] && lc(m[1]) === "soul") { np.zone = { owner: "host", area: "soul" }; }
@@ -167,6 +184,8 @@
     if ((m = t.match(/^(?:its|this card's) soul$/i))) { np.self = true; np.zone = { owner: "host", area: "soul" }; return np; }
 
     // --- "the top N cards of your deck" ---
+    t = t.replace(/^the top (\w+) cards from the top of /i, "the top $1 cards of ").replace(/^the top card from the top of /i, "the top card of ");
+    if (/\s+face[- ]down$/i.test(t) && /^the top|cards? from the top/i.test(t)) { np.faceDown = true; t = t.replace(/\s+face[- ]down$/i, ""); }
     if ((m = t.match(/^(?:the top (?:(card)|(?:(\w+) )?cards?)(?: (?:of|from) (your|your opponent's|their|each player's|both players') deck)?|(?:the )?top of (your|your opponent's|their) deck|(\w+) cards? from the top of (your|your opponent's|their|each player's|both players') deck)$/i)) ) {
       np.topN = m[1] || m[4] ? 1 : (toNum(m[2] || m[5]) || 1);
       const w = m[3] || m[4] || m[6];
@@ -266,7 +285,8 @@
     q = q.replace(/\bsize (\d+)\b/ig, (mm, v) => { f.size = { n: +v, cmp: "eq" }; return " "; });
     q = q.replace(/\b(\d+) or (less|more|greater) size\b/ig, (mm, v, cmp) => { f.size = { n: +v, cmp: /less/i.test(cmp) ? "le" : "ge" }; return " "; });
     q = q.replace(/\b(\d+) (?:power|defense|critical) or (?:less|more|greater)\b/ig, (mm) => { const mm2 = mm.match(/(\d+) (power|defense|critical) or (less|more|greater)/i); f[lc(mm2[2])] = { n: +mm2[1], cmp: /less/i.test(mm2[3]) ? "le" : "ge" }; return " "; });
-    q = q.replace(/\bin battle\b/ig, () => { f.inBattle = true; return " "; });
+    q = q.replace(/\bin battle\b|\bunder attack\b|\bbeing attacked\b/ig, () => { f.inBattle = true; return " "; });
+    q = q.replace(/\b(?:that is )?attacking\b/ig, () => { f.attacking = true; if (!np.zone) np.zone = { owner: "any", area: "field" }; return " "; });
     q = q.replace(/\bface[- ]?down\b/ig, () => { f.faceDown = true; return " "; });
     q = q.replace(/\bface[- ]?up\b/ig, () => { f.faceUp = true; return " "; });
     q = q.replace(/\bthat is (?:\[rest\]|rested)\b|\b(?:\[rest\]|rested)\b/ig, () => { f.rested = true; return " "; });
@@ -505,8 +525,14 @@
   ar(/^pay (\d+|a|one|two|three|four|five|six) gauge$/i, (m) => ({ op: "pay", gauge: toNum(m[1]), cost: true }));
   ar(/^pay (\d+|a|one|two|three|four|five) life$/i, (m) => ({ op: "pay", life: toNum(m[1]), cost: true }));
   ar(/^pay (\d+|one|two|three) gauge(?:,| and) (?:and )?pay (\d+|one|two|three) life$/i, (m) => ({ op: "pay", gauge: toNum(m[1]), life: toNum(m[2]), cost: true }));
+  // "For this turn, the next time that card would be destroyed, it remains on the field / nullify its destruction /
+  //  you may prevent it from leaving the field" (+ optional "you gain N life" / "give it [Counterattack]")
+  ar(/^(?:(?:for|during) this turn,? )?(?:if you do,? )?(?:(?:for|during) this turn,? )?the next time (.+?) (?:on (?:your|the) field )?would be destroyed(?: during this turn)?(?: by your opponent's (?:card|card effects?|effects?))?,? (?:you may )?(?:(?:you gain (\w+) life,? and )?(?:that \w+|it|this card|the chosen \w+) remains? on (?:the|your) field|prevent it from leaving the field|nullify its destruction)(?:,? and (?:for this turn,? )?(?:give it|it gets) \[(counterattack)\])?$/i,
+    (m) => { const np = parseNP(m[1]); if (!np || np.junk || !(np.self || np.ref)) return null; return { op: "saveOnce", np, life: m[2] ? toNum(m[2]) : 0, kw: m[3] ? "counterattack" : null }; });
+  // "discard / drop this card from (your) hand" - the card itself, used from the hand
+  ar(/^(?:you may )?(?:discard|drop) this (?:hand )?card(?: from (?:your )?hand)?$/i, () => ({ op: "discard", n: 1, self: true, cost: true }));
   ar(/^(?:discard|drop) (?:a|an|one|1) (?:hand )?cards?(?: from your hand)?$|^(?:discard|drop) a hand card$/i, () => ({ op: "discard", n: 1, cost: true }));
-  ar(/^(?:discard|drop) (\w+) (?:hand )?cards?(?: from your hand)?$/i, (m) => ({ op: "discard", n: toNum(m[1]) || 1, cost: true }));
+  ar(/^(?:discard|drop) (\w+) (?:hand )?cards?(?: from your hand)?$/i, (m) => (toNum(m[1]) ? { op: "discard", n: toNum(m[1]), cost: true } : null));
   ar(/^(?:discard|drop) (?:a|an|one) (.+?) (?:from your hand|in your hand)$/i, (m) => ({ op: "discard", n: 1, np: parseNP(m[1]), cost: true }));
   ar(/^(?:discard|drop) all (?:cards |hand cards )?(?:from your hand|in your hand)$|^(?:discard|drop) all (?:of )?your hand(?: cards)?$/i, () => ({ op: "discard", all: true }));
   ar(/^\[rest\] this card$/i, () => ({ op: "restSelf", cost: true }));
@@ -684,6 +710,14 @@
   ar(/^other than damage dealt by an attack, damage dealt to you is reduced by (\d+)$/i, (m) => SDEF("damageReduceStatic", { reduceBy: +m[1], from: "nonAttack" }));
   ar(/^if you would be dealt (\d+) or greater damage,? that damage is reduced by (\d+)$/i, (m) => SDEF("damageReduceStatic", { reduceBy: +m[2], min: +m[1] }));
   ar(/^for this turn, you cannot take damage by your opponent's card effects$/i, () => ({ op: "shield", mode: "turn", toZero: true, from: "effect" }));
+  // forms without the "for this turn," prefix (the sentence splitter strips it) and continuous forms
+  const dmgFrom = (w) => !w ? null : /other than by attacks/i.test(w) ? "notAttack" : /attack/i.test(w) ? "attack" : /impact/i.test(w) ? "impact" : "effect";
+  ar(/^(?:during the next turn, |for this turn, )?damage you take( (?:by|from) (?:attacks|card effects|your opponent's card effects|your opponent's monster effects)| other than by attacks)? (?:are|is) reduced (?:by (\d+)|to (\d+))$/i,
+    (m) => ({ op: "shield", mode: /next turn/i.test(m[0]) ? "nextTurn" : "turn", reduceBy: m[2] ? +m[2] : 0, capTo: m[3] != null ? +m[3] : null, toZero: m[3] === "0", from: dmgFrom(m[1]) }));
+  ar(/^(?:for this turn, )?(?:you cannot take|you will not take|you do not take|you take no) damage( (?:from|by) (?:attacks|card effects|your opponent's card effects|impact effects))?$/i,
+    (m) => ({ op: "shield", mode: "turn", toZero: true, from: dmgFrom(m[1]) }));
+  ar(/^(?:for this turn, )?the next damage you take( (?:by|from) attacks| by card effects)? is reduced (?:by (\d+)|to (0|zero))$/i,
+    (m) => ({ op: "shield", mode: "next", reduceBy: m[2] ? +m[2] : 0, toZero: !!m[3], from: dmgFrom(m[1]) }));
 
   // --- size modification statics ---
   ar(/^(?:this card's size on the field|the size of this card on your (?:field|left or right)|this card on the field gets size|this card's size) (?:is )?(?:reduced|gets reduced) by (\d+)$/i, (m) => SDEF("sizeMod", { delta: -(+m[1]) }));
@@ -838,6 +872,13 @@
       last = m.index + m[0].length;
     }
     pieces.push({ text: s.slice(last), sep: "" });
+    // "the next time X would be destroyed, Y remains on the field" is one clause (a replacement effect)
+    for (let i = 0; i < pieces.length - 1; i++) {
+      if (/\bthe next time .+ would be destroyed(?: [^,]*)?$/i.test(pieces[i].text)) {
+        pieces[i] = { text: pieces[i].text + ", " + pieces[i + 1].text, sep: pieces[i + 1].sep };
+        pieces.splice(i + 1, 1);
+      }
+    }
     return pieces.filter(p => p.text.trim());
   }
 
@@ -1154,9 +1195,15 @@
       out.abilities.push(ab);
     }
     // static classification: an ability with no trigger/tags whose steps are boosts/restrictions/etc. is "static"
+    // Lines on monsters/items that DO something when used are activated abilities even without an [Act] tag:
+    //  "[Counter] Call this card from your hand."  /  early-set named abilities: "Fatal Ripper" You may pay 1 gauge. If you do ...
+    const ACTION_OPS = new Set(["pay", "discard", "draw", "mill", "move", "moveSelf", "call", "destroy", "damage", "life", "search", "look", "lookPick", "reveal", "rest", "stand", "shuffle", "dropSoul", "nullifyAttack", "redirectAttack", "choose", "deckToBottom", "oppDiscard"]);
     out.abilities.forEach(ab => {
       if (ab.kind !== "spell") return;
       if (card.type === "Spell" || card.type === "Impact") return;
+      const acts = (ab.steps || []).some(st => ACTION_OPS.has(st.op));
+      const onlyBoost = (ab.steps || []).every(st => ["boost", "restrict", "static", "noop", "sizeMod"].includes(st.op));
+      if (acts && !onlyBoost && (ab.tags.includes("counter") || ab.name) && !ab.tags.some(t => /^kw:(overturn|overkill|overthrow)/.test(t))) { ab.kind = "act"; ab.tags.push("act"); return; }
       ab.kind = "static";
     });
     // stats
@@ -1197,6 +1244,7 @@
     let m;
     if ((m = t.match(/^pay (\d+|a|one|two|three|four|five|six|seven) gauge$/i))) return { ok: true, text: t, gauge: toNum(m[1]) };
     if ((m = t.match(/^pay (\d+|a|one|two|three|four|five) life$/i))) return { ok: true, text: t, life: toNum(m[1]) };
+    if ((m = t.match(/^(?:put|place) (?:this card|this monster|it) on top of (?:a|an|one|your) (.+?)(?: on your field)?$/i))) { const np = parseNP(m[1] + " on your field"); if (np && !np.junk) return { ok: true, text: t, onTop: { n: 1, np } }; }
     if ((m = t.match(/^(?:put|place) the top (?:(\w+) )?cards? of your deck (?:into|in) (?:its|this card's) soul$/i))) return { ok: true, text: t, soulFromDeck: toNum(m[1] || "a") || 1 };
     if ((m = t.match(/^(?:put|place) (?:a|an|one|(\w+)) (.+?) (?:from|in) your (hand|drop zone|field|gauge) (?:into|in|to) (?:its|this card's) soul$/i))) return { ok: true, text: t, soulFrom: { area: lc(m[3]), n: toNum(m[1] || "a") || 1, np: parseNP(m[2]) } };
     if ((m = t.match(/^(?:discard|drop) (?:a|an|one|(\w+)) (.+?)(?: from your hand)?$/i))) return { ok: true, text: t, discard: { n: toNum(m[1] || "a") || 1, np: parseNP(m[2]) } };

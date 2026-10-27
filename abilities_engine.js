@@ -114,6 +114,7 @@
       const c0 = ab.cardId != null ? cardOf(ab.cardId) : null;
       if (c0 && staticBoosts(c0).abs.includes(ab)) return true;
       if (!(ab.conds || []).every(condExecutable)) return false;
+      if (ab.steps.every(x => x.op === "shield" && (!x.cond || condExecutable(x.cond)))) return true;   // continuous damage reduction
       return ab.steps.every(x => (x.op === "static" && (x.kind === "protect" || x.kind === "attackThrough" || x.kind === "unnullifiable" || x.kind === "sizeMod" || x.kind === "cannotAttack" || x.kind === "noAttackPos")) || (x.op === "restrict" && isAuraRestrict(ab, c0, x) && (!x.cond || condExecutable(x.cond))) || (x.op === "noop" && x.note === "unnullifiable-ok") || (x.op === "boost" && c0 && staticBoosts(c0).abs.length && false));
     }
     if (ab.kind === "modal") {
@@ -195,6 +196,7 @@
     if (f.soulName && unit) { if (!(unit.soul || []).some(id => lc((cardOf(id) || {}).name).includes(f.soulName))) return false; }
     if (f.rested && unit && !unit.rested) return false;
     if (f.faceDown || f.faceUp) return false;
+    if (f.attacking) { const bc = ABX.battleCtx; if (!bc || !r || !r.unit || !(bc.attUnits || []).includes(r.unit)) return false; }
     if (f.inBattle) {
       const bc = ABX.battleCtx;
       if (!bc || !unit) return false;
@@ -210,6 +212,15 @@
   function refsFor(np, ctx, def) {
     const out = [];
     if (!np) return out;
+    if (np.zone && np.zone.alt) {   // "from your deck or drop zone"
+      const z1 = Object.assign({}, np.zone, { alt: null }), z2 = Object.assign({}, np.zone, { area: np.zone.alt, alt: null, top: false });
+      return refsFor(Object.assign({}, np, { zone: z1 }), ctx, def).concat(refsFor(Object.assign({}, np, { zone: z2 }), ctx, def));
+    }
+    if (np.parts && np.parts.length) {
+      const seen = new Set(), outP = [];
+      np.parts.forEach(p => refsFor(p, ctx, def).forEach(r => { const k = [r.side, r.area || r.k, r.idx, r.id, r.pos].join("|"); if (!seen.has(k)) { seen.add(k); outP.push(r); } }));
+      return outP;
+    }
     if (np.ref === "host") {
       const h = ctx.soulHost;
       if (!h || (np.hostFilter && !matchFilter(h.card, np.hostFilter, null, ctx))) return [];
@@ -357,6 +368,17 @@
 
   // Choose refs for an NP. opts: {intent, title, ordered, min, max, chooser}
   async function pick(cands, np, ctx, opts) {
+    // "up to one «A» and up to one «B»": one pick per part, each from the cards that match that part
+    if (np && np.parts && np.parts.length) {
+      const out = [];
+      for (const part of np.parts) {
+        const pc = cands.filter(r => !out.includes(r) && r.card && matchFilter(r.card, part.filter || {}, r, ctx));
+        if (!pc.length) continue;
+        const sub = await pick(pc, part, ctx, Object.assign({}, opts, { subtitle: ABX.clean(part.raw || "") || (opts && opts.subtitle) }));
+        out.push(...sub);
+      }
+      return out;
+    }
     opts = opts || {};
     const q = np && np.qty ? np.qty : { n: 1 };
     let n = q.all ? cands.length : Math.min(q.n || 1, cands.length);
@@ -540,21 +562,49 @@
     const S = st(f);
     let dmg = Math.max(0, n);
     src = src || {};
-    // shields (oldest first)
-    for (let i = 0; i < S.shields.length && dmg > 0; i++) {
-      const sh = S.shields[i];
-      if (sh.from === "attack" && src.kind !== "attack") continue;
-      if (sh.from === "effect" && src.kind !== "effect") continue;
-      if (sh.from === "impact" && src.kind !== "impact") continue;
-      if (src.unreducible) continue;
+    const fits = (sh) => !((sh.from === "attack" && src.kind !== "attack") || (sh.from === "effect" && src.kind !== "effect") ||
+      (sh.from === "notAttack" && src.kind === "attack") || (sh.from === "impact" && src.kind !== "impact"));
+    const apply = (sh) => {
       const before = dmg;
-      dmg = sh.toZero ? 0 : Math.max(0, dmg - (sh.reduceBy || 0));
+      if (sh.toZero) dmg = 0;
+      else if (sh.capTo != null) dmg = Math.min(dmg, sh.capTo);
+      else dmg = Math.max(0, dmg - (sh.reduceBy || 0));
       if (sh.gainLife && before > dmg) f.life += sh.gainLife;
-      if (sh.mode === "next") { S.shields.splice(i, 1); i--; }
+      return before !== dmg;
+    };
+    // "for this turn" shields expire when the turn ends
+    S.shields = S.shields.filter(sh => sh.turn === B.turnCount || sh.mode === "nextTurn" && sh.turn === B.turnCount - 1);
+    if (!src.unreducible) {
+      for (let i = 0; i < S.shields.length && dmg > 0; i++) {
+        const sh = S.shields[i];
+        if (!fits(sh)) continue;
+        apply(sh);
+        if (sh.mode === "next") { S.shields.splice(i, 1); i--; }
+      }
+      // continuous shields ("Damage you take are reduced by 1." on a card on your field)
+      if (dmg > 0) ABX.staticShields(side).forEach(sh => { if (dmg > 0 && fits(sh)) apply(sh); });
     }
     f.life -= dmg;
     return dmg;
   }
+  // Continuous damage reduction from static abilities on `side`'s field (incl. soul and set cards).
+  ABX.staticShields = function (side) {
+    const f = F(side), out = [];
+    const srcs = [];
+    fieldUnits(f, true).forEach(x => { srcs.push({ unit: x.unit, card: x.unit.card, host: null }); (x.unit.soul || []).forEach(id => { const c = cardOf(id); if (c) srcs.push({ unit: null, card: c, host: x.unit }); }); });
+    (f.setSpells || []).forEach(c => srcs.push({ unit: null, card: c, host: null }));
+    for (const src of srcs) {
+      if ((src.unit && src.unit.abxNullified === B.turnCount) || (src.host && src.host.abxNullified === B.turnCount)) continue;
+      for (const ab of ABX.get(src.card).abilities) {
+        if (ab.kind !== "static" || (ab.unparsed && ab.unparsed.length) || !(ab.steps || []).length) continue;
+        if (!ab.steps.every(x => x.op === "shield")) continue;
+        const ctx = { side, f, e: F(otherSide(side)), card: src.card, unit: src.unit, soulHost: src.host, hostArea: src.host ? "soul" : "field", bind: { chosen: [] } };
+        if (!(ab.conds || []).every(c => evalCond(c, ctx))) continue;
+        ab.steps.forEach(x => { if (!x.cond || evalCond(x.cond, ctx)) out.push({ reduceBy: x.reduceBy || 0, toZero: !!x.toZero, capTo: x.capTo != null ? x.capTo : null, from: x.from || null }); });
+      }
+    }
+    return out;
+  };
   core.applyDamage = applyDamage;
 
   /* ============================================================
@@ -674,7 +724,9 @@
   ABX.ownsEnter = function (card) { return abilitiesOf(card, a => a.trigger && a.trigger.event === "enter" && a.trigger.self && ABX.isExecutable(a)).length > 0; };
 
   // Is this an activated ability usable right now?
-  ABX.actAbilities = function (card) { return abilitiesOf(card, a => a.kind === "act" && ABX.isExecutable(a) && !(a.steps || []).some(x => x.op === "call" && x.np && x.np.self)); };
+  // [Act]s used from the field (ones that discard / call "this card from your hand" are hand abilities)
+  const FROM_HAND_RE = /\bthis card from (?:your )?hand\b|\bthis hand card\b|\b(?:discard|drop) this card\b/i;
+  ABX.actAbilities = function (card) { return abilitiesOf(card, a => a.kind === "act" && ABX.isExecutable(a) && !(a.steps || []).some(x => x.op === "call" && x.np && x.np.self) && !FROM_HAND_RE.test(a.cleaned || "")); };
   ABX.canUseAct = function (side, card, ab, unit) {
     const f = F(side), e = F(otherSide(side));
     const ctx = { side, f, e, card, unit, ab, bind: { chosen: [], revealed: [], looked: [] }, lastDone: true, auto: true, log: [], hostArea: "field" };
@@ -918,7 +970,22 @@
     return f[area].map((id, i) => ({ k: "zone", side, area, idx: i, id, card: cardOf(id) }))
       .filter((r, i) => !(area === "hand" && i === exclHandIdx) && matchFilter(r.card, flt, r, ctx));
   }
+  // [Call Cost] "Put this card on top of a «X» on your field": the call goes onto that monster's zone,
+  // and the monster (with its soul) becomes the new card's soul.
+  ABX.onTopCost = function (card) {
+    let np = null;
+    abilitiesOf(card, a => a.kind === "cost" && a.costKind === "call").forEach(a => (a.parts || []).forEach(p => { if (p.onTop) np = p.onTop.np; }));
+    return np;
+  };
+  ABX.onTopHosts = function (side, card) {
+    const np = ABX.onTopCost(card);
+    if (!np) return [];
+    const f = F(side), ctx = { side, f, e: F(otherSide(side)), card, unit: null, bind: {} };
+    return refsFor(np, ctx, { owner: "you", area: "field" }).filter(r => r.k === "unit" && r.unit);
+  };
+  ABX.onTopMatches = (side, card, unit) => ABX.onTopHosts(side, card).some(r => r.unit === unit);
   ABX.canPayExtras = function (side, card, exclHandIdx) {
+    if (ABX.onTopCost(card) && !ABX.onTopHosts(side, card).length) return false;
     return extraParts(card).every(p => partCands(p, side, card, exclHandIdx).length >= ((p.soulFrom || p.discard || p.destroy).n || 1));
   };
   ABX.hasExtras = (card) => extraParts(card).length > 0;
@@ -1068,8 +1135,63 @@
 
   /* ---- abilities activated from the HAND while defending ("call this card from your hand, change the target ...") ---- */
   function isSelfCallAct(ab) { return ab.kind === "act" && ABX.isExecutable(ab) && (ab.steps || []).some(x => x.op === "call" && x.np && x.np.self); }
-  ABX.handActs = (card) => abilitiesOf(card, a => isSelfCallAct(a) && /attack/i.test(a.cleaned || a.raw || "") && /from your hand/i.test(a.cleaned || a.raw || ""));
+  ABX.handActs = (card) => abilitiesOf(card, a => isSelfCallAct(a) && (/attack/i.test(a.cleaned || a.raw || "") || (a.tags || []).includes("counter")) && /from your hand/i.test(a.cleaned || a.raw || ""));
   ABX.isDefenseHandAct = (card) => ABX.handActs(card).length > 0;
+  // a self-call "on top of a «X» on your field" / with an on-top [Call Cost] needs such a monster
+  function onTopOK(call, ctx, card) {
+    if (call.np && call.np.onTop && call.np.onTop.np) return refsFor(call.np.onTop.np, ctx, { owner: "you", area: "field" }).some(r => r.k === "unit");
+    if (call.np && call.np.onTop && call.np.onTop.self) return !!ctx.unit;
+    if (call.pay && ABX.onTopCost(card)) return ABX.onTopHosts(ctx.side, card).length > 0;
+    return true;
+  }
+
+  // ---- [Act]s used from the hand on your own turn ----
+  //  "You may discard this card from your hand. If you do, ..."  /  "Put this hand card into the soul of ..."
+  //  "[Counter] [Act] During your attack phase, call this card from your hand by paying its [Call Cost]."
+  ABX.handUseActs = (card) => abilitiesOf(card, a => a.kind === "act" && ABX.isExecutable(a) &&
+    !(a.conds || []).some(c => c.t === "underAttack" || (c.t === "turn" && c.who === "opp") || (c.t === "phase" && c.who === "opp")) &&
+    (FROM_HAND_RE.test(a.cleaned || "") || (isSelfCallAct(a) && /from your hand/i.test(a.cleaned || ""))));
+  // [Counter] hand abilities (e.g. "[Counter] [Act] You may drop this card from hand. If you do, you gain 3 life.")
+  // can also be used when the opponent attacks.
+  ABX.counterHandUseActs = (card) => abilitiesOf(card, a => a.kind === "act" && ABX.isExecutable(a) && (a.tags || []).includes("counter") && !isSelfCallAct(a) && FROM_HAND_RE.test(a.cleaned || ""));
+  ABX.canUseHandAct = function (side, handIdx, ab) {
+    const f = F(side), card = cardOf(f.hand[handIdx]);
+    if (!card) return { ok: false, reason: "That card is no longer in your hand." };
+    const ctx = handCtx(side, card, handIdx, ab);
+    if (onceUsed(f, card, ab, null)) return { ok: false, reason: "Already used this turn." };
+    if (!(ab.conds || []).every(c => evalCond(c, ctx))) return { ok: false, reason: "Its condition isn't met right now." };
+    for (const st of ab.steps) {
+      if (st.gate) break;
+      if (st.cost && !costAffordable(st, ctx)) return { ok: false, reason: "You can't pay its cost." };
+      if (st.op === "call" && st.np && st.np.self) {
+        if (st.cond && !evalCond(st.cond, ctx)) return { ok: false, reason: "Its condition isn't met right now." };
+        if (st.pay) {
+          const cc = parseCardCost(card.cost, card.skill, f, card);
+          if (f.gauge.length < cc.gauge || f.life <= cc.life) return { ok: false, reason: "Not enough gauge/life for its [Call Cost]." };
+          if (ABX.canPayExtras && !ABX.canPayExtras(side, card, handIdx)) return { ok: false, reason: "You can't pay the rest of its [Call Cost]." };
+        }
+        if (!onTopOK(st, ctx, card)) return { ok: false, reason: "No monster on your field to call it on top of." };
+        if (!SLOTS.some(p => !f.monsters[p]) && !(st.pos && st.pos !== "open area") && !(st.np && st.np.onTop) && !(st.pay && ABX.onTopCost(card))) return { ok: false, reason: "No open monster zone." };
+      }
+      if (!st.cost && !st.optional) break;
+    }
+    return { ok: true };
+  };
+  ABX.runHandUse = function (side, handIdx, ab, onAfter) {
+    return ABX.queue(async () => {
+      const f = F(side), card = cardOf(f.hand[handIdx]);
+      if (!card) return false;
+      const ctx = handCtx(side, card, handIdx, ab);
+      ctx.auto = !!f.isBot || !!ABX.autoPlay;
+      markOnce(f, card, ab, null);
+      if (B.showCutin && !ABX.fast) { try { B.showCutin("ABILITY!", card.name, card.img); } catch (e) { /* ignore */ } }
+      try { await runSteps(ab.steps, ctx); } catch (e) { if (ABX.debug) console.error(e); }
+      [].concat(ctx.bind.revealed || [], ctx.bind.looked || []).forEach(r => { if (r && r.id != null && r.pending) { F(r.side).deck.unshift(r.id); r.pending = false; } });
+      try { B.renderBattle(); } catch (e) { /* ignore */ }
+      if (onAfter) onAfter();
+      return true;
+    });
+  };
   function makeBc(defSide, info) {
     const attSide = info.attSide, attF = F(attSide), defF = F(defSide);
     return {
@@ -1100,6 +1222,7 @@
         if (call && call.pay && ABX.canPayExtras && !ABX.canPayExtras(side, card, handIdx)) return false;   // e.g. [Drop two hand cards]
         // only offer it when the call's own condition holds right now ("if you have four or more spells in your drop zone")
         if (call && call.cond && !evalCond(call.cond, ctx)) return false;
+        if (call && !onTopOK(call, ctx, card)) return false;
         return true;
       });
     } finally { ABX.battleCtx = prev; }

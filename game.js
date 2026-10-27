@@ -4958,7 +4958,25 @@ const battle = {
 
       // Hand [Act] abilities (e.g. Time General Tubocas #5937 drop from hand to gain 3 life, Duel Sieger SD #1595, etc.)
       const sLow = (card.skill || "").toLowerCase();
-      if (card.type === "Monster" && (sLow.includes("drop this card from hand") || sLow.includes("drop this card from your hand") || sLow.includes("discard this card from your hand"))) {
+      // ABX hand [Act]s on your own turn (discard this card / put this hand card into a soul / call this card from your hand)
+      const abxHandActs = (window.ABX && ABX.handUseActs) ? ABX.handUseActs(card) : [];
+      if (abxHandActs.length && side === this.activeSide && this.isLocalTurn() && !this.pendingDefenseContext) {
+        abxHandActs.forEach(ab => {
+          const chk = ABX.canUseHandAct(side, handIdx, ab);
+          const b = document.createElement("button");
+          b.className = "action-btn";
+          const label = ab.name ? `"${ab.name}"` : (ab.cleaned || "").replace(/^(?:\[[^\]]+\]\s*)+/, "").slice(0, 60);
+          b.textContent = chk.ok ? `✨ Use from Hand: ${label}` : `🔒 ${label} — ${chk.reason}`;
+          b.disabled = !chk.ok;
+          b.onclick = () => {
+            if (!chk.ok) return;
+            this.closeCardBanner();
+            ABX.runHandUse(side, handIdx, ab, () => this.renderBattle());
+          };
+          actionsEl.appendChild(b);
+        });
+      }
+      if (!abxHandActs.length && card.type === "Monster" && (sLow.includes("drop this card from hand") || sLow.includes("drop this card from your hand") || sLow.includes("discard this card from your hand"))) {
         const bHandAct = document.createElement("button");
         bHandAct.className = "action-btn";
         bHandAct.textContent = `✨ Use Hand [Act] (Discard "${card.name}")`;
@@ -5978,12 +5996,29 @@ const battle = {
       return;
     }
 
+    // [Call Cost] "Put this card on top of a «X» on your field": must be called onto that monster's zone.
+    let onTopHost = null;
+    if (!isAbilityCall && window.ABX && ABX.onTopCost && ABX.onTopCost(c)) {
+      const host = f.monsters[zonePos];
+      if (!host || !ABX.onTopMatches(side, c, host)) {
+        if (!f.isBot) {
+          this.pendingAction = null;
+          this.setPrompt(`"${c.name}" is called ON TOP of a monster (see its [Call Cost]): press Call again and click that monster's zone.`);
+          this.renderBattle();
+        }
+        return;
+      }
+      onTopHost = host;
+    }
+
     if (!isAbilityCall) {
       for (let i = 0; i < cost.gauge; i++) f.drop.push(f.gauge.pop());
       if (cost.life > 0) f.life = Math.max(1, f.life - cost.life);
     }
 
-    if (f.monsters[zonePos]) {
+    if (onTopHost && f.monsters[zonePos] === onTopHost) {
+      f.monsters[zonePos] = null;   // goes under the new card (into its soul), not to the drop zone
+    } else if (f.monsters[zonePos]) {
       this.sendMonsterToDropWithAnimation(side, zonePos, true);
     }
 
@@ -6035,6 +6070,7 @@ const battle = {
     // Occupy the zone right away (not after the animation) so size checks and
     // back-to-back calls (e.g. the bot's turn) see the real board state.
     f.monsters[zonePos] = unit;
+    if (onTopHost) unit.soul.unshift(...(onTopHost.soul || []), onTopHost.card.id);
     if (!isAbilityCall && window.ABX && ABX.payExtras && ABX.hasExtras(c)) ABX.payExtras(side, c, unit);
     const eff = getUnitEffectiveCombatStats(f, unit);
     unit.attacksLeft = eff.qa ? 4 : eff.ta ? 3 : eff.da ? 2 : (c.atk_max || 1);
@@ -6401,6 +6437,10 @@ const battle = {
         valid.push({ card: c, handIdx, info: { category: "abx_hand_act" } });
         return;
       }
+      if (window.ABX && ABX.counterHandUseActs) {
+        const hu = ABX.counterHandUseActs(c).find(ab => ABX.canUseHandAct(defSide, handIdx, ab).ok);
+        if (hu) { valid.push({ card: c, handIdx, info: { category: "abx_hand_use", ab: hu } }); return; }
+      }
       const info = classifyDefensiveCounterCard(c);
       if (!info) return;
 
@@ -6628,6 +6668,16 @@ const battle = {
       return;
     }
 
+    if (window.ABX && ABX.counterHandUseActs && !(ABX.isDefenseHandAct && ABX.isDefenseHandAct(c))) {
+      const hu = ABX.counterHandUseActs(c).find(ab => ABX.canUseHandAct(defSide, handIdx, ab).ok);
+      if (hu) {
+        ABX.runHandUse(defSide, handIdx, hu, () => {
+          if (this.matchOver) return;
+          this.executeAttackResolution(attSide, attackerZones, targetPos, false);
+        });
+        return;
+      }
+    }
     if (window.ABX && ABX.isDefenseHandAct && ABX.isDefenseHandAct(c) && ABX.defenseHandOption(defSide, c, handIdx, targetPos, [])) {
       ABX.runHandAct(defSide, handIdx, { attSide, attackerZones, targetPos }).then(res => {
         if (this.matchOver) return;
@@ -6806,7 +6856,9 @@ const battle = {
           finalDmg = Math.max(0, finalDmg - defFighter.tempDamageReduce);
           defFighter.tempDamageReduce = 0;
         }
-        defFighter.life -= finalDmg;
+        // ABX damage shields ("the next damage you take from attacks is reduced to 0", continuous reductions, ...)
+        if (window.ABX && ABX.core && ABX.core.applyDamage) finalDmg = ABX.core.applyDamage(defSide, finalDmg, { kind: "attack" });
+        else defFighter.life -= finalDmg;
         outcome.dealtDamage = finalDmg > 0;
         this.setPrompt(`💥 ${units.length > 1 ? "LINK ATTACK " : ""}DIRECT HIT! ${attDisplayNames} dealt ${finalDmg} Critical damage to ${defFighter.name}!`);
       }
@@ -6854,7 +6906,8 @@ const battle = {
             penDmg = Math.max(0, penDmg - defFighter.tempDamageReduce);
             defFighter.tempDamageReduce = 0;
           }
-          defFighter.life -= penDmg;
+          if (window.ABX && ABX.core && ABX.core.applyDamage) penDmg = ABX.core.applyDamage(defSide, penDmg, { kind: "attack" });
+          else defFighter.life -= penDmg;
           this.showCutin("PENETRATE!", `${attNames} deals ${penDmg} Piercing Damage!`, attUnits[0].unit.card.img);
         }
         if (destroyed) {
@@ -6896,6 +6949,8 @@ const battle = {
     const m = f.monsters[pos];
     if (!m) return false;
 
+    // "The next time this card would be destroyed this turn, it remains on the field" (ABX saveOnce)
+    if (window.ABX && ABX.core && ABX.core.useSave && ABX.core.useSave(side, m)) { this.renderBattle(); return false; }
     const abxSG = !!(window.ABX && ABX.staticBonus && ABX.staticBonus(f, m).sg);
     if ((m.card.sg || m.tempSG || abxSG) && m.soul && m.soul.length > 0) {
       const discardedSoul = m.soul.pop();
