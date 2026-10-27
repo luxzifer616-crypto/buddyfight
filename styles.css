@@ -2166,48 +2166,44 @@ body {
   content: ""; position: absolute; left: 0; right: 0; top: calc(50% - 1px); height: 2px;
   background: rgba(251,191,36,.7); pointer-events: none; z-index: 1;
 }
-/* zones need visible slots because these mats have no printed zones */
-.field-playmat.custom-mat .field-zone {
-  z-index: 2; background: rgba(8,12,26,.52); border: 1.5px dashed rgba(255,255,255,.5);
+/* No boxes on custom mats: just the card (or empty space) and a text label */
+.field-playmat.custom-mat .field-zone { z-index: 2; background: none; border: none; box-shadow: none; }
+.field-playmat.custom-mat .zone-watermark {
+  color: #fff; text-shadow: 0 1px 3px #000, 0 0 6px #000; opacity: .85;
 }
-.field-playmat.custom-mat .field-zone:hover { background: rgba(8,12,26,.55); }
-.field-playmat.custom-mat .hex-zone { border-radius: 14px; }
 
 /* Player half (bottom) */
-.field-playmat.custom-mat .plr-m-left   { left: 22%; top: 53%; width: 16%; height: 22%; }
-.field-playmat.custom-mat .plr-m-center { left: 42%; top: 53%; width: 16%; height: 22%; }
-.field-playmat.custom-mat .plr-m-right  { left: 62%; top: 53%; width: 16%; height: 22%; }
+.field-playmat.custom-mat .plr-gauge-zone { left: 2%;  top: 53%; width: 15%; height: 44%; }
+.field-playmat.custom-mat .plr-m-left   { left: 21%; top: 53%; width: 16%; height: 22%; }
+.field-playmat.custom-mat .plr-m-center { left: 41%; top: 53%; width: 16%; height: 22%; }
+.field-playmat.custom-mat .plr-m-right  { left: 61%; top: 53%; width: 16%; height: 22%; }
 .field-playmat.custom-mat .plr-drop-zone { left: 83%; top: 53%; width: 14%; height: 20%; }
 .field-playmat.custom-mat .plr-deck-zone { left: 83%; top: 75%; width: 14%; height: 20%; }
-.field-playmat.custom-mat .plr-set-zone   { left: 3%;  top: 76%; width: 15%; height: 15%; }
-.field-playmat.custom-mat .plr-item-zone  { left: 22%; top: 76%; width: 20%; height: 15%; }
-.field-playmat.custom-mat .plr-buddy-zone { left: 46%; top: 76%; width: 15%; height: 15%; }
-.field-playmat.custom-mat .plr-gauge-zone { left: 3%;  top: 92%; width: 78%; height: 7%; }
+.field-playmat.custom-mat .plr-set-zone   { left: 21%; top: 77%; width: 15%; height: 19%; }
+.field-playmat.custom-mat .plr-item-zone  { left: 38%; top: 77%; width: 18%; height: 19%; }
+.field-playmat.custom-mat .plr-buddy-zone { left: 59%; top: 77%; width: 15%; height: 19%; }
 /* Opponent half (top) = point-mirror of the player half */
-.field-playmat.custom-mat .opp-m-right  { left: 22%; top: 3%;  width: 16%; height: 22%; }
-.field-playmat.custom-mat .opp-m-center { left: 42%; top: 3%;  width: 16%; height: 22%; }
-.field-playmat.custom-mat .opp-m-left   { left: 62%; top: 3%;  width: 16%; height: 22%; }
+.field-playmat.custom-mat .opp-gauge-zone { left: 83%; top: 3%;  width: 15%; height: 44%; }
+.field-playmat.custom-mat .opp-m-right  { left: 23%; top: 25%; width: 16%; height: 22%; }
+.field-playmat.custom-mat .opp-m-center { left: 43%; top: 25%; width: 16%; height: 22%; }
+.field-playmat.custom-mat .opp-m-left   { left: 63%; top: 25%; width: 16%; height: 22%; }
 .field-playmat.custom-mat .opp-drop-zone { left: 3%;  top: 27%; width: 14%; height: 20%; }
 .field-playmat.custom-mat .opp-deck-zone { left: 3%;  top: 5%;  width: 14%; height: 20%; }
-.field-playmat.custom-mat .opp-set-zone   { left: 82%; top: 9%;  width: 15%; height: 15%; }
-.field-playmat.custom-mat .opp-item-zone  { left: 58%; top: 9%;  width: 20%; height: 15%; }
-.field-playmat.custom-mat .opp-buddy-zone { left: 39%; top: 9%;  width: 15%; height: 15%; }
-.field-playmat.custom-mat .opp-gauge-zone { left: 19%; top: 1%;  width: 78%; height: 7%; }
-/* keep the middle rows from overlapping the opponent back row */
-.field-playmat.custom-mat .opp-m-right, .field-playmat.custom-mat .opp-m-center, .field-playmat.custom-mat .opp-m-left { top: 27%; }
-.field-playmat.custom-mat .opp-item-zone, .field-playmat.custom-mat .opp-buddy-zone, .field-playmat.custom-mat .opp-set-zone { top: 9%; height: 15%; }
-.field-playmat.custom-mat .opp-deck-zone { top: 3%; }
-.field-playmat.custom-mat .opp-drop-zone { top: 26%; }
+.field-playmat.custom-mat .opp-set-zone   { left: 64%; top: 4%; width: 15%; height: 19%; }
+.field-playmat.custom-mat .opp-item-zone  { left: 44%; top: 4%; width: 18%; height: 19%; }
+.field-playmat.custom-mat .opp-buddy-zone { left: 26%; top: 4%; width: 15%; height: 19%; }
 
-/* Gauge = wide horizontal rectangle, cards lie on their side and overlap left→right */
+/* Gauge = tall rectangle; each card lies on its side (rotated 90°), stacked top → bottom */
 .field-playmat.custom-mat .gauge-horiz-stack {
-  width: 100%; height: 100%; margin: 0; padding: 0 4px;
-  flex-direction: row; justify-content: flex-start; align-items: center; overflow: hidden;
+  width: 100%; height: 100%; margin: 0; padding: 22px 0 0;
+  flex-direction: column; justify-content: flex-start; align-items: center; overflow: visible;
 }
 .field-playmat.custom-mat .gauge-sleeve-horiz {
-  width: auto; height: 78%; aspect-ratio: 7 / 5; margin: 0 -14px 0 0; object-fit: cover;
-  border-radius: 3px; border: 1.5px solid #fbbf24; box-shadow: 0 2px 6px rgba(0,0,0,.75);
+  width: 52px; height: 76px; margin: -12px 0 -36px; flex-shrink: 0;
+  object-fit: cover; border-radius: 4px; border: 1.5px solid #fbbf24;
+  box-shadow: 0 3px 8px rgba(0,0,0,.75); transform: rotate(90deg);
 }
+.field-playmat.custom-mat .gauge-sleeve-horiz:hover { transform: rotate(90deg) scale(1.08); }
 .field-playmat.custom-mat .zone-badge { font-size: 8px; }
 
 .mat-preview {
