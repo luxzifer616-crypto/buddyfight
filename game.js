@@ -1432,6 +1432,11 @@ function getPackPriceAndRarity(cardCount) {
   return { price: 120, tier: "🐉 Mega World Pool" };
 }
 
+/* ==================== ONLINE PLAY: OPTIONAL TURN RELAY SERVERS ==================== */
+// Add TURN server entries here to make online rooms work across mobile data / strict networks.
+// Example: { urls: "turn:a.relay.example.com:443?transport=tcp", username: "USER", credential: "PASS" }
+const ONLINE_TURN_SERVERS = [];
+
 /* ==================== MAIN APPLICATION CONTROLLER ==================== */
 const app = {
   lang: "en",
@@ -2569,6 +2574,37 @@ const app = {
   peerConn: null,
   isOnlineHost: false,
 
+  // WebRTC connection settings. STUN alone only works when both players' networks allow
+  // a direct connection; many mobile networks (carrier-grade NAT) need a TURN relay.
+  // To enable one, sign up for a TURN service (e.g. Metered, Twilio, Cloudflare Calls)
+  // and add its entry here, e.g. { urls: "turn:your.turn.host:443?transport=tcp", username: "...", credential: "..." }.
+  getIceServers() {
+    return [
+      { urls: "stun:stun.l.google.com:19302" },
+      { urls: "stun:stun1.l.google.com:19302" },
+      ...ONLINE_TURN_SERVERS
+    ];
+  },
+
+  // Keep the room alive when a phone switches apps (e.g. to send the code in LINE):
+  // the browser drops the signalling connection, so reconnect when the tab is visible again.
+  keepPeerAlive(peer) {
+    peer.on("disconnected", () => {
+      if (!peer.destroyed && document.visibilityState === "visible") {
+        try { peer.reconnect(); } catch (e) {}
+      }
+    });
+    if (!this._visibilityHooked) {
+      this._visibilityHooked = true;
+      document.addEventListener("visibilitychange", () => {
+        const p = this.peer;
+        if (document.visibilityState === "visible" && p && p.disconnected && !p.destroyed) {
+          try { p.reconnect(); } catch (e) {}
+        }
+      });
+    }
+  },
+
   initMultiplayerChannel() {
     try {
       this.roomChannel = new BroadcastChannel("buddyfight_online_rooms_v8");
@@ -2621,16 +2657,13 @@ const app = {
     if (typeof window.Peer !== "undefined") {
       try {
         if (this.peer) this.peer.destroy();
+        this.peerConn = null;
         const peerId = `buddyfight-online-room-${randNum}`;
         this.peer = new window.Peer(peerId, {
           debug: 1,
-          config: {
-            iceServers: [
-              { urls: "stun:stun.l.google.com:19302" },
-              { urls: "stun:stun1.l.google.com:19302" }
-            ]
-          }
+          config: { iceServers: this.getIceServers() }
         });
+        this.keepPeerAlive(this.peer);
 
         this.peer.on("open", () => {
           statusEl.textContent = `🟢 Online Room ${roomCode} is LIVE Worldwide! Give code "${roomCode}" to your friend so they can join from anywhere!`;
@@ -2643,7 +2676,16 @@ const app = {
 
         this.peer.on("error", (err) => {
           console.warn("PeerJS error:", err);
-          statusEl.textContent = `🟡 Local Room ${roomCode} ready (PeerJS notice: ${err.type || "offline"}).`;
+          if (err.type === "unavailable-id") {
+            // Someone else is already using this room number: pick a new one.
+            this.createMultiplayerRoom();
+            return;
+          }
+          if (err.type === "network" || err.type === "server-error" || err.type === "socket-error" || err.type === "socket-closed") {
+            statusEl.textContent = `🔴 Lost connection to the online room server (${err.type}). Keep this page open and check your internet; it will reconnect, or tap Create Room again.`;
+            return;
+          }
+          statusEl.textContent = `🟡 Room ${roomCode}: ${err.type || "connection problem"}. Try tapping Create Room again.`;
         });
       } catch (e) {
         statusEl.textContent = `🟢 Room ${roomCode} is LIVE! Waiting for friend to enter ${roomCode}...`;
@@ -2675,15 +2717,19 @@ const app = {
 
       try {
         if (this.peer) this.peer.destroy();
+        this.peerConn = null;
         this.peer = new window.Peer(undefined, {
           debug: 1,
-          config: {
-            iceServers: [
-              { urls: "stun:stun.l.google.com:19302" },
-              { urls: "stun:stun1.l.google.com:19302" }
-            ]
-          }
+          config: { iceServers: this.getIceServers() }
         });
+        this.keepPeerAlive(this.peer);
+        // If the data channel never opens (usually two networks that can't connect directly), say so.
+        clearTimeout(this._joinTimer);
+        this._joinTimer = setTimeout(() => {
+          if (this.joiningRoomCode === normRoom && (!this.peerConn || !this.peerConn.open)) {
+            alert(`Found room ${normRoom}, but couldn't connect to your friend's device. This usually happens when one of you is on mobile data or a strict network. Try both joining the same Wi-Fi, or ask the game owner to add a TURN relay server.`);
+          }
+        }, 15000);
 
         this.peer.on("open", () => {
           const conn = this.peer.connect(targetPeerId, { reliable: true });
@@ -2700,7 +2746,11 @@ const app = {
             this.closeRoomModal();
             this.startBattle("friend_code", oppDeck);
           } else {
-            alert(`Could not connect to Online Room ${normRoom} (${err.type || "Room not found"}). Make sure your friend clicked "Create Room" first and kept their browser tab open!`);
+            clearTimeout(this._joinTimer);
+            const reason = err.type === "peer-unavailable"
+              ? "Room not found. Check the code, and make sure your friend tapped Create Room and still has the game open on screen."
+              : `Connection problem (${err.type || "unknown"}). Check your internet and try again.`;
+            alert(`Could not join Online Room ${normRoom}. ${reason}`);
           }
         });
         return;
@@ -2738,6 +2788,7 @@ const app = {
 
   setupPeerConnectionHandlers(conn, isHost) {
     conn.on("open", () => {
+      clearTimeout(this._joinTimer);
       const myDeck = this.state.decks[this.state.activeDeckIndex];
       if (!isHost) {
         conn.send({
@@ -2759,6 +2810,11 @@ const app = {
         }, 250);
       } else if (msg.type === "P2P_STATE_SYNC") {
         if (!document.getElementById("screen-battle").classList.contains("active")) {
+          // First sync of a new online match: reset anything left over from a previous match.
+          battle.matchOver = false;
+          battle.oppContinueCallback = null;
+          battle.pendingAction = null;
+          battle.pendingDefenseContext = null;
           this.closeRoomModal();
           this.showScreen("battle");
         }
@@ -3843,10 +3899,11 @@ const battle = {
     document.getElementById("deck-search-modal").classList.remove("hidden");
   },
 
-  sendOnlineStateToPeer(customPrompt = null, cutinData = null) {
+  sendOnlineStateToPeer(customPrompt = null, cutinData = null, extra = {}) {
     if (this.mode !== "online_p2p" || !app.peerConn || !app.peerConn.open) return;
     try {
       app.peerConn.send({
+        ...extra,
         type: "P2P_STATE_SYNC",
         turnCount: this.turnCount,
         // Flip perspective for the receiving peer: our plr is their opp, our opp is their plr!
@@ -3925,6 +3982,15 @@ const battle = {
     this.isReceivingP2P = true;
     this.renderBattle();
     this.isReceivingP2P = false;
+
+    // The friend's action may have ended the match (life or deck at 0): finish it on this side too.
+    this.checkWinCondition();
+    if (this.matchOver) return;
+
+    // The friend ended their turn: run our own Start Phase (reset + draw), which then syncs back.
+    if (msg.beginTurn && this.activeSide === "plr") {
+      this.startTurn("plr");
+    }
   },
 
   receiveOnlineAttackPromptFromPeer(msg) {
@@ -4076,12 +4142,17 @@ const battle = {
     this.linkAttackers = [];
     const nextSide = this.activeSide === "plr" ? "opp" : "plr";
     this.turnCount++;
-    this.startTurn(nextSide);
     if (this.mode === "online_p2p") {
-      setTimeout(() => {
-        this.sendOnlineStateToPeer(`🔄 Turn ${this.turnCount}: YOUR TURN!`);
-      }, 650);
+      // Online: hand the turn over and let the friend's device run its own Start Phase,
+      // so their draw happens (and is synced) on their side instead of racing an animation here.
+      this.activeSide = nextSide;
+      this.phase = "start";
+      this.setPrompt("⏳ Waiting for Online Friend's move...");
+      this.renderBattle();
+      this.sendOnlineStateToPeer(`🔄 Turn ${this.turnCount}: YOUR TURN!`, null, { beginTurn: true });
+      return;
     }
+    this.startTurn(nextSide);
   },
 
   startChargeMode() {
