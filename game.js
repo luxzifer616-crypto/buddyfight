@@ -2085,6 +2085,7 @@ const app = {
 
   // ===== Playmats: each mat is ONE player's side; two copies are joined (top one rotated 180°) =====
   MATS: [
+    { id: "neon",     name: "Neon Arena (animated)",         img: "" },
     { id: "classic",  name: "Classic Field (printed zones)", img: "Sprite/Field1.png" },
     { id: "godclock", name: "Godclock Reversal",             img: "Sprite/Mats/mat-godclock.jpg" },
     { id: "heroes",   name: "Buddyfight Heroes",             img: "Sprite/Mats/mat-heroes.jpg" },
@@ -2092,9 +2093,9 @@ const app = {
   ],
 
   getMatId() {
-    let id = "classic";
-    try { id = localStorage.getItem("bf_mat") || "classic"; } catch (e) {}
-    return this.MATS.some(m => m.id === id) ? id : "classic";
+    let id = "neon";
+    try { id = localStorage.getItem("bf_mat") || "neon"; } catch (e) {}
+    return this.MATS.some(m => m.id === id) ? id : "neon";
   },
 
   selectMat(id) {
@@ -2108,7 +2109,8 @@ const app = {
     const pm = document.getElementById("field-playmat");
     if (pm) {
       pm.classList.toggle("custom-mat", id !== "classic");
-      pm.style.setProperty("--mat-img", `url("${mat.img}")`);
+      pm.classList.toggle("neon-mat", id === "neon");
+      pm.style.setProperty("--mat-img", mat.img ? `url("${mat.img}")` : "none");
     }
     const sel = document.getElementById("hub-mat-select");
     if (sel) {
@@ -2116,7 +2118,10 @@ const app = {
       sel.value = id;
     }
     const pv = document.getElementById("hub-mat-preview");
-    if (pv) pv.style.setProperty("--mat-img", `url("${mat.img}")`);
+    if (pv) {
+      pv.classList.toggle("neon-preview", id === "neon");
+      pv.style.setProperty("--mat-img", mat.img ? `url("${mat.img}")` : "none");
+    }
   },
 
   selectActiveDeck(idx) {

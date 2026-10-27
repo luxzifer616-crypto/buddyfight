@@ -51,7 +51,8 @@
     })();
   </script>
   <title>Future Card Buddyfight — Complete Anime Simulator</title>
-  <link rel="stylesheet" href="styles.css?v=20261028b" />
+  <link rel="stylesheet" href="styles.css?v=20261028c" />
+  <link rel="stylesheet" href="battle_fx.css?v=20261028c" />
 </head>
 <body>
   <!-- TOP NAVIGATION BAR (Hidden during active battle) -->
@@ -427,44 +428,73 @@
       <div class="battle-hud-top">
         <!-- Opponent Status Pill -->
         <div class="fighter-hud opp-hud" id="hud-opp-target" onclick="battle.onEnemyFighterClick()" title="Click to Attack Opponent Fighter Directly!">
-          <div class="hud-avatar opp-avatar">🔥</div>
-          <div class="hud-info">
-            <div class="hud-name" id="bt-opp-name">Opponent</div>
-            <div class="hud-sub">Hand: <strong id="bt-opp-hand-cnt">6</strong> • Deck: <strong id="bt-opp-deck-cnt">42</strong> • Drop: <strong id="bt-opp-drop-cnt">0</strong></div>
+          <div class="fx-vitals">
+            <div class="fx-heart-wrap" aria-hidden="true">
+              <span class="fx-heart-ring"></span><span class="fx-heart-ring r2"></span>
+              <svg class="fx-heart" viewBox="0 0 32 29"><path d="M16 28.5S1 19.4 1 9.3C1 4.6 4.6 1 9 1c3 0 5.6 1.7 7 4.2C17.4 2.7 20 1 23 1c4.4 0 8 3.6 8 8.3 0 10.1-15 19.2-15 19.2z"/></svg>
+            </div>
+            <div class="fx-meters">
+              <div class="fx-label">LIFE</div>
+              <div class="life-orb opp-life"><span class="fx-emoji">❤️ </span><span id="bt-opp-life">10</span></div>
+              <div class="fx-lifebar" aria-hidden="true"><i></i></div>
+            </div>
+            <div class="gauge-orb" title="Gauge"><span class="fx-battery" aria-hidden="true"><i></i></span><span class="fx-emoji">⚡ </span><span id="bt-opp-gauge">2</span></div>
           </div>
-          <div class="life-orb opp-life">❤️ <span id="bt-opp-life">10</span></div>
-          <div class="gauge-orb">⚡ <span id="bt-opp-gauge">2</span></div>
+          <svg class="fx-ecg" viewBox="0 0 200 24" preserveAspectRatio="none" aria-hidden="true"><path d="M0 12h60l6-8 6 16 6-20 6 22 6-10h110"/></svg>
+          <div class="fx-id">
+            <div class="hud-avatar opp-avatar">🔥</div>
+            <div class="hud-info">
+              <div class="hud-name" id="bt-opp-name">Opponent</div>
+              <div class="hud-sub">Hand: <strong id="bt-opp-hand-cnt">6</strong> • Deck: <strong id="bt-opp-deck-cnt">42</strong> • Drop: <strong id="bt-opp-drop-cnt">0</strong></div>
+            </div>
+          </div>
         </div>
 
         <!-- Center Turn / Phase / Action Bar -->
         <div class="turn-phase-banner">
           <div class="turn-indicator" id="bt-turn-label">TURN 1 — YOUR TURN</div>
-          <div class="phase-steps">
+          <div class="phase-steps"><span class="fx-phase-line" aria-hidden="true"><i></i></span>
             <span class="phase-pill" id="ph-start">Start</span>
             <span class="phase-pill active" id="ph-main">Main</span>
             <span class="phase-pill" id="ph-attack">Attack</span>
             <span class="phase-pill" id="ph-final">Final</span>
           </div>
-          <div class="phase-controls">
-            <button class="battle-ctrl-btn charge-btn" id="btn-charge-draw" onclick="battle.startChargeMode()">⚡ Charge & Draw</button>
-            <button class="battle-ctrl-btn buddy-btn" id="btn-buddy-call" onclick="battle.triggerBuddyCallFromZone()">🌟 Buddy Call</button>
-            <button class="battle-ctrl-btn link-btn" id="btn-link-attack" onclick="battle.startLinkAttackMode()">🔗 Link Attack</button>
-            <button class="battle-ctrl-btn godclock-btn hidden" id="btn-godclock" onclick="battle.openGodclockModal()">⏳ Godclock (4 Flags)</button>
-            <button class="battle-ctrl-btn overturn-btn" id="btn-overturn" onclick="battle.activateOncePerFightSpecial()">🔥 Overturn</button>
-            <button class="battle-ctrl-btn phase-next-btn" id="btn-next-phase" onclick="battle.advancePhase()">⚔️ Attack Phase</button>
-            <button class="battle-ctrl-btn end-turn-btn" id="btn-end-turn" onclick="battle.endTurn()">⏭️ End Turn</button>
-            <button class="battle-ctrl-btn quit-btn" onclick="battle.confirmLeave()">🏳️</button>
-          </div>
         </div>
 
         <!-- Player Status Pill -->
         <div class="fighter-hud plr-hud">
-          <div class="gauge-orb">⚡ <span id="bt-plr-gauge">2</span></div>
-          <div class="life-orb plr-life">❤️ <span id="bt-plr-life">10</span></div>
-          <div class="hud-info right">
-            <div class="hud-name" id="bt-plr-name">You</div>
-            <div class="hud-sub">Size: <strong id="bt-plr-size">0</strong>/<span id="bt-plr-max-size">3</span> • Hand: <strong id="bt-plr-hand-cnt">6</strong></div>
+          <div class="fx-vitals">
+            <div class="fx-heart-wrap" aria-hidden="true">
+              <span class="fx-heart-ring"></span><span class="fx-heart-ring r2"></span>
+              <svg class="fx-heart" viewBox="0 0 32 29"><path d="M16 28.5S1 19.4 1 9.3C1 4.6 4.6 1 9 1c3 0 5.6 1.7 7 4.2C17.4 2.7 20 1 23 1c4.4 0 8 3.6 8 8.3 0 10.1-15 19.2-15 19.2z"/></svg>
+            </div>
+            <div class="fx-meters">
+              <div class="fx-label">LIFE</div>
+              <div class="life-orb plr-life"><span class="fx-emoji">❤️ </span><span id="bt-plr-life">10</span></div>
+              <div class="fx-lifebar" aria-hidden="true"><i></i></div>
+            </div>
+            <div class="gauge-orb" title="Gauge"><span class="fx-battery" aria-hidden="true"><i></i></span><span class="fx-emoji">⚡ </span><span id="bt-plr-gauge">2</span></div>
           </div>
+          <svg class="fx-ecg" viewBox="0 0 200 24" preserveAspectRatio="none" aria-hidden="true"><path d="M0 12h60l6-8 6 16 6-20 6 22 6-10h110"/></svg>
+          <div class="fx-id">
+            <div class="hud-avatar plr-avatar">🛡️</div>
+            <div class="hud-info right">
+              <div class="hud-name" id="bt-plr-name">You</div>
+              <div class="hud-sub">Size: <strong id="bt-plr-size">0</strong>/<span id="bt-plr-max-size">3</span> • Hand: <strong id="bt-plr-hand-cnt">6</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action buttons (bottom-right panel on wide screens) -->
+        <div class="phase-controls">
+          <button class="battle-ctrl-btn charge-btn" id="btn-charge-draw" onclick="battle.startChargeMode()">⚡ Charge & Draw</button>
+          <button class="battle-ctrl-btn buddy-btn" id="btn-buddy-call" onclick="battle.triggerBuddyCallFromZone()">🌟 Buddy Call</button>
+          <button class="battle-ctrl-btn link-btn" id="btn-link-attack" onclick="battle.startLinkAttackMode()">🔗 Link Attack</button>
+          <button class="battle-ctrl-btn godclock-btn hidden" id="btn-godclock" onclick="battle.openGodclockModal()">⏳ Godclock (4 Flags)</button>
+          <button class="battle-ctrl-btn overturn-btn" id="btn-overturn" onclick="battle.activateOncePerFightSpecial()">🔥 Overturn</button>
+          <button class="battle-ctrl-btn phase-next-btn" id="btn-next-phase" onclick="battle.advancePhase()">⚔️ Attack Phase</button>
+          <button class="battle-ctrl-btn end-turn-btn" id="btn-end-turn" onclick="battle.endTurn()">⏭️ End Turn</button>
+          <button class="battle-ctrl-btn quit-btn" onclick="battle.confirmLeave()" title="Leave match">🏳️</button>
         </div>
       </div>
 
@@ -478,6 +508,17 @@
         <div class="field-playmat" id="field-playmat">
           <div class="mat-half mat-half-opp" aria-hidden="true"></div>
           <div class="mat-half mat-half-plr" aria-hidden="true"></div>
+          <div class="fx-board" aria-hidden="true">
+            <div class="fx-board-glow opp"></div><div class="fx-board-glow plr"></div>
+            <svg class="fx-runes" viewBox="0 0 200 200">
+              <defs><path id="fxRunePath" d="M100 100m-82 0a82 82 0 1 1 164 0a82 82 0 1 1-164 0"/></defs>
+              <circle cx="100" cy="100" r="92"/><circle cx="100" cy="100" r="72"/><circle cx="100" cy="100" r="40" class="thin"/>
+              <text><textPath href="#fxRunePath">ᚠᚢᚦᚨᚱᚲ ᚷᚹᚺᚾ ᛁᛃᛇᛈ ᛉᛊᛏᛒ ᛖᛗᛚᛜ ᛞᛟ ᚠᚢᚦᚨᚱᚲ ᚷᚹᚺᚾ ᛁᛃᛇᛈ ᛉᛊᛏᛒ ᛖᛗᛚᛜ</textPath></text>
+              <polygon points="100,30 160,135 40,135" class="thin"/><polygon points="100,170 40,65 160,65" class="thin"/>
+            </svg>
+            <div class="fx-divider"></div>
+            <div class="fx-sparks"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          </div>
           <!-- ================= OPPONENT ZONES (Top Half of Field1.png) ================= -->
           <div class="field-zone opp-deck-zone" id="z-opp-deck" onclick="battle.showBannerForZone('opp','deck')" title="Opponent Deck">
             <div class="zone-badge">Opp Deck (<span id="z-opp-deck-cnt">42</span>)</div>
@@ -799,12 +840,13 @@
   <!-- PeerJS WebRTC for Real Online Multiplayer on GitHub Pages -->
   <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
   <script src="cards_data.js"></script>
-  <script src="game.js?v=20261028b"></script>
-  <script src="impact_monsters.js?v=20261028b"></script>
-  <script src="abilities_parser.js?v=20261028b"></script>
-  <script src="abilities_ui.js?v=20261028b"></script>
-  <script src="abilities_engine.js?v=20261028b"></script>
-  <script src="abilities_ops.js?v=20261028b"></script>
-  <script src="abilities_more.js?v=20261028b"></script>
+  <script src="game.js?v=20261028c"></script>
+  <script src="impact_monsters.js?v=20261028c"></script>
+  <script src="abilities_parser.js?v=20261028c"></script>
+  <script src="abilities_ui.js?v=20261028c"></script>
+  <script src="abilities_engine.js?v=20261028c"></script>
+  <script src="abilities_ops.js?v=20261028c"></script>
+  <script src="abilities_more.js?v=20261028c"></script>
+  <script src="battle_fx.js?v=20261028c"></script>
 </body>
 </html>
