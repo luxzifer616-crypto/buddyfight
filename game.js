@@ -882,6 +882,8 @@ function fighterHasFieldCardMatching(fighter, substring, excludeUnit = null) {
 
 function getUnitEffectiveCombatStats(fighter, unit) {
   if (!unit || !unit.card) return { power: 0, defense: 0, crit: 0, pen: false, da: false, ta: false, qa: false };
+  // Impact Monsters have their own, exact reader (impact_monsters.js)
+  if (window.IMX && IMX.isImpactMonster(unit.card) && window.imCombatStats) return window.imCombatStats(fighter, unit);
   const c = unit.card;
   const s = c.skill || "";
   const revCnt = getFighterReversalCount(fighter);
@@ -4525,6 +4527,7 @@ const battle = {
     const f = this.getFighter(side);
     const enemy = this.getEnemy(side);
     f.chargedThisTurn = false;
+    if (this.imTurnStart) this.imTurnStart(side);
     f.hyakuganSizeZeroTurn = false;
     enemy.hyakuganSizeZeroTurn = false;
     f.timeStoppedThisTurn = false;
@@ -4629,6 +4632,7 @@ const battle = {
     if (this.activeSide === "opp" && (this.opp.isBot || this.mode === "online_p2p")) return;
     this.pendingAction = null;
     this.linkAttackers = [];
+    if (this.imTurnEnd) this.imTurnEnd(this.activeSide);
     const nextSide = this.activeSide === "plr" ? "opp" : "plr";
     this.turnCount++;
     if (this.mode === "online_p2p") {
@@ -4940,7 +4944,32 @@ const battle = {
         actionsEl.appendChild(bCast);
       }
 
-      if (card.type === "Impact" && card.id !== 6202) {
+      if (window.IMX && IMX.isImpactMonster(card)) {
+        // IMPACT MONSTER: called (not cast). Final Phase only, one per turn, has Size/Power/Defense/Critical and stays on the field.
+        const imInfo = this.imCallInfo(side, card);
+        const bIm = document.createElement("button");
+        bIm.className = "primary-cta-btn";
+        bIm.disabled = !imInfo.ok;
+        const imd = imInfo.data;
+        bIm.textContent = imInfo.ok
+          ? `💥 Call Impact Monster (${imd.call.gauge} Gauge • Size ${getEffectiveCardSize(f, card)}${imd.call.parts.length ? " • +extra cost" : ""})`
+          : `🔒 ${imInfo.reasons[0]}`;
+        bIm.title = imInfo.reasons.join("\n");
+        bIm.onclick = () => {
+          this.closeCardBanner();
+          this.startImpactMonsterCall(side, handIdx);
+        };
+        actionsEl.appendChild(bIm);
+        if (imd && imd.impactTransform) {
+          const tInfo = this.imTransformInfo(side, card);
+          const bTr = document.createElement("button");
+          bTr.className = "action-btn";
+          bTr.disabled = !tInfo.ok;
+          bTr.textContent = tInfo.ok ? `✨ [Impact Transform] (${imd.impactTransform.cost.gauge} Gauge)` : `🔒 [Impact Transform] ${tInfo.reasons[0]}`;
+          bTr.onclick = () => { this.closeCardBanner(); this.imStartTransform(side, handIdx); };
+          actionsEl.appendChild(bTr);
+        }
+      } else if (card.type === "Impact" && card.id !== 6202) {
         const bImp = document.createElement("button");
         bImp.className = "primary-cta-btn";
         bImp.disabled = this.phase !== "final";
@@ -4954,7 +4983,8 @@ const battle = {
         actionsEl.appendChild(bImp);
       }
     } else if (context === "field" && side === this.activeSide && unit) {
-      if ((this.phase === "attack" || this.phase === "main") && unit.attacksLeft > 0 && !unit.rested) {
+      if (window.IMX && IMX.isUnit(unit)) this.imAppendActButtons(actionsEl, side, unit);
+      if ((this.phase === "attack" || this.phase === "main" || (this.phase === "final" && this.imCanAttackInFinal(unit))) && unit.attacksLeft > 0 && !unit.rested) {
         const bAtk = document.createElement("button");
         bAtk.className = "primary-cta-btn";
         const firstRoundLocked = this.isFirstRoundAttackLocked();
@@ -5530,6 +5560,16 @@ const battle = {
 
     const fromZone = zone === "drop" ? "z-plr-drop" : "z-plr-deck";
     const criteria = this.deckSearchState ? this.deckSearchState.criteria : null;
+    // Impact Monsters can be called by a card ability too (no Call Cost, not limited to one per turn).
+    if (criteria && criteria.destAction === "call" && c && window.IMX && IMX.isImpactMonster(c) && this.imCallFromZone) {
+      const srcArr = zone === "drop" ? this.plr.drop : this.plr.deck;
+      srcArr.push(cid);
+      const calledZone = this.imCallFromZone("plr", zone === "drop" ? "drop" : "deck", srcArr.length - 1, {}, () => {
+        if (this.deckSearchState && this.deckSearchState.onDone) this.deckSearchState.onDone();
+      });
+      if (calledZone) return;
+      srcArr.pop();
+    }
     const shouldCallToField = criteria && criteria.destAction === "call" && c && c.type === "Monster";
 
     if (shouldCallToField) {
@@ -5687,6 +5727,11 @@ const battle = {
     const cid = f.drop[dropIdx];
     const c = CARD_MAP.get(cid);
     if (!c) return;
+
+    if (actionType === "call" && window.IMX && IMX.isImpactMonster(c) && this.imCallFromZone) {
+      this.imCallFromZone(side, "drop", dropIdx, {}, onDone);
+      return;
+    }
 
     if (actionType === "call") {
       if (c.type !== "Monster") {
@@ -6057,6 +6102,11 @@ const battle = {
 
     if (c.id === 6202) {
       this.activateOvergodZeroFromHand(side, handIdx);
+      return;
+    }
+
+    if (window.IMX && IMX.isImpactMonster(c)) {
+      this.startImpactMonsterCall(side, handIdx);
       return;
     }
 
@@ -6620,6 +6670,7 @@ const battle = {
 
     if (attackNullified) {
       defFighter.timeStoppedThisBattle = false;
+      if (this.imOnNullified) this.imOnNullified(attSide, units);
       this.setPrompt(`🛡️ Attack by ${attDisplayNames} was nullified by ${defFighter.name}'s [Counter]!`);
       this.renderBattle();
       if (attSide === "opp" && this.opp.isBot && this.oppContinueCallback) {
@@ -6628,6 +6679,18 @@ const battle = {
       return;
     }
 
+    // Impact Monster "When this card attacks, ..." abilities resolve first, then the strike happens.
+    const strike = () => {
+    if (this.matchOver) return;
+    // Abilities may have changed the numbers (e.g. "this card gets power+6000"), so read them again.
+    if (units.some(x => window.IMX && IMX.isUnit(x.unit))) {
+      combinedPower = 0; combinedCrit = 0; anyPenetrate = false;
+      units.forEach(({ unit }) => {
+        const e = getUnitEffectiveCombatStats(attFighter, unit);
+        combinedPower += e.power; combinedCrit += e.crit; if (e.pen) anyPenetrate = true;
+        if (units.length > 1 && (unit.card.skill || "").toLowerCase().includes("link attacks")) { combinedPower += 2000; }
+      });
+    }
     units.slice(1).forEach(({ zone, unit }) => {
       this.animateAttackStrike(attSide, zone, defSide, targetPos, unit.card.img);
     });
@@ -6636,9 +6699,11 @@ const battle = {
       if (this.matchOver) return;
       defFighter.timeStoppedThisBattle = false;
       const targetMonster = ["left", "center", "right"].includes(targetPos) ? defFighter.monsters[targetPos] : null;
+      const outcome = { destroyedMonster: false, dealtDamage: false };
 
       if (targetMonster) {
-        this.resolveMonsterVsMonster(attSide, units, defSide, targetPos, combinedPower, combinedCrit, anyPenetrate);
+        outcome.destroyedMonster = !!this.resolveMonsterVsMonster(attSide, units, defSide, targetPos, combinedPower, combinedCrit, anyPenetrate);
+        outcome.dealtDamage = outcome.destroyedMonster && targetPos === "center" && anyPenetrate;
       } else {
         let finalDmg = combinedCrit;
         if (defFighter.tempDamageReduce && defFighter.tempDamageReduce > 0) {
@@ -6646,16 +6711,20 @@ const battle = {
           defFighter.tempDamageReduce = 0;
         }
         defFighter.life -= finalDmg;
+        outcome.dealtDamage = finalDmg > 0;
         this.setPrompt(`💥 ${units.length > 1 ? "LINK ATTACK " : ""}DIRECT HIT! ${attDisplayNames} dealt ${finalDmg} Critical damage to ${defFighter.name}!`);
       }
 
       this.checkWinCondition();
       this.renderBattle();
+      if (this.imAfterBattle && !this.matchOver) this.imAfterBattle(attSide, units, outcome);
 
       if (attSide === "opp" && this.opp.isBot && this.oppContinueCallback) {
         setTimeout(this.oppContinueCallback, 650);
       }
     });
+    };
+    if (this.imOnAttack) this.imOnAttack(attSide, units, defSide, strike); else strike();
   },
 
   resolveMonsterVsMonster(attSide, attUnits, defSide, targetPos, combinedPower, combinedCrit, anyPenetrate) {
@@ -6670,6 +6739,7 @@ const battle = {
     const attNames = attUnits.map(x => `"${x.unit.card.name}"`).join(" + ");
 
     let defenderSurvived = false;
+    let destroyedFlag = false;
     if (combinedPower >= defStat) {
       if (defender.tempIndestructible) {
         defender.tempIndestructible = false;
@@ -6677,6 +6747,7 @@ const battle = {
         this.setPrompt(`🛡️ "${defender.card.name}" prevented destruction by card effect and remained on the field!`);
       } else {
         const destroyed = this.destroyMonster(defSide, targetPos);
+        destroyedFlag = !!destroyed;
         defenderSurvived = !destroyed;
         if (targetPos === "center" && anyPenetrate && destroyed) {
           let penDmg = combinedCrit;
@@ -6709,6 +6780,7 @@ const battle = {
         }
       });
     }
+    return destroyedFlag;
   },
 
   destroyMonster(side, pos) {
@@ -6745,6 +6817,7 @@ const battle = {
       }
     }
 
+    if (this.imOnDestroyedUnit && window.IMX && IMX.isUnit(m)) this.imOnDestroyedUnit(side, m);
     this.sendMonsterToDropWithAnimation(side, pos, false);
     return true;
   },
@@ -6890,8 +6963,18 @@ const battle = {
         if (bot.item && (!bot.monsters.center || bot.item.isEndrulerFlag)) attackers.push("item");
 
         let step = 0;
+        let botImpactTried = false;
         const runNextBotAttack = () => {
           if (!stillThisMatch()) return;
+          if (this.activeSide === "opp" && step >= attackers.length && !botImpactTried && this.imBotCall) {
+            // Final Phase: the bot may call one Impact Monster, and it may attack right away.
+            botImpactTried = true;
+            const prevPhase = this.phase;
+            this.phase = "final";
+            const zone = this.imBotCall(bot);
+            if (zone) { attackers.push(zone); this.renderBattle(); setTimeout(runNextBotAttack, 700); return; }
+            this.phase = prevPhase;
+          }
           if (this.activeSide !== "opp" || step >= attackers.length) {
             this.oppContinueCallback = null;
             // Check end-of-opponent's-turn Godclock #5957 awakening for Player!
@@ -6900,6 +6983,7 @@ const battle = {
             }
             setTimeout(() => {
               if (stillThisMatch() && this.activeSide === "opp") {
+                if (this.imTurnEnd) this.imTurnEnd("opp");
                 this.turnCount++;
                 this.startTurn("plr");
               }
