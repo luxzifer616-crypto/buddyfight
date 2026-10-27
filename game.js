@@ -5066,12 +5066,14 @@ const battle = {
         }
       }
 
-      if (!unit.isEndrulerFlag && (card.act || parseDeckSearchCriteria(card) || (card.skill || "").toLowerCase().includes("you may")) && !unit.actUsed) {
+      const abxActs = (window.ABX && ABX.actAbilities) ? ABX.actAbilities(card) : [];
+      if (!unit.isEndrulerFlag && (card.act || abxActs.length || parseDeckSearchCriteria(card) || (card.skill || "").toLowerCase().includes("you may")) && !unit.actUsed) {
         const bAct = document.createElement("button");
         bAct.className = "action-btn";
         bAct.textContent = `✨ Use Card Ability / [Act]`;
         bAct.onclick = () => {
           this.closeCardBanner();
+          if (abxActs.length) { ABX.useAct(side, card, unit); return; }
           this.promptOptionalAbility(side, card, unit);
         };
         actionsEl.appendChild(bAct);
@@ -5984,7 +5986,9 @@ const battle = {
       this.renderBattle();
 
       const s = (c.skill || "").toLowerCase();
-      if (s.includes("when this card enters the field") || parseDeckSearchCriteria(c)) {
+      if (window.ABX && ABX.ownsEnter && ABX.ownsEnter(c)) {
+        ABX.fireEnter(side, c, unit);
+      } else if (s.includes("when this card enters the field") || parseDeckSearchCriteria(c)) {
         this.promptOptionalAbility(side, c, unit);
       }
     });
