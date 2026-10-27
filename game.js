@@ -528,7 +528,7 @@ function getFlagConfig(flagCard) {
       hand: 4,
       gauge: 2,
       maxSize: 3,
-      ruleSummary: "Life: 12 • Hand: 4 • Gauge: 2 • «Dragon» Cards + Generic"
+      ruleSummary: "Life: 12 • Hand: 4 • Gauge: 2 • «Dragon» Monsters & Items only (no Spells / Impacts)"
     };
   }
   if (n.includes("dragon zwei")) {
@@ -539,7 +539,7 @@ function getFlagConfig(flagCard) {
       hand: 4,
       gauge: 2,
       maxSize: 3,
-      ruleSummary: "Life: 20 • Hand: 4 • Gauge: 2 • «Dragon» Monsters & Dragon Drei"
+      ruleSummary: "Life: 20 • Hand: 4 • Gauge: 2 • «Dragon» Monsters only (no Items / Spells / Impacts) + Dragon Drei"
     };
   }
   if (n.includes("dragon drei")) {
@@ -731,10 +731,12 @@ function checkCardLegalityForFlag(card, flagCard, editingLostDeck = false) {
 
   let nativeMatch = false;
 
-  if (cfg.key === "dragon_ein") {
-    nativeMatch = hasDragonInCard(card) || isTrueGenericCard(card);
-  } else if (cfg.key === "dragon_zwei") {
-    nativeMatch = (card.type === "Monster" && hasDragonInCard(card));
+  // Dragon Ein: only Monsters and Items that have "Dragon" in their name, world or tribe (no Spells, no Impacts, no Generic).
+  // Dragon Zwei: same, but Monsters only (no Items). Dragon Drei is allowed as a sub-flag above.
+  if (cfg.key === "dragon_ein" || cfg.key === "dragon_zwei") {
+    const allowedTypes = cfg.key === "dragon_ein" ? ["Monster", "Item"] : ["Monster"];
+    const ok = allowedTypes.includes(card.type) && hasDragonInCard(card);
+    return ok ? { allowed: true, maxCopies: 4 } : { allowed: false, maxCopies: 0 };
   } else if (cfg.key === "chaos") {
     nativeMatch = attrs.some(a => a.includes("chaos")) || nameLower.includes("chaos") || isTrueGenericCard(card);
   } else if (cfg.key === "thunder_empire") {
@@ -3442,6 +3444,7 @@ const battle = {
     this.oppContinueCallback = null;
     this.mode = mode;
     this.turnCount = 1;
+    this.turn1AttackUsed = false;
     this.activeSide = "plr";
     this.phase = "main";
     this.pendingAction = null;
@@ -4368,6 +4371,7 @@ const battle = {
         ...extra,
         type: "P2P_STATE_SYNC",
         turnCount: this.turnCount,
+        turn1AttackUsed: !!this.turn1AttackUsed,
         // Flip perspective for the receiving peer: our plr is their opp, our opp is their plr!
         activeSideForReceiver: this.activeSide === "plr" ? "opp" : "plr",
         phase: this.phase,
@@ -4420,6 +4424,7 @@ const battle = {
   receiveOnlineStateFromPeer(msg) {
     this.mode = "online_p2p";
     this.turnCount = msg.turnCount || 1;
+    this.turn1AttackUsed = !!msg.turn1AttackUsed;
     this.activeSide = msg.activeSideForReceiver || "opp";
     this.phase = msg.phase || "main";
     // Flip perspective so local player is always this.plr at the bottom of the screen!
@@ -4606,13 +4611,10 @@ const battle = {
     this.linkAttackers = [];
 
     if (this.phase === "main") {
-      if (this.turnCount === 1) {
-        alert("🚫 First Round Rule: You cannot attack on the first turn of the game (Turn 1)! Proceeding to End of Turn 1.");
-        this.endTurn();
-        return;
-      }
       this.phase = "attack";
-      this.setPrompt("⚔️ Attack Phase: Click a Monster/Item/Flag to Attack, [Move], or click '🔗 Link Attack' to combine multiple attackers!");
+      this.setPrompt(this.turnCount === 1
+        ? "⚔️ Attack Phase (First Round: only 1 attack this turn): Click a Monster/Item/Flag to Attack, or click '🔗 Link Attack' to combine attackers (a Link Attack counts as your 1 attack)!"
+        : "⚔️ Attack Phase: Click a Monster/Item/Flag to Attack, [Move], or click '🔗 Link Attack' to combine multiple attackers!");
       this.renderBattle();
     } else if (this.phase === "attack") {
       this.phase = "final";
@@ -4686,8 +4688,8 @@ const battle = {
 
   startLinkAttackMode() {
     if (!this.isLocalTurn()) return;
-    if (this.turnCount === 1) {
-      alert("🚫 First Round Rule: You cannot attack on the first turn of the game (Turn 1)!");
+    if (this.isFirstRoundAttackLocked()) {
+      alert("🚫 First Round Rule: you already used your 1 attack on Turn 1!");
       return;
     }
     const f = this.getFighter(this.activeSide);
@@ -4955,21 +4957,22 @@ const battle = {
       if ((this.phase === "attack" || this.phase === "main") && unit.attacksLeft > 0 && !unit.rested) {
         const bAtk = document.createElement("button");
         bAtk.className = "primary-cta-btn";
-        bAtk.disabled = this.turnCount === 1;
+        const firstRoundLocked = this.isFirstRoundAttackLocked();
+        bAtk.disabled = firstRoundLocked;
         const isEndrulerSolo = unit.isEndrulerFlag && !unit.isOvergodZero;
-        bAtk.textContent = this.turnCount === 1
-          ? `🚫 Cannot Attack on First Round (Turn 1)`
+        bAtk.textContent = firstRoundLocked
+          ? `🚫 First Round: your 1 attack is already used`
           : isEndrulerSolo
           ? `⚔️ Solo Attack with Endruler Dragon ("Eternal Eon" — Stops Opponent's Time!)`
           : `⚔️ Solo Attack with "${card.name}"`;
         bAtk.onclick = () => {
           this.closeCardBanner();
-          if (this.turnCount === 1) return;
+          if (this.isFirstRoundAttackLocked()) return;
           this.startAttackSelection(side, zonePos); // switches to the Attack Phase once the attack is allowed
         };
         actionsEl.appendChild(bAtk);
 
-        if (this.turnCount > 1) {
+        if (!firstRoundLocked) {
           const bLink = document.createElement("button");
           bLink.className = "action-btn";
           bLink.textContent = `🔗 Start Link Attack with "${card.name}"`;
@@ -6233,9 +6236,14 @@ const battle = {
     }
   },
 
+  // First Round Rule: on Turn 1 the first player may attack only ONCE (a Link Attack counts as that one attack).
+  isFirstRoundAttackLocked() {
+    return this.turnCount === 1 && !!this.turn1AttackUsed;
+  },
+
   startAttackSelection(side, attackerZone) {
-    if (this.turnCount === 1) {
-      alert("🚫 First Round Rule: You cannot attack on the first turn of the game (Turn 1)!");
+    if (this.isFirstRoundAttackLocked()) {
+      alert("🚫 First Round Rule: you already used your 1 attack on Turn 1!");
       return;
     }
     const f = this.getFighter(side);
@@ -6570,6 +6578,9 @@ const battle = {
     })).filter(x => x.unit && x.unit.attacksLeft > 0);
 
     if (units.length === 0) return;
+
+    // First Round Rule: this was the one allowed attack of Turn 1.
+    if (this.turnCount === 1) this.turn1AttackUsed = true;
 
     let combinedPower = 0;
     let combinedCrit = 0;
@@ -7106,9 +7117,7 @@ const battle = {
     });
 
     const nextBtn = document.getElementById("btn-next-phase");
-    nextBtn.textContent = this.turnCount === 1
-      ? "⏭️ End Turn 1 (No Attack)"
-      : this.phase === "main"
+    nextBtn.textContent = this.phase === "main"
       ? "⚔️ Attack Phase"
       : this.phase === "attack"
       ? "🔥 Final Phase"
