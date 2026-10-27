@@ -708,6 +708,24 @@
     </div>
   </div>
 
+  <!-- ================= PACK PREVIEW POPUP (see every card in a pack before buying) ================= -->
+  <div id="pack-preview-modal" class="card-banner-backdrop hidden" onclick="if(event.target===this) app.closePackPreview()">
+    <div class="modal-box pack-preview-box">
+      <h2 id="pack-preview-title">👁 Cards in this Pack</h2>
+      <p id="pack-preview-sub" class="pack-sub"></p>
+      <div class="pack-preview-filters">
+        <input type="text" id="pack-preview-search" class="search-input" placeholder="Search card name..." oninput="app.renderPackPreview()" />
+        <select id="pack-preview-type" class="styled-select" onchange="app.renderPackPreview()"></select>
+        <select id="pack-preview-owned" class="styled-select" onchange="app.renderPackPreview()"></select>
+      </div>
+      <div id="pack-preview-grid" class="pack-preview-grid"></div>
+      <div class="modal-actions center">
+        <button class="primary-cta-btn" id="pack-preview-buy" onclick="app.buyFromPackPreview()">🪙 Buy Pack</button>
+        <button class="secondary-btn" id="pack-preview-close" onclick="app.closePackPreview()">Close</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ================= GLOBAL CARD INSPECT BANNER (From Shop / Collection / Deck Builder) ================= -->
   <div id="global-card-modal" class="card-banner-backdrop hidden" onclick="if(event.target===this) app.closeCardModal()">
     <div class="card-banner-panel">

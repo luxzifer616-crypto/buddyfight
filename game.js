@@ -2005,12 +2005,104 @@ const app = {
         </div>
         <div class="pack-title">${title}</div>
         <div class="pack-count">${isTh ? `การ์ดในชุด ${packCards.length} ใบ (มีแล้ว ${ownedInSet}/${packCards.length}) • สุ่มได้ 5 ใบ/แพ็ค` : `${packCards.length} Cards in Set (Owned ${ownedInSet}/${packCards.length}) • 5 Cards / Pack`}</div>
+        <button class="secondary-btn full-width pack-preview-btn" onclick="app.openPackPreview('${sCode.replace(/'/g, "\'")}')">
+          👁 ${isTh ? `ดูการ์ดในแพ็ค (${packCards.length} ใบ)` : `Preview Cards (${packCards.length})`}
+        </button>
         <button class="primary-cta-btn full-width" onclick="app.buyPack('${sCode.replace(/'/g, "\'")}')">
           🪙 ${isTh ? `เปิดแพ็ค ${sCode} (${price} BP)` : `Buy ${sCode} Pack (${price} BP)`}
         </button>
       `;
       grid.appendChild(div);
     });
+  },
+
+  // ===== Pack Preview: see every card that can be pulled from a pack before buying =====
+  openPackPreview(setCode) {
+    const cards = getSetPools().get(setCode) || [];
+    if (cards.length === 0) return;
+    this.previewSetCode = setCode;
+    const isTh = this.lang === "th";
+    const { price } = getPackPriceAndRarity(cards.length);
+
+    document.getElementById("pack-preview-title").textContent = isTh
+      ? `👁 การ์ดในแพ็ค ${getSetDisplayName(setCode)}`
+      : `👁 ${getSetDisplayName(setCode)} — Cards in this Pack`;
+
+    const searchEl = document.getElementById("pack-preview-search");
+    searchEl.value = "";
+    searchEl.placeholder = isTh ? "ค้นหาชื่อการ์ด..." : "Search card name...";
+
+    const typeSel = document.getElementById("pack-preview-type");
+    const types = Array.from(new Set(cards.map(c => c.type).filter(Boolean))).sort();
+    typeSel.innerHTML = `<option value="">${isTh ? "ทุกประเภท" : "All Types"}</option>` +
+      types.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join("");
+
+    const ownedSel = document.getElementById("pack-preview-owned");
+    ownedSel.innerHTML = `
+      <option value="">${isTh ? "ทั้งหมด" : "All Cards"}</option>
+      <option value="owned">${isTh ? "มีแล้ว" : "Owned"}</option>
+      <option value="missing">${isTh ? "ยังไม่มี" : "Not Owned"}</option>`;
+
+    document.getElementById("pack-preview-buy").textContent = isTh
+      ? `🪙 เปิดแพ็ค ${setCode} (${price} BP)`
+      : `🪙 Buy ${setCode} Pack (${price} BP)`;
+    document.getElementById("pack-preview-close").textContent = isTh ? "ปิด" : "Close";
+
+    this.renderPackPreview();
+    document.getElementById("pack-preview-modal").classList.remove("hidden");
+  },
+
+  renderPackPreview() {
+    const setCode = this.previewSetCode;
+    const cards = getSetPools().get(setCode) || [];
+    const isTh = this.lang === "th";
+    const q = (document.getElementById("pack-preview-search").value || "").trim().toLowerCase();
+    const typeF = document.getElementById("pack-preview-type").value;
+    const ownedF = document.getElementById("pack-preview-owned").value;
+    const ownedCount = id => this.state.owned[id] || 0;
+
+    const shown = cards.filter(c => {
+      if (q && !String(c.name || "").toLowerCase().includes(q)) return false;
+      if (typeF && c.type !== typeF) return false;
+      if (ownedF === "owned" && ownedCount(c.id) === 0) return false;
+      if (ownedF === "missing" && ownedCount(c.id) > 0) return false;
+      return true;
+    });
+
+    const ownedTotal = cards.filter(c => ownedCount(c.id) > 0).length;
+    document.getElementById("pack-preview-sub").textContent = isTh
+      ? `${cards.length} ใบในแพ็ค • มีแล้ว ${ownedTotal}/${cards.length} • สุ่มได้ 5 ใบต่อแพ็ค (ทุกใบมีโอกาสเท่ากัน) • กดการ์ดเพื่อดูรายละเอียด`
+      : `${cards.length} cards in this pack • You own ${ownedTotal}/${cards.length} • 5 random cards per pack (every card has the same chance) • Click a card for details`;
+
+    const grid = document.getElementById("pack-preview-grid");
+    if (shown.length === 0) {
+      grid.innerHTML = `<div class="pack-preview-empty">${isTh ? "ไม่พบการ์ดที่ตรงกับตัวกรอง" : "No cards match these filters."}</div>`;
+      return;
+    }
+    grid.innerHTML = shown.map(c => {
+      const n = ownedCount(c.id);
+      const badge = n > 0
+        ? `<span class="pp-badge owned">${isTh ? "มี" : "Owned"} x${n}</span>`
+        : `<span class="pp-badge missing">${isTh ? "ยังไม่มี" : "New"}</span>`;
+      const sizeTxt = c.size !== null && c.size !== undefined ? ` • ${isTh ? "ไซส์" : "Size"} ${c.size}` : "";
+      return `
+        <div class="pack-preview-card ${n > 0 ? "" : "not-owned"}" onclick="app.openCardModal(${c.id})" title="${escapeHtml(c.name)}">
+          ${badge}
+          <img src="${c.img}" alt="${escapeHtml(c.name)}" loading="lazy" />
+          <div class="pp-name">${escapeHtml(c.name)}</div>
+          <div class="pp-sub">${escapeHtml(c.type || "")}${sizeTxt}</div>
+        </div>`;
+    }).join("");
+  },
+
+  buyFromPackPreview() {
+    const code = this.previewSetCode;
+    this.closePackPreview();
+    if (code) this.buyPack(code);
+  },
+
+  closePackPreview() {
+    document.getElementById("pack-preview-modal").classList.add("hidden");
   },
 
   claimFreeCoins() {
