@@ -52,8 +52,10 @@
         <div class="hub-card profile-panel">
           <div class="panel-header" data-i18n="hub_profile_header">FIGHTER LICENSE & RANKING</div>
           <div class="profile-hero">
-            <div class="avatar-ring" onclick="app.previewActiveBuddy()" title="Click to preview Buddy Banner">
-              <img id="hub-buddy-img" src="CardSprite/n46.png" alt="Buddy" />
+            <div class="avatar-ring" id="hub-buddy-ring" onclick="app.previewActiveBuddy()" title="Click to preview Buddy Banner">
+              <div id="hub-buddy-visual" class="buddy-visual-wrap">
+                <img id="hub-buddy-img" src="CardSprite/n46.png" alt="Buddy" />
+              </div>
               <div class="buddy-ring-tag">BUDDY</div>
             </div>
             <div class="profile-details">
@@ -335,7 +337,9 @@
             </div>
             <div class="core-slot" id="dk-buddy-slot" onclick="app.previewDeckBuddy()" title="Click to Preview Buddy Banner">
               <div class="slot-label">🌟 BUDDY (CLICK TO PREVIEW)</div>
-              <img id="dk-buddy-img" src="CardSprite/n46.png" alt="Buddy" />
+              <div id="dk-buddy-visual" class="dk-buddy-visual-wrap">
+                <img id="dk-buddy-img" src="CardSprite/n46.png" alt="Buddy" />
+              </div>
               <div id="dk-buddy-name" class="slot-name">Demon Lord, Asmodai</div>
               <div class="slot-rule-sub">Tap a card's ⓘ (or right-click), then "Set as Buddy"</div>
             </div>
@@ -344,7 +348,7 @@
           <!-- Sub-Deck Toggle Tabs -->
           <div class="deck-subtabs" id="dk-subtabs">
             <button class="subtab-btn active" id="tab-main-deck" onclick="app.switchDeckEditTab('main')">
-              🃏 Main Deck (<span id="dk-total-count">50</span> / 50)
+              🃏 Main Deck (<span id="dk-total-count">50</span> / 50+)
             </button>
             <button class="subtab-btn lost-tab hidden" id="tab-lost-deck" onclick="app.switchDeckEditTab('lost')">
               🌌 Lost World Deck (<span id="dk-lost-count">0</span> / 30)
@@ -524,7 +528,7 @@
       <div id="card-detail-banner" class="card-banner-backdrop hidden" onclick="if(event.target===this) battle.closeCardBanner()">
         <div class="card-banner-panel">
           <button class="banner-close-x" onclick="battle.closeCardBanner()">✕</button>
-          <div class="banner-card-art">
+          <div class="banner-card-art" id="bnr-art-wrap">
             <img id="bnr-img" src="CardSprite/n1.png" alt="Card" />
           </div>
           <div class="banner-card-content">
@@ -658,7 +662,7 @@
   <div id="global-card-modal" class="card-banner-backdrop hidden" onclick="if(event.target===this) app.closeCardModal()">
     <div class="card-banner-panel">
       <button class="banner-close-x" onclick="app.closeCardModal()">✕</button>
-      <div class="banner-card-art">
+      <div class="banner-card-art" id="mdl-art-wrap">
         <img id="mdl-card-img" src="CardSprite/n1.png" alt="Card" />
       </div>
       <div class="banner-card-content">
