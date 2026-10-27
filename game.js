@@ -250,6 +250,50 @@ function normalizeSearchToken(str) {
     .replace(/[\s«»"'\-_,.:;!?()\[\]]+/g, "");
 }
 
+// Card text never changes, so build each card's search text once and reuse it.
+// (Before, every keystroke in the Collection / Deck search re-built and re-normalized the text of all 6,573 cards.)
+const CARD_SEARCH_CACHE = new Map();
+function getCardSearchData(c) {
+  let data = CARD_SEARCH_CACHE.get(c.id);
+  if (!data) {
+    const raw = `${c.id} ${c.name} ${c.skill} ${c.skill_th || ""} ${(c.sets || []).join(" ")} ${(c.attrs || []).join(" ")} ${(c.attrs || []).map(formatTribeDisplayName).join(" ")} ${c.world}`.toLowerCase();
+    data = {
+      raw,
+      norm: normalizeSearchToken(raw),
+      attrsNorm: (c.attrs || []).map(a => normalizeSearchToken(a))
+    };
+    CARD_SEARCH_CACHE.set(c.id, data);
+  }
+  return data;
+}
+
+function cardMatchesTextQuery(c, q, qNorm) {
+  if (!q) return true;
+  const data = getCardSearchData(c);
+  return data.raw.includes(q) || Boolean(qNorm && data.norm.includes(qNorm));
+}
+
+function cardHasTribe(c, tribeValue) {
+  if (!tribeValue) return true;
+  const tNorm = normalizeSearchToken(tribeValue);
+  return getCardSearchData(c).attrsNorm.some(a => a.includes(tNorm));
+}
+
+// Cards grouped by set code (BT01, TD01...). Built once, used by the Shop.
+let SET_POOLS_CACHE = null;
+function getSetPools() {
+  if (!SET_POOLS_CACHE) {
+    SET_POOLS_CACHE = new Map();
+    ALL_CARDS.forEach(c => {
+      (c.sets || []).forEach(sCode => {
+        if (!SET_POOLS_CACHE.has(sCode)) SET_POOLS_CACHE.set(sCode, []);
+        SET_POOLS_CACHE.get(sCode).push(c);
+      });
+    });
+  }
+  return SET_POOLS_CACHE;
+}
+
 /* ==================== THAI / ENGLISH (i18n) DICTIONARY ==================== */
 const I18N = {
   en: {
@@ -1597,6 +1641,24 @@ const app = {
       console.warn("Could not load save:", e);
     }
 
+    // Repair a damaged or very old save so the game can't crash on start-up.
+    const st = this.state;
+    if (!st.owned || typeof st.owned !== "object" || Array.isArray(st.owned)) st.owned = {};
+    ["coins", "rp", "wins", "losses", "streak"].forEach(k => {
+      if (!Number.isFinite(Number(st[k]))) st[k] = k === "coins" ? 2500 : k === "rp" ? 1000 : 0;
+      else st[k] = Number(st[k]);
+    });
+    st.decks = (Array.isArray(st.decks) ? st.decks : []).filter(d => d && typeof d === "object");
+    st.decks.forEach(d => {
+      // Unknown flag: use the same fallback flag the screens already showed for it.
+      d.flagId = CARD_MAP.has(Number(d.flagId)) ? Number(d.flagId) : (ALL_CARDS[0] ? ALL_CARDS[0].id : 1);
+      d.cards = (Array.isArray(d.cards) ? d.cards : []).map(Number).filter(id => CARD_MAP.has(id));
+      d.lostDeck = (Array.isArray(d.lostDeck) ? d.lostDeck : []).map(Number).filter(id => CARD_MAP.has(id));
+      if (!CARD_MAP.has(Number(d.buddyId))) d.buddyId = 46;
+      d.buddyId = Number(d.buddyId);
+      if (typeof d.name !== "string" || !d.name.trim()) d.name = "Custom Deck";
+    });
+
     if (!this.state.decks || this.state.decks.length === 0) {
       const d1 = generateFlagDeck(447, "🐉 Dragon World — Gargantua & Lost World", 571, true);
       const d2 = generateFlagDeck(5957, "⏳ Godclock — Endruler Dragon & Overgod \"0\"", 6065, false);
@@ -1626,6 +1688,9 @@ const app = {
         }
       });
     }
+
+    const idx = parseInt(this.state.activeDeckIndex, 10);
+    this.state.activeDeckIndex = Number.isInteger(idx) ? Math.max(0, Math.min(idx, this.state.decks.length - 1)) : 0;
   },
 
   saveState() {
@@ -1882,13 +1947,7 @@ const app = {
     const eraFilter = document.getElementById("shop-era-filter")?.value || "ALL";
 
     // Group all 6,573 cards by their Set Code (BT01, TD01, HBT01, DBT01, XBT01, SBT01, SCBT03, etc.)
-    const setPools = new Map();
-    ALL_CARDS.forEach(c => {
-      (c.sets || []).forEach(sCode => {
-        if (!setPools.has(sCode)) setPools.set(sCode, []);
-        setPools.get(sCode).push(c);
-      });
-    });
+    const setPools = getSetPools();
 
     const setOrderWeight = (code) => {
       if (code.startsWith("BT")) return 10 + (parseInt(code.slice(2), 10) || 0);
@@ -2001,7 +2060,7 @@ const app = {
       item.onclick = () => this.openCardModal(c.id);
       item.innerHTML = `
         <img src="${c.img}" alt="${escapeHtml(c.name)}" />
-        <div class="reveal-card-name">${c.name}</div>
+        <div class="reveal-card-name">${escapeHtml(c.name)}</div>
         <div class="tile-sub">${c.type} ${c.size !== null ? "• Size " + c.size : ""} (Owned: x${this.state.owned[c.id]})</div>
       `;
       row.appendChild(item);
@@ -2032,11 +2091,7 @@ const app = {
     return ALL_CARDS.filter(c => {
       if (setFilter && !(c.sets || []).includes(setFilter)) return false;
       if (world && !c.worlds.includes(world)) return false;
-      if (tribe) {
-        const tNorm = normalizeSearchToken(tribe);
-        const hasTribe = (c.attrs || []).some(a => normalizeSearchToken(a).includes(tNorm));
-        if (!hasTribe) return false;
-      }
+      if (tribe && !cardHasTribe(c, tribe)) return false;
       if (type && c.type !== type) return false;
       if (size !== "" && String(c.size) !== size) return false;
       if (skillKey) {
@@ -2047,11 +2102,7 @@ const app = {
       if (ownedFilter === "owned" && qty <= 0) return false;
       if (ownedFilter === "missing" && qty > 0) return false;
 
-      if (q) {
-        const hayRaw = `${c.id} ${c.name} ${c.skill} ${c.skill_th || ""} ${(c.sets || []).join(" ")} ${(c.attrs || []).join(" ")} ${(c.attrs || []).map(formatTribeDisplayName).join(" ")} ${c.world}`.toLowerCase();
-        const hayNorm = normalizeSearchToken(hayRaw);
-        if (!hayRaw.includes(q) && (!qNorm || !hayNorm.includes(qNorm))) return false;
-      }
+      if (!cardMatchesTextQuery(c, q, qNorm)) return false;
       return true;
     });
   },
@@ -2082,7 +2133,7 @@ const app = {
       tile.innerHTML = `
         <div class="tile-owned-badge">x${qty}</div>
         <img src="${c.img}" alt="${escapeHtml(c.name)}" loading="lazy" />
-        <div class="tile-name">#${c.id} ${c.name}</div>
+        <div class="tile-name">#${c.id} ${escapeHtml(c.name)}</div>
         <div class="tile-sub">${statStr}</div>
       `;
       grid.appendChild(tile);
@@ -2204,7 +2255,11 @@ const app = {
     const deck = this.state.decks[idx];
     if (!deck) return;
     const code = btoa(unescape(encodeURIComponent(JSON.stringify(deck))));
-    navigator.clipboard?.writeText(code);
+    // Clipboard can be blocked (e.g. no permission / non-HTTPS); the prompt below still shows the code.
+    try {
+      const p = navigator.clipboard && navigator.clipboard.writeText(code);
+      if (p && p.catch) p.catch(() => {});
+    } catch (e) {}
     prompt("📋 Copy your shareable Deck Code below:", code);
   },
 
@@ -2317,7 +2372,7 @@ const app = {
         <img src="${c.img}" alt="${escapeHtml(c.name)}" onclick="app.openCardModal(${c.id})" style="cursor:pointer" />
         <div class="deck-row-info" onclick="app.openCardModal(${c.id})" style="cursor:pointer">
           <div class="deck-row-title">
-            ${c.name}
+            ${escapeHtml(c.name)}
             ${legality.isOffWorldOmni ? "👑(Omni 1x)" : ""}
             ${missingQty > 0 ? `<span class="need-tag">(Need x${missingQty} — Own ${ownedQty}/${qty})</span>` : ""}
           </div>
@@ -2361,22 +2416,14 @@ const app = {
         if (!c.worlds.includes(worldFilter)) return false;
       }
 
-      if (tribeFilter) {
-        const tNorm = normalizeSearchToken(tribeFilter);
-        const hasTribe = (c.attrs || []).some(a => normalizeSearchToken(a).includes(tNorm));
-        if (!hasTribe) return false;
-      }
+      if (tribeFilter && !cardHasTribe(c, tribeFilter)) return false;
 
       if (typeFilter && c.type !== typeFilter) return false;
       if (skillFilter) {
         if (skillFilter === "ll" && !c.ll && !c.ll_lose) return false;
         else if (skillFilter !== "ll" && !c[skillFilter]) return false;
       }
-      if (q) {
-        const hayRaw = `${c.id} ${c.name} ${c.skill} ${c.skill_th || ""} ${(c.sets || []).join(" ")} ${(c.attrs || []).join(" ")} ${(c.attrs || []).map(formatTribeDisplayName).join(" ")} ${c.world}`.toLowerCase();
-        const hayNorm = normalizeSearchToken(hayRaw);
-        if (!hayRaw.includes(q) && (!qNorm || !hayNorm.includes(qNorm))) return false;
-      }
+      if (!cardMatchesTextQuery(c, q, qNorm)) return false;
       return true;
     });
 
@@ -2434,7 +2481,7 @@ const app = {
         <div class="tile-owned-badge">${badgeLabel}</div>
         ${ownedQty === 0 ? `<div class="tile-missing-badge">Unowned (0)</div>` : needMore ? `<div class="tile-missing-badge">Need x${inDeckQty - ownedQty}</div>` : ""}
         <img src="${c.img}" alt="${escapeHtml(c.name)}" loading="lazy" />
-        <div class="tile-name">${c.name}</div>
+        <div class="tile-name">${escapeHtml(c.name)}</div>
         <div class="tile-sub">${c.type} ${c.size !== null ? "• Sz " + c.size : ""} (Own: ${ownedQty})</div>
       `;
       // Phones have no right-click, so give every tile a visible "card details" button.
@@ -2871,11 +2918,16 @@ const app = {
         this.peer.on("error", (err) => {
           console.warn("PeerJS join error:", err);
           // Fallback to localStorage / BroadcastChannel if on same computer
-          const savedRoomDeck = localStorage.getItem(`bf_room_${normRoom}`);
+          let savedRoomDeck = null;
+          try {
+            savedRoomDeck = JSON.parse(localStorage.getItem(`bf_room_${normRoom}`) || "null");
+          } catch (e) {
+            savedRoomDeck = null;
+          }
           if (savedRoomDeck) {
-            const oppDeck = JSON.parse(savedRoomDeck);
+            clearTimeout(this._joinTimer);
             this.closeRoomModal();
-            this.startBattle("friend_code", oppDeck);
+            this.startBattle("friend_code", savedRoomDeck);
           } else {
             clearTimeout(this._joinTimer);
             const reason = err.type === "peer-unavailable"
@@ -3102,6 +3154,8 @@ const battle = {
   },
 
   start(mode, plrDeck, customOppDeck = null) {
+    // New match id: timers left over from a previous match (e.g. after leaving mid bot turn) check it and stop.
+    this.matchGen = (this.matchGen || 0) + 1;
     this.matchOver = false;
     this.oppContinueCallback = null;
     this.mode = mode;
@@ -3172,7 +3226,9 @@ const battle = {
     el.style.animation = "none";
     void el.offsetWidth;
     el.style.animation = "fadeInOut 1.65s ease forwards";
-    setTimeout(() => {
+    // Restart the hide timer so an earlier cut-in can't hide this newer one early.
+    clearTimeout(this._cutinTimer);
+    this._cutinTimer = setTimeout(() => {
       el.classList.add("hidden");
     }, 1650);
   },
@@ -3589,8 +3645,7 @@ const battle = {
       bAtk.textContent = `⚔️ Attack with ${f.item.card.name} (${f.item.attacksLeft} Attacks Left)`;
       bAtk.onclick = () => {
         this.closeGodclockModal();
-        if (this.phase === "main") this.phase = "attack";
-        this.startAttackSelection("plr", "item");
+        this.startAttackSelection("plr", "item"); // switches to the Attack Phase once the attack is allowed
       };
       actRow.appendChild(bAtk);
     }
@@ -4015,7 +4070,7 @@ const battle = {
       tile.innerHTML = `
         <div class="tile-owned-badge">${item.badge || "SELECT"}</div>
         <img src="${c.img}" alt="${escapeHtml(c.name)}" />
-        <div class="tile-name">${c.name}</div>
+        <div class="tile-name">${escapeHtml(c.name)}</div>
         <div class="tile-sub">${c.type} ${c.size !== null ? "• Sz " + c.size : ""}</div>
       `;
       grid.appendChild(tile);
@@ -4154,7 +4209,7 @@ const battle = {
       div.onclick = () => this.resolveDefenseChoice(opt.handIdx);
       div.innerHTML = `
         <img src="${opt.card.img}" alt="${escapeHtml(opt.card.name)}" />
-        <div class="def-option-title">${opt.card.name}</div>
+        <div class="def-option-title">${escapeHtml(opt.card.name)}</div>
         <div class="tile-sub">${cost.gauge ? cost.gauge + " Gauge" : "0 Gauge"}</div>
       `;
       strip.appendChild(div);
@@ -4220,6 +4275,25 @@ const battle = {
         enemy.monsters[pos].defenseZeroTurn = false;
       }
     });
+
+    // "This turn" boosts end when the turn ends. Before, the boosts of the fighter whose turn just ended
+    // (e.g. Overturn +5000/+1 Crit) stayed on during the opponent's whole turn, and [Penetrate] given by
+    // an ability was never removed at all.
+    const clearTurnBoosts = (u) => {
+      if (!u) return;
+      u.tempPower = 0;
+      u.tempDef = 0;
+      u.tempCrit = 0;
+      u.tempCA = false;
+      u.tempIndestructible = false;
+      u.tempPen = false;
+    };
+    [f, enemy].forEach(fighter => {
+      ["left", "center", "right"].forEach(pos => clearTurnBoosts(fighter.monsters[pos]));
+      clearTurnBoosts(fighter.item);
+      fighter.tempDamageReduce = 0;
+    });
+
     if (f.item) {
       f.item.rested = false;
       f.item.attacksLeft = f.item.card.atk_max || 1;
@@ -4230,12 +4304,16 @@ const battle = {
     this.setPrompt(`🔄 Turn ${this.turnCount}: ${f.name}'s Start Phase — Drawing 1 card from Deck...`);
     this.renderBattle();
 
+    const gen = this.matchGen;
     this.drawCardsWithAnimation(side, 1, () => {
+      if (gen !== this.matchGen || this.matchOver) return;
       if (side === "plr" || !f.isBot) {
         this.setPrompt("Main Phase: Click any card for its Detail Banner, Call, Equip, Cast, Search Deck, [Move] to Center, or Charge & Draw!");
       }
       if (f.isBot && side === "opp") {
-        setTimeout(() => this.runBotTurn(), 500);
+        setTimeout(() => {
+          if (gen === this.matchGen) this.runBotTurn();
+        }, 500);
       }
     });
   },
@@ -4283,6 +4361,8 @@ const battle = {
   },
 
   startChargeMode() {
+    // Ignore the button during the bot's / online friend's turn (it used to act on the opponent's hand).
+    if (!this.isLocalTurn()) return;
     const f = this.getFighter(this.activeSide);
     if (this.phase !== "main") {
       alert("You can only Charge & Draw during your Main Phase!");
@@ -4329,7 +4409,6 @@ const battle = {
       return;
     }
     const f = this.getFighter(this.activeSide);
-    if (this.phase === "main") this.phase = "attack";
 
     if (this.pendingAction && this.pendingAction.type === "link_select") {
       this.pendingAction = null;
@@ -4348,6 +4427,9 @@ const battle = {
       return;
     }
 
+    // Move to the Attack Phase only once the Link Attack can really start
+    // (before, a failed attempt left you stuck in the Attack Phase, unable to call monsters).
+    if (this.phase === "main") this.phase = "attack";
     this.linkAttackers = [];
     this.pendingAction = { type: "link_select" };
     this.setPrompt("🔗 LINK ATTACK: Click 2 or more of your standing Monsters/Item to link them together, then click an Enemy Target to strike with combined Power!");
@@ -4601,8 +4683,7 @@ const battle = {
         bAtk.onclick = () => {
           this.closeCardBanner();
           if (this.turnCount === 1) return;
-          if (this.phase === "main") this.phase = "attack";
-          this.startAttackSelection(side, zonePos);
+          this.startAttackSelection(side, zonePos); // switches to the Attack Phase once the attack is allowed
         };
         actionsEl.appendChild(bAtk);
 
@@ -4931,7 +5012,8 @@ const battle = {
     }
 
     if (sLower.includes("draw a card") || sLower.includes("draw 1 card") || sLower.includes("draw two cards")) {
-      let cnt = sLower.includes("two") ? 2 : 1;
+      // Only "draw two cards" draws 2. (Before, any "two" anywhere in the text, e.g. "two or more", drew 2.)
+      let cnt = sLower.includes("draw two cards") ? 2 : 1;
       if (sLower.includes("flags [reversal] two times or more") && revCnt >= 2) cnt += 1;
       this.drawCardsWithAnimation(side, cnt);
     }
@@ -5099,11 +5181,7 @@ const battle = {
       const c = CARD_MAP.get(entry.cid);
       if (!c) return;
 
-      if (tribeFilter) {
-        const tNorm = normalizeSearchToken(tribeFilter);
-        const hasTribe = (c.attrs || []).some(a => normalizeSearchToken(a).includes(tNorm));
-        if (!hasTribe) return;
-      }
+      if (tribeFilter && !cardHasTribe(c, tribeFilter)) return;
 
       if (q) {
         const hayRaw = `${c.name} ${c.type} ${(c.attrs || []).join(" ")} ${(c.attrs || []).map(formatTribeDisplayName).join(" ")} ${c.skill}`.toLowerCase();
@@ -5143,7 +5221,7 @@ const battle = {
       tile.innerHTML = `
         ${(matchesCrit && criteria) || entry.zone === "drop" ? `<div class="tile-owned-badge">${zoneTag}</div>` : ""}
         <img src="${c.img}" alt="${escapeHtml(c.name)}" loading="lazy" />
-        <div class="tile-name">${c.name}</div>
+        <div class="tile-name">${escapeHtml(c.name)}</div>
         <div class="tile-sub">${c.type} ${c.size !== null ? "• Sz " + c.size : ""} ${(c.attrs && c.attrs.length) ? "• «" + formatTribeDisplayName(c.attrs[0]) + "»" : ""}</div>
       `;
       grid.appendChild(tile);
@@ -5438,7 +5516,7 @@ const battle = {
       return;
     }
 
-    this.pendingAction = { type: "call", side, handIdx, isBuddyCall };
+    this.pendingAction = { type: "call", side, handIdx, cardId: f.hand[handIdx], isBuddyCall };
     const callName = isYamigedoHalfId(c.id) ? getBuddyDisplayName(c) : c.name;
     this.setPrompt(`🐉 Select Your Left, Center, or Right Monster Zone on Field1 to call "${callName}"!`);
     this.renderBattle();
@@ -5486,7 +5564,7 @@ const battle = {
     const f = this.getFighter(side);
     const cid = f.hand[handIdx];
     const rawCard = CARD_MAP.get(cid);
-    if (!rawCard) return;
+    if (!rawCard || rawCard.type !== "Monster") return;
 
     const isYami = isYamigedoHalfId(rawCard.id);
     if (isYami && !isAbilityCall && !fighterHasBothYamigedoHalvesInHand(f)) {
@@ -5498,7 +5576,14 @@ const battle = {
 
     const c = isYami ? (getCanonicalYamigedoCard() || rawCard) : rawCard;
     const cost = parseCardCost(c.cost, c.skill, f, c);
-    if (!isAbilityCall && f.gauge.length < cost.gauge) return;
+    if (!isAbilityCall && f.gauge.length < cost.gauge) {
+      if (!f.isBot) {
+        this.pendingAction = null;
+        this.setPrompt(`Not enough Gauge to call "${c.name}" (needs ${cost.gauge}, you have ${f.gauge.length}). Call cancelled.`);
+        this.renderBattle();
+      }
+      return;
+    }
 
     if (!isAbilityCall) {
       for (let i = 0; i < cost.gauge; i++) f.drop.push(f.gauge.pop());
@@ -5596,11 +5681,14 @@ const battle = {
     if (cost.life > 0) f.life = Math.max(1, f.life - cost.life);
 
     if (f.item && !f.item.isEndrulerFlag) {
+      // The old item's soul goes to the Drop Zone (before, those cards were lost from the game).
+      if (f.item.soul && f.item.soul.length) f.drop.push(...f.item.soul);
       if (c.eqc) {
         f.hand.push(f.item.card.id);
       } else {
         f.drop.push(f.item.card.id);
       }
+      f.item = null;
     }
 
     f.hand.splice(handIdx, 1);
@@ -5740,7 +5828,18 @@ const battle = {
 
     if (this.pendingAction && this.pendingAction.type === "call") {
       if (zoneSide === mySide && ["left", "center", "right"].includes(zonePos)) {
-        this.completeMonsterCall(mySide, zonePos, this.pendingAction.handIdx, this.pendingAction.isBuddyCall);
+        // The hand may have changed since "Call" was pressed (e.g. a spell was cast), so find the card again
+        // instead of trusting the old position — otherwise the wrong card could be put on the field.
+        const pa = this.pendingAction;
+        let handIdx = pa.handIdx;
+        if (pa.cardId !== undefined && f.hand[handIdx] !== pa.cardId) handIdx = f.hand.indexOf(pa.cardId);
+        if (handIdx === -1) {
+          this.pendingAction = null;
+          this.setPrompt("That card is no longer in your hand, so the call was cancelled.");
+          this.renderBattle();
+          return;
+        }
+        this.completeMonsterCall(mySide, zonePos, handIdx, pa.isBuddyCall);
       }
       return;
     }
@@ -5868,6 +5967,7 @@ const battle = {
       return;
     }
 
+    if (this.phase === "main") this.phase = "attack";
     this.linkAttackers = [attackerZone];
     this.pendingAction = { type: "attack", attackerZone };
     const blockedByCenter = enemy.monsters.center && !unit.card.sd;
@@ -6034,7 +6134,7 @@ const battle = {
         div.onclick = () => this.resolveDefenseChoice(opt.handIdx);
         div.innerHTML = `
           <img src="${opt.card.img}" alt="${escapeHtml(opt.card.name)}" />
-          <div class="def-option-title">${opt.card.name}</div>
+          <div class="def-option-title">${escapeHtml(opt.card.name)}</div>
           <div class="tile-sub">${cost.gauge ? cost.gauge + " Gauge" : "0 Gauge"}</div>
         `;
         strip.appendChild(div);
@@ -6435,6 +6535,8 @@ const battle = {
   runBotTurn() {
     if (this.matchOver || this.activeSide !== "opp" || !this.opp.isBot) return;
     const bot = this.opp;
+    const gen = this.matchGen;
+    const stillThisMatch = () => gen === this.matchGen && !this.matchOver && this.opp === bot;
 
     if (bot.godclock && !bot.godclock.awakened) {
       const nextQuadIdx = [0, 1, 3].find(i => !bot.godclock.quadrants[i].reversed);
@@ -6447,6 +6549,7 @@ const battle = {
     }
 
     const afterChargeStep = () => {
+      if (!stillThisMatch()) return;
       const itemIdx = bot.hand.findIndex(cid => {
         const c = CARD_MAP.get(cid);
         return c && c.type === "Item" && parseCardCost(c.cost, c.skill, bot, c).gauge <= bot.gauge.length;
@@ -6486,7 +6589,7 @@ const battle = {
       this.renderBattle();
 
       setTimeout(() => {
-        if (this.matchOver || this.activeSide !== "opp") return;
+        if (!stillThisMatch() || this.activeSide !== "opp") return;
         this.phase = "attack";
         this.renderBattle();
 
@@ -6495,7 +6598,7 @@ const battle = {
 
         let step = 0;
         const runNextBotAttack = () => {
-          if (this.matchOver) return;
+          if (!stillThisMatch()) return;
           if (this.activeSide !== "opp" || step >= attackers.length) {
             this.oppContinueCallback = null;
             // Check end-of-opponent's-turn Godclock #5957 awakening for Player!
@@ -6503,7 +6606,7 @@ const battle = {
               this.awakenEndrulerDragon("plr");
             }
             setTimeout(() => {
-              if (this.activeSide === "opp") {
+              if (stillThisMatch() && this.activeSide === "opp") {
                 this.turnCount++;
                 this.startTurn("plr");
               }
