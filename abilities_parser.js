@@ -104,9 +104,9 @@
     // --- references to earlier choices ---
     let m;
     if ((m = t.match(/^(?:the chosen|the selected|that|those|these|the same|the discarded|the revealed|the called|the dropped)\s+(card|cards|monster|monsters|item|items|spell|spells|character|characters)(?:\s+(.*))?$/i)) ||
-        (m = t.match(/^(it|them)(?:\s+(.*))?$/i))) {
+        (m = t.match(/^(it|them|they)(?:\s+(.*))?$/i))) {
       np.ref = "chosen";
-      np.qty.all = /s$/i.test(m[1]) || /^them$/i.test(m[1]);
+      np.qty.all = /s$/i.test(m[1]) || /^(them|they)$/i.test(m[1]);
       const tail = m[2] || (m[3] || "");
       np.refTail = tail;
       // e.g. "that card on the field" - zone words are ignored, it IS the chosen card
@@ -149,6 +149,16 @@
     if (/^other\b/i.test(q)) { np.excludeSelf = true; q = q.replace(/^other\s+/i, ""); }
     if (/^different\b/i.test(q)) { np.filter.distinct = true; q = q.replace(/^different\s+/i, ""); }
 
+    // multi-position zones: "on the left and right of your opponent's field", "on your opponent's left or right"
+    q = q.replace(/\b(?:on|in|at) the ((?:left|center|right)(?:(?: and | or |, )(?:the )?(?:left|center|right))*)(?: of| on| in)? (your opponent's|your|the opponent's|the|their) field\b/ig, (mm, ps, w) => {
+      np.zone = { owner: ownerOf(w), area: "field", pos: (ps.match(/left|center|right/ig) || []).map(lc) }; return " ";
+    });
+    q = q.replace(/\b(?:on|in) (your opponent's|your|the opponent's) ((?:left|center|right)(?:(?: and | or )(?:the )?(?:left|center|right))+)\b/ig, (mm, w, ps) => {
+      np.zone = { owner: ownerOf(w), area: "field", pos: (ps.match(/left|center|right/ig) || []).map(lc) }; return " ";
+    });
+    q = q.replace(/\b(?:an|one) opponent's\s+/ig, () => { if (!np.zone) np.zone = { owner: "opp", area: "field" }; return " "; });
+    q = q.replace(/\bbuddy (?=monsters?)/ig, () => { np.filter.buddy = true; return ""; });
+    q = q.replace(/\bwith ([\d,]+) or (less|more|greater) power or (?:with )?(?:([\d,]+) or (?:less|more|greater) )?defense\b/ig, (mm, v, cmp) => { np.filter.powerOrDef = { n: +v.replace(/,/g, ""), cmp: /less/i.test(cmp) ? "le" : "ge" }; return " "; });
     let topFlag = false;
     q = q.replace(/\bfrom the top of (your|your opponent's|their|the opponent's) deck\b/ig, (mm, w) => { topFlag = true; return "from " + w + " deck"; });
     // --- zone phrase(s) ---
@@ -199,6 +209,8 @@
     q = q.replace(/\bwith (?:the )?(?:\[([^\]]+)\])/ig, (mm, kw) => { (f.kws = f.kws || []).push(lc(kw)); return " "; });
     q = q.replace(/\bwith (?:the )?name "([^"]+)"/ig, (mm, v) => { (f.names = f.names || []).push(v.toLowerCase()); return " "; });
     q = q.replace(/\boriginally\s+/ig, () => { f.original = true; return " "; });
+    q = q.replace(/\bsize (\d+) or (lower|higher)\b/ig, (mm, v, cmp) => { f.size = { n: +v, cmp: /lower/i.test(cmp) ? "le" : "ge" }; return " "; });
+    q = q.replace(/\bother than "([^"]+)"/ig, (mm, v) => { (f.notNames = f.notNames || []).push(v.toLowerCase()); return " "; });
     q = q.replace(/\bsize (\d+) or (less|greater|more)\b/ig, (mm, v, cmp) => { f.size = { n: +v, cmp: /less/i.test(cmp) ? "le" : "ge" }; return " "; });
     q = q.replace(/\bsize (\d+)\b/ig, (mm, v) => { f.size = { n: +v, cmp: "eq" }; return " "; });
     q = q.replace(/\b(\d+) or (less|more|greater) size\b/ig, (mm, v, cmp) => { f.size = { n: +v, cmp: /less/i.test(cmp) ? "le" : "ge" }; return " "; });
@@ -269,6 +281,16 @@
   cr(/^this card is on the field$/i, () => ({ t: "selfOnField" }));
   cr(/^this card is on your field$/i, () => ({ t: "selfOnField" }));
   cr(/^this card is in your (drop zone|hand|gauge|deck)$/i, (m) => ({ t: "selfIn", area: lc(m[1]) }));
+  cr(/^your opponent has (\d+) life or (less|more)$/i, (m) => ({ t: "life", who: "opp", n: +m[1], cmp: CMP(m[2]) }));
+  cr(/^you have (\d+) life or (less|more)$/i, (m) => ({ t: "life", who: "you", n: +m[1], cmp: CMP(m[2]) }));
+  cr(/^your life is (\d+)$/i, (m) => ({ t: "life", who: "you", n: +m[1], cmp: "eq" }));
+  cr(/^your opponent's life is (\d+)$/i, (m) => ({ t: "life", who: "opp", n: +m[1], cmp: "eq" }));
+  cr(/^(?:its|this card's) (power|defense|critical|size) is ([\d,]+) or (less|more|greater)$/i, (m) => ({ t: "selfStat", stat: lc(m[1]), n: +m[2].replace(/,/g, ""), cmp: CMP(m[3]) }));
+  cr(/^(?:that|the revealed|the chosen|the dropped) card is (?:a|an) (monster|spell|item|impact)$/i, (m) => ({ t: "refType", type: lc(m[1]) }));
+  cr(/^the card revealed is (?:a|an) «([^»]+)»(?: monster)?$/i, (m) => ({ t: "refTribe", tribe: m[1] }));
+  cr(/^(?:that|the revealed|the chosen) card is (?:a|an) «([^»]+)»(?: monster)?$/i, (m) => ({ t: "refTribe", tribe: m[1] }));
+  cr(/^this card is on the (left|right) or (?:the )?(left|right)$/i, (m) => ({ t: "selfPosAny", pos: [lc(m[1]), lc(m[2])] }));
+  cr(/^this card has souls?$/i, () => ({ t: "selfSoul", n: 1, cmp: "ge" }));
   cr(/^this card is in (?:the )?soul of (.+)$/i, (m) => ({ t: "selfInSoulOf", np: parseNP(m[1]) }));
   cr(/^this card is (?:\[)?(rest|rested|stand|standing)(?:\])?$/i, (m) => ({ t: "selfRested", v: /^rest/i.test(m[1]) }));
   cr(/^this card has no souls?$/i, () => ({ t: "selfSoul", n: 0, cmp: "eq" }));
@@ -495,6 +517,7 @@
   ar(/^(?:rest) (.+)$/i, (m) => { const np = parseNP(m[1]); return np ? { op: "rest", np } : null; });
 
   /* ---------- choose ---------- */
+  ar(/^(?:you may )?(?:choose and )?use one of the following(?: abilities| two| three| effects)?$/i, () => ({ op: "modalMarker" }));
   ar(/^choose (.+)$/i, (m) => { const np = parseNP(m[1]); return np ? { op: "choose", np, bind: "chosen" } : null; });
 
   /* ---------- boosts ---------- */
@@ -521,6 +544,8 @@
   ar(/^give (.+?) (power|defense|critical)\s*([+\-])\s*(\d[\d,]*)$/i, (m) => { const np = parseNP(m[1]); if (!np) return null; const mods = { power: 0, defense: 0, critical: 0, kws: [] }; mods[lc(m[2])] = (m[3] === "-" ? -1 : 1) * parseInt(m[4].replace(/,/g, ""), 10); return { op: "boost", np, mods }; });
   ar(/^(?:the |that )?(?:size|power|defense|critical) of (.+?) (?:is|are) (?:reduced|increased) by (\d+)$/i, () => null);
 
+  ar(/^(?:this card|the abilities? of this card|the ability of this card|this ability)(?:'s abilities)? cannot be nullified$/i, () => ({ op: "noop", note: "unnullifiable-ok" }));
+  ar(/^the attack cannot be nullified$/i, () => ({ op: "noop", note: "unnullifiable-ok" }));
   /* ---------- restrictions ---------- */
   ar(/^(.+?) cannot (?:be )?(attack|destroyed|\[?rest\]?|returned to hand|called|\[?stand\]?|nullified|put into the drop zone|put to other areas)(?:(?: or| and| nor) (?:be )?(?:destroyed|returned to hand|\[?rest\]?|\[?stand\]?|nullified|put into the drop zone))*(?: by (?:your opponent's |the )?(?:card )?(?:effects?|abilities))?$/i, (m) => {
     const np = parseNP(m[1]); if (!np) return null;
@@ -586,6 +611,7 @@
     return SDEF("protect", { np, kinds: Array.from(new Set(kinds)), byOpp: /opponent/i.test(m[0]) });
   });
 
+  ar(/^this card cannot be (returned to hand|destroyed) from the field$/i, (m) => SDEF("protect", { kinds: [lc(m[1])], byOpp: false, self: true }));
   // --- damage shields / replacement of damage ---
   ar(/^(?:for this turn, )?(?:the )?next (?:time )?(?:that )?damage (?:you take|would be dealt to you|dealt to you)(?: this turn)?(?: from attacks)?,? (?:is |it is )?reduced (?:by (\d+)|to (0|zero))$/i, (m) => ({ op: "shield", mode: "next", reduceBy: m[1] ? +m[1] : null, toZero: !!m[2], from: /from attacks/i.test(m[0]) ? "attack" : "any" }));
   ar(/^(?:for this turn, )?the next time damage would be dealt to you(?: this turn)?,? it is reduced (?:by (\d+)|to (0|zero))(?:,? and you gain (\d+) life)?$/i, (m) => ({ op: "shield", mode: "next", reduceBy: m[1] ? +m[1] : null, toZero: !!m[2], gainLife: m[3] ? +m[3] : 0 }));
@@ -699,6 +725,17 @@
     const np = parseNP(((m[2] ? "up to " : "") + (m[3] || "a") + " " + (m[4] || "card")).trim()); if (!np) return null;
     return { op: "lookPick", n: toNum(m[1]), np, to: { area: lc(m[6]).replace(/^the /, ""), owner: "you", end: "top" }, rest: { area: "deck", owner: "you", end: "top", order: null }, gainLife: 0 };
   });
+  ar(/^put the top (\w+) cards? from the top of your deck (?:into|in) (?:the |your )?(gauge|drop zone)$/i, (m) => ({ op: "mill", who: "you", n: toNum(m[1]) || 1, to: lc(m[2]) }));
+  ar(/^(?:you may )?(?:drop|put) (?:(up to) )?(\w+) souls? from (.+?)(?: into (?:the |your |its owner's |their )?drop zone)?$/i, (m) => {
+    const np = /^this card$/i.test(m[3]) ? { self: true, qty: { n: 1 }, filter: {}, raw: "this card" } : parseNP(m[3]);
+    if (!np) return null;
+    return { op: "dropSoul", n: toNum(m[2]) || 1, upTo: !!m[1], hostNP: np };
+  });
+  ar(/^(?:you may )?(?:drop|put) all souls? from (.+?)(?: into (?:the |your |its owner's |their )?drop zone)?$/i, (m) => {
+    const np = /^this card$/i.test(m[1]) ? { self: true, qty: { n: 1 }, filter: {}, raw: "this card" } : parseNP(m[1]);
+    return np ? { op: "dropSoul", n: 99, hostNP: np } : null;
+  });
+  ar(/^put the top of your deck (?:into|in) (?:your |the )?(gauge|drop zone)$/i, (m) => ({ op: "mill", who: "you", n: 1, to: lc(m[1]) }));
   /*@@MORE_ACTIONS@@*/
 
   /* ============================================================

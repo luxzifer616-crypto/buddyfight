@@ -802,6 +802,7 @@ function getEffectiveCardSize(fighter, card) {
     const redMatch = s.match(/size\s+(?:on\s+the\s+field\s+)?(?:is\s+|gets\s+)?reduced\s+by\s+(\d+)/i);
     if (redMatch) sz -= parseInt(redMatch[1], 10);
   }
+  if (window.ABX && ABX.sizeDelta) sz += ABX.sizeDelta(fighter, card);
   return Math.max(0, sz);
 }
 
@@ -4557,7 +4558,7 @@ const battle = {
         m.tempDef = 0;
         m.tempCrit = 0;
         m.tempCA = false;
-        m.tempDA = false; m.tempTA = false; m.tempSG = false;
+        m.tempDA = false; m.tempTA = false; m.tempSG = false; m.tempMove = false;
         m.tempIndestructible = false;
         m.actUsed = false;
 
@@ -4583,7 +4584,7 @@ const battle = {
       u.tempDef = 0;
       u.tempCrit = 0;
       u.tempCA = false;
-      u.tempDA = false; u.tempTA = false; u.tempSG = false;
+      u.tempDA = false; u.tempTA = false; u.tempSG = false; u.tempMove = false;
       u.tempIndestructible = false;
       u.tempPen = false;
     };
@@ -4717,7 +4718,7 @@ const battle = {
     }
 
     const readyZones = ["left", "center", "right"].filter(p => f.monsters[p] && !f.monsters[p].rested && f.monsters[p].attacksLeft > 0);
-    const canItemLink = f.item && !f.item.rested && f.item.attacksLeft > 0 && (!f.monsters.center || f.item.isEndrulerFlag || (f.item.card.skill || "").toLowerCase().includes("even if you have a monster in the center"));
+    const canItemLink = f.item && !f.item.rested && f.item.attacksLeft > 0 && (!f.monsters.center || f.item.isEndrulerFlag || (f.item.card.skill || "").toLowerCase().includes("even if you have a monster in the center") || !!(window.ABX && ABX.canAttackThrough && ABX.canAttackThrough(this.activeSide, f.item, "own")));
     if (canItemLink) readyZones.push("item");
 
     if (readyZones.length < 2) {
@@ -4739,7 +4740,7 @@ const battle = {
     const unit = zonePos === "item" ? f.item : f.monsters[zonePos];
     if (!unit || unit.rested || unit.attacksLeft <= 0) return;
 
-    if (zonePos === "item" && f.monsters.center && !unit.isEndrulerFlag && !(unit.card.skill || "").toLowerCase().includes("even if you have a monster in the center")) {
+    if (zonePos === "item" && f.monsters.center && !unit.isEndrulerFlag && !(unit.card.skill || "").toLowerCase().includes("even if you have a monster in the center") && !(window.ABX && ABX.canAttackThrough && ABX.canAttackThrough(side, unit, "own"))) {
       alert("Your equipped Item cannot join a Link Attack while you have a monster in your Center zone!");
       return;
     }
@@ -5060,7 +5061,7 @@ const battle = {
         actionsEl.appendChild(bBoard);
       }
 
-      if (card.move && zonePos !== "item") {
+      if ((card.move || unit.tempMove) && zonePos !== "item") {
         const openZones = ["left", "center", "right"].filter(p => !f.monsters[p]);
         if (openZones.length > 0) {
           const bMove = document.createElement("button");
@@ -6297,7 +6298,7 @@ const battle = {
 
       const allHaveShadowDive = attackerZones.every(zp => {
         const u = zp === "item" ? attFighter.item : attFighter.monsters[zp];
-        return u && u.card.sd;
+        return u && (u.card.sd || (window.ABX && ABX.canAttackThrough && ABX.canAttackThrough(mySide, u, "opp")));
       });
 
       if (defFighter.monsters.center && !allHaveShadowDive) {
@@ -6326,7 +6327,7 @@ const battle = {
     const unit = attackerZone === "item" ? f.item : f.monsters[attackerZone];
     if (!unit) return;
 
-    const canAttackWithCenter = unit.isEndrulerFlag || (unit.card.skill || "").toLowerCase().includes("even if you have a monster in the center") || (unit.card.skill || "").toLowerCase().includes("even if you have monsters on your center") || (unit.card.skill || "").toLowerCase().includes("even if a «");
+    const canAttackWithCenter = unit.isEndrulerFlag || (unit.card.skill || "").toLowerCase().includes("even if you have a monster in the center") || (unit.card.skill || "").toLowerCase().includes("even if you have monsters on your center") || (unit.card.skill || "").toLowerCase().includes("even if a «") || !!(window.ABX && ABX.canAttackThrough && ABX.canAttackThrough(side, unit, "own"));
     if (attackerZone === "item" && f.monsters.center && !canAttackWithCenter) {
       alert("Buddyfight Rule: Your equipped Item cannot attack while you have a monster in your Center zone! (Use [Move] to shift your Center monster to Left/Right first, or attack with your monsters.)");
       return;
@@ -6335,7 +6336,7 @@ const battle = {
     if (this.phase === "main") this.phase = "attack";
     this.linkAttackers = [attackerZone];
     this.pendingAction = { type: "attack", attackerZone };
-    const blockedByCenter = enemy.monsters.center && !unit.card.sd;
+    const blockedByCenter = enemy.monsters.center && !unit.card.sd && !(window.ABX && ABX.canAttackThrough && ABX.canAttackThrough(side, unit, "opp"));
     if (blockedByCenter) {
       this.setPrompt(`🎯 SELECT TARGET: Click an Enemy Monster on the Playmat to attack!`);
     } else {

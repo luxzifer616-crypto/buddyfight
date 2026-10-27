@@ -135,6 +135,7 @@
       const f = ctx.f;
       const ids = f.deck.splice(0, s.n || 1);
       ctx.bind.revealed = ids.map(id => ({ k: "zone", side: ctx.side, area: "deck", id, card: cardOf(id), pending: true }));
+      ctx.bind.chosen = ctx.bind.revealed.slice();
       if (ids.length && !f.isBot && B.setPrompt) B.setPrompt(`Revealed: ${ids.map(i => cardOf(i).name).join(", ")}`);
       return ids.length > 0;
     }
@@ -173,7 +174,8 @@
         const kind = dest.area === "hand" ? "returned to hand" : "put into the drop zone";
         if (isProtected(r.unit, r.side, kind, ctx)) continue;
       }
-      const id = detach(r);
+      const id = r.pending ? r.id : detach(r);
+      r.pending = false;
       if (id == null) continue;
       const ownerSide = destOwnerSide(dest, r, ctx);
       place(id, Object.assign({}, dest, { owner: ownerSide === ctx.side ? "you" : "opp" }), ctx, r.side);
@@ -224,6 +226,8 @@
       const n = amount(s.n, ctx);
       const ids = f.deck.splice(0, n);
       const to = s.to;
+      ctx.bind.chosen = ids.map(id => ({ k: "zone", side, area: to === "soul" ? "drop" : to === "drop zone" ? "drop" : to, id, card: cardOf(id) }));
+      ctx.bind.revealed = ctx.bind.chosen.slice();
       ids.forEach(id => {
         if (to === "gauge") f.gauge.push(id);
         else if (to === "hand") f.hand.push(id);
@@ -301,28 +305,30 @@
         r.unit.tempPower = (r.unit.tempPower || 0) + (s.mods.power || 0) * mult;
         r.unit.tempDef = (r.unit.tempDef || 0) + (s.mods.defense || 0) * mult;
         r.unit.tempCrit = (r.unit.tempCrit || 0) + (s.mods.critical || 0) * mult;
-        (s.mods.kws || []).forEach(k => { if (k === "penetrate") r.unit.tempPen = true; if (k === "counterattack") r.unit.tempCA = true; if (k === "double attack") { r.unit.tempDA = true; r.unit.attacksLeft = Math.max(r.unit.attacksLeft || 0, 2); } if (k === "triple attack") { r.unit.tempTA = true; r.unit.attacksLeft = Math.max(r.unit.attacksLeft || 0, 3); } if (k === "soulguard") r.unit.tempSG = true; });
+        (s.mods.kws || []).forEach(k => { if (k === "penetrate") r.unit.tempPen = true; if (k === "counterattack") r.unit.tempCA = true; if (k === "double attack") { r.unit.tempDA = true; r.unit.attacksLeft = Math.max(r.unit.attacksLeft || 0, 2); } if (k === "triple attack") { r.unit.tempTA = true; r.unit.attacksLeft = Math.max(r.unit.attacksLeft || 0, 3); } if (k === "soulguard") r.unit.tempSG = true; if (k === "move") r.unit.tempMove = true; });
       });
       fresh(); return ch.length > 0;
     },
-    check: (s) => s.mods && (s.mods.kws || []).every(k => ["penetrate", "counterattack", "double attack", "triple attack", "soulguard"].includes(k)) && !(s.np && s.np.zone && !["field", "center", "left", "right"].includes(s.np.zone.area))
+    check: (s) => s.mods && (s.mods.kws || []).every(k => ["penetrate", "counterattack", "double attack", "triple attack", "soulguard", "move"].includes(k)) && !(s.np && s.np.zone && !["field", "center", "left", "right"].includes(s.np.zone.area))
   };
 
   /* ---------- call ---------- */
   OPS.call = {
     async run(s, ctx) {
       const f = ctx.f;
-      const area = (s.np.zone && s.np.zone.area) || "hand";
-      const arrName = area === "drop zone" ? "drop" : area === "hand" ? "hand" : null;
-      if (!arrName) return false;
-      const cands = refsFor(Object.assign({}, s.np, { zone: Object.assign({}, s.np.zone || {}, { owner: "you", area }) }), ctx)
-        .filter(r => r.card.type === "Monster")
-        .filter(r => {
-          if (!s.pay) return true;
-          const cost = parseCardCost(r.card.cost, r.card.skill, f, r.card);
-          return f.gauge.length >= cost.gauge && f.life > cost.life && ABX.canPayExtras(ctx.side, r.card, -1);
-        });
-      const ch = await pick(cands, s.np, ctx, { intent: "help", title: `${ctx.card.name} — call`, subtitle: ABX.clean(s.np.raw) });
+      let cands;
+      if (s.np.ref) cands = (ctx.bind.chosen || []).filter(r => r.k === "zone" && ["drop", "hand", "deck"].includes(r.area) && r.card && r.card.type === "Monster");
+      else {
+        const area = (s.np.zone && s.np.zone.area) || "hand";
+        if (!["hand", "drop zone", "deck"].includes(area)) return false;
+        cands = refsFor(Object.assign({}, s.np, { zone: Object.assign({}, s.np.zone || {}, { owner: "you", area }) }), ctx).filter(r => r.card.type === "Monster");
+      }
+      cands = cands.filter(r => {
+        if (!s.pay) return true;
+        const cost = parseCardCost(r.card.cost, r.card.skill, f, r.card);
+        return f.gauge.length >= cost.gauge && f.life > cost.life && ABX.canPayExtras(ctx.side, r.card, -1);
+      });
+      const ch = s.np.ref ? cands : await pick(cands, s.np, ctx, { intent: "help", title: `${ctx.card.name} — call`, subtitle: ABX.clean(s.np.raw) });
       let n = 0;
       for (const r of ch) {
         const pos = (s.pos && !f.monsters[s.pos]) ? s.pos : SLOTS.find(p => !f.monsters[p]);
@@ -330,7 +336,7 @@
         const cost = s.pay ? parseCardCost(r.card.cost, r.card.skill, f, r.card) : { gauge: 0, life: 0 };
         if (s.pay && (f.gauge.length < cost.gauge || f.life <= cost.life)) continue;
         if (B.getCurrentSizeUsed(f) + (r.card.size || 0) > (f.maxSize || 3)) continue;
-        if (arrName === "drop") { const i = f.drop.indexOf(r.id); if (i < 0) continue; f.drop.splice(i, 1); f.hand.push(r.id); }
+        if (r.area !== "hand") { const arr = f[r.area]; const i = arr.indexOf(r.id); if (i < 0) continue; arr.splice(i, 1); f.hand.push(r.id); }
         const hi = f.hand.lastIndexOf(r.id);
         if (hi < 0) continue;
         for (let g = 0; g < cost.gauge; g++) f.drop.push(f.gauge.pop());
@@ -341,7 +347,7 @@
       }
       return n > 0;
     },
-    check: (s) => !!s.np && !s.np.self && (s.free || s.pay) && s.np.zone && ["hand", "drop zone"].includes(s.np.zone.area) && !s.np.soulOf && s.np.qty && !s.np.junk
+    check: (s) => !!s.np && !s.np.self && (s.free || s.pay || (s.np.ref && true)) && (s.np.ref || (s.np.zone && ["hand", "drop zone", "deck"].includes(s.np.zone.area))) && !s.np.soulOf && s.np.qty && !s.np.junk
   };
 
   OPS.lookPick = {
@@ -370,12 +376,47 @@
     }
   };
 
+  OPS.dropSoul = {
+    async run(s, ctx) {
+      let hosts;
+      if (s.hostNP && s.hostNP.self) hosts = ctx.unit ? [{ unit: ctx.unit, side: ctx.side }] : [];
+      else if (s.hostNP && s.hostNP.ref) hosts = (ctx.bind.chosen || []).filter(r => r.unit);
+      else if (s.hostNP) { const c = refsFor(s.hostNP, ctx, { owner: "any", area: "field" }).filter(r => r.unit && (r.unit.soul || []).length); hosts = s.hostNP.qty.all ? c : await pick(c, s.hostNP, ctx, { intent: "harm", title: `${ctx.card.name} — choose a card to drop souls from` }); }
+      else hosts = [];
+      let n = 0;
+      for (const h of hosts) {
+        const u = h.unit, f = F(h.side);
+        if (!u || !(u.soul || []).length) continue;
+        const cnt = Math.min(s.n || 1, u.soul.length);
+        for (let i = 0; i < cnt; i++) { f.drop.push(u.soul.pop()); n++; }
+      }
+      fresh(); return n > 0;
+    },
+    check: (s) => !!s.hostNP && !s.host
+  };
+  OPS.nullifyAbilities = {
+    async run(s, ctx) {
+      const refs = s.np.ref ? (ctx.bind.chosen || []).filter(r => r.unit) : s.np.self ? refsFor(s.np, ctx) : refsFor(s.np, ctx, { owner: "any", area: "field" }).filter(r => r.unit);
+      const ch = s.np.ref || s.np.self || s.np.qty.all ? refs : await pick(refs, s.np, ctx, { intent: "harm", title: `${ctx.card.name} — nullify abilities of`, subtitle: ABX.clean(s.np.raw) });
+      let n = 0;
+      for (const r of ch) {
+        if (r.side !== ctx.side && isProtected(r.unit, r.side, "nullified", ctx)) continue;
+        r.unit.abxNullified = B.turnCount; n++;
+        if (s.thenDestroy) { const pos = core.posOfUnit(F(r.side), r.unit); if (pos && pos !== "item") B.destroyMonster(r.side, pos); }
+      }
+      fresh(); return n > 0;
+    },
+    check: (s) => !!s.np && !s.np.junk
+  };
+  core.isNullified = function (unit) { return !!(unit && unit.abxNullified === B.turnCount); };
+
   /* ---------- battle ---------- */
   OPS.nullifyAttack = {
     run(s, ctx) {
       const bc = ABX.battleCtx;
       if (!bc || !bc.active) return false;
       if (s.unlessLink && bc.link) return false;
+      if (ABX.attackUnnullifiable && ABX.attackUnnullifiable(bc)) { if (B.setPrompt) B.setPrompt(`⚠️ That attack cannot be nullified!`); return false; }
       bc.nullified = true;
       if (B.setPrompt) B.setPrompt(`🛡️ "${ctx.card.name}" nullified the attack!`);
       return true;
@@ -395,12 +436,12 @@
       });
       fresh(); return ch.length > 0;
     },
-    check: (s) => s.np && (s.kinds || []).length > 0 && (s.kinds || []).every(k => ["attack", "stand", "destroyed"].includes(k)) && (s.duration === "turn" || !!s.duration || true) && !(s.np.zone && !["field", "center", "left", "right"].includes(s.np.zone.area))
+    check: (s) => s.np && (s.kinds || []).length > 0 && (s.kinds || []).every(k => ["attack", "stand", "destroyed", "returned to hand", "rest", "nullified", "put into the drop zone"].includes(k)) && (s.duration === "turn" || !!s.duration || true) && !(s.np.zone && !["field", "center", "left", "right"].includes(s.np.zone.area))
   };
   core.isRestricted = function (unit, kind) { return !!(unit && unit.abxNo && unit.abxNo[kind] === B.turnCount); };
 
   /* ---------- statics / markers handled elsewhere ---------- */
   OPS.static = { run() { return true; }, check: (s) => s.kind === "protect" };
-  OPS.noop = { run() { return true; }, check: (s) => !s.note };
+  OPS.noop = { run() { return true; }, check: (s) => !s.note || s.note === "unnullifiable-ok" };
   OPS.modalMarker = { run() { return true; } };
 })(typeof window !== "undefined" ? window : globalThis);

@@ -68,7 +68,7 @@
   /* ============================================================
    * 2. EXECUTABILITY (what ABX is allowed to own)
    * ============================================================ */
-  const COND_OK = new Set(["turn", "phase", "underAttack", "selfPos", "selfOnField", "selfIn", "selfInSoulOf", "selfRested", "selfSoul", "selfSoulName", "selfSet",
+  const COND_OK = new Set(["selfStat", "refType", "refTribe", "selfPosAny", "turn", "phase", "underAttack", "selfPos", "selfOnField", "selfIn", "selfInSoulOf", "selfRested", "selfSoul", "selfSoulName", "selfSet",
     "life", "lifeVs", "gauge", "hand", "flagIs", "flagWorld", "reversal", "hasNot", "has", "count", "itemEquipped", "monsterCount", "onlyThis", "buddyOnField",
     "noBattle", "inBattle", "oppAttackCount", "myAttackCount", "attackedThisTurn", "castThisTurn", "event", "and", "or", "always"]);
   ABX.COND_OK = COND_OK;
@@ -102,7 +102,13 @@
   ABX.isExecutable = function (ab) {
     if (!ab) return false;
     if (ab.unparsed && ab.unparsed.length) return false;
-    if (ab.kind === "static") return !!(ab.steps && ab.steps.length && ab.steps.every(x => x.op === "static" && x.kind === "protect"));
+    if (ab.kind === "static") {
+      if (!(ab.steps && ab.steps.length) || (ab.unparsed && ab.unparsed.length)) return false;
+      const c0 = ab.cardId != null ? cardOf(ab.cardId) : null;
+      if (c0 && staticBoosts(c0).abs.includes(ab)) return true;
+      if (!(ab.conds || []).every(condExecutable)) return false;
+      return ab.steps.every(x => x.op === "static" && (x.kind === "protect" || x.kind === "attackThrough" || x.kind === "unnullifiable" || x.kind === "sizeMod" || x.kind === "cannotAttack" || x.kind === "noAttackPos"));
+    }
     if (ab.kind === "modal") {
       if (!(ab.options && ab.options.length && ab.options.every(o => ABX.isExecutable(o)))) return false;
       if (ab.trigger && !triggerSupported(ab.trigger)) return false;
@@ -165,6 +171,7 @@
     }
     if (f.notImpact && isImpactMon(card)) return false;
     if (f.names && f.names.length) { const n = lc(card.name); if (!f.names.some(x => n.includes(x))) return false; }
+    if (f.notNames && f.notNames.length) { const n2 = lc(card.name); if (f.notNames.some(x => n2.includes(x))) return false; }
     if (f.attrWords && f.attrWords.length) { const a = (card.attrs || []).map(norm); if (!f.attrWords.some(w => a.some(x => x.includes(norm(w))))) return false; }
     if (f.tribes && f.tribes.length) { if (!f.tribes.some(tb => tribeEq(card, tb))) return false; }
     if (f.worlds && f.worlds.length) { if (!f.worlds.some(w => (card.worlds || []).includes(w) || card.world === w)) return false; }
@@ -175,6 +182,8 @@
     if (f.defense && !cmpOK(statOf(card, unit, fighter, "defense", f.original), f.defense)) return false;
     if (f.critical && !cmpOK(statOf(card, unit, fighter, "critical", f.original), f.critical)) return false;
     if (f.kws && f.kws.length) { if (!f.kws.every(k => kwOf(card, k))) return false; }
+    if (f.buddy) { if (!(unit && (unit.isBuddyGift || card.id === (fighter && fighter.buddyId)))) return false; }
+    if (f.powerOrDef) { const pw = statOf(card, unit, fighter, "power", f.original), df = statOf(card, unit, fighter, "defense", f.original); if (!(cmpOK(pw, f.powerOrDef) || cmpOK(df, f.powerOrDef))) return false; }
     if (f.soulCount && unit) { const n = (unit.soul || []).length; if (!cmpOK(n, f.soulCount)) return false; }
     if (f.soulName && unit) { if (!(unit.soul || []).some(id => lc((cardOf(id) || {}).name).includes(f.soulName))) return false; }
     if (f.rested && unit && !unit.rested) return false;
@@ -219,7 +228,7 @@
         const wantMon = !flt.types || !flt.types.length || flt.types.some(x => x === "monster" || x === "character" || x === "impactMonster" || x === "card");
         const wantItem = !flt.types || !flt.types.length || flt.types.some(x => x === "item" || x === "character" || x === "card");
         const wantSet = !flt.types || !flt.types.length || flt.types.some(x => x === "spell" || x === "card");
-        if (wantMon) SLOTS.forEach(p => { if ((!z.pos || z.pos === p) && f.monsters[p]) { const u = f.monsters[p]; push({ k: "unit", side, pos: p, unit: u, card: u.card, id: u.card.id }); } });
+        if (wantMon) SLOTS.forEach(p => { if ((!z.pos || (Array.isArray(z.pos) ? z.pos.includes(p) : z.pos === p)) && f.monsters[p]) { const u = f.monsters[p]; push({ k: "unit", side, pos: p, unit: u, card: u.card, id: u.card.id }); } });
         if (wantItem && !z.pos && f.item && !f.item.isEndrulerFlag) push({ k: "item", side, pos: "item", unit: f.item, card: f.item.card, id: f.item.card.id });
         if (wantSet && !z.pos) (f.setSpells || []).forEach((c, i) => push({ k: "set", side, idx: i, card: c, id: c.id, unit: null }));
         return;
@@ -275,7 +284,11 @@
       case "selfOnField": return !!ctx.unit && posOfUnit(f, ctx.unit) !== null || (ctx.card && (f.setSpells || []).includes(ctx.card));
       case "selfIn": return ctx.hostArea === (c.area === "drop zone" ? "drop" : c.area);
       case "selfInSoulOf": { if (!ctx.soulHost) return false; const refs = refsFor(c.np, ctx, { owner: "you", area: "field" }); return refs.some(r => r.unit === ctx.soulHost); }
-      case "selfRested": return !!ctx.unit && (!!ctx.unit.rested === c.v);
+      case "selfStat": { if (!ctx.unit) return false; const e2 = getUnitEffectiveCombatStats(f, ctx.unit); const v = c.stat === "power" ? e2.power : c.stat === "defense" ? e2.defense : c.stat === "critical" ? e2.crit : getEffectiveCardSize(f, ctx.card); return cmpN(v, c); }
+      case "refType": { const r = (ctx.bind.revealed || []).concat(ctx.bind.looked || [], ctx.bind.chosen || []).filter(x => x && x.card).pop(); if (!r) return false; const k = r.card.type; return c.type === "monster" ? isMonsterCard(r.card) : c.type === "spell" ? k === "Spell" : c.type === "item" ? k === "Item" : k === "Impact"; }
+      case "refTribe": { const r = (ctx.bind.revealed || []).concat(ctx.bind.looked || [], ctx.bind.chosen || []).filter(x => x && x.card).pop(); return !!r && tribeEq(r.card, c.tribe); }
+      case "selfPosAny": return !!ctx.unit && c.pos.includes(posOfUnit(f, ctx.unit));
+      case "selfRested":      case "selfRested": return !!ctx.unit && (!!ctx.unit.rested === c.v);
       case "selfSoul": return !!ctx.unit && cmpN((ctx.unit.soul || []).length, c);
       case "selfSoulName": return !!ctx.unit && (ctx.unit.soul || []).some(id => lc((cardOf(id) || {}).name).includes(c.name));
       case "selfSet": return (f.setSpells || []).includes(ctx.card);
@@ -420,6 +433,7 @@
   function isProtected(unit, side, kind, ctx) {
     if (!unit) return false;
     if (kind === "destroyed" && unit.tempIndestructible) return true;
+    if (unit.abxNo && unit.abxNo[kind] === B.turnCount) return true;
     const f = F(side);
     const byOppSide = ctx && ctx.side && ctx.side !== side;
     const sources = fieldUnits(f, true).map(x => ({ unit: x.unit, card: x.unit.card })).concat((f.setSpells || []).map(c => ({ unit: null, card: c })));
@@ -591,6 +605,7 @@
   ABX.canUseAct = function (side, card, ab, unit) {
     const f = F(side), e = F(otherSide(side));
     const ctx = { side, f, e, card, unit, ab, bind: { chosen: [], revealed: [], looked: [] }, lastDone: true, auto: true, log: [], hostArea: "field" };
+    if (unit && unit.abxNullified === B.turnCount) return { ok: false, reason: "Abilities are nullified this turn" };
     if (onceUsed(f, card, ab, unit)) return { ok: false, reason: "Already used this turn" };
     if (!(ab.conds || []).every(c => evalCond(c, ctx))) return { ok: false, reason: "Timing / condition not met" };
     // a leading mandatory cost must be payable
@@ -672,6 +687,7 @@
           if (!match(ab.trigger, src, side)) continue;
           const f = F(side);
           if (src.unit && core.posOfUnit(f, src.unit) === null && !(src.unit === f.item)) continue;
+          if (src.unit && src.unit.abxNullified === B.turnCount) continue;
           if (onceUsed(f, src.card, ab, src.unit)) continue;
           const probe = { side, f, e: F(otherSide(side)), card: src.card, unit: src.unit, ab, bind: { chosen: [], revealed: [], looked: [] }, lastDone: true, auto: true, log: [], hostArea: "field", event: info };
           if (!(ab.conds || []).every(c => evalCond(c, probe))) continue;
@@ -848,6 +864,7 @@
         for (const src of srcs) {
           const sb = staticBoosts(src.card);
           if (!sb.abs.length) continue;
+          if ((src.unit && src.unit.abxNullified === B.turnCount) || (src.host && src.host.abxNullified === B.turnCount)) continue;
           for (const ab of sb.abs) {
             const ctx = { side, f, e, card: src.card, unit: src.unit, soulHost: src.host, bind: { chosen: src.host ? [{ k: "unit", side, unit: src.host, card: src.host.card, id: src.host.card.id }] : [] }, hostArea: src.host ? "soul" : "field" };
             if (!(ab.conds || []).every(c => evalCond(c, ctx))) continue;
@@ -868,6 +885,65 @@
     } catch (e) { if (ABX.debug) console.error(e); }
     inStatic--;
     return out;
+  };
+
+  /* ---- attack-legality statics: "can attack even if there is a monster in the center" ---- */
+  ABX.canAttackThrough = function (side, unit, which) {
+    if (!unit || !unit.card) return false;
+    const f = F(side), e = F(otherSide(side));
+    for (const ab of abilitiesOf(unit.card, a => a.kind === "static" && !(a.unparsed && a.unparsed.length))) {
+      const ctx = { side, f, e, card: unit.card, unit, bind: {} };
+      if (!(ab.conds || []).every(c => condExecutable(c) && evalCond(c, ctx))) continue;
+      for (const st of ab.steps || []) {
+        if (st.op !== "static" || st.kind !== "attackThrough") continue;
+        const raw = lc(st.raw || "");
+        const own = /\byour center\b|\byou have\b/.test(raw) && !/opponent/.test(raw);
+        if ((which === "own") !== own) continue;
+        if (!own) return true;
+        const cm = f.monsters.center;
+        if (!cm || !st.np || !st.np.filter || matchFilter(cm.card, st.np.filter, { unit: cm, side }, ctx)) return true;
+      }
+    }
+    return false;
+  };
+
+  ABX.attackUnnullifiable = function (bc) {
+    for (const u of bc.attUnits || []) {
+      for (const ab of abilitiesOf(u.card, a => a.kind === "static")) {
+        for (const st of ab.steps || []) {
+          if (st.op !== "static" || st.kind !== "unnullifiable") continue;
+          const ctx = { side: bc.attSide, f: F(bc.attSide), e: F(bc.defSide), card: u.card, unit: u, bind: {} };
+          if (!(ab.conds || []).every(c => condExecutable(c) && evalCond(c, ctx))) continue;
+          if (st.cond === "alone" && bc.attUnits.length > 1) continue;
+          if (st.cond && st.cond !== "alone" && typeof st.cond === "object" && !evalCond(st.cond, ctx)) continue;
+          return true;
+        }
+      }
+    }
+    return false;
+  };
+
+  // Size changes from "this card's size is reduced by N" statics (only the ones the old text code does not already do).
+  const LEGACY_SIZE = /dragod|reversal|overgod/i;
+  let inSize = 0;
+  ABX.sizeDelta = function (fighter, card, unit) {
+    if (inSize || !card) return 0;
+    const side = B.plr === fighter ? "plr" : B.opp === fighter ? "opp" : null;
+    if (!side) return 0;
+    inSize++;
+    let d = 0;
+    try {
+      for (const ab of abilitiesOf(card, a => a.kind === "static" && !(a.unparsed && a.unparsed.length))) {
+        if (LEGACY_SIZE.test(ab.raw || ab.cleaned || "")) continue;
+        const sm = (ab.steps || []).find(x => x.op === "static" && x.kind === "sizeMod");
+        if (!sm || (ab.steps || []).length !== 1) continue;
+        const ctx = { side, f: fighter, e: F(otherSide(side)), card, unit: unit || null, bind: {} };
+        if (!(ab.conds || []).every(c => condExecutable(c) && evalCond(c, ctx))) continue;
+        d += sm.delta || 0;
+      }
+    } catch (e) { /* ignore */ }
+    inSize--;
+    return d;
   };
 
   // Observe phase changes without touching every `this.phase = ...` site.
