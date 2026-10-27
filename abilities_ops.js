@@ -315,22 +315,59 @@
       const area = (s.np.zone && s.np.zone.area) || "hand";
       const arrName = area === "drop zone" ? "drop" : area === "hand" ? "hand" : null;
       if (!arrName) return false;
-      const cands = refsFor(Object.assign({}, s.np, { zone: Object.assign({}, s.np.zone || {}, { owner: "you", area }) }), ctx).filter(r => r.card.type === "Monster");
+      const cands = refsFor(Object.assign({}, s.np, { zone: Object.assign({}, s.np.zone || {}, { owner: "you", area }) }), ctx)
+        .filter(r => r.card.type === "Monster")
+        .filter(r => {
+          if (!s.pay) return true;
+          const cost = parseCardCost(r.card.cost, r.card.skill, f, r.card);
+          return f.gauge.length >= cost.gauge && f.life > cost.life && ABX.canPayExtras(ctx.side, r.card, -1);
+        });
       const ch = await pick(cands, s.np, ctx, { intent: "help", title: `${ctx.card.name} — call`, subtitle: ABX.clean(s.np.raw) });
       let n = 0;
       for (const r of ch) {
         const pos = (s.pos && !f.monsters[s.pos]) ? s.pos : SLOTS.find(p => !f.monsters[p]);
         if (!pos) break;
+        const cost = s.pay ? parseCardCost(r.card.cost, r.card.skill, f, r.card) : { gauge: 0, life: 0 };
+        if (s.pay && (f.gauge.length < cost.gauge || f.life <= cost.life)) continue;
         if (B.getCurrentSizeUsed(f) + (r.card.size || 0) > (f.maxSize || 3)) continue;
         if (arrName === "drop") { const i = f.drop.indexOf(r.id); if (i < 0) continue; f.drop.splice(i, 1); f.hand.push(r.id); }
         const hi = f.hand.lastIndexOf(r.id);
         if (hi < 0) continue;
+        for (let g = 0; g < cost.gauge; g++) f.drop.push(f.gauge.pop());
+        f.life -= cost.life;
         B.completeMonsterCall(ctx.side, pos, hi, false, true);
+        if (s.pay && ABX.hasExtras(r.card)) await ABX.payExtras(ctx.side, r.card, f.monsters[pos]);
         n++;
       }
       return n > 0;
     },
-    check: (s) => s.free && s.np && s.np.zone && ["hand", "drop zone"].includes(s.np.zone.area) && !s.np.soulOf
+    check: (s) => !!s.np && !s.np.self && (s.free || s.pay) && s.np.zone && ["hand", "drop zone"].includes(s.np.zone.area) && !s.np.soulOf && s.np.qty && !s.np.junk
+  };
+
+  OPS.lookPick = {
+    async run(s, ctx) {
+      const f = ctx.f;
+      const ids = f.deck.splice(0, s.n);
+      if (!ids.length) return false;
+      const refs = ids.map((id, i) => ({ k: "zone", side: ctx.side, area: "deck", id, card: cardOf(id), idx: i }));
+      const cands = refs.filter(r => core.matchFilter(r.card, (s.np.filter || {}), r, ctx));
+      const np = Object.assign({}, s.np, { qty: Object.assign({}, s.np.qty, { upTo: true }) });
+      const chosen = cands.length ? await pick(cands, np, ctx, { intent: "help", title: `${ctx.card.name} — look at the top ${ids.length} cards`, subtitle: ABX.clean(s.np.raw), min: s.np.qty.upTo ? 0 : Math.min(s.np.qty.n || 1, cands.length) }) : [];
+      const left = refs.filter(r => !chosen.includes(r));
+      const dest = (arr) => (arr.area === "drop zone" ? f.drop : arr.area === "hand" ? f.hand : f.gauge);
+      chosen.forEach(r => dest(s.to).push(r.id));
+      let order = left;
+      if (s.rest.area === "deck" && s.rest.order === "any" && left.length > 1 && !(f.isBot || ABX.autoPlay)) {
+        const idxs = await ABX.ui.pickCards({ title: `${ctx.card.name} — order the rest`, subtitle: `Pick the order (first = placed first) for the bottom of your deck.`, cards: left.map(r => ({ card: r.card, badge: "" })), min: left.length, max: left.length, ordered: true });
+        if (idxs && idxs.length === left.length) order = idxs.map(i => left[i]);
+      }
+      if (s.rest.area === "deck") {
+        if (s.rest.end === "bottom") order.forEach(r => f.deck.push(r.id)); else order.slice().reverse().forEach(r => f.deck.unshift(r.id));
+      } else order.forEach(r => dest(s.rest).push(r.id));
+      if (s.gainLife) f.life += s.gainLife;
+      afterChange();
+      return true;
+    }
   };
 
   /* ---------- battle ---------- */

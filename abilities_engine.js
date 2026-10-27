@@ -95,7 +95,7 @@
   const TRIG_OK = {
     enter: t => t.self, attack: t => t.self && !t.target, otherAttack: t => !!t.np, oppAttack: () => true, battleEnd: () => true,
     turnStart: () => true, turnEnd: () => true, phaseStart: t => ["start", "draw", "main", "attack", "final", "turn"].includes(t.phase),
-    otherEnter: t => !!t.np, youCast: () => true, oppCast: () => true, leave: t => t.self && !t.byOpp
+    otherEnter: t => !!t.np, otherDestroyed: t => !!t.np && !t.np.self, youCast: () => true, oppCast: () => true, leave: t => t.self && !t.byOpp
   };
   function triggerSupported(t) { return !!t && !!TRIG_OK[t.event] && TRIG_OK[t.event](t); }
   ABX.triggerSupported = triggerSupported;
@@ -531,8 +531,10 @@
     }
   }
 
+  ABX.stats = ABX.stats || { runs: 0 };
   async function runAbility(side, card, ab, unit, opts) {
     opts = opts || {};
+    ABX.stats.runs++;
     const f = F(side), e = F(otherSide(side));
     const ctx = { side, f, e, card, unit: unit || null, ab, bind: { chosen: [], revealed: [], looked: [] }, lastDone: true, event: opts.event || null, auto: !!opts.auto, log: [], hostArea: opts.hostArea || (unit ? "field" : null), soulHost: opts.soulHost || null, selfRef: opts.selfRef || null };
     if (ab.kind === "modal") {
@@ -724,6 +726,10 @@
     });
   };
 
+  ABX.fireOtherDestroyed = function (side, card, unit) {
+    return ABX.queue(() => fireTriggers((t, src, s) => t.event === "otherDestroyed" && src.unit !== unit && !(t.np && t.np.self) &&
+      ((t.opp ? s !== side : s === side)) && (!t.np || matchFilter(card, t.np.filter || {}, { unit: null, side }, { f: F(side) })), { name: "otherDestroyed" }));
+  };
   // Spell / impact resolution (kind "spell", no trigger).
   ABX.ownsSpell = function (card) {
     const p = ABX.get(card);
@@ -762,6 +768,106 @@
     } catch (e) { if (ABX.debug) console.error(e); }
     ABX.battleCtx = null;
     return { nullified: bc.nullified };
+  };
+
+  /* ---- extra [Call Cost] parts the old code ignores: soul from zone, discard, destroy ---- */
+  function extraParts(card) {
+    const out = [];
+    abilitiesOf(card, a => a.kind === "cost" && a.costKind === "call").forEach(a => (a.parts || []).forEach(p => { if (p.soulFrom || p.discard || p.destroy) out.push(p); }));
+    return out;
+  }
+  const AREA = { "drop zone": "drop", hand: "hand", gauge: "gauge", field: "field" };
+  function partCands(part, side, card, exclHandIdx) {
+    const f = F(side), ctx = { side, f, e: F(otherSide(side)), card, unit: null, bind: {} };
+    const spec = part.soulFrom || part.discard || part.destroy;
+    const flt = (spec.np && spec.np.filter) || {};
+    let area = part.soulFrom ? AREA[spec.area] : part.discard ? "hand" : "field";
+    if (area === "field") return refsFor(spec.np, ctx, { owner: "you", area: "field" });
+    return f[area].map((id, i) => ({ k: "zone", side, area, idx: i, id, card: cardOf(id) }))
+      .filter((r, i) => !(area === "hand" && i === exclHandIdx) && matchFilter(r.card, flt, r, ctx));
+  }
+  ABX.canPayExtras = function (side, card, exclHandIdx) {
+    return extraParts(card).every(p => partCands(p, side, card, exclHandIdx).length >= ((p.soulFrom || p.discard || p.destroy).n || 1));
+  };
+  ABX.hasExtras = (card) => extraParts(card).length > 0;
+  // unit may be null (card not on the field yet is fine for discard); soul parts need the new unit
+  ABX.payExtras = async function (side, card, unit) {
+    const f = F(side);
+    for (const part of extraParts(card)) {
+      const spec = part.soulFrom || part.discard || part.destroy, n = spec.n || 1;
+      const ctx = { side, f, e: F(otherSide(side)), card, unit, bind: {}, auto: true };
+      let cands = partCands(part, side, card, -1).filter(r => !(unit && r.unit === unit));
+      const np = { qty: { n }, raw: spec.np ? spec.np.raw : "a card" };
+      const chosen = await pick(cands, np, ctx, { intent: "cost", title: `${card.name} — pay the Call Cost`, subtitle: part.text, min: Math.min(n, cands.length), max: n });
+      for (const r of chosen) {
+        if (part.destroy) { const pos = core.posOfUnit(f, r.unit); if (pos) B.destroyMonster(side, pos); continue; }
+        const id = detach(r); if (id == null) continue;
+        if (part.soulFrom && unit) unit.soul.push(id); else f.drop.push(id);
+      }
+    }
+    fresh_();
+  };
+  function fresh_() { try { B.renderBattle(); } catch (e) { /* ignore */ } }
+
+  /* ---- static (continuous) stat boosts, replacing the old per-line text guessing for lines ABX fully understands ---- */
+  const STATIC_KW = ["penetrate", "counterattack", "double attack", "triple attack", "soulguard"];
+  const SPECIAL_LEGACY = /for each time your flags? \[reversal\]|overgod|endruler/i;
+  const STATIC_CACHE = new Map();
+  function staticBoosts(card) {
+    let r = STATIC_CACHE.get(card.id);
+    if (r) return r;
+    r = { abs: [], lines: new Set() };
+    ABX.get(card).abilities.forEach(a => {
+      if (a.kind !== "static" || (a.unparsed && a.unparsed.length) || !a.steps || !a.steps.length) return;
+      if (SPECIAL_LEGACY.test(a.raw || a.cleaned || "")) return;
+      if (!a.steps.every(x => x.op === "boost" && x.np && !x.np.junk && !(x.np.zone && !["field", "center", "left", "right", "soul"].includes(x.np.zone.area)) && (x.mods.kws || []).every(k => STATIC_KW.includes(k)))) return;
+      if (!(a.conds || []).every(condExecutable) || a.trigger) return;
+      r.abs.push(a);
+      r.lines.add(ABX.norm(a.raw || a.cleaned || ""));
+    });
+    STATIC_CACHE.set(card.id, r);
+    return r;
+  }
+  ABX.ownsStaticLine = function (card, line) { const r = staticBoosts(card); return r.abs.length > 0 && r.lines.has(ABX.norm(line)); };
+
+  let inStatic = 0;
+  // Bonus applied to `unit` (owned by `fighter`) from every static boost on both fields.
+  ABX.staticBonus = function (fighter, unit) {
+    const zero = { power: 0, defense: 0, crit: 0, pen: false, da: false, ta: false, ca: false, sg: false };
+    if (inStatic || !unit || !unit.card) return zero;
+    const mySide = B.plr === fighter ? "plr" : B.opp === fighter ? "opp" : null;
+    if (!mySide) return zero;
+    inStatic++;
+    const out = Object.assign({}, zero);
+    try {
+      for (const side of [mySide, otherSide(mySide)]) {
+        const f = F(side), e = F(otherSide(side));
+        const srcs = [];
+        fieldUnits(f, true).forEach(x => { srcs.push({ unit: x.unit, card: x.unit.card, host: null }); (x.unit.soul || []).forEach(id => { const c = cardOf(id); if (c) srcs.push({ unit: null, card: c, host: x.unit }); }); });
+        (f.setSpells || []).forEach(c => srcs.push({ unit: null, card: c, host: null }));
+        for (const src of srcs) {
+          const sb = staticBoosts(src.card);
+          if (!sb.abs.length) continue;
+          for (const ab of sb.abs) {
+            const ctx = { side, f, e, card: src.card, unit: src.unit, soulHost: src.host, bind: { chosen: src.host ? [{ k: "unit", side, unit: src.host, card: src.host.card, id: src.host.card.id }] : [] }, hostArea: src.host ? "soul" : "field" };
+            if (!(ab.conds || []).every(c => evalCond(c, ctx))) continue;
+            for (const st of ab.steps) {
+              if (st.cond && !evalCond(st.cond, ctx)) continue;
+              let hit = false;
+              if (st.np.self) hit = src.unit === unit;
+              else if (st.np.ref) hit = src.host ? src.host === unit : src.unit === unit;
+              else hit = refsFor(st.np, ctx, { owner: "you", area: "field" }).some(r => r.unit === unit);
+              if (!hit) continue;
+              const mult = st.each ? refsFor(st.each, ctx, { owner: "you", area: "field" }).length : 1;
+              out.power += (st.mods.power || 0) * mult; out.defense += (st.mods.defense || 0) * mult; out.crit += (st.mods.critical || 0) * mult;
+              (st.mods.kws || []).forEach(k => { if (k === "penetrate") out.pen = true; if (k === "double attack") out.da = true; if (k === "triple attack") out.ta = true; if (k === "counterattack") out.ca = true; if (k === "soulguard") out.sg = true; });
+            }
+          }
+        }
+      }
+    } catch (e) { if (ABX.debug) console.error(e); }
+    inStatic--;
+    return out;
   };
 
   // Observe phase changes without touching every `this.phase = ...` site.

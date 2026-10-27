@@ -1,0 +1,21 @@
+const { createEnv } = require("./headless.js");
+const { run, flush } = createEnv();
+run(`ABX.fast=true; battle.start('hotseat', generateFlagDeck(447,'T',571,true), generateFlagDeck(447,'O',571,true)); battle.renderBattle=function(){}; globalThis.__n=930000;
+ globalThis.put=function(side,pos,skill,extra){ const id=++__n; const c=Object.assign({id,name:'S'+id,type:'Monster',skill,cost:'',attrs:[],worlds:[],img:'',size:1,power:5000,defense:3000,crit:1},extra||{}); CARD_MAP.set(id,c); const f=battle.getFighter(side); f.monsters[pos]={card:c,rested:false,attacksLeft:1,soul:[],tempPower:0,tempDef:0,tempCrit:0}; return f.monsters[pos]; };
+ globalThis.st=(side,u)=>getUnitEffectiveCombatStats(battle.getFighter(side),u);`);
+let pass=0,fail=0; const ck=(n,ok,x)=>{ok?pass++:fail++;console.log(ok?"PASS":"FAIL",n,ok?"":x)};
+(async()=>{
+ run(`battle.plr.monsters={left:null,center:null,right:null}; globalThis.A=put('plr','left','All other monsters on your field get power+1000, and defense+1000.'); globalThis.B2=put('plr','center','');`);
+ ck("aura boosts other, not source", run(`st('plr',B2).power===6000 && st('plr',B2).defense===4000 && st('plr',A).power===5000`), run(`JSON.stringify([st('plr',B2),st('plr',A)])`));
+ run(`battle.plr.monsters={left:null,center:null,right:null}; globalThis.A=put('plr','center','If this card is on the center, it gets power+2000 and defense+2000.');`);
+ ck("center self boost applies on center", run(`st('plr',A).power===7000`), run(`JSON.stringify(st('plr',A))`));
+ run(`battle.plr.monsters={left:null,center:null,right:null}; globalThis.A=put('plr','left','If this card is on the center, it gets power+2000 and defense+2000.');`);
+ ck("... not on left", run(`st('plr',A).power===5000`), run(`JSON.stringify(st('plr',A))`));
+ run(`battle.plr.monsters={left:null,center:null,right:null}; globalThis.A=put('plr','left','If this card is on your field, «Weapon» on your field gets [Penetrate].'); globalThis.W=put('plr','center','',{attrs:['Weapon']});`);
+ ck("kw aura: Weapon gets Penetrate, source not", run(`st('plr',W).pen===true && st('plr',A).pen===false`), run(`JSON.stringify([st('plr',W),st('plr',A)])`));
+ run(`battle.plr.monsters={left:null,center:null,right:null}; globalThis.H=put('plr','center','',{attrs:['Ninja'],size:2}); const s=put('plr','left','If this card is in the soul of a size 2 or less Ninja, that monster gets [Penetrate] and [Soulguard].'); H.soul=[s.card.id]; battle.plr.monsters.left=null;`);
+ ck("soul-hosted aura gives host Penetrate", run(`st('plr',H).pen===true`), run(`JSON.stringify(st('plr',H))`));
+ run(`battle.plr.monsters={left:null,center:null,right:null}; globalThis.A=put('plr','left','All «Shinsengumi» on your field get critical+1.'); globalThis.S2=put('plr','center','',{attrs:['Shinsengumi']}); globalThis.S3=put('plr','right','',{attrs:['Dragon']});`);
+ ck("tribe aura only matching", run(`st('plr',S2).crit===2 && st('plr',S3).crit===1`), run(`JSON.stringify([st('plr',S2),st('plr',S3)])`));
+ console.log(`pass ${pass} fail ${fail}`);
+})();

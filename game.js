@@ -931,6 +931,7 @@ function getUnitEffectiveCombatStats(fighter, unit) {
 
   const clauses = s.split(/\n+/);
   clauses.forEach(line => {
+    if (window.ABX && ABX.ownsStaticLine && ABX.ownsStaticLine(c, line)) return;
     const l = line.toLowerCase();
     if (!l.startsWith("if ") && !l.startsWith("while ") && !l.startsWith("this card gets") && !l.startsWith("when this card link attacks")) return;
     if (l.includes("for each time your flags [reversal]")) return;
@@ -999,6 +1000,12 @@ function getUnitEffectiveCombatStats(fighter, unit) {
       if (l.includes("[triple attack]")) ta = true;
     }
   });
+
+  if (window.ABX && ABX.staticBonus) {
+    const sb = ABX.staticBonus(fighter, unit);
+    power += sb.power; defense += sb.defense; crit += sb.crit;
+    if (sb.pen) pen = true; if (sb.da) da = true; if (sb.ta) ta = true;
+  }
 
   if (unit.defenseZeroTurn) {
     defense = 0;
@@ -5920,6 +5927,15 @@ const battle = {
       return;
     }
 
+    if (!isAbilityCall && window.ABX && ABX.canPayExtras && !ABX.canPayExtras(side, c, handIdx)) {
+      if (!f.isBot) {
+        this.pendingAction = null;
+        this.setPrompt(`Cannot call "${c.name}": its [Call Cost] needs a card you don't have (see card text). Call cancelled.`);
+        this.renderBattle();
+      }
+      return;
+    }
+
     if (!isAbilityCall) {
       for (let i = 0; i < cost.gauge; i++) f.drop.push(f.gauge.pop());
       if (cost.life > 0) f.life = Math.max(1, f.life - cost.life);
@@ -5977,6 +5993,7 @@ const battle = {
     // Occupy the zone right away (not after the animation) so size checks and
     // back-to-back calls (e.g. the bot's turn) see the real board state.
     f.monsters[zonePos] = unit;
+    if (!isAbilityCall && window.ABX && ABX.payExtras && ABX.hasExtras(c)) ABX.payExtras(side, c, unit);
     const eff = getUnitEffectiveCombatStats(f, unit);
     unit.attacksLeft = eff.qa ? 4 : eff.ta ? 3 : eff.da ? 2 : (c.atk_max || 1);
     if (isBuddyCall) f.buddyCalled = true;
@@ -6844,6 +6861,7 @@ const battle = {
     if (this.imOnDestroyedUnit && window.IMX && IMX.isUnit(m)) this.imOnDestroyedUnit(side, m);
     this.sendMonsterToDropWithAnimation(side, pos, false);
     if (window.ABX && ABX.fireLeave) ABX.fireLeave(side, m.card);
+    if (window.ABX && ABX.fireOtherDestroyed) ABX.fireOtherDestroyed(side, m.card, m);
     return true;
   },
 

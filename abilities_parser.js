@@ -680,6 +680,25 @@
   ar(/^this card gets all the \[d\] of \[d-share\] in its soul$/i, () => SDEF("dShareCollect"));
   ar(/^if (?:it|that card) is not,? put it on the bottom of your deck$/i, () => ({ op: "noop", note: "reveal-not-matching" }));
 
+  /* ---------- look at the top N ... put X from among them ..., put the rest ... ---------- */
+  const NW = "\\d+|one|two|three|four|five|six|seven|eight|nine|ten|a|an";
+  function restDest(t) {
+    let m;
+    t = lc(t.trim());
+    if ((m = t.match(/^(?:into|in|to) (?:your )?(hand|gauge|drop zone)$/))) return { area: m[1], owner: "you", end: "top" };
+    if ((m = t.match(/^on the (top|bottom) of your deck(?: in any order)?$/))) return { area: "deck", owner: "you", end: m[1], order: /any order/.test(t) ? "any" : null };
+    return null;
+  }
+  arw(new RegExp("^look at the top (" + NW + ") cards? of your deck,? (?:and )?(?:you may )?put (up to )?(" + NW + ")? ?(.*?)(?: cards?)? from among them (into|in) (?:your )?(hand|gauge|drop zone|the drop zone),? (?:and )?put the rest (.+?)(?:,? and you gain (\\d+) life)?$", "i"), (m) => {
+    const rest = restDest(m[7]); if (!rest) return null;
+    const npText = ((m[2] ? "up to " : "") + (m[3] || "a") + " " + (m[4] || "card")).trim();
+    const np = parseNP(npText); if (!np) return null;
+    return { op: "lookPick", n: toNum(m[1]), np, to: { area: lc(m[6]).replace(/^the /, ""), owner: "you", end: "top" }, rest, gainLife: m[8] ? +m[8] : 0 };
+  });
+  arw(new RegExp("^look at the top (" + NW + ") cards? of your deck,? (?:and )?put (up to )?(" + NW + ")? ?(.*?)(?: cards?)? from among them (into|in) (?:your )?(hand|gauge|drop zone|the drop zone)$", "i"), (m) => {
+    const np = parseNP(((m[2] ? "up to " : "") + (m[3] || "a") + " " + (m[4] || "card")).trim()); if (!np) return null;
+    return { op: "lookPick", n: toNum(m[1]), np, to: { area: lc(m[6]).replace(/^the /, ""), owner: "you", end: "top" }, rest: { area: "deck", owner: "you", end: "top", order: null }, gainLife: 0 };
+  });
   /*@@MORE_ACTIONS@@*/
 
   /* ============================================================

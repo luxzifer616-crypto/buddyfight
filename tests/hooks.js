@@ -29,5 +29,9 @@ const ck = (n, ok, extra) => { ok ? pass++ : fail++; console.log(ok ? "PASS" : "
   ck("once-per-turn blocks 2nd fire", (()=>{ run(`fresh(); globalThis.__h=battle.plr.hand.length; fake('plr','center','[Auto] At the end of your turn, draw a card. You may only use this ability once per turn.')`); return true; })());
   run(`ABX.fireTurnEvent('turnEnd'); ABX.fireTurnEvent('turnEnd')`); await new Promise(r=>setTimeout(r,30)); await flush();
   ck("  ...once only", run(`battle.plr.hand.length===__h+1`), run(`[battle.plr.hand.length,__h]`));
+  run(`fresh()`); for (let i=0;i<6;i++){ await flush(); await new Promise(r=>setTimeout(r,5)); }
+  run(`globalThis.__l=battle.plr.life; fake('plr','left','[Auto] When a monster on your field is destroyed, you gain 1 life.'); const v=fake('plr','center',''); battle.destroyMonster('plr','center')`);
+  for (let i=0;i<6;i++){ await new Promise(r=>setTimeout(r,10)); await flush(); }
+  ck("otherDestroyed trigger", run(`battle.plr.life===__l+1`), run(`[battle.plr.life,__l]`));
   console.log(`\npass ${pass} fail ${fail}`);
 })();
