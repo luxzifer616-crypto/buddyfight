@@ -1762,6 +1762,7 @@ const app = {
   activeRoomCode: null,
 
   init() {
+    try { this.applyMat(); } catch (e) { console.warn("Playmat init failed", e); }
     this.loadState();
     this.initMultiplayerChannel();
     this.populateWorldAndTribeDropdowns();
@@ -2061,6 +2062,42 @@ const app = {
   previewActiveBuddy() {
     const deck = this.state.decks[this.state.activeDeckIndex] || this.state.decks[0];
     this.openCardModal(deck.buddyId, true);
+  },
+
+  // ===== Playmats: each mat is ONE player's side; two copies are joined (top one rotated 180°) =====
+  MATS: [
+    { id: "classic",  name: "Classic Field (printed zones)", img: "Sprite/Field1.png" },
+    { id: "godclock", name: "Godclock Reversal",             img: "Sprite/Mats/mat-godclock.jpg" },
+    { id: "heroes",   name: "Buddyfight Heroes",             img: "Sprite/Mats/mat-heroes.jpg" },
+    { id: "endruler", name: "Endruler Twin Dragons",         img: "Sprite/Mats/mat-endruler.jpg" }
+  ],
+
+  getMatId() {
+    let id = "classic";
+    try { id = localStorage.getItem("bf_mat") || "classic"; } catch (e) {}
+    return this.MATS.some(m => m.id === id) ? id : "classic";
+  },
+
+  selectMat(id) {
+    try { localStorage.setItem("bf_mat", id); } catch (e) {}
+    this.applyMat();
+  },
+
+  applyMat() {
+    const id = this.getMatId();
+    const mat = this.MATS.find(m => m.id === id) || this.MATS[0];
+    const pm = document.getElementById("field-playmat");
+    if (pm) {
+      pm.classList.toggle("custom-mat", id !== "classic");
+      pm.style.setProperty("--mat-img", `url("${mat.img}")`);
+    }
+    const sel = document.getElementById("hub-mat-select");
+    if (sel) {
+      if (!sel.options.length) sel.innerHTML = this.MATS.map(m => `<option value="${m.id}">${escapeHtml(m.name)}</option>`).join("");
+      sel.value = id;
+    }
+    const pv = document.getElementById("hub-mat-preview");
+    if (pv) pv.style.setProperty("--mat-img", `url("${mat.img}")`);
   },
 
   selectActiveDeck(idx) {

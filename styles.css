@@ -2151,3 +2151,66 @@ body {
 @media (max-width: 600px) {
   .pack-preview-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; }
 }
+
+
+/* ==================== PLAYMATS (2 joined single-player mats) + RECTANGULAR GAUGE ==================== */
+.mat-half { display: none; }
+.field-playmat.custom-mat { background: #0b1020; overflow: hidden; }
+.field-playmat.custom-mat .mat-half {
+  display: block; position: absolute; left: 0; width: 100%; height: 50%;
+  background: var(--mat-img) center / cover no-repeat; pointer-events: none;
+}
+.field-playmat.custom-mat .mat-half-opp { top: 0; transform: rotate(180deg); }
+.field-playmat.custom-mat .mat-half-plr { top: 50%; }
+.field-playmat.custom-mat::after { /* seam between the two mats */
+  content: ""; position: absolute; left: 0; right: 0; top: calc(50% - 1px); height: 2px;
+  background: rgba(251,191,36,.7); pointer-events: none; z-index: 1;
+}
+/* zones need visible slots because these mats have no printed zones */
+.field-playmat.custom-mat .field-zone {
+  z-index: 2; background: rgba(8,12,26,.52); border: 1.5px dashed rgba(255,255,255,.5);
+}
+.field-playmat.custom-mat .field-zone:hover { background: rgba(8,12,26,.55); }
+.field-playmat.custom-mat .hex-zone { border-radius: 14px; }
+
+/* Player half (bottom) */
+.field-playmat.custom-mat .plr-m-left   { left: 22%; top: 53%; width: 16%; height: 22%; }
+.field-playmat.custom-mat .plr-m-center { left: 42%; top: 53%; width: 16%; height: 22%; }
+.field-playmat.custom-mat .plr-m-right  { left: 62%; top: 53%; width: 16%; height: 22%; }
+.field-playmat.custom-mat .plr-drop-zone { left: 83%; top: 53%; width: 14%; height: 20%; }
+.field-playmat.custom-mat .plr-deck-zone { left: 83%; top: 75%; width: 14%; height: 20%; }
+.field-playmat.custom-mat .plr-set-zone   { left: 3%;  top: 76%; width: 15%; height: 15%; }
+.field-playmat.custom-mat .plr-item-zone  { left: 22%; top: 76%; width: 20%; height: 15%; }
+.field-playmat.custom-mat .plr-buddy-zone { left: 46%; top: 76%; width: 15%; height: 15%; }
+.field-playmat.custom-mat .plr-gauge-zone { left: 3%;  top: 92%; width: 78%; height: 7%; }
+/* Opponent half (top) = point-mirror of the player half */
+.field-playmat.custom-mat .opp-m-right  { left: 22%; top: 3%;  width: 16%; height: 22%; }
+.field-playmat.custom-mat .opp-m-center { left: 42%; top: 3%;  width: 16%; height: 22%; }
+.field-playmat.custom-mat .opp-m-left   { left: 62%; top: 3%;  width: 16%; height: 22%; }
+.field-playmat.custom-mat .opp-drop-zone { left: 3%;  top: 27%; width: 14%; height: 20%; }
+.field-playmat.custom-mat .opp-deck-zone { left: 3%;  top: 5%;  width: 14%; height: 20%; }
+.field-playmat.custom-mat .opp-set-zone   { left: 82%; top: 9%;  width: 15%; height: 15%; }
+.field-playmat.custom-mat .opp-item-zone  { left: 58%; top: 9%;  width: 20%; height: 15%; }
+.field-playmat.custom-mat .opp-buddy-zone { left: 39%; top: 9%;  width: 15%; height: 15%; }
+.field-playmat.custom-mat .opp-gauge-zone { left: 19%; top: 1%;  width: 78%; height: 7%; }
+/* keep the middle rows from overlapping the opponent back row */
+.field-playmat.custom-mat .opp-m-right, .field-playmat.custom-mat .opp-m-center, .field-playmat.custom-mat .opp-m-left { top: 27%; }
+.field-playmat.custom-mat .opp-item-zone, .field-playmat.custom-mat .opp-buddy-zone, .field-playmat.custom-mat .opp-set-zone { top: 9%; height: 15%; }
+.field-playmat.custom-mat .opp-deck-zone { top: 3%; }
+.field-playmat.custom-mat .opp-drop-zone { top: 26%; }
+
+/* Gauge = wide horizontal rectangle, cards lie on their side and overlap left→right */
+.field-playmat.custom-mat .gauge-horiz-stack {
+  width: 100%; height: 100%; margin: 0; padding: 0 4px;
+  flex-direction: row; justify-content: flex-start; align-items: center; overflow: hidden;
+}
+.field-playmat.custom-mat .gauge-sleeve-horiz {
+  width: auto; height: 78%; aspect-ratio: 7 / 5; margin: 0 -14px 0 0; object-fit: cover;
+  border-radius: 3px; border: 1.5px solid #fbbf24; box-shadow: 0 2px 6px rgba(0,0,0,.75);
+}
+.field-playmat.custom-mat .zone-badge { font-size: 8px; }
+
+.mat-preview {
+  margin-top: 8px; height: 70px; border-radius: 8px; border: 1px solid rgba(251,191,36,.45);
+  background: var(--mat-img) center / cover no-repeat;
+}

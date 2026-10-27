@@ -51,7 +51,7 @@
     })();
   </script>
   <title>Future Card Buddyfight — Complete Anime Simulator</title>
-  <link rel="stylesheet" href="styles.css?v=20261027b" />
+  <link rel="stylesheet" href="styles.css?v=20261027c" />
 </head>
 <body>
   <!-- TOP NAVIGATION BAR (Hidden during active battle) -->
@@ -126,6 +126,12 @@
             <div class="sub-label" data-i18n="equipped_deck">EQUIPPED FIGHT DECK</div>
             <select id="hub-deck-select" class="styled-select" onchange="app.selectActiveDeck(this.value)"></select>
             <div id="hub-deck-summary" class="deck-mini-info"></div>
+          </div>
+
+          <div class="active-deck-box">
+            <div class="sub-label">PLAYMAT</div>
+            <select id="hub-mat-select" class="styled-select" onchange="app.selectMat(this.value)"></select>
+            <div id="hub-mat-preview" class="mat-preview"></div>
           </div>
 
           <div class="unlock-all-box">
@@ -470,6 +476,8 @@
       <!-- Center Full-Stage Playmat Area -->
       <div class="battle-stage-center">
         <div class="field-playmat" id="field-playmat">
+          <div class="mat-half mat-half-opp" aria-hidden="true"></div>
+          <div class="mat-half mat-half-plr" aria-hidden="true"></div>
           <!-- ================= OPPONENT ZONES (Top Half of Field1.png) ================= -->
           <div class="field-zone opp-deck-zone" id="z-opp-deck" onclick="battle.showBannerForZone('opp','deck')" title="Opponent Deck">
             <div class="zone-badge">Opp Deck (<span id="z-opp-deck-cnt">42</span>)</div>
@@ -791,6 +799,6 @@
   <!-- PeerJS WebRTC for Real Online Multiplayer on GitHub Pages -->
   <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
   <script src="cards_data.js"></script>
-  <script src="game.js?v=20261027b"></script>
+  <script src="game.js?v=20261027c"></script>
 </body>
 </html>
