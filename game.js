@@ -4,6 +4,62 @@ const ALL_CARDS = window.BUDDYFIGHT_CARDS || [];
 const CARD_MAP = new Map();
 ALL_CARDS.forEach(c => CARD_MAP.set(c.id, c));
 
+/* ==================== HYAKUGAN YAMIGEDO ("EARTH HALF" #1911 & "SKY HALF" #1912) DUAL-CARD HELPERS ==================== */
+const YAMIGEDO_EARTH_ID = 1911;
+const YAMIGEDO_SKY_ID = 1912;
+
+function isYamigedoHalfId(id) {
+  const n = Number(id);
+  return n === YAMIGEDO_EARTH_ID || n === YAMIGEDO_SKY_ID;
+}
+
+function getOtherYamigedoHalfId(id) {
+  const n = Number(id);
+  if (n === YAMIGEDO_EARTH_ID) return YAMIGEDO_SKY_ID;
+  if (n === YAMIGEDO_SKY_ID) return YAMIGEDO_EARTH_ID;
+  return null;
+}
+
+function fighterHasBothYamigedoHalvesInHand(fighter) {
+  if (!fighter || !Array.isArray(fighter.hand)) return false;
+  return fighter.hand.includes(YAMIGEDO_EARTH_ID) && fighter.hand.includes(YAMIGEDO_SKY_ID);
+}
+
+function isFighterBuddyMatch(buddyId, cardId) {
+  if (Number(buddyId) === Number(cardId)) return true;
+  if (isYamigedoHalfId(buddyId) && isYamigedoHalfId(cardId)) return true;
+  return false;
+}
+
+function getCanonicalYamigedoCard() {
+  return CARD_MAP.get(YAMIGEDO_EARTH_ID) || CARD_MAP.get(YAMIGEDO_SKY_ID);
+}
+
+function renderYamigedoDualStackHtml(extraClass = "") {
+  const sky = CARD_MAP.get(YAMIGEDO_SKY_ID);
+  const earth = CARD_MAP.get(YAMIGEDO_EARTH_ID);
+  const skyImg = sky ? sky.img : "CardSprite/n1912.png";
+  const earthImg = earth ? earth.img : "CardSprite/n1911.png";
+  return `
+    <div class="yamigedo-dual-stack ${extraClass}" title="Evil Deity of Cataclysm, Hyakugan Yamigedo (Sky Half Top + Earth Half Bottom)">
+      <div class="yami-half-slot yami-sky-top">
+        <img src="${skyImg}" alt="Hyakugan Yamigedo Sky Half" />
+      </div>
+      <div class="yami-half-slot yami-earth-bottom">
+        <img src="${earthImg}" alt="Hyakugan Yamigedo Earth Half" />
+      </div>
+    </div>
+  `;
+}
+
+function getBuddyDisplayName(buddyCard) {
+  if (!buddyCard) return "Unknown Buddy";
+  if (isYamigedoHalfId(buddyCard.id)) {
+    return 'Evil Deity of Cataclysm, Hyakugan Yamigedo ("Sky Half" & "Earth Half")';
+  }
+  return buddyCard.name;
+}
+
 const WORLDS_LIST = [
   "Dragon World",
   "Magic World",
@@ -682,6 +738,10 @@ function getEffectiveCardSize(fighter, card) {
   const s = (card.skill || "").toLowerCase();
   const revCnt = getFighterReversalCount(fighter);
 
+  if (fighter && fighter.hyakuganSizeZeroTurn && sz <= 2 && (card.attrs || []).some(a => normalizeSearchToken(a).includes("hundreddemon"))) {
+    return 0;
+  }
+
   if (s.includes("flag is \"overgod, \"0\"\"") && fighter && fighter.godclock && fighter.godclock.overgodActive) {
     const redMatch = s.match(/size\s+on\s+the\s+field\s+is\s+reduced\s+by\s+(\d+)/i);
     if (redMatch) sz -= parseInt(redMatch[1], 10);
@@ -698,6 +758,13 @@ function getEffectiveCardSize(fighter, card) {
 }
 
 function parseCardCost(costStr, skillStr, fighter = null, cardObj = null) {
+  if (cardObj && Number(cardObj.id) === YAMIGEDO_SKY_ID) {
+    const earthCard = CARD_MAP.get(YAMIGEDO_EARTH_ID);
+    if (earthCard) {
+      costStr = earthCard.cost;
+      skillStr = earthCard.skill;
+    }
+  }
   const combined = (costStr || "") + "\n" + (skillStr || "");
   let gauge = 0;
   let life = 0;
@@ -890,7 +957,7 @@ function getUnitEffectiveCombatStats(fighter, unit) {
   return { power: Math.max(0, power), defense: Math.max(0, defense), crit: Math.max(0, crit), pen, da, ta, qa };
 }
 
-function evaluateCardConditions(card, fighter, enemy) {
+function evaluateCardConditions(card, fighter, enemy, isAbilityCall = false) {
   const s = card.skill || "";
   const sLower = s.toLowerCase();
   const cost = parseCardCost(card.cost, card.skill, fighter, card);
@@ -906,6 +973,14 @@ function evaluateCardConditions(card, fighter, enemy) {
       reasons,
       summary: reasons.length === 0 ? "✅ Ready to [Reversal] Endruler Dragon!" : `⚠️ ${reasons[0]}`
     };
+  }
+
+  if (isYamigedoHalfId(card.id) && !isAbilityCall) {
+    if (!fighterHasBothYamigedoHalvesInHand(fighter)) {
+      const missingId = getOtherYamigedoHalfId(card.id);
+      const missingCard = CARD_MAP.get(missingId);
+      reasons.push(`[Evil Deity] Requires BOTH "Earth Half" (#1911) and "Sky Half" (#1912) in your hand to call normally (missing ${missingCard ? `"${missingCard.name}"` : "the other half"}) — or call via a card ability!`);
+    }
   }
 
   if (fighter.gauge.length < cost.gauge) {
@@ -1078,8 +1153,14 @@ function parseDeckSearchCriteria(card) {
   if (sizeLessMatch) maxSize = parseInt(sizeLessMatch[1], 10);
   else if (sizeExactMatch) exactSize = parseInt(sizeExactMatch[1], 10);
 
+  const lowCleaned = cleaned.toLowerCase();
+  const destAction = (lowCleaned.includes("call ") && !lowCleaned.includes("into your hand") && !lowCleaned.includes("to your hand"))
+    ? "call"
+    : "hand";
+
   return {
     isTopLook: false,
+    destAction,
     rawText: searchLine,
     nameSubstrings,
     attrSubstrings,
@@ -1329,7 +1410,7 @@ function generateLostDeck() {
   return lostCards;
 }
 
-const DECK_SIZE = 50; // Buddyfight main decks are exactly 50 cards
+const DECK_SIZE = 50; // Buddyfight main decks require at least 50 cards (50+)
 
 function generateFlagDeck(flagId, customTitle, preferredBuddyId, includeLostWorld = false) {
   const flagCard = CARD_MAP.get(flagId) || ALL_CARDS.find(c => c.type === "Flag" && c.worlds.includes("Dragon World")) || ALL_CARDS[0];
@@ -1723,7 +1804,12 @@ const app = {
     const flag = CARD_MAP.get(deck.flagId) || ALL_CARDS[0];
     const cfg = getFlagConfig(flag);
 
-    document.getElementById("hub-buddy-img").src = buddy.img;
+    const hubBuddyVis = document.getElementById("hub-buddy-visual");
+    if (hubBuddyVis) {
+      hubBuddyVis.innerHTML = isYamigedoHalfId(buddy.id)
+        ? renderYamigedoDualStackHtml()
+        : `<img id="hub-buddy-img" src="${buddy.img}" alt="Buddy" />`;
+    }
     document.getElementById("hub-rank-title").textContent = `${this.getRankTitle(this.state.rp)} (${this.state.rp} RP)`;
     const rpPct = Math.min(100, Math.max(8, ((this.state.rp - 800) / 1800) * 100));
     document.getElementById("hub-rp-bar").style.width = `${rpPct}%`;
@@ -1746,8 +1832,8 @@ const app = {
     const missingTotal = this.getDeckMissingCardCount(deck);
     document.getElementById("hub-deck-summary").innerHTML = `
       <div>🏳️ <strong>Flag:</strong> ${escapeHtml(flag.name)} (${escapeHtml(cfg.ruleSummary)})</div>
-      <div>🌟 <strong>Buddy:</strong> ${escapeHtml(buddy.name)}</div>
-      <div>🃏 <strong>Main Deck:</strong> ${deck.cards.length} Cards (Need 50)${hasLost ? ` • 🌌 <strong>Lost Deck:</strong> ${(deck.lostDeck || []).length}/30` : ""}</div>
+      <div>🌟 <strong>Buddy:</strong> ${escapeHtml(getBuddyDisplayName(buddy))}</div>
+      <div>🃏 <strong>Main Deck:</strong> ${deck.cards.length} Cards (Min 50)${hasLost ? ` • 🌌 <strong>Lost Deck:</strong> ${(deck.lostDeck || []).length}/30` : ""}</div>
       ${missingTotal > 0 ? `<div style="color:#fca5a5; font-weight:800;">⚠️ Missing ${missingTotal} card copies in Collection (Open Packs or Unlock Sandbox)</div>` : ""}
     `;
   },
@@ -1765,7 +1851,7 @@ const app = {
 
   previewActiveBuddy() {
     const deck = this.state.decks[this.state.activeDeckIndex] || this.state.decks[0];
-    this.openCardModal(deck.buddyId);
+    this.openCardModal(deck.buddyId, true);
   },
 
   selectActiveDeck(idx) {
@@ -2035,17 +2121,20 @@ const app = {
 
       const card = document.createElement("div");
       card.className = `deck-banner-card ${isEquipped ? "active-equipped" : ""}`;
+      const buddyThumbHtml = isYamigedoHalfId(buddy.id)
+        ? renderYamigedoDualStackHtml()
+        : `<img src="${buddy.img}" alt="${escapeHtml(buddy.name)}" title="Buddy: ${escapeHtml(buddy.name)}" />`;
       card.innerHTML = `
         <div class="deck-banner-art-pair">
           <img src="${flag.img}" alt="${escapeHtml(flag.name)}" title="Flag: ${escapeHtml(flag.name)}" />
-          <img src="${buddy.img}" alt="${escapeHtml(buddy.name)}" title="Buddy: ${escapeHtml(buddy.name)}" />
+          ${buddyThumbHtml}
         </div>
         <div class="deck-banner-info">
           <div class="deck-banner-title">${escapeHtml(dk.name)} ${isEquipped ? "⭐(Equipped)" : ""}</div>
           <div class="deck-banner-sub">
             🏳️ <strong>Flag:</strong> ${escapeHtml(flag.name)}<br/>
-            🌟 <strong>Buddy:</strong> ${escapeHtml(buddy.name)}<br/>
-            🃏 <strong>Cards:</strong> ${dk.cards.length} Main${hasLost ? ` + ${(dk.lostDeck || []).length} Lost Deck` : ""} • ${escapeHtml(cfg.ruleSummary)}
+            🌟 <strong>Buddy:</strong> ${escapeHtml(getBuddyDisplayName(buddy))}<br/>
+            🃏 <strong>Cards:</strong> ${dk.cards.length} Main (Min 50)${hasLost ? ` + ${(dk.lostDeck || []).length} Lost Deck` : ""} • ${escapeHtml(cfg.ruleSummary)}
           </div>
           ${missingCnt > 0 ? `<div class="deck-banner-missing-warn">⚠️ Need ${missingCnt} unowned card(s) to complete</div>` : ""}
           <div class="deck-banner-btns">
@@ -2150,7 +2239,7 @@ const app = {
 
   previewDeckBuddy() {
     const deck = this.state.decks[this.state.activeDeckIndex];
-    this.openCardModal(deck.buddyId);
+    this.openCardModal(deck.buddyId, true);
   },
 
   renderCurrentDeckPane() {
@@ -2170,8 +2259,13 @@ const app = {
     document.getElementById("dk-flag-img").src = flag.img;
     document.getElementById("dk-flag-name").textContent = flag.name;
     document.getElementById("dk-flag-rule-tag").textContent = cfg.ruleSummary;
-    document.getElementById("dk-buddy-img").src = buddy.img;
-    document.getElementById("dk-buddy-name").textContent = buddy.name;
+    const dkBuddyVis = document.getElementById("dk-buddy-visual");
+    if (dkBuddyVis) {
+      dkBuddyVis.innerHTML = isYamigedoHalfId(buddy.id)
+        ? renderYamigedoDualStackHtml()
+        : `<img id="dk-buddy-img" src="${buddy.img}" alt="Buddy" />`;
+    }
+    document.getElementById("dk-buddy-name").textContent = getBuddyDisplayName(buddy);
 
     const hasLostWorldFlag = deck.cards.some(cid => [4569, 5760].includes(cid));
     const lostTabBtn = document.getElementById("tab-lost-deck");
@@ -2189,7 +2283,7 @@ const app = {
     const activeList = this.deckEditTab === "lost" ? deck.lostDeck : deck.cards;
     document.getElementById("dk-editing-label").textContent = this.deckEditTab === "lost"
       ? `🌌 Lost World Sub-Deck (${activeList.length} / 30)`
-      : `🃏 Main Deck (${activeList.length} Cards — Need 50)`;
+      : `🃏 Main Deck (${activeList.length} Cards — Min 50)`;
 
     let mCnt = 0, iCnt = 0, sCnt = 0, impCnt = 0;
     const grouped = new Map();
@@ -2426,10 +2520,6 @@ const app = {
       alert("Your Lost World Sub-Deck is full (30 cards maximum)!");
       return;
     }
-    if (!isLostTab && targetList.length >= DECK_SIZE) {
-      alert(`Your Main Deck is full (${DECK_SIZE} cards). Remove a card first.`);
-      return;
-    }
 
     const copies = targetList.filter(id => id === cardId).length;
     if (copies >= leg.maxCopies) {
@@ -2467,14 +2557,14 @@ const app = {
 
   autoBuildDeck() {
     const deck = this.state.decks[this.state.activeDeckIndex];
-    // The "⚡ Auto" button fills empty slots; it only rebuilds from scratch when the deck is already full.
+    // The "⚡ Auto" button fills empty slots; it only rebuilds from scratch when the deck already has at least 50 cards.
     if (deck.cards.length < DECK_SIZE) {
       this.completeCurrentDeck();
       this.renderCurrentDeckPane();
       this.renderDeckCatalog(1);
       return;
     }
-    if (!confirm("Your deck already has 50 cards. Rebuild it automatically from scratch? (This replaces your current cards.)")) return;
+    if (!confirm(`Your deck already has ${deck.cards.length} cards (50+ required). Rebuild a 50-card deck automatically from scratch? (This replaces your current cards.)`)) return;
     const hasLost = deck.cards.some(cid => [4569, 5760].includes(cid));
     const built = generateFlagDeck(deck.flagId, deck.name, deck.buddyId, hasLost);
     this.state.decks[this.state.activeDeckIndex] = built;
@@ -2514,12 +2604,19 @@ const app = {
     this.renderDeckCatalog(this.dkPage);
   },
 
-  openCardModal(cardId) {
+  openCardModal(cardId, showCombinedYamigedo = false) {
     const c = CARD_MAP.get(cardId);
     if (!c) return;
     this.currentInspectCardId = cardId;
 
-    document.getElementById("mdl-card-img").src = c.img;
+    const mdlArtWrap = document.getElementById("mdl-art-wrap");
+    if (mdlArtWrap) {
+      if (showCombinedYamigedo && isYamigedoHalfId(c.id)) {
+        mdlArtWrap.innerHTML = renderYamigedoDualStackHtml();
+      } else {
+        mdlArtWrap.innerHTML = `<img id="mdl-card-img" src="${c.img}" alt="Card" />`;
+      }
+    }
     const ownedQty = this.state.owned[c.id] || 0;
     document.getElementById("mdl-card-id").textContent = `CardStat #${c.id} • Owned: x${ownedQty} • ${(c.sets || []).join(", ") || "Standard"}`;
     document.getElementById("mdl-card-name").textContent = c.name;
@@ -2876,18 +2973,8 @@ const app = {
     }
     const deck = this.state.decks[this.state.activeDeckIndex] || this.state.decks[0];
     if (deck.cards.length < DECK_SIZE) {
-      if (confirm(`Buddyfight Rule: Your Main Deck has ${deck.cards.length} cards (it needs ${DECK_SIZE}). Fill the rest automatically and start? Your chosen cards are kept.`)) {
+      if (confirm(`Buddyfight Rule: Your Main Deck has ${deck.cards.length} cards (it needs at least ${DECK_SIZE} cards). Fill the rest up to ${DECK_SIZE} automatically and start? Your chosen cards are kept.`)) {
         this.completeCurrentDeck();
-      } else {
-        return;
-      }
-    }
-
-    if (deck.cards.length > DECK_SIZE) {
-      // Older saves could hold oversized decks (the old auto-builder made 51–79 cards).
-      if (confirm(`Buddyfight Rule: Your Main Deck has ${deck.cards.length} cards, but it must be exactly ${DECK_SIZE}. Remove the last ${deck.cards.length - DECK_SIZE} card(s) added and start?`)) {
-        deck.cards = deck.cards.slice(0, DECK_SIZE);
-        this.saveState();
       } else {
         return;
       }
@@ -4090,6 +4177,8 @@ const battle = {
     const f = this.getFighter(side);
     const enemy = this.getEnemy(side);
     f.chargedThisTurn = false;
+    f.hyakuganSizeZeroTurn = false;
+    enemy.hyakuganSizeZeroTurn = false;
     f.timeStoppedThisTurn = false;
     f.timeStoppedThisBattle = false;
     enemy.timeStoppedThisTurn = false;
@@ -4306,20 +4395,28 @@ const battle = {
     });
   },
 
-  openCardBanner({ card, context, side, handIdx, zonePos, unit }) {
+  openCardBanner({ card, context, side, handIdx, zonePos, unit, showCombinedYamigedo = false }) {
     const f = this.getFighter(side || "plr");
     const enemy = this.getEnemy(side || "plr");
     const cost = parseCardCost(card.cost, card.skill, f, card);
     const cond = evaluateCardConditions(card, f, enemy);
 
-    document.getElementById("bnr-img").src = card.img;
+    const isCombinedYami = (showCombinedYamigedo || context === "field") && isYamigedoHalfId(card.id);
+    const bnrArtWrap = document.getElementById("bnr-art-wrap");
+    if (bnrArtWrap) {
+      if (isCombinedYami) {
+        bnrArtWrap.innerHTML = renderYamigedoDualStackHtml();
+      } else {
+        bnrArtWrap.innerHTML = `<img id="bnr-img" src="${card.img}" alt="Card" />`;
+      }
+    }
     document.getElementById("bnr-world").textContent = `${card.world} • ${card.type}`;
 
     const condEl = document.getElementById("bnr-cond-status");
     condEl.textContent = cond.summary;
     condEl.classList.toggle("unmet", !cond.met);
 
-    document.getElementById("bnr-name").textContent = card.name;
+    document.getElementById("bnr-name").textContent = isCombinedYami ? getBuddyDisplayName(card) : card.name;
 
     let statsStr = "";
     if (card.type === "Monster" || (unit && unit.isEndrulerFlag)) {
@@ -4395,19 +4492,27 @@ const battle = {
       }
 
       if (card.type === "Monster" && this.phase === "main") {
+        const isYami = isYamigedoHalfId(card.id);
+        const hasBothYami = !isYami || fighterHasBothYamigedoHalvesInHand(f);
         const bCall = document.createElement("button");
         bCall.className = "primary-cta-btn";
-        bCall.textContent = `🐉 Call Monster (${cost.gauge} Gauge • Size ${getEffectiveCardSize(f, card)})`;
+        bCall.textContent = isYami
+          ? (hasBothYami
+            ? `🐉 Call Connected Hyakugan Yamigedo (Both Halves • ${cost.gauge} Gauge • Size ${getEffectiveCardSize(f, card)})`
+            : `🔒 Requires Both "Earth Half" & "Sky Half" in Hand (or Call by Ability)`)
+          : `🐉 Call Monster (${cost.gauge} Gauge • Size ${getEffectiveCardSize(f, card)})`;
         bCall.onclick = () => {
           this.closeCardBanner();
           this.startMonsterCall(side, handIdx, false);
         };
         actionsEl.appendChild(bCall);
 
-        if (!f.buddyCalled && card.id === f.buddyId) {
+        if (!f.buddyCalled && isFighterBuddyMatch(f.buddyId, card.id)) {
           const bBuddy = document.createElement("button");
           bBuddy.className = "primary-cta-btn";
-          bBuddy.textContent = `🌟 BUDDY CALL! (+1 Life)`;
+          bBuddy.textContent = isYami
+            ? `🌟 BUDDY CALL CONNECTED HYAKUGAN YAMIGEDO! (+1 Life)`
+            : `🌟 BUDDY CALL! (+1 Life)`;
           bBuddy.onclick = () => {
             this.closeCardBanner();
             this.startMonsterCall(side, handIdx, true);
@@ -4629,12 +4734,12 @@ const battle = {
     let c = null;
     if (zoneType === "drop" && f.drop.length > 0) c = CARD_MAP.get(f.drop[f.drop.length - 1]);
     else if (zoneType === "set" && f.setSpells.length > 0) c = f.setSpells[f.setSpells.length - 1];
-    else if (zoneType === "buddy") c = CARD_MAP.get(f.buddyId);
+    else if (zoneType === "buddy") c = isYamigedoHalfId(f.buddyId) ? getCanonicalYamigedoCard() : CARD_MAP.get(f.buddyId);
     else if (zoneType === "deck" && side === "plr") {
       this.openDeckMenu();
       return;
     }
-    if (c) this.openCardBanner({ card: c, context: "view", side });
+    if (c) this.openCardBanner({ card: c, context: "view", side, showCombinedYamigedo: zoneType === "buddy" });
   },
 
   promptOptionalAbility(side, card, unit = null, onAfterResolve = null) {
@@ -4889,6 +4994,14 @@ const battle = {
       });
     }
 
+    if (isYamigedoHalfId(card.id) && sLower.includes("left and right become size 0")) {
+      f.hyakuganSizeZeroTurn = true;
+      this.setPrompt(`✨ [Evil Deity] "${getBuddyDisplayName(card)}" reduced all Size 2 or less «Hundred Demons» on your field to Size 0 for this turn!`);
+      this.renderBattle();
+      if (onAfterResolve) onAfterResolve();
+      return;
+    }
+
     this.setPrompt(`✨ Activated "${card.name}"'s ability!`);
     this.renderBattle();
     if (onAfterResolve) onAfterResolve();
@@ -5047,6 +5160,64 @@ const battle = {
     document.getElementById("deck-search-modal").classList.add("hidden");
 
     const fromZone = zone === "drop" ? "z-plr-drop" : "z-plr-deck";
+    const criteria = this.deckSearchState ? this.deckSearchState.criteria : null;
+    const shouldCallToField = criteria && criteria.destAction === "call" && c && c.type === "Monster";
+
+    if (shouldCallToField) {
+      const f = this.plr;
+      const isYami = isYamigedoHalfId(c.id);
+      const effectiveCard = isYami ? (getCanonicalYamigedoCard() || c) : c;
+      const cost = parseCardCost(effectiveCard.cost, effectiveCard.skill, f, effectiveCard);
+      const targetZone = ["center", "left", "right"].find(z => !f.monsters[z]);
+      if (targetZone && f.gauge.length >= cost.gauge && (this.getCurrentSizeUsed(f) + getEffectiveCardSize(f, effectiveCard) <= (f.maxSize || 3))) {
+        for (let i = 0; i < cost.gauge; i++) f.drop.push(f.gauge.pop());
+        let pairedHalfIds = [c.id];
+        if (isYami) {
+          const otherId = getOtherYamigedoHalfId(c.id);
+          const otherDeckIdx = f.deck.indexOf(otherId);
+          const otherHandIdx = f.hand.indexOf(otherId);
+          const otherDropIdx = f.drop.indexOf(otherId);
+          if (otherDeckIdx !== -1) {
+            f.deck.splice(otherDeckIdx, 1);
+            pairedHalfIds = [YAMIGEDO_SKY_ID, YAMIGEDO_EARTH_ID];
+          } else if (otherHandIdx !== -1) {
+            f.hand.splice(otherHandIdx, 1);
+            pairedHalfIds = [YAMIGEDO_SKY_ID, YAMIGEDO_EARTH_ID];
+          } else if (otherDropIdx !== -1) {
+            f.drop.splice(otherDropIdx, 1);
+            pairedHalfIds = [YAMIGEDO_SKY_ID, YAMIGEDO_EARTH_ID];
+          }
+        }
+        const soulArr = [];
+        for (let i = 0; i < Math.max(cost.soul, effectiveCard.sg ? 1 : 0) && f.deck.length > 0; i++) {
+          soulArr.push(f.deck.shift());
+        }
+        const newUnit = {
+          card: effectiveCard,
+          isYamigedoConnected: isYami,
+          pairedHalfIds,
+          rested: false,
+          attacksLeft: effectiveCard.atk_max || 1,
+          soul: soulArr,
+          tempPower: 0,
+          tempDef: 0,
+          tempCrit: 0,
+          actUsed: false
+        };
+        const eff = getUnitEffectiveCombatStats(f, newUnit);
+        newUnit.attacksLeft = eff.qa ? 4 : eff.ta ? 3 : eff.da ? 2 : (effectiveCard.atk_max || 1);
+        this.animateCardFlight(fromZone, `z-plr-${targetZone}`, effectiveCard.img, "🐉 ABILITY CALL!", 0, () => {
+          f.monsters[targetZone] = newUnit;
+          this.setPrompt(`🐉 Called "${isYami ? getBuddyDisplayName(effectiveCard) : effectiveCard.name}" to ${targetZone.toUpperCase()} by card ability!`);
+          this.renderBattle();
+          if (this.deckSearchState && this.deckSearchState.onDone) {
+            this.deckSearchState.onDone();
+          }
+        });
+        return;
+      }
+    }
+
     const badge = zone === "drop" ? "♻️ FROM DROP ZONE!" : "🔍 SEARCHED & SHUFFLED!";
 
     this.animateCardFlight(fromZone, "bt-plr-hand", c ? c.img : "Sprite/Sleeves/s0.png", badge, 0, () => {
@@ -5153,39 +5324,63 @@ const battle = {
         alert(`Only Monster cards can be called to a Monster Zone! ("${c.name}" is a ${c.type}).`);
         return;
       }
-      const cost = parseCardCost(c.cost, c.skill, f, c);
+      const isYami = isYamigedoHalfId(c.id);
+      const effectiveCard = isYami ? ( getCanonicalYamigedoCard() || c ) : c;
+      const cost = parseCardCost(effectiveCard.cost, effectiveCard.skill, f, effectiveCard);
       if (f.gauge.length < cost.gauge) {
-        alert(`Not enough Gauge to call "${c.name}" from the Drop Zone! Need ${cost.gauge} Gauge.`);
+        alert(`Not enough Gauge to call "${effectiveCard.name}" from the Drop Zone! Need ${cost.gauge} Gauge.`);
         return;
       }
       const targetZone = ["center", "left", "right"].find(z => !f.monsters[z]);
       if (!targetZone) {
-        alert(`All of your Monster Zones are full, so "${c.name}" can't be called.`);
+        alert(`All of your Monster Zones are full, so "${effectiveCard.name}" can't be called.`);
         return;
       }
-      if (this.getCurrentSizeUsed(f) + getEffectiveCardSize(f, c) > (f.maxSize || 3)) {
-        alert(`Calling "${c.name}" would go over your size limit of ${f.maxSize || 3}.`);
+      if (this.getCurrentSizeUsed(f) + getEffectiveCardSize(f, effectiveCard) > (f.maxSize || 3)) {
+        alert(`Calling "${effectiveCard.name}" would go over your size limit of ${f.maxSize || 3}.`);
         return;
       }
       f.drop.splice(dropIdx, 1);
+      // If calling Hyakugan Yamigedo by card ability, also pull its other half if available in drop/hand/deck
+      let pairedHalfIds = [c.id];
+      if (isYami) {
+        const otherId = getOtherYamigedoHalfId(c.id);
+        const otherDropIdx = f.drop.indexOf(otherId);
+        const otherHandIdx = f.hand.indexOf(otherId);
+        const otherDeckIdx = f.deck.indexOf(otherId);
+        if (otherDropIdx !== -1) {
+          f.drop.splice(otherDropIdx, 1);
+          pairedHalfIds = [YAMIGEDO_SKY_ID, YAMIGEDO_EARTH_ID];
+        } else if (otherHandIdx !== -1) {
+          f.hand.splice(otherHandIdx, 1);
+          pairedHalfIds = [YAMIGEDO_SKY_ID, YAMIGEDO_EARTH_ID];
+        } else if (otherDeckIdx !== -1) {
+          f.deck.splice(otherDeckIdx, 1);
+          pairedHalfIds = [YAMIGEDO_SKY_ID, YAMIGEDO_EARTH_ID];
+        }
+      }
       for (let i = 0; i < cost.gauge; i++) f.drop.push(f.gauge.pop());
       const soulArr = [];
-      for (let i = 0; i < Math.max(cost.soul, c.sg ? 1 : 0) && f.deck.length > 0; i++) {
+      for (let i = 0; i < Math.max(cost.soul, effectiveCard.sg ? 1 : 0) && f.deck.length > 0; i++) {
         soulArr.push(f.deck.shift());
       }
       const newUnit = {
-        card: c,
+        card: effectiveCard,
+        isYamigedoConnected: isYami,
+        pairedHalfIds,
         rested: false,
-        attacksLeft: c.atk_max || 1,
+        attacksLeft: effectiveCard.atk_max || 1,
         soul: soulArr,
         tempPower: 0,
         tempDef: 0,
         tempCrit: 0,
         actUsed: false
       };
-      this.animateCardFlight(`z-${side}-drop`, `z-${side}-${targetZone}`, c.img, "🐉 CALL FROM DROP!", 0, () => {
+      const eff = getUnitEffectiveCombatStats(f, newUnit);
+      newUnit.attacksLeft = eff.qa ? 4 : eff.ta ? 3 : eff.da ? 2 : (effectiveCard.atk_max || 1);
+      this.animateCardFlight(`z-${side}-drop`, `z-${side}-${targetZone}`, effectiveCard.img, "🐉 CALL FROM DROP!", 0, () => {
         f.monsters[targetZone] = newUnit;
-        this.setPrompt(`🐉 Called "${c.name}" from Drop Zone to ${targetZone.toUpperCase()}!`);
+        this.setPrompt(`🐉 Called "${isYami ? getBuddyDisplayName(effectiveCard) : effectiveCard.name}" from Drop Zone to ${targetZone.toUpperCase()}!`);
         this.renderBattle();
         if (onDone) onDone();
       });
@@ -5238,7 +5433,8 @@ const battle = {
     }
 
     this.pendingAction = { type: "call", side, handIdx, isBuddyCall };
-    this.setPrompt(`🐉 Select Your Left, Center, or Right Monster Zone on Field1 to call "${c.name}"!`);
+    const callName = isYamigedoHalfId(c.id) ? getBuddyDisplayName(c) : c.name;
+    this.setPrompt(`🐉 Select Your Left, Center, or Right Monster Zone on Field1 to call "${callName}"!`);
     this.renderBattle();
   },
 
@@ -5252,6 +5448,16 @@ const battle = {
     const buddyCard = CARD_MAP.get(f.buddyId);
     if (!buddyCard) return;
 
+    if (isYamigedoHalfId(f.buddyId)) {
+      if (!fighterHasBothYamigedoHalvesInHand(f)) {
+        alert(`Buddy Call for "${getBuddyDisplayName(buddyCard)}" requires BOTH "Earth Half" (#1911) and "Sky Half" (#1912) in your hand!`);
+        return;
+      }
+      const handIdx = f.hand.indexOf(YAMIGEDO_EARTH_ID);
+      this.startMonsterCall(this.activeSide, handIdx, true);
+      return;
+    }
+
     const handIdx = f.hand.indexOf(f.buddyId);
     if (handIdx === -1) {
       alert(`Buddy Call needs "${buddyCard.name}" in your hand. Draw or search for it first!`);
@@ -5262,25 +5468,36 @@ const battle = {
 
   onBuddyZoneClick() {
     const f = this.getFighter("plr");
-    const buddyCard = CARD_MAP.get(f.buddyId);
+    const buddyCard = isYamigedoHalfId(f.buddyId) ? getCanonicalYamigedoCard() : CARD_MAP.get(f.buddyId);
     if (!f.buddyCalled && this.activeSide === "plr" && this.phase === "main") {
       this.triggerBuddyCallFromZone();
     } else if (buddyCard) {
-      this.openCardBanner({ card: buddyCard, context: "view", side: "plr" });
+      this.openCardBanner({ card: buddyCard, context: "view", side: "plr", showCombinedYamigedo: true });
     }
   },
 
-  completeMonsterCall(side, zonePos, handIdx, isBuddyCall) {
+  completeMonsterCall(side, zonePos, handIdx, isBuddyCall, isAbilityCall = false) {
     const f = this.getFighter(side);
     const cid = f.hand[handIdx];
-    const c = CARD_MAP.get(cid);
-    if (!c) return;
+    const rawCard = CARD_MAP.get(cid);
+    if (!rawCard) return;
 
+    const isYami = isYamigedoHalfId(rawCard.id);
+    if (isYami && !isAbilityCall && !fighterHasBothYamigedoHalvesInHand(f)) {
+      if (!f.isBot) {
+        alert(`[Evil Deity] You need both "Earth Half" (#1911) and "Sky Half" (#1912) in your hand to call Hyakugan Yamigedo from hand!`);
+      }
+      return;
+    }
+
+    const c = isYami ? (getCanonicalYamigedoCard() || rawCard) : rawCard;
     const cost = parseCardCost(c.cost, c.skill, f, c);
-    if (f.gauge.length < cost.gauge) return;
+    if (!isAbilityCall && f.gauge.length < cost.gauge) return;
 
-    for (let i = 0; i < cost.gauge; i++) f.drop.push(f.gauge.pop());
-    if (cost.life > 0) f.life = Math.max(1, f.life - cost.life);
+    if (!isAbilityCall) {
+      for (let i = 0; i < cost.gauge; i++) f.drop.push(f.gauge.pop());
+      if (cost.life > 0) f.life = Math.max(1, f.life - cost.life);
+    }
 
     if (f.monsters[zonePos]) {
       this.sendMonsterToDropWithAnimation(side, zonePos, true);
@@ -5297,6 +5514,15 @@ const battle = {
     }
 
     f.hand.splice(handIdx, 1);
+    let pairedHalfIds = [rawCard.id];
+    if (isYami) {
+      const otherId = getOtherYamigedoHalfId(rawCard.id);
+      const otherHandIdx = f.hand.indexOf(otherId);
+      if (otherHandIdx !== -1) {
+        f.hand.splice(otherHandIdx, 1);
+        pairedHalfIds = [YAMIGEDO_SKY_ID, YAMIGEDO_EARTH_ID];
+      }
+    }
 
     const soulCount = Math.max(cost.soul, c.sg ? 1 : 0);
     const soulArr = [];
@@ -5306,6 +5532,8 @@ const battle = {
 
     const unit = {
       card: c,
+      isYamigedoConnected: isYami,
+      pairedHalfIds,
       rested: false,
       attacksLeft: c.atk_max || 1,
       soul: soulArr,
@@ -6106,6 +6334,18 @@ const battle = {
       return false;
     }
 
+    if ((m.isYamigedoConnected || isYamigedoHalfId(m.card.id)) && f.deck.length >= 5) {
+      const canPrevent = f.isBot || confirm(`[Evil Deity] "${getBuddyDisplayName(m.card)}" would leave the field! Put the top 5 cards of your deck into your Drop Zone so it remains on the field?`);
+      if (canPrevent) {
+        const milled = f.deck.splice(0, 5);
+        f.drop.push(...milled);
+        this.setPrompt(`🛡️ [Evil Deity] Put the top 5 cards of ${f.name}'s deck into the Drop Zone — "${getBuddyDisplayName(m.card)}" remained on the field!`);
+        this.checkWinCondition();
+        this.renderBattle();
+        return false;
+      }
+    }
+
     this.sendMonsterToDropWithAnimation(side, pos, false);
     return true;
   },
@@ -6117,6 +6357,7 @@ const battle = {
 
     const deadCard = m.card;
     const deadSoul = m.soul ? [...m.soul] : [];
+    const deadHalfIds = (m.pairedHalfIds && m.pairedHalfIds.length) ? [...m.pairedHalfIds] : [deadCard.id];
     f.monsters[pos] = null;
     this.renderBattle();
 
@@ -6125,7 +6366,7 @@ const battle = {
 
     this.animateCardFlight(fromZoneId, toDropId, deadCard.img, isRetire ? "♻️ RETIRED" : "💥 DESTROYED", -20, () => {
       if (deadSoul.length > 0) f.drop.push(...deadSoul);
-      f.drop.push(deadCard.id);
+      f.drop.push(...deadHalfIds);
 
       if (isRetire) {
         // [Lifelink] only triggers when the monster is destroyed.
@@ -6208,9 +6449,11 @@ const battle = {
         this.equipCardFromHand("opp", itemIdx, "Equip");
       }
 
-      const botBuddyIdx = bot.hand.indexOf(bot.buddyId);
+      const botBuddyIdx = isYamigedoHalfId(bot.buddyId)
+        ? (fighterHasBothYamigedoHalvesInHand(bot) ? bot.hand.indexOf(YAMIGEDO_EARTH_ID) : -1)
+        : bot.hand.indexOf(bot.buddyId);
       if (!bot.buddyCalled && botBuddyIdx !== -1) {
-        const bCard = CARD_MAP.get(bot.buddyId);
+        const bCard = CARD_MAP.get(bot.hand[botBuddyIdx]);
         const bCost = bCard ? parseCardCost(bCard.cost, bCard.skill, bot, bCard) : null;
         const targetZone = ["center", "left", "right"].find(z => !bot.monsters[z]);
         if (bCard && targetZone && bCost.gauge <= bot.gauge.length &&
@@ -6224,6 +6467,7 @@ const battle = {
           const mIdx = bot.hand.findIndex(cid => {
             const c = CARD_MAP.get(cid);
             if (!c || c.type !== "Monster") return false;
+            if (isYamigedoHalfId(c.id) && !fighterHasBothYamigedoHalvesInHand(bot)) return false;
             const cost = parseCardCost(c.cost, c.skill, bot, c);
             return cost.gauge <= bot.gauge.length && (this.getCurrentSizeUsed(bot) + getEffectiveCardSize(bot, c) <= (bot.maxSize || 3));
           });
@@ -6385,10 +6629,14 @@ const battle = {
       ? `${eff.power}/${eff.crit}/${eff.defense}${eff.pen ? " [P]" : ""}`
       : `${eff.power}/${eff.crit}`;
     const soulHtml = unit.soul && unit.soul.length > 0 ? `<div class="soul-badge">Soul:${unit.soul.length}</div>` : "";
+    const isYami = unit.isYamigedoConnected || isYamigedoHalfId(c.id);
+    const artHtml = isYami
+      ? renderYamigedoDualStackHtml()
+      : `<img src="${c.img}" alt="${escapeHtml(c.name)}" />`;
     return `
-      <div class="field-card ${unit.rested ? "rested" : ""} ${unit.isBuddyGift || unit.isEndrulerFlag ? "buddy-gift" : ""}">
+      <div class="field-card ${isYami ? "yamigedo-connected-card" : ""} ${unit.rested ? "rested" : ""} ${unit.isBuddyGift || unit.isEndrulerFlag ? "buddy-gift" : ""}">
         ${soulHtml}
-        <img src="${c.img}" alt="${escapeHtml(c.name)}" />
+        ${artHtml}
         <div class="field-stat-overlay">${statLabel}</div>
       </div>
     `;
@@ -6503,10 +6751,18 @@ const battle = {
     document.getElementById("z-plr-set-slot").innerHTML = plrTopSet ? `<div class="field-card"><img src="${plrTopSet.img}" /></div>` : "";
 
     const oppBuddy = CARD_MAP.get(this.opp.buddyId);
-    document.getElementById("z-opp-buddy-slot").innerHTML = oppBuddy ? `<div class="field-card ${this.opp.buddyCalled ? "rested" : ""}"><img src="${oppBuddy.img}" /></div>` : "";
+    document.getElementById("z-opp-buddy-slot").innerHTML = oppBuddy
+      ? (isYamigedoHalfId(oppBuddy.id)
+        ? `<div class="field-card yamigedo-connected-card ${this.opp.buddyCalled ? "rested" : ""}">${renderYamigedoDualStackHtml()}</div>`
+        : `<div class="field-card ${this.opp.buddyCalled ? "rested" : ""}"><img src="${oppBuddy.img}" /></div>`)
+      : "";
 
     const plrBuddy = CARD_MAP.get(this.plr.buddyId);
-    document.getElementById("slot-plr-buddy").innerHTML = plrBuddy ? `<div class="field-card ${this.plr.buddyCalled ? "rested" : ""}"><img src="${plrBuddy.img}" /></div>` : "";
+    document.getElementById("slot-plr-buddy").innerHTML = plrBuddy
+      ? (isYamigedoHalfId(plrBuddy.id)
+        ? `<div class="field-card yamigedo-connected-card ${this.plr.buddyCalled ? "rested" : ""}">${renderYamigedoDualStackHtml()}</div>`
+        : `<div class="field-card ${this.plr.buddyCalled ? "rested" : ""}"><img src="${plrBuddy.img}" /></div>`)
+      : "";
 
     document.getElementById("z-opp-item-slot").innerHTML = this.renderFlagZoneHtml(this.opp);
     document.getElementById("slot-plr-item").innerHTML = this.renderFlagZoneHtml(this.plr);
@@ -6545,13 +6801,15 @@ const battle = {
       const c = CARD_MAP.get(cid);
       if (!c) return;
       const cost = parseCardCost(c.cost, c.skill, handOwner, c);
-      const isBuddy = c.id === handOwner.buddyId && !handOwner.buddyCalled;
+      const isBuddy = isFighterBuddyMatch(handOwner.buddyId, c.id) && !handOwner.buddyCalled;
+      const isYami = isYamigedoHalfId(c.id);
+      const yamiReady = isYami && fighterHasBothYamigedoHalvesInHand(handOwner);
       const isSpecialFlag = [4569, 5760, 2789, 6202].includes(c.id);
       const div = document.createElement("div");
       div.className = "hand-card-item";
       div.onclick = () => this.onHandCardClick(idx);
       div.innerHTML = `
-        <div class="hand-cost-tag">${isBuddy ? "🌟 BUDDY" : isSpecialFlag ? "🏳️ FLAG" : `${cost.gauge}G`}</div>
+        <div class="hand-cost-tag">${isBuddy ? "🌟 BUDDY" : isSpecialFlag ? "🏳️ FLAG" : isYami ? (yamiReady ? "👹 2/2 READY" : "🔒 1/2 HALF") : `${cost.gauge}G`}</div>
         <img src="${c.img}" alt="${escapeHtml(c.name)}" />
       `;
       handEl.appendChild(div);
