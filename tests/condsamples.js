@@ -1,0 +1,3 @@
+const { createEnv } = require("./headless.js");
+const { run } = createEnv();
+console.log(run(`(function(){ const cnt={}, ex={}; ALL_CARDS.forEach(c=>{ ABX.get(c).abilities.forEach(a=>{ if(['keyword','reminder','cost','rule','static'].includes(a.kind)||ABX.isExecutable(a)||(a.unparsed&&a.unparsed.length)) return; const steps=a.kind==='modal'?[]:(a.steps||[]); if(steps.find(s=>!ABX.stepExecutable(s))) return; if(a.trigger&&!ABX.triggerSupported(a.trigger)) return; const bad=(a.conds||[]).find(x=>!ABX.condExecutable(x)); const k=bad?('cond:'+bad.t):(a.kind==='modal'?'modal':'other:'+a.kind); cnt[k]=(cnt[k]||0)+1; (ex[k]=ex[k]||[]); if(ex[k].length<3) ex[k].push((a.cleaned||'').slice(0,150)); }); }); return JSON.stringify({cnt,ex},null,1); })()`));

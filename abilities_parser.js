@@ -82,12 +82,13 @@
    * 3. NOUN PHRASES / FILTERS ("up to two «Black Dragon» monsters with size 2 or less on your opponent's field")
    * ============================================================ */
   const ZONE_AREAS = "field|center|left|right|drop zone|hand|gauge|deck|soul|buddy zone|set area|item area|flag area";
-  const OWNER_RE = "your opponent's|your|their|the|that monster's|this card's|its|that card's|each player's";
+  const OWNER_RE = "your opponent's|the opponent's|your|their|the|that monster's|this card's|its|that card's|each player's|both player's";
   const ZONE_RE = new RegExp("(?:\\b(?:on|in|from|into|to|onto|of|at)\\s+)?(?:(" + OWNER_RE + ")\\s+)(" + ZONE_AREAS + ")\\b", "i");
 
   function ownerOf(w) {
     w = lc(w || "");
-    if (w === "your opponent's" || w === "their") return "opp";
+    if (w === "your opponent's" || w === "the opponent's" || w === "their") return "opp";
+    if (w === "both player's") return "both";
     if (w === "your") return "you";
     if (w === "each player's") return "both";
     if (w === "this card's" || w === "its" || w === "that card's" || w === "that monster's") return "host";
@@ -148,6 +149,8 @@
     if (/^other\b/i.test(q)) { np.excludeSelf = true; q = q.replace(/^other\s+/i, ""); }
     if (/^different\b/i.test(q)) { np.filter.distinct = true; q = q.replace(/^different\s+/i, ""); }
 
+    let topFlag = false;
+    q = q.replace(/\bfrom the top of (your|your opponent's|their|the opponent's) deck\b/ig, (mm, w) => { topFlag = true; return "from " + w + " deck"; });
     // --- zone phrase(s) ---
     let guard = 0;
     while ((m = q.match(ZONE_RE)) && guard++ < 3) {
@@ -158,6 +161,7 @@
       if (!np.zone || np.zone.area === "field") np.zone = np.zone && np.zone.area !== "field" ? np.zone : z;
       q = (q.slice(0, m.index) + " " + q.slice(m.index + m[0].length)).trim();
     }
+    if (topFlag && np.zone && np.zone.area === "deck") { np.zone.top = true; np.topN = np.qty.n; }
     // "in the soul of a «X» on your field" / "in a «X»'s soul"
     if ((m = q.match(/\b(?:in|from|into) (?:the )?soul of (.+)$/i))) {
       np.soulOf = parseNP(m[1]);
@@ -178,6 +182,10 @@
     q = q.replace(/\bwith (power|defense|critical) (?:of )?([\d,]+) or (less|more|greater)\b/ig, (mm, stat, v, cmp) => {
       f[lc(stat)] = { n: +v.replace(/,/g, ""), cmp: /less/i.test(cmp) ? "le" : "ge" }; return " ";
     });
+    q = q.replace(/\b(power|defense|critical) ([\d,]+) or (less|more|greater)\b/ig, (mm, stat, v, cmp) => {
+      f[lc(stat)] = { n: +v.replace(/,/g, ""), cmp: /less/i.test(cmp) ? "le" : "ge" }; return " ";
+    });
+    q = q.replace(/\bfrom the top of (your|your opponent's|their) deck\b/ig, (mm, w) => { np.zone = { owner: ownerOf(w), area: "deck", top: true }; return " "; });
     q = q.replace(/\bwith ([\d,]+) (power|defense) or (less|more|greater)\b/ig, (mm, v, stat, cmp) => {
       f[lc(stat)] = { n: +v.replace(/,/g, ""), cmp: /less/i.test(cmp) ? "le" : "ge" }; return " ";
     });
@@ -531,7 +539,7 @@
   /* ---------- search ---------- */
   ar(/^search your deck for (.+?)(?:,? (?:and )?(?:put|add) (?:it|them|that card|those cards) (?:into|to|in) (?:your )?(hand|drop zone|gauge|the soul of .+|this card's soul|its soul))?(?:,? and shuffle your deck)?$/i, (m) => {
     const np = parseNP(m[1]); if (!np) return null;
-    const to = m[2] ? (/soul/i.test(m[2]) ? { area: "soul", owner: "host", host: "self" } : { area: lc(m[2]), owner: "you", end: "top" }) : { area: "hand", owner: "you", end: "top" };
+    const to = m[2] ? (/soul/i.test(m[2]) ? { area: "soul", owner: "host", host: "self" } : { area: lc(m[2]), owner: "you", end: "top" }) : null;
     return { op: "search", np, to, shuffle: /shuffle/i.test(m[0]) || true };
   });
 
@@ -630,6 +638,7 @@
   ar(/^nullify the attack if it is not a link attack$|^if it is not a link attack,? nullify the attack$/i, () => ({ op: "nullifyAttack", unlessLink: true }));
   ar(/^that (?:card|monster)? ?remains on (?:the|your) field$|^this card remains on (?:the|your) field$|^(?:it|that card) remains on (?:the|your) field$/i, () => ({ op: "preventLeave" }));
   ar(/^(?:you may )?prevent (?:it|that card|this card) from leaving the field$/i, () => ({ op: "preventLeave" }));
+  ar(/^(?:the chosen (?:card|monster)|that (?:card|monster)|it) cannot (attack|destroyed|be destroyed)(?: this turn)?$/i, (m) => ({ op: "restrict", np: { ref: "chosen", qty: { n: 1 }, filter: {}, raw: "chosen" }, kinds: [/destroy/i.test(m[1]) ? "destroyed" : "attack"], duration: "turn" }));
   ar(/^(?:the chosen card|that card|it) cannot \[?stand\]?(?: this turn)?$/i, () => ({ op: "restrict", np: { ref: "chosen", qty: { n: 1 }, filter: {}, raw: "chosen" }, kinds: ["stand"], duration: "turn" }));
   ar(/^nullify all abilities of (.+)$/i, (m) => { const np = parseNP(m[1].replace(/ and destroy it$/i, "")); return np ? { op: "nullifyAbilities", np, thenDestroy: /destroy it$/i.test(m[1]) } : null; });
   ar(/^look at all of your gauge$|^look at your gauge$/i, () => ({ op: "noop" }));

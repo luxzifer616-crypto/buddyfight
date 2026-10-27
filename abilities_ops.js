@@ -247,11 +247,13 @@
         const np = Object.assign({}, s.np, { qty: Object.assign({}, s.np.qty, { upTo: true }) });
         chosen = await pick(cands, np, ctx, { title: `${ctx.card.name} — search your deck`, subtitle: ABX.clean(s.np.raw), intent: "help", min: 0 });
       }
-      const ok = chosen.length ? await moveRefs(chosen, s.to.area === "soul" ? { area: "soul", owner: "you" } : s.to, ctx) : false;
-      OPS.shuffle.run({ who: "you" }, ctx);
+      ctx.bind.chosen = chosen;
+      let ok = chosen.length > 0;
+      if (s.to && chosen.length) ok = await moveRefs(chosen, s.to, ctx);
+      if (s.to) OPS.shuffle.run({ who: "you" }, ctx); else ctx.needShuffle = true;
       return ok;
     },
-    check: (s) => !!s.np && s.to && s.to.area !== "soul"
+    check: (s) => !!s.np && (!s.to || s.to.area !== "soul")
   };
 
   /* ---------- destroy / rest / stand ---------- */
@@ -299,11 +301,11 @@
         r.unit.tempPower = (r.unit.tempPower || 0) + (s.mods.power || 0) * mult;
         r.unit.tempDef = (r.unit.tempDef || 0) + (s.mods.defense || 0) * mult;
         r.unit.tempCrit = (r.unit.tempCrit || 0) + (s.mods.critical || 0) * mult;
-        (s.mods.kws || []).forEach(k => { if (k === "penetrate") r.unit.tempPen = true; if (k === "counterattack") r.unit.tempCA = true; });
+        (s.mods.kws || []).forEach(k => { if (k === "penetrate") r.unit.tempPen = true; if (k === "counterattack") r.unit.tempCA = true; if (k === "double attack") { r.unit.tempDA = true; r.unit.attacksLeft = Math.max(r.unit.attacksLeft || 0, 2); } if (k === "triple attack") { r.unit.tempTA = true; r.unit.attacksLeft = Math.max(r.unit.attacksLeft || 0, 3); } if (k === "soulguard") r.unit.tempSG = true; });
       });
       fresh(); return ch.length > 0;
     },
-    check: (s) => s.mods && (s.mods.kws || []).every(k => k === "penetrate" || k === "counterattack") && !(s.np && s.np.zone && !["field", "center", "left", "right"].includes(s.np.zone.area))
+    check: (s) => s.mods && (s.mods.kws || []).every(k => ["penetrate", "counterattack", "double attack", "triple attack", "soulguard"].includes(k)) && !(s.np && s.np.zone && !["field", "center", "left", "right"].includes(s.np.zone.area))
   };
 
   /* ---------- call ---------- */
@@ -330,6 +332,35 @@
     },
     check: (s) => s.free && s.np && s.np.zone && ["hand", "drop zone"].includes(s.np.zone.area) && !s.np.soulOf
   };
+
+  /* ---------- battle ---------- */
+  OPS.nullifyAttack = {
+    run(s, ctx) {
+      const bc = ABX.battleCtx;
+      if (!bc || !bc.active) return false;
+      if (s.unlessLink && bc.link) return false;
+      bc.nullified = true;
+      if (B.setPrompt) B.setPrompt(`🛡️ "${ctx.card.name}" nullified the attack!`);
+      return true;
+    }
+  };
+  OPS.noCounter = { run() { return true; }, check: () => false };
+
+  /* ---------- restrictions that the game loop can enforce ---------- */
+  OPS.restrict = {
+    async run(s, ctx) {
+      const refs = s.np.ref ? (ctx.bind.chosen || []).filter(r => r.unit) : s.np.self ? refsFor(s.np, ctx) : refsFor(s.np, ctx, { owner: "any", area: "field" }).filter(r => r.unit);
+      const ch = s.np.ref || s.np.self || s.np.qty.all ? refs : await pick(refs, s.np, ctx, { intent: "harm", title: `${ctx.card.name} — choose`, subtitle: ABX.clean(s.np.raw) });
+      ch.forEach(r => {
+        const u = r.unit; u.abxNo = u.abxNo || {};
+        (s.kinds || []).forEach(k => { u.abxNo[k] = k === "stand" ? true : B.turnCount; });
+        if ((s.kinds || []).includes("destroyed")) u.tempIndestructible = true;
+      });
+      fresh(); return ch.length > 0;
+    },
+    check: (s) => s.np && (s.kinds || []).length > 0 && (s.kinds || []).every(k => ["attack", "stand", "destroyed"].includes(k)) && (s.duration === "turn" || !!s.duration || true) && !(s.np.zone && !["field", "center", "left", "right"].includes(s.np.zone.area))
+  };
+  core.isRestricted = function (unit, kind) { return !!(unit && unit.abxNo && unit.abxNo[kind] === B.turnCount); };
 
   /* ---------- statics / markers handled elsewhere ---------- */
   OPS.static = { run() { return true; }, check: (s) => s.kind === "protect" };

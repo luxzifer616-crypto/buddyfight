@@ -892,8 +892,8 @@ function getUnitEffectiveCombatStats(fighter, unit) {
   let defense = (c.defense !== null && c.defense !== undefined ? c.defense : 0) + (unit.tempDef || 0);
   let crit = (c.crit !== null && c.crit !== undefined ? c.crit : 1) + (unit.tempCrit || 0);
   let pen = Boolean(c.pen || unit.tempPen);
-  let da = Boolean(c.da);
-  let ta = Boolean(c.ta);
+  let da = Boolean(c.da || unit.tempDA);
+  let ta = Boolean(c.ta || unit.tempTA);
   let qa = Boolean(c.qa);
 
   // Check Time Dragon field auras (e.g. Kronos Valex #6007, Zeitwelg #6046)
@@ -4542,7 +4542,7 @@ const battle = {
     ["left", "center", "right"].forEach(pos => {
       const m = f.monsters[pos];
       if (m) {
-        m.rested = false;
+        if (m.abxNo && m.abxNo.stand === true) { m.abxNo.stand = false; } else m.rested = false;
         m.defenseZeroTurn = false;
         const eff = getUnitEffectiveCombatStats(f, m);
         m.attacksLeft = eff.qa ? 4 : eff.ta ? 3 : eff.da ? 2 : (m.card.atk_max || 1);
@@ -4550,6 +4550,7 @@ const battle = {
         m.tempDef = 0;
         m.tempCrit = 0;
         m.tempCA = false;
+        m.tempDA = false; m.tempTA = false; m.tempSG = false;
         m.tempIndestructible = false;
         m.actUsed = false;
 
@@ -4575,6 +4576,7 @@ const battle = {
       u.tempDef = 0;
       u.tempCrit = 0;
       u.tempCA = false;
+      u.tempDA = false; u.tempTA = false; u.tempSG = false;
       u.tempIndestructible = false;
       u.tempPen = false;
     };
@@ -4633,6 +4635,7 @@ const battle = {
     this.pendingAction = null;
     this.linkAttackers = [];
     if (this.imTurnEnd) this.imTurnEnd(this.activeSide);
+    if (window.ABX && ABX.fireTurnEvent) ABX.fireTurnEvent("turnEnd");
     const nextSide = this.activeSide === "plr" ? "opp" : "plr";
     this.turnCount++;
     if (this.mode === "online_p2p") {
@@ -5986,6 +5989,7 @@ const battle = {
       this.renderBattle();
 
       const s = (c.skill || "").toLowerCase();
+      if (window.ABX && ABX.fireOtherEnter) ABX.fireOtherEnter(side, unit);
       if (window.ABX && ABX.ownsEnter && ABX.ownsEnter(c)) {
         ABX.fireEnter(side, c, unit);
       } else if (s.includes("when this card enters the field") || parseDeckSearchCriteria(c)) {
@@ -6071,7 +6075,7 @@ const battle = {
         f.setSpells.push(c);
         this.showCutin("[SET]!", c.name, c.img);
         // Resolve the spell's own text instead of a generic stat aura.
-        this.executeCardAbilityEffect(side, c, null);
+        if (window.ABX && ABX.ownsSpell && ABX.ownsSpell(c)) ABX.fireSpell(side, c); else this.executeCardAbilityEffect(side, c, null);
         this.setPrompt(`🔮 [Set] "${c.name}" remains on the field!`);
         return;
       }
@@ -6093,7 +6097,7 @@ const battle = {
         return;
       }
 
-      this.executeCardAbilityEffect(side, c, null);
+      if (window.ABX && ABX.ownsSpell && ABX.ownsSpell(c)) ABX.fireSpell(side, c); else this.executeCardAbilityEffect(side, c, null);
     });
   },
 
@@ -6401,6 +6405,12 @@ const battle = {
 
     const units = attackerZones.map(zp => zp === "item" ? attFighter.item : attFighter.monsters[zp]).filter(Boolean);
     if (units.length === 0) return;
+    if (window.ABX && ABX.core && units.some(u => ABX.core.isRestricted && ABX.core.isRestricted(u, "attack"))) {
+      this.pendingAction = null; this.linkAttackers = [];
+      this.setPrompt("✖ That card cannot attack this turn (card effect).");
+      this.renderBattle();
+      return;
+    }
 
     this.pendingAction = null;
     this.linkAttackers = [];
@@ -6563,6 +6573,14 @@ const battle = {
     const revCnt = getFighterReversalCount(defFighter);
     this.showCutin("COUNTER — DEFENSE!", `${defFighter.name} cast ${c.name}!`, c.img);
 
+    if (window.ABX && ABX.ownsCounter && ABX.ownsCounter(c)) {
+      ABX.runCounter(defSide, c, { attSide, attackerZones, targetPos }).then(res => {
+        if (this.matchOver) return;
+        this.executeAttackResolution(attSide, attackerZones, targetPos, !!res.nullified);
+      });
+      return;
+    }
+
     if (s.includes("gain 1 life for each time your flags [reversal]")) {
       defFighter.life += Math.max(1, revCnt);
     } else if (s.includes("gain 1 life")) {
@@ -6722,13 +6740,15 @@ const battle = {
       this.checkWinCondition();
       this.renderBattle();
       if (this.imAfterBattle && !this.matchOver) this.imAfterBattle(attSide, units, outcome);
+      if (window.ABX && ABX.fireBattleEnd && !this.matchOver) ABX.fireBattleEnd(attSide, units);
 
       if (attSide === "opp" && this.opp.isBot && this.oppContinueCallback) {
         setTimeout(this.oppContinueCallback, 650);
       }
     });
     };
-    if (this.imOnAttack) this.imOnAttack(attSide, units, defSide, strike); else strike();
+    const goStrike = () => { if (this.imOnAttack) this.imOnAttack(attSide, units, defSide, strike); else strike(); };
+    if (window.ABX && ABX.fireAttack) ABX.fireAttack(attSide, units, defSide).then(goStrike, goStrike); else goStrike();
   },
 
   resolveMonsterVsMonster(attSide, attUnits, defSide, targetPos, combinedPower, combinedCrit, anyPenetrate) {
@@ -6792,7 +6812,7 @@ const battle = {
     const m = f.monsters[pos];
     if (!m) return false;
 
-    if (m.card.sg && m.soul && m.soul.length > 0) {
+    if ((m.card.sg || m.tempSG) && m.soul && m.soul.length > 0) {
       const discardedSoul = m.soul.pop();
       const soulCard = CARD_MAP.get(discardedSoul);
       const fromZoneId = `z-${side}-${pos}`;
@@ -6823,6 +6843,7 @@ const battle = {
 
     if (this.imOnDestroyedUnit && window.IMX && IMX.isUnit(m)) this.imOnDestroyedUnit(side, m);
     this.sendMonsterToDropWithAnimation(side, pos, false);
+    if (window.ABX && ABX.fireLeave) ABX.fireLeave(side, m.card);
     return true;
   },
 

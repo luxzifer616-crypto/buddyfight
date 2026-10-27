@@ -92,12 +92,24 @@
   }
   ABX.stepExecutable = stepExecutable;
 
+  const TRIG_OK = {
+    enter: t => t.self, attack: t => t.self && !t.target, otherAttack: t => !!t.np, oppAttack: () => true, battleEnd: () => true,
+    turnStart: () => true, turnEnd: () => true, phaseStart: t => ["start", "draw", "main", "attack", "final", "turn"].includes(t.phase),
+    otherEnter: t => !!t.np, youCast: () => true, oppCast: () => true, leave: t => t.self && !t.byOpp
+  };
+  function triggerSupported(t) { return !!t && !!TRIG_OK[t.event] && TRIG_OK[t.event](t); }
+  ABX.triggerSupported = triggerSupported;
   ABX.isExecutable = function (ab) {
     if (!ab) return false;
     if (ab.unparsed && ab.unparsed.length) return false;
-    if (ab.kind === "modal") return !!(ab.options && ab.options.length && ab.options.every(o => ABX.isExecutable(o)));
+    if (ab.kind === "static") return !!(ab.steps && ab.steps.length && ab.steps.every(x => x.op === "static" && x.kind === "protect"));
+    if (ab.kind === "modal") {
+      if (!(ab.options && ab.options.length && ab.options.every(o => ABX.isExecutable(o)))) return false;
+      if (ab.trigger && !triggerSupported(ab.trigger)) return false;
+      return (ab.conds || []).every(condExecutable) && (ab.steps || []).every(stepExecutable);
+    }
     if (!ab.steps || !ab.steps.length) return false;
-    if (ab.trigger && ab.trigger.event === "unknown") return false;
+    if (ab.kind === "triggered" || ab.trigger) { if (!triggerSupported(ab.trigger)) return false; }
     if (!(ab.conds || []).every(condExecutable)) return false;
     return ab.steps.every(stepExecutable);
   };
@@ -524,6 +536,8 @@
     const f = F(side), e = F(otherSide(side));
     const ctx = { side, f, e, card, unit: unit || null, ab, bind: { chosen: [], revealed: [], looked: [] }, lastDone: true, event: opts.event || null, auto: !!opts.auto, log: [], hostArea: opts.hostArea || (unit ? "field" : null), soulHost: opts.soulHost || null, selfRef: opts.selfRef || null };
     if (ab.kind === "modal") {
+      await runSteps(ab.steps || [], ctx);
+      if (!ctx.lastDone) return ctx;
       const options = ab.options.filter(o => (o.conds || []).every(c => evalCond(c, ctx)));
       let idx = 0;
       if (options.length > 1) {
@@ -600,6 +614,7 @@
       for (const ab of abilitiesOf(card, a => a.trigger && a.trigger.event === "enter" && a.trigger.self && ABX.isExecutable(a))) {
         const f = F(side);
         if (onceUsed(f, card, ab, unit)) continue;
+        if (ab.trigger.pos && unit && !ab.trigger.pos.includes(core.posOfUnit(f, unit))) continue;
         const probe = { side, f, e: F(otherSide(side)), card, unit, ab, bind: { chosen: [], revealed: [], looked: [] }, lastDone: true, auto: true, log: [], hostArea: "field" };
         if (!(ab.conds || []).every(c => evalCond(c, probe))) continue;
         markOnce(f, card, ab, unit);
@@ -633,6 +648,139 @@
     done(onAfter);
     return true;
   };
+
+  /* ---- serialised queue so popups from several triggers never overlap ---- */
+  let chain = Promise.resolve();
+  ABX.queue = (fn) => { chain = chain.then(fn).catch(e => { if (ABX.debug) console.error(e); }); return chain; };
+
+  // All trigger sources on a side: field units, item, set spells.
+  function sources(side) {
+    const f = F(side), out = fieldUnits(f, true).map(x => ({ unit: x.unit, card: x.unit.card }));
+    (f.setSpells || []).forEach(c => out.push({ unit: null, card: c }));
+    return out;
+  }
+  core.sources = sources;
+
+  // Run every executable triggered ability matching `match(trigger, src, sideOfSource)`.
+  async function fireTriggers(match, info) {
+    const order = [B.activeSide, otherSide(B.activeSide)];
+    for (const side of order) {
+      for (const src of sources(side)) {
+        for (const ab of abilitiesOf(src.card, a => a.kind === "triggered" && a.trigger && ABX.isExecutable(a))) {
+          if (!match(ab.trigger, src, side)) continue;
+          const f = F(side);
+          if (src.unit && core.posOfUnit(f, src.unit) === null && !(src.unit === f.item)) continue;
+          if (onceUsed(f, src.card, ab, src.unit)) continue;
+          const probe = { side, f, e: F(otherSide(side)), card: src.card, unit: src.unit, ab, bind: { chosen: [], revealed: [], looked: [] }, lastDone: true, auto: true, log: [], hostArea: "field", event: info };
+          if (!(ab.conds || []).every(c => evalCond(c, probe))) continue;
+          markOnce(f, src.card, ab, src.unit);
+          await runAbility(side, src.card, ab, src.unit, { event: info });
+          if (B.matchOver) return;
+        }
+      }
+    }
+  }
+
+  const whoOK = (t, side) => !t.who || t.who === "any" || t.who === "each" || (t.who === "you" ? B.activeSide === side : B.activeSide !== side);
+
+  ABX.fireAttack = function (attSide, units, defSide) {
+    return ABX.queue(async () => {
+      const us = new Set(units.map(u => u.unit));
+      await fireTriggers((t, src, side) => (t.event === "attack" && t.self && !t.target && side === attSide && us.has(src.unit)) ||
+        (t.event === "otherAttack" && side === attSide && src.unit && !us.has(src.unit) && !t.np.self && units.some(u => matchFilter(u.unit.card, t.np.filter || {}, { unit: u.unit, side: attSide }, { f: F(attSide) }))) ||
+        (t.event === "oppAttack" && side === defSide), { name: "attack", attSide, defSide });
+    }).catch(() => {});
+  };
+  ABX.fireBattleEnd = function (attSide, units) {
+    return ABX.queue(() => fireTriggers((t, src, side) => t.event === "battleEnd" && side === attSide && (!t.self || units.some(u => u.unit === src.unit)), { name: "battleEnd" }));
+  };
+  ABX.fireTurnEvent = function (kind, phase) {
+    return ABX.queue(() => fireTriggers((t, src, side) => {
+      if (kind === "turnStart") return (t.event === "turnStart" || (t.event === "phaseStart" && t.phase === "turn")) && whoOK(t, side);
+      if (kind === "turnEnd") return t.event === "turnEnd" && whoOK(t, side);
+      if (kind === "phaseStart") return t.event === "phaseStart" && t.phase === phase && whoOK(t, side);
+      return false;
+    }, { name: kind }));
+  };
+  ABX.fireOtherEnter = function (side, unit) {
+    return ABX.queue(() => fireTriggers((t, src, s) => t.event === "otherEnter" && src.unit !== unit &&
+      ((!t.opp && s === side) || (t.opp && s !== side)) && matchFilter(unit.card, (t.np && t.np.filter) || {}, { unit, side }, { f: F(side) }), { name: "otherEnter" }));
+  };
+  ABX.fireCast = function (side, card) {
+    return ABX.queue(() => fireTriggers((t, src, s) => (t.event === "youCast" && s === side || t.event === "oppCast" && s !== side) &&
+      (!t.np || matchFilter(card, t.np.filter || {}, { side }, { f: F(side) })), { name: "cast" }));
+  };
+  // "When this card is destroyed / leaves the field": the card is already gone, so run with no unit.
+  ABX.fireLeave = function (side, card, byAttack) {
+    return ABX.queue(async () => {
+      for (const ab of abilitiesOf(card, a => a.kind === "triggered" && a.trigger && a.trigger.event === "leave" && a.trigger.self && !a.trigger.byOpp && ABX.isExecutable(a))) {
+        const f = F(side);
+        if (onceUsed(f, card, ab, null)) continue;
+        const probe = { side, f, e: F(otherSide(side)), card, unit: null, ab, bind: { chosen: [], revealed: [], looked: [] }, lastDone: true, auto: true, log: [], hostArea: "drop", event: { name: "leave" } };
+        if (!(ab.conds || []).every(c => evalCond(c, probe))) continue;
+        markOnce(f, card, ab, null);
+        await runAbility(side, card, ab, null, { event: { name: "leave" }, hostArea: "drop" });
+      }
+    });
+  };
+
+  // Spell / impact resolution (kind "spell", no trigger).
+  ABX.ownsSpell = function (card) {
+    const p = ABX.get(card);
+    const sp = p.abilities.filter(a => a.kind === "spell");
+    return sp.length > 0 && sp.every(a => ABX.isExecutable(a));
+  };
+  ABX.fireSpell = async function (side, card, onAfter) {
+    busy++;
+    try {
+      for (const ab of abilitiesOf(card, a => a.kind === "spell")) {
+        const f = F(side);
+        const probe = { side, f, e: F(otherSide(side)), card, unit: null, ab, bind: { chosen: [], revealed: [], looked: [] }, lastDone: true, auto: true, log: [], event: { name: "cast" } };
+        if (!(ab.conds || []).every(c => evalCond(c, probe))) continue;
+        await runAbility(side, card, ab, null, { event: { name: "cast" } });
+      }
+    } finally { busy--; }
+    done(onAfter);
+    ABX.fireCast(side, card);
+  };
+
+  // [Counter] spells cast while defending. Returns {nullified}.
+  ABX.ownsCounter = function (card) { return !!card.cnt && ABX.ownsSpell(card); };
+  ABX.runCounter = async function (defSide, card, info) {
+    const attSide = info.attSide, attF = F(attSide), defF = F(defSide);
+    const bc = ABX.battleCtx = {
+      active: true, attSide, defSide, nullified: false, link: (info.attackerZones || []).length > 1,
+      attUnits: (info.attackerZones || []).map(z => z === "item" ? attF.item : attF.monsters[z]).filter(Boolean),
+      defUnit: ["left", "center", "right"].includes(info.targetPos) ? defF.monsters[info.targetPos] : null
+    };
+    try {
+      for (const ab of abilitiesOf(card, a => a.kind === "spell")) {
+        const probe = { side: defSide, f: defF, e: attF, card, unit: null, ab, bind: { chosen: [], revealed: [], looked: [] }, lastDone: true, auto: true, log: [], event: { name: "counter" } };
+        if (!(ab.conds || []).every(c => evalCond(c, probe))) continue;
+        await runAbility(defSide, card, ab, null, { event: { name: "counter" } });
+      }
+    } catch (e) { if (ABX.debug) console.error(e); }
+    ABX.battleCtx = null;
+    return { nullified: bc.nullified };
+  };
+
+  // Observe phase changes without touching every `this.phase = ...` site.
+  (function watchPhase() {
+    let cur = B.phase;
+    try {
+      Object.defineProperty(B, "phase", {
+        configurable: true, enumerable: true,
+        get() { return cur; },
+        set(v) {
+          const old = cur; cur = v;
+          if (v !== old && ABX.enabled !== false && !ABX.noPhaseEvents) {
+            if (v === "start") { ABX.fireTurnEvent("turnStart"); ABX.fireTurnEvent("phaseStart", "start"); }
+            else ABX.fireTurnEvent("phaseStart", v);
+          }
+        }
+      });
+    } catch (e) { /* ignore */ }
+  })();
 
   ABX.runAbility = runAbility;
   ABX.evalCond = evalCond;

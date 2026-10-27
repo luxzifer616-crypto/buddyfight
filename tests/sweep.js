@@ -2,8 +2,8 @@
 const { createEnv } = require("./headless.js");
 const env = createEnv(); const { run, flush } = env;
 run(`ABX.fast=true; ABX.autoPlay=true; ABX.debug=false; globalThis.__errs=[];`);
-const ids = JSON.parse(run(`JSON.stringify(ALL_CARDS.filter(c=>c.type==='Monster'||c.type==='Item'||c.type==='Spell').filter(c=>{const p=ABX.get(c);return p.abilities.some(a=>ABX.isExecutable(a)&&((a.trigger&&a.trigger.event==='enter'&&a.trigger.self)||a.kind==='act'));}).map(c=>c.id))`));
-console.log("cards with executable enter/act abilities:", ids.length);
+const ids = JSON.parse(run(`JSON.stringify(ALL_CARDS.filter(c=>true).filter(c=>{const p=ABX.get(c);return p.abilities.some(a=>ABX.isExecutable(a)&&(a.kind==='act'||a.kind==='spell'||a.kind==='triggered'));}).map(c=>c.id))`));
+console.log("cards with any executable act/spell/triggered ability:", ids.length);
 const chunk = 300; let bad = [], tested = 0, drew = 0;
 (async () => {
   for (const id of ids) {
@@ -20,8 +20,7 @@ const chunk = 300; let bad = [], tested = 0, drew = 0;
       const p = ABX.get(c);
       for (const ab of p.abilities) {
         if (!ABX.isExecutable(ab)) continue;
-        if (ab.trigger && ab.trigger.event==='enter' && ab.trigger.self) await ABX.runAbility('plr', c, ab, u, {auto:true, event:{name:'enter'}});
-        else if (ab.kind==='act') await ABX.runAbility('plr', c, ab, u, {auto:true, event:{name:'act'}});
+        if (ab.kind==='act' || ab.kind==='spell' || ab.kind==='triggered') await ABX.runAbility('plr', c, ab, ab.kind==='spell'?null:u, {auto:true, event:{name:ab.kind}});
       }
       globalThis.__total = total;
       return { id:${id}, name:c.name, t0, hand: me.hand.length };
