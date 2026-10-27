@@ -1437,6 +1437,37 @@ function getPackPriceAndRarity(cardCount) {
 // Example: { urls: "turn:a.relay.example.com:443?transport=tcp", username: "USER", credential: "PASS" }
 const ONLINE_TURN_SERVERS = [];
 
+// Free public relay (Metered "Open Relay", no signup, ~20 GB/month shared) so two phones on
+// different networks / mobile data can still connect. Uses the standard TURN shared-secret
+// scheme: username = "<expiry>:<name>", password = base64(HMAC-SHA1(secret, username)).
+const OPEN_RELAY_HOST = "staticauth.openrelay.metered.ca";
+const OPEN_RELAY_SECRET = "openrelayprojectsecret";
+
+async function buildOpenRelayTurnServers() {
+  try {
+    if (!window.crypto || !crypto.subtle) return [];
+    const enc = new TextEncoder();
+    const expiry = Math.floor(Date.now() / 1000) + 24 * 3600;
+    const username = `${expiry}:buddyfight`;
+    const key = await crypto.subtle.importKey("raw", enc.encode(OPEN_RELAY_SECRET), { name: "HMAC", hash: "SHA-1" }, false, ["sign"]);
+    const sig = new Uint8Array(await crypto.subtle.sign("HMAC", key, enc.encode(username)));
+    const credential = btoa(String.fromCharCode(...sig));
+    return [{
+      urls: [
+        `turn:${OPEN_RELAY_HOST}:80`,
+        `turn:${OPEN_RELAY_HOST}:80?transport=tcp`,
+        `turn:${OPEN_RELAY_HOST}:443`,
+        `turns:${OPEN_RELAY_HOST}:443?transport=tcp`
+      ],
+      username,
+      credential
+    }];
+  } catch (e) {
+    console.warn("Could not prepare relay server credentials:", e);
+    return [];
+  }
+}
+
 /* ==================== MAIN APPLICATION CONTROLLER ==================== */
 const app = {
   lang: "en",
@@ -2578,11 +2609,12 @@ const app = {
   // a direct connection; many mobile networks (carrier-grade NAT) need a TURN relay.
   // To enable one, sign up for a TURN service (e.g. Metered, Twilio, Cloudflare Calls)
   // and add its entry here, e.g. { urls: "turn:your.turn.host:443?transport=tcp", username: "...", credential: "..." }.
-  getIceServers() {
+  async getIceServers() {
     return [
       { urls: "stun:stun.l.google.com:19302" },
       { urls: "stun:stun1.l.google.com:19302" },
-      ...ONLINE_TURN_SERVERS
+      ...ONLINE_TURN_SERVERS,
+      ...(await buildOpenRelayTurnServers())
     ];
   },
 
@@ -2639,7 +2671,7 @@ const app = {
     document.getElementById("room-modal").classList.add("hidden");
   },
 
-  createMultiplayerRoom() {
+  async createMultiplayerRoom() {
     const deck = this.state.decks[this.state.activeDeckIndex];
     const randNum = Math.floor(1000 + Math.random() * 9000);
     const roomCode = `BF-${randNum}`;
@@ -2661,7 +2693,7 @@ const app = {
         const peerId = `buddyfight-online-room-${randNum}`;
         this.peer = new window.Peer(peerId, {
           debug: 1,
-          config: { iceServers: this.getIceServers() }
+          config: { iceServers: await this.getIceServers() }
         });
         this.keepPeerAlive(this.peer);
 
@@ -2695,7 +2727,7 @@ const app = {
     }
   },
 
-  joinMultiplayerRoom() {
+  async joinMultiplayerRoom() {
     const raw = (document.getElementById("join-room-input").value || "").trim();
     if (!raw) {
       alert("Please enter a Room Code (e.g. BF-4829) or a Deck Code!");
@@ -2720,7 +2752,7 @@ const app = {
         this.peerConn = null;
         this.peer = new window.Peer(undefined, {
           debug: 1,
-          config: { iceServers: this.getIceServers() }
+          config: { iceServers: await this.getIceServers() }
         });
         this.keepPeerAlive(this.peer);
         // If the data channel never opens (usually two networks that can't connect directly), say so.
