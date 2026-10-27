@@ -321,7 +321,7 @@
           <div class="deck-name-edit-bar">
             <input type="text" id="dk-name-input" class="search-input" placeholder="Enter Deck Name..." oninput="app.renameCurrentDeck(this.value)" />
             <button class="action-btn small" onclick="app.exportCurrentDeckCode()" title="Copy Shareable Deck Code">📋 Code</button>
-            <button class="action-btn small" onclick="app.autoBuildDeck()" title="Auto-Fill 50 Cards">⚡ Auto</button>
+            <button class="action-btn small" onclick="app.autoBuildDeck()" title="Fill the deck up to 50 cards (keeps your cards)">⚡ Auto</button>
             <button class="action-btn small danger" onclick="app.clearCurrentDeck()" title="Clear Deck">🗑️</button>
           </div>
 
@@ -337,14 +337,14 @@
               <div class="slot-label">🌟 BUDDY (CLICK TO PREVIEW)</div>
               <img id="dk-buddy-img" src="CardSprite/n46.png" alt="Buddy" />
               <div id="dk-buddy-name" class="slot-name">Demon Lord, Asmodai</div>
-              <div class="slot-rule-sub">Right-click any Monster/Item to set</div>
+              <div class="slot-rule-sub">Tap a card's ⓘ (or right-click), then "Set as Buddy"</div>
             </div>
           </div>
 
           <!-- Sub-Deck Toggle Tabs -->
           <div class="deck-subtabs" id="dk-subtabs">
             <button class="subtab-btn active" id="tab-main-deck" onclick="app.switchDeckEditTab('main')">
-              🃏 Main Deck (<span id="dk-total-count">50</span> / Min 50)
+              🃏 Main Deck (<span id="dk-total-count">50</span> / 50)
             </button>
             <button class="subtab-btn lost-tab hidden" id="tab-lost-deck" onclick="app.switchDeckEditTab('lost')">
               🌌 Lost World Deck (<span id="dk-lost-count">0</span> / 30)
