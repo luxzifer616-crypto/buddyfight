@@ -1,3 +1,5 @@
+// Big 2x2 connected art shown when Overgod, "0" becomes the flag
+const OVERGOD_FLAG_ART = "Sprite/OvergodZeroFlag.png";
 /* ==================== FUTURE CARD BUDDYFIGHT — COMPLETE GAME ENGINE (V5) ==================== */
 
 const ALL_CARDS = window.BUDDYFIGHT_CARDS || [];
@@ -3490,7 +3492,7 @@ const battle = {
     const artPreview = document.getElementById("godclock-2x2-art");
     if (f.godclock.overgodActive) {
       const overgodCard = CARD_MAP.get(6202);
-      artPreview.innerHTML = `<img src="${overgodCard.img}" alt="Overgod 0" style="grid-column: span 2; grid-row: span 2; width:100%; height:100%; object-fit:contain; cursor:pointer;" onclick="battle.closeGodclockModal(); battle.openEndrulerOrOvergodBanner('plr');" title="Click to open Overgod '0' Skill Banner!" />`;
+      artPreview.innerHTML = `<img src="${OVERGOD_FLAG_ART}" onerror="this.src='${overgodCard.img}'" alt="Overgod 0" style="grid-column: span 2; grid-row: span 2; width:100%; height:100%; object-fit:cover; cursor:pointer;" onclick="battle.closeGodclockModal(); battle.openEndrulerOrOvergodBanner('plr');" title="Click to open Overgod '0' Skill Banner!" />`;
     } else {
       artPreview.innerHTML = f.godclock.quadrants.map((q, idx) => {
         const activeId = (f.godclock.awakened || q.reversed) ? q.backId : q.frontId;
@@ -3938,7 +3940,7 @@ const battle = {
     };
 
     this.triggerOnFlagReversalFieldAbilities(side);
-    this.showCutin("OVERGOD, \"0\" DESCENT!", "Placed Overgod, \"0\" on Top of All Flags (12 Critical)!", overgodCard.img);
+    this.showCutin("OVERGOD, \"0\" DESCENT!", "Placed Overgod, \"0\" on Top of All Flags (12 Critical)!", OVERGOD_FLAG_ART);
     this.setPrompt("👑 OVERGOD, \"0\" ACTIVE ON FLAG SLOT! Click your Flag to open Overgod, \"0\"'s Skill Banner, unleash [Act] \"Eternal Eon\", or Attack for 12 Critical!");
     this.renderBattle();
   },
@@ -3974,7 +3976,7 @@ const battle = {
     });
 
     const overgodCard = CARD_MAP.get(6202);
-    this.showCutin("ETERNAL EON — TIME STOP!", "All Opponent Defense Reduced to 0 & Time Stopped!", overgodCard.img);
+    this.showCutin("ETERNAL EON — TIME STOP!", "All Opponent Defense Reduced to 0 & Time Stopped!", OVERGOD_FLAG_ART);
     this.setPrompt("⏱️ [ETERNAL EON] Time is stopped for your opponent! All opponent monsters' Defense is now 0, and your opponent cannot [Counter] this turn!");
     this.renderBattle();
   },
@@ -6649,7 +6651,15 @@ const battle = {
   renderFlagZoneHtml(fighter) {
     if (fighter.godclock) {
       if (fighter.godclock.overgodActive && fighter.item) {
-        return this.renderFieldCardHtml(fighter, fighter.item);
+        // Overgod, "0" placed on top of the 4 connected Endruler cards: show the full 2x2 Overgod art as one big flag
+        const ogRested = fighter.item.rested ? "rested" : "";
+        return `
+          <div class="godclock-seamless-board overgod-flag-board ${ogRested}" title="Overgod, &quot;0&quot; — click to open its Skill Banner">
+            <img class="overgod-flag-art" src="${OVERGOD_FLAG_ART}" alt="Overgod, &quot;0&quot;" />
+            <div class="overgod-flag-glow"></div>
+            <div class="godclock-stat-overlay overgod-stat">0 / 12 Crit</div>
+          </div>
+        `;
       }
       const restedClass = fighter.item && fighter.item.rested ? "rested" : "";
       const statOverlay = fighter.godclock.awakened
