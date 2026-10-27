@@ -3184,13 +3184,16 @@ const battle = {
       return;
     }
 
+    // Screen rects are in real pixels; the effect layer lives inside the
+    // big-screen zoom, so convert back to layout pixels.
+    const z = window.BF_UI_ZOOM || 1;
     const r1 = fromEl.getBoundingClientRect();
     const r2 = toEl.getBoundingClientRect();
 
-    const startX = r1.left + r1.width / 2 - 43;
-    const startY = r1.top + r1.height / 2 - 60;
-    const endX = r2.left + r2.width / 2 - 43;
-    const endY = r2.top + r2.height / 2 - 60;
+    const startX = (r1.left + r1.width / 2) / z - 43;
+    const startY = (r1.top + r1.height / 2) / z - 60;
+    const endX = (r2.left + r2.width / 2) / z - 43;
+    const endY = (r2.top + r2.height / 2) / z - 60;
 
     const cardFx = document.createElement("div");
     cardFx.className = "flying-card-fx";
@@ -3241,8 +3244,9 @@ const battle = {
         const r = toEl.getBoundingClientRect();
         const burst = document.createElement("div");
         burst.className = "impact-burst-fx";
-        burst.style.left = `${r.left + r.width / 2}px`;
-        burst.style.top = `${r.top + r.height / 2}px`;
+        const bz = window.BF_UI_ZOOM || 1;
+        burst.style.left = `${(r.left + r.width / 2) / bz}px`;
+        burst.style.top = `${(r.top + r.height / 2) / bz}px`;
         burst.textContent = "💥";
         fxLayer.appendChild(burst);
         setTimeout(() => burst.remove(), 500);
