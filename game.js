@@ -3296,6 +3296,8 @@ const app = {
           this.showScreen("battle");
         }
         battle.receiveOnlineStateFromPeer(msg);
+      } else if (msg.type === "P2P_CUTIN") {
+        battle.receiveCutinFromPeer(msg);
       } else if (msg.type === "P2P_ATTACK_PROMPT") {
         battle.receiveOnlineAttackPromptFromPeer(msg);
       } else if (msg.type === "P2P_DEFENSE_RESPONSE") {
@@ -3513,6 +3515,8 @@ const battle = {
   },
 
   showCutin(title, sub, imgSrc) {
+    // Online match: the friend sees the same cut-in (spell, flag, ability...) on their screen.
+    if (this.mode === "online_p2p" && !this._cutinFromPeer) this.sendCutinToPeer(title, sub, imgSrc);
     const el = document.getElementById("anime-cutin");
     document.getElementById("cutin-title").textContent = title;
     document.getElementById("cutin-sub").textContent = sub;
@@ -4395,6 +4399,36 @@ const battle = {
     }
   },
 
+  // Tell the online friend to show the same cut-in banner. Names are flipped to the friend's point of view.
+  sendCutinToPeer(title, sub, imgSrc) {
+    if (!app.peerConn || !app.peerConn.open) return;
+    try {
+      const friend = (this.opp && this.opp.name) || "🌐 Online Friend";
+      const flip = (t) => String(t == null ? "" : t)
+        .replace(/\bYou\b/g, "\u0001")
+        .split(friend).join("You")
+        .replace(/\u0001/g, "🌐 Online Friend");
+      app.peerConn.send({ type: "P2P_CUTIN", title: flip(title), sub: flip(sub), imgSrc: imgSrc || "" });
+    } catch (e) {
+      console.warn("P2P cut-in error:", e);
+    }
+  },
+
+  // A cut-in from the online friend is untrusted: text only, and the picture must be one of our own local images.
+  receiveCutinFromPeer(msg) {
+    if (this.mode !== "online_p2p" || !msg) return;
+    const scr = document.getElementById("screen-battle");
+    if (!scr || !scr.classList.contains("active")) return;
+    const clean = (t, n) => String(t == null ? "" : t).slice(0, n);
+    const img = (typeof msg.imgSrc === "string" && /^(CardSprite|Sprite)\/[A-Za-z0-9_\-\/.]+$/.test(msg.imgSrc) && !msg.imgSrc.includes("..")) ? msg.imgSrc : "";
+    this._cutinFromPeer = true;
+    try {
+      this.showCutin(clean(msg.title, 80), clean(msg.sub, 200), img);
+    } finally {
+      this._cutinFromPeer = false;
+    }
+  },
+
   // Board state from an online peer is untrusted: rebuild every card object from the local card database
   // (by id) so a modified client can't inject HTML/scripts through card names or image paths.
   rehydrateFighterFromPeer(f) {
@@ -5250,6 +5284,8 @@ const battle = {
   },
 
   executeCardAbilityEffect(side, card, unit = null, onAfterResolve = null) {
+    // A card on the field using its own ability: show the banner (and send it to the online friend).
+    if (unit) this.showCutin("ABILITY!", card.name, card.img);
     const f = this.getFighter(side);
     const enemy = this.getEnemy(side);
     const s = card.skill || "";

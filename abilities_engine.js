@@ -622,6 +622,8 @@
    * 10. ENTRY POINTS CALLED FROM game.js
    * ============================================================ */
   let busy = 0;
+  // Cut-in banner "ABILITY!" when a card uses one of its abilities (shown to the online friend too).
+  const announce = (card, ab) => { try { if (B.showCutin && card) B.showCutin("ABILITY!", card.name, card.img); } catch (e) { /* ignore */ } };
   const done = (cb) => { try { cb && cb(); } catch (e) { if (ABX.debug) console.error(e); } };
 
   // "When this card enters the field" (and other self-enter triggers). Returns a Promise.
@@ -635,6 +637,7 @@
         const probe = { side, f, e: F(otherSide(side)), card, unit, ab, bind: { chosen: [], revealed: [], looked: [] }, lastDone: true, auto: true, log: [], hostArea: "field" };
         if (!(ab.conds || []).every(c => evalCond(c, probe))) continue;
         markOnce(f, card, ab, unit);
+        announce(card, ab);
         await runAbility(side, card, ab, unit, { event: { name: "enter" } });
       }
     } finally { busy--; }
@@ -661,6 +664,7 @@
     }
     markOnce(f, card, ab, unit);
     if (!ab.once && unit) unit.actUsed = true;
+    announce(card, ab);
     await runAbility(side, card, ab, unit, { event: { name: "act" } });
     done(onAfter);
     return true;
@@ -692,6 +696,7 @@
           const probe = { side, f, e: F(otherSide(side)), card: src.card, unit: src.unit, ab, bind: { chosen: [], revealed: [], looked: [] }, lastDone: true, auto: true, log: [], hostArea: "field", event: info };
           if (!(ab.conds || []).every(c => evalCond(c, probe))) continue;
           markOnce(f, src.card, ab, src.unit);
+          announce(src.card, ab);
           await runAbility(side, src.card, ab, src.unit, { event: info });
           if (B.matchOver) return;
         }
