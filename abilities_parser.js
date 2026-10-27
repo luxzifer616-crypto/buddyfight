@@ -49,6 +49,10 @@
   // Case is kept (tribe / card names matter); spelling variants of "opponent's" are unified.
   ABX.norm = function (t) {
     return ABX.clean(t)
+      .replace(/[`´]/g, "'")
+      .replace(/\boponent(?:'s)?\b/gi, (w) => /'s$/i.test(w) ? "opponent's" : "opponent")
+      .replace(/\bthis cards\b/gi, "this card")
+      .replace(/^this gets\b/i, "this card gets")
       .replace(/\bopponent(?:s'|s)(?=\s)/gi, "opponent's")
       .replace(/\bopponents\b/gi, "opponent's")
       .replace(/\b(?:his or her|his\/her|his|her)\b(?=\s+(?:drop zone|hand|gauge|deck|soul|field|center|left|right))/gi, "their")
@@ -101,10 +105,40 @@
     if (!t) return null;
     const np = { raw: t, qty: { n: 1, upTo: false, all: false, any: false, each: false }, ref: null, self: false, filter: {}, zone: null, excludeSelf: false, topN: null, soulOf: null };
 
+    t = t.replace(/\brom your\b/ig, "from your").replace(/\bfrom your drop(?! zone)\b/ig, "from your drop zone")
+      .replace(/^(the top (?:\w+ )?cards?) (your|your opponent's|their) deck\b/i, "$1 of $2 deck")
+      .replace(/^the (\w+) cards from the top of /i, "$1 cards from the top of ")
+      .replace(/\b(each|both) (?:player|fighter|players|fighters)(?:'s|s')\s+decks?\b/ig, "each player's deck")
+      .replace(/^any number\b(?! of)/i, "any number of cards")
+      .replace(/\bnot an? impact monsters?\b/ig, "not an impact monster");
+    // "a soul / two or more souls / all souls from a card on your field" -> souls inside those cards
+    let sm;
+    if ((sm = t.match(/^((?:an? |the |all |up to \w+ |\w+ or more |\w+ )?(?:face[- ]?(?:up|down) )?souls?)\s+(?:from|in|of) (?:the )?(a card|the chosen card|that card|(?:an? |the )?.+? on (?:your|the) (?:opponent's )?field|(?:a|an) .+)$/i)) && !/^(?:the )?soul of/i.test(t)) {
+      const host = sm[2].replace(/^(?:a card)$/i, "a card on your field");
+      const hostNP = /^(?:the chosen card|that card)$/i.test(host) ? { raw: host, qty: { n: 1 }, ref: "chosen", self: false, filter: {}, zone: null } : parseNP(host);
+      const cnt = sm[1].replace(/\bsouls?$/i, "card").replace(/face[- ]?(?:up|down) /i, "").replace(/\b(\w+) or more card$/i, "up to 99 card");
+      const inner = parseNP(cnt + "");
+      if (hostNP && !hostNP.junk && inner && !inner.junk) {
+        inner.raw = np.raw; inner.soulOf = hostNP; inner.zone = { owner: "host", area: "soul" };
+        if (/\bsouls$/i.test(sm[1]) && !/^(?:up to|\w+ or more|two|three|four|five)/i.test(sm[1])) { inner.qty = { n: 99, upTo: false, all: true, any: false, each: false }; }
+        if (/ or more /i.test(sm[1])) inner.qty = { n: 99, upTo: true, all: true, any: false, each: false };
+        return inner;
+      }
+    }
+    // from the chosen card's soul
+    t = t.replace(/\s+(?:from|in) (?:the chosen (?:card|monster)|that (?:card|monster))'s soul$/i, () => { np.soulOfChosen = true; return ""; });
+    if (np.soulOfChosen) {
+      const inner = parseNP(t);
+      if (inner && !inner.junk) { inner.raw = np.raw; inner.soulOf = { raw: "the chosen card", qty: { n: 1 }, ref: "chosen", self: false, filter: {}, zone: null }; inner.zone = { owner: "host", area: "soul" }; return inner; }
+      return null;
+    }
     // call trailers that don't change which card is chosen
-    t = t.replace(/\s+(?:by paying (?:its|their) \[call cost\]|without paying (?:its|their) \[call cost\])/ig, "")
-      .replace(/\s+to (?:an? |the )?(?:open|another|separate|different|empty) (?:areas?|monster zones?)(?: on (?:your|the) field)?$/i, "")
-      .replace(/\s+to (?:an? )?(?:open )?areas? on your field$/i, "").trim();
+    t = t.replace(/\s+(?:by paying (?:its|their|the)? ?\[call cost\]|without paying (?:its|their|the)? ?\[call cost\])/ig, "")
+      .replace(/\s+(?:to|on|in|onto) (?:an? |the )?(?:open|another|separate|different|empty)(?: open)? (?:areas?|monster zones?)(?: on (?:your|the) field)?$/i, "")
+      .replace(/\s+(?:to|on|in|onto) (?:an? )?(?:open )?areas? on your field$/i, "").trim();
+    let callRested = false;
+    t = t.replace(/\s+at \[rest\]$/i, () => { callRested = true; return ""; });
+    if (callRested) { const inner0 = parseNP(t); if (inner0) { inner0.callRested = true; inner0.raw = np.raw; } return inner0; }
     // "... on top of this card" / "on top of a «X» monster on your field": the called card goes on top (the old card
     // and its soul become the new card's soul)
     let onTop = null;
@@ -151,6 +185,17 @@
       if (amongThem) np.ref = "looked";
       return np;
     }
+    // "up to one «A» spell with [Set] or up to one «B» item (from your deck)": one pick from either kind
+    if (/^up to \w+ /i.test(t) && /,? or up to \w+ /i.test(t) && !amongThem) {
+      const zm = t.match(/\s+(from your (?:deck|drop zone|hand|gauge))$/i);
+      const body = zm ? t.slice(0, t.length - zm[0].length) : t;
+      const pieces = body.split(/,? or up to /i).map((x, i) => (i ? "up to " + x : x).trim());
+      const subs = pieces.map(x => parseNP(x + (zm ? " " + zm[1] : "")));
+      if (subs.some(x => !x || x.junk || x.ref || x.self || x.parts || x.filter.anyOf)) return null;
+      np.filter = { anyOf: subs.map(x => x.filter) };
+      np.qty = subs[0].qty; np.zone = subs[0].zone;
+      return np;
+    }
     if (amongThem) {
       if (!t || /^(?:one|1|a card|cards?)$/i.test(t)) t = t || "a card";
       const inner = parseNP(t);
@@ -169,11 +214,12 @@
       return np;
     }
     // --- "the «X» with this card in its soul" / "that «X»" from a soul card: the soul's host ---
-    if ((m = t.match(/^(?:the|that) (.+?) (?:with|that has) this card in (?:its|their) soul$/i))) {
+    if ((m = t.match(/^(?:the |that |an? |all )?(.+?) (?:with|that has) this card in (?:its|their) soul$/i))) {
       const inner = parseNP("a " + m[1]);
       np.ref = "host"; np.hostFilter = inner ? inner.filter : {}; return np;
     }
     // --- this card ---
+    if (/^this$/i.test(t)) { np.self = true; np.selfTail = ""; return np; }
     if ((m = t.match(/^this hand card$/i))) { np.self = true; np.selfTail = "from your hand"; return np; }
     if ((m = t.match(/^this (?:card|monster|item|spell|impact|flag|character|card on the field)(?:'s (soul|power|defense|critical|size))?(?:\s+(.*))?$/i))) {
       np.self = true;
@@ -217,6 +263,13 @@
     if (/^other\b/i.test(q)) { np.excludeSelf = true; q = q.replace(/^other\s+/i, ""); }
     if (/^different\b/i.test(q)) { np.filter.distinct = true; q = q.replace(/^different\s+/i, ""); }
 
+    // "up to the number of X" / "... for each X": the quantity follows a count
+    q = q.replace(/\s+for each (?!time\b)(.+)$/i, (mm, w) => { const en = parseNP("each " + w); if (!en || en.junk) { np.junk = np.junk || "for each"; return ""; } np.qty.eachOf = en; return ""; });
+    q = q.replace(/\s+up to the number of (.+)$/i, (mm, w) => { const en = parseNP("each " + w); if (!en || en.junk) { np.junk = np.junk || "number of"; return ""; } np.qty.numOf = en; np.qty.upTo = true; return ""; });
+    q = q.replace(/\bwith both ((?:«[^»]+»(?:\s*(?:,|and)\s*)?)+)/ig, (mm, w) => { np.filter.tribesAll = (w.match(/«([^»]+)»/g) || []).map(x => x.slice(1, -1)); return " "; });
+    q = q.replace(/\b(?:non-|not )<([^>]+)>/ig, (mm, w) => { (np.filter.notWorlds = np.filter.notWorlds || []).push(w); return " "; });
+    q = q.replace(/\b(?:each )?(?:of |with )?(different|the same) (sizes?|card names?)(?: in total)?\b/ig, (mm, w, what) => { const key = /size/i.test(what) ? "size" : "cardName"; if (/different/i.test(w)) np.filter.uniqueBy = key; else np.filter.sameBy = key; return " "; });
+    q = q.replace(/\bat \[rest\]/ig, () => { np.filter.rested = true; return " "; });
     // multi-position zones: "on the left and right of your opponent's field", "on your opponent's left or right"
     q = q.replace(/\b(?:on|in|at) the ((?:left|center|right)(?:(?: and | or |, )(?:the )?(?:left|center|right))*)(?: of| on| in)? (your opponent's|your|the opponent's|the|their) field\b/ig, (mm, ps, w) => {
       np.zone = { owner: ownerOf(w), area: "field", pos: (ps.match(/left|center|right/ig) || []).map(lc) }; return " ";
@@ -225,7 +278,31 @@
       np.zone = { owner: ownerOf(w), area: "field", pos: (ps.match(/left|center|right/ig) || []).map(lc) }; return " ";
     });
     q = q.replace(/\b(?:an|one) opponent's\s+/ig, () => { if (!np.zone) np.zone = { owner: "opp", area: "field" }; return " "; });
+    // round 6: "on you and your opponent's field" / "on both players' fields"
+    q = q.replace(/\b(?:on|in) (?:you and your opponent's|your and your opponent's|both players'|each player's) fields?\b/ig, () => { np.zone = { owner: "any", area: "field" }; return " "; });
+    // "on the left or right" with no field word ("an opponent's monster on the left or right")
+    q = q.replace(/\b(?:on|in) the ((?:left|center|right)(?: (?:or|and) (?:the )?(?:left|center|right))+)(?!\s+of\b)/ig, (mm, ps) => {
+      np.zone = Object.assign(np.zone || { owner: "any", area: "field" }, { area: "field", pos: (ps.match(/left|center|right/ig) || []).map(lc) }); return " ";
+    });
+    q = q.replace(/\bother than this (?:card|monster|item)\b/ig, () => { np.excludeSelf = true; return " "; });
+    q = q.replace(/\bother than '([^']+)'/ig, (mm, v) => { (np.filter.notNames = np.filter.notNames || []).push(v.toLowerCase()); return " "; });
+    q = q.replace(/\bwithout "([^"]+)" in (?:its|their) (?:card )?name\b/ig, (mm, v) => { (np.filter.notNames = np.filter.notNames || []).push(v.toLowerCase()); return " "; });
+    q = q.replace(/\bother than (?:an? |the )?\[([^\]]+)\]/ig, (mm, v) => { (np.filter.notNames = np.filter.notNames || []).push(v.toLowerCase()); return " "; });
+    q = q.replace(/\bsize (\d+) and (less|lower|more|greater|higher)\b/ig, (mm, v, cmp) => { np.filter.size = { n: +v, cmp: /less|lower/i.test(cmp) ? "le" : "ge" }; return " "; });
+    q = q.replace(/\bthat attacked\b/ig, () => { np.filter.attacked = true; if (!np.zone) np.zone = { owner: "any", area: "field" }; return " "; });
+    // "with power less than or equal to this card's power" / "... the chosen card's critical" / "... the power of a Weapon on your field"
+    q = q.replace(/\bwith (power|defense|critical) (less than or equal to|equal to or less than|equal to or lower than|lower than or equal to|greater than or equal to|equal to or greater than|equal to or higher than|less than|lower than|greater than|higher than|equal to) (?:the (power|defense|critical) of (an?|the) (.+?)(?= on (?:your|the) |$| and )(?: on (?:your|the) (?:opponent's )?field)?|(this card's|that card's|the chosen card's|the chosen monster's|that monster's|this monster's|its) (power|defense|critical))/ig,
+      (mm, stat, cmpw, st2, art, rn, who, st3) => {
+        const cmp = /less|lower/i.test(cmpw) ? (/equal/i.test(cmpw) ? "le" : "lt") : /greater|higher/i.test(cmpw) ? (/equal/i.test(cmpw) ? "ge" : "gt") : "eq";
+        const sc = { stat: lc(stat), cmp };
+        if (who) { sc.ref = /^this/i.test(who) ? "self" : "chosen"; sc.stat2 = lc(st3); }
+        else { const rnp = parseNP((art + " " + rn + (/ on (?:your|the) /i.test(mm) ? mm.slice(mm.search(/ on (?:your|the) /i)) : " on your field")).trim()); if (!rnp || rnp.junk) { np.junk = np.junk || "statref"; return " "; } sc.ref = "np"; sc.np = rnp; sc.stat2 = lc(st2); }
+        (np.filter.statCmp = np.filter.statCmp || []).push(sc); return " ";
+      });
+    q = q.replace(/\bwith (power|defense|critical) (less than or equal to|equal to or less than|equal to or lower than) the defense of the monster on your (center|left|right)\b/ig, (mm, stat, cw, pos) => { (np.filter.statCmp = np.filter.statCmp || []).push({ stat: lc(stat), cmp: "le", ref: "pos", pos: lc(pos), stat2: "defense" }); return " "; });
+    q = q.replace(/\bwith (power|defense|critical) (less than or equal to|equal to or less than|equal to or lower than|lower than or equal to) (?:the )?(power|defense|critical) of (?:the )?(?:chosen|that) (?:card|monster)\b/ig, (mm, stat, cw, st2) => { (np.filter.statCmp = np.filter.statCmp || []).push({ stat: lc(stat), cmp: "le", ref: "chosen", stat2: lc(st2) }); return " "; });
     q = q.replace(/\bbuddy (?=monsters?)/ig, () => { np.filter.buddy = true; return ""; });
+    q = q.replace(/\b(all|each|every|a|the) buddy\b/ig, (mm, w) => { np.filter.buddy = true; return w + " card"; });
     q = q.replace(/\bwith ([\d,]+) or (less|more|greater) power or (?:with )?(?:([\d,]+) or (?:less|more|greater) )?defense\b/ig, (mm, v, cmp) => { np.filter.powerOrDef = { n: +v.replace(/,/g, ""), cmp: /less/i.test(cmp) ? "le" : "ge" }; return " "; });
     // "a hand card" / "two hand cards" = card(s) in your hand
     if (!/^this\b/i.test(q)) q = q.replace(/\bhand (cards?)\b/ig, (mm, w) => { if (!np.zone) np.zone = { owner: "you", area: "hand" }; return w; });
@@ -278,7 +355,9 @@
     q = q.replace(/\bwith "([^"]+)" in (?:its|their) (?:card )?name\b/ig, (mm, v) => { (f.names = f.names || []).push(v.toLowerCase()); return " "; });
     q = q.replace(/\bwith (?:the )?(?:\[([^\]]+)\])/ig, (mm, kw) => { (f.kws = f.kws || []).push(lc(kw)); return " "; });
     q = q.replace(/\bwith (?:the )?name "([^"]+)"/ig, (mm, v) => { (f.names = f.names || []).push(v.toLowerCase()); return " "; });
+    q = q.replace(/\bwith (originally )?([\d,]+) (power|defense|critical)\b(?! or)/ig, (mm, o, v, stat) => { f[lc(stat)] = { n: +v.replace(/,/g, ""), cmp: "eq" }; if (o) f.original = true; return " "; });
     q = q.replace(/\boriginally\s+/ig, () => { f.original = true; return " "; });
+    q = q.replace(/\bin front of this card\b/ig, () => { f.frontOf = true; if (!np.zone) np.zone = { owner: "opp", area: "field" }; return " "; });
     q = q.replace(/\bsize (\d+) or (lower|higher)\b/ig, (mm, v, cmp) => { f.size = { n: +v, cmp: /lower/i.test(cmp) ? "le" : "ge" }; return " "; });
     q = q.replace(/\bother than "([^"]+)"/ig, (mm, v) => { (f.notNames = f.notNames || []).push(v.toLowerCase()); return " "; });
     q = q.replace(/\bsize (\d+) or (less|greater|more)\b/ig, (mm, v, cmp) => { f.size = { n: +v, cmp: /less/i.test(cmp) ? "le" : "ge" }; return " "; });
@@ -302,9 +381,10 @@
     });
     // type words
     const types = [];
-    q = q.replace(/\b(monsters?|items?|spells?|impacts?(?: monsters?)?|characters?|cards?|flags?)\b/ig, (mm, w) => {
+    q = q.replace(/\b(monsters?|items?|spells?|events?|impacts?(?: monsters?)?|characters?|cards?|flags?)\b/ig, (mm, w) => {
       const k = lc(w).replace(/s$/, "");
-      if (k === "monster") types.push("monster");
+      if (k === "event") { types.push("spell"); f.event = true; }
+      else if (k === "monster") types.push("monster");
       else if (k === "item") types.push("item");
       else if (k === "spell") types.push("spell");
       else if (/^impact/.test(k)) types.push(/monster/.test(k) ? "impactMonster" : "impact");
@@ -314,6 +394,7 @@
       return " ";
     });
     if (types.length) f.types = Array.from(new Set(types.filter(x => x !== "card")));
+    if (f.event && (!np.zone || np.zone.area === "field")) np.junk = np.junk || "event on field";
     // attribute-style leftovers ("Detective", "Dragon World" tokens, ...)
     const left = q.replace(/\b(?:a|an|the|of|and|or|that|which|with|in|on|from|has|have|having|its|their|attribute|attributes|name|names|each|different|other|another|your|opponent's|are|is|only|also)\b/ig, " ")
       .replace(/[^A-Za-z0-9'\-]+/g, " ").trim();
@@ -398,12 +479,14 @@
 
   cr(/^your opponent does not have (?:a|any) (.+)$/i, (m) => ({ t: "hasNot", owner: "opp", np: parseNP(m[1]) }));
   cr(/^your opponent has no (.+)$/i, (m) => ({ t: "hasNot", owner: "opp", np: parseNP(m[1]) }));
-  cr(/^you do not have (?:a|an|any) (.+)$/i, (m) => ({ t: "hasNot", owner: "you", np: parseNP(m[1]) }));
+  cr(/^you do not have (?:an? |another |any )?(.+?) (?:item )?equipped$/i, (m) => ({ t: "not", c: { t: "itemEquipped", np: parseNP(m[1].replace(/\s+item$/i, "")), any: /^(?:item|card)$/i.test(m[1].trim()) } }));
+  cr(/^you do not have (?:an? )?item equipped$/i, () => ({ t: "not", c: { t: "itemEquipped", any: true } }));
+  cr(/^you do not have (a|an|any|another) (.+)$/i, (m) => ({ t: "hasNot", owner: "you", np: parseNP(m[2]), other: /^another$/i.test(m[1]) }));
   cr(/^you have no (.+)$/i, (m) => ({ t: "hasNot", owner: "you", np: parseNP(m[1]) }));
   cr(/^you have only (?:one|1) (.+)$/i, (m) => ({ t: "count", owner: "you", np: parseNP(m[1]), n: 1, cmp: "eq" }));
   cr(/^your opponent has (?:a|an|1 or more|one or more) (.+)$/i, (m) => ({ t: "has", owner: "opp", np: parseNP(m[1]), n: 1 }));
   cr(/^your opponent has (\d+|one|two|three|four|five|six) or (more|less) (.+)$/i, (m) => ({ t: "count", owner: "opp", np: parseNP(m[3]), n: toNum(m[1]), cmp: CMP(m[2]) }));
-  cr(/^you have (?:a|an|another|1 or more|one or more) (.+)$/i, (m) => ({ t: "has", owner: "you", np: parseNP(m[1]), n: 1, other: /^another/i.test(m[0].replace(/^you have /i, "")) }));
+  cr(/^you have (?:a|an|another|1 or more|one or more) (.+)$/i, (m) => /\bequipped$/i.test(m[1]) ? null : ({ t: "has", owner: "you", np: parseNP(m[1]), n: 1, other: /^another/i.test(m[0].replace(/^you have /i, "")) }));
   cr(/^you have (\d+|one|two|three|four|five|six|seven|eight|nine|ten) or (more|less|fewer) (.+)$/i, (m) => ({ t: "count", owner: "you", np: parseNP(m[3]), n: toNum(m[1]), cmp: CMP(m[2]) }));
   cr(/^you have (\d+|one|two|three|four|five|six|seven|eight|nine|ten) (?!or)(.+)$/i, (m) => ({ t: "count", owner: "you", np: parseNP(m[2]), n: toNum(m[1]), cmp: "ge" }));
   cr(/^you (?:are|were) \[ride\] on (?:a|an) (.+)$/i, (m) => ({ t: "rideOn", np: parseNP(m[1]) }));
@@ -494,6 +577,7 @@
       return { area: lc(m[1]), owner, end: "top" };
     }
     if ((m = t.match(/^(?:into|to|in) (?:its|this card's) soul$/i))) return { area: "soul", owner: "host", host: "self" };
+    if ((m = t.match(/^(?:into|in|to) (?:the chosen (?:card|monster)'s|that (?:card|monster)'s) soul$/i))) return { area: "soul", owner: "host", host: "chosen" };
     if ((m = t.match(/^(?:into|in) the soul of (.+)$/i))) return { area: "soul", owner: "host", hostNP: parseNP(m[1]) };
     if ((m = t.match(/^(?:into|in) (?:their|your) (?:opponent's )?soul$/i))) return { area: "soul", owner: "host", host: "self" };
     if (/^(?:on|to) the field$/i.test(t)) return { area: "field", owner: "you" };
@@ -582,7 +666,7 @@
     if (!np || !dest) return null;
     return { op: "move", np, to: dest };
   }
-  ar(/^put (.+?) ((?:into|to|in|onto|on) (?:the |your |their |your opponent's |its owner's |its |this card's )?(?:hand|gauge|drop zone|deck|soul|top of .+|bottom of .+|the soul of .+))(?: in any order)?$/i, (m) => {
+  ar(/^put (.+?) ((?:into|to|in|onto|on) (?:the |your |their |your opponent's |its owner's |its |this card's |the chosen card's |that card's )?(?:hand|gauge|drop zone|deck|soul|top of .+|bottom of .+|the soul of .+))(?: in any order)?$/i, (m) => {
     const r = parsePut([m[0], m[1], m[2]]);
     if (r && /in any order$/i.test(m[0])) r.order = "any";
     return r;
@@ -598,6 +682,15 @@
   ar(/^put (.+?) into (?:the )?(?:your opponent's |their )?soul$/i, () => null);
 
   /* ---------- destroy / rest / stand ---------- */
+  // "destroy or return to hand X" / "destroy X or return it to hand": the player picks one result
+  ar(/^(?:choose and )?destroy or return to (?:the |its owner's |their owner's )?hand (.+)$/i, (m) => { const np = parseNP(m[1]); return np ? { op: "destroy", np, orReturn: true } : null; });
+  ar(/^(?:choose and )?destroy (.+?),? or return (?:it|them) to (?:the |its owner's |their owner's )?hand$/i, (m) => { const np = parseNP(m[1]); return np ? { op: "destroy", np, orReturn: true } : null; });
+  ar(/^(?:choose and )?destroy (.+?),? or deal (\w+) damage to your opponent$/i, (m) => { const np = parseNP(m[1]); const n = toNum(m[2]); return np && n ? { op: "destroy", np, orDamage: n } : null; });
+  ar(/^destroy all (.+?) and all (.+)$/i, (m) => {
+    const a = parseNP("all " + m[1]), b = parseNP("all " + m[2]);
+    if (!a || !b || a.junk || b.junk || a.parts || b.parts) return null;
+    return { op: "destroy", np: { raw: "all " + m[1] + " and all " + m[2], qty: { n: 99, upTo: false, all: true, any: false, each: false }, ref: null, self: false, filter: {}, zone: a.zone, excludeSelf: false, topN: null, soulOf: null, parts: [a, b] } };
+  });
   ar(/^destroy (?:all|each) (.+)$/i, (m) => { const np = parseNP("all " + m[1]); return np ? { op: "destroy", np } : null; });
   ar(/^(?:choose and )?destroy (.+)$/i, (m) => { const np = parseNP(m[1]); return np ? { op: "destroy", np } : null; });
   ar(/^\[rest\] (.+)$/i, (m) => { const np = parseNP(m[1]); return np ? { op: "rest", np } : null; });
@@ -605,7 +698,7 @@
   ar(/^(?:rest) (.+)$/i, (m) => { const np = parseNP(m[1]); return np ? { op: "rest", np } : null; });
 
   /* ---------- choose ---------- */
-  ar(/^(?:you may )?(?:choose and )?use one of the following(?: abilities| two| three| effects)?$/i, () => ({ op: "modalMarker" }));
+  ar(/^(?:you may )?(?:choose(?: and use)? one of the follow(?:ing)?(?: abilities| effects| two| three| four| five)?|(?:choose and )?use one of the follow(?:ing)?(?: abilities| two| three| four| five| effects)?)$/i, () => ({ op: "modalMarker" }));
   ar(/^choose (.+)$/i, (m) => { const np = parseNP(m[1]); return np ? { op: "choose", np, bind: "chosen" } : null; });
 
   /* ---------- boosts ---------- */
@@ -620,14 +713,24 @@
     return any ? mods : null;
   }
   ABX.parseStatMods = parseStatMods;
+  ar(/^(?:for|during) (?:each|every) (.+?), (.+? (?:gets?|gains?) .+)$/i, (m) => {
+    const inner = parseAction(m[2]);
+    if (!inner || inner.op !== "boost" || inner.each) return null;
+    const en = parseNP("each " + m[1].replace(/^other /i, "other "));
+    if (!en || en.junk) return null;
+    inner.each = en; return inner;
+  });
   ar(/^(.+?) (?:gets?|has|have|gains?) (.*(?:power|defense|critical)\s*[+\-]\s*\d.*|\[[^\]]+\].*)$/i, (m) => {
-    const subj = m[1];
+    let subj = m[1].replace(/^(?:the )?abilit(?:y|ies) of /i, "");
     if (/^(?:for this turn|for that turn)$/i.test(subj)) return null;
     const mods = parseStatMods(m[2]); if (!mods) return null;
     const each = m[2].match(/for each (.+)$/i);
+    let alsoSelf = false;
+    const sm = subj.match(/^(.+?) and this card(?: on your field)?$/i);
+    if (sm) { subj = sm[1]; alsoSelf = true; }
     const np = parseNP(subj.replace(/^the /i, "the "));
     if (!np) return null;
-    return { op: "boost", np, mods, each: each ? parseNP(each[1]) : null };
+    return Object.assign({ op: "boost", np, mods, each: each ? parseNP(each[1]) : null }, alsoSelf ? { alsoSelf: true } : {});
   });
   ar(/^give (.+?) (power|defense|critical)\s*([+\-])\s*(\d[\d,]*)$/i, (m) => { const np = parseNP(m[1]); if (!np) return null; const mods = { power: 0, defense: 0, critical: 0, kws: [] }; mods[lc(m[2])] = (m[3] === "-" ? -1 : 1) * parseInt(m[4].replace(/,/g, ""), 10); return { op: "boost", np, mods }; });
   ar(/^(?:the |that )?(?:size|power|defense|critical) of (.+?) (?:is|are) (?:reduced|increased) by (\d+)$/i, () => null);
@@ -635,6 +738,32 @@
   ar(/^(?:this card|the abilities? of this card|the ability of this card|this ability)(?:'s abilities)? cannot be nullified$/i, () => ({ op: "noop", note: "unnullifiable-ok" }));
   ar(/^the attack cannot be nullified$/i, () => ({ op: "noop", note: "unnullifiable-ok" }));
   /* ---------- restrictions ---------- */
+  // --- round 6: continuous protections naming several kinds and/or "abilities cannot be nullified" ---
+  const PK_RE = "destroyed|returned to hand|\\[?rest\\]?|put into the drop zone|nullified|dropped|leave the field";
+  function protectSubject(x) {
+    x = ABX.norm(x).replace(/^(?:the )?abilities of /i, "").replace(/\s+and souls\b/i, "").trim();
+    let m;
+    if ((m = x.match(/^this and (.+)$/i))) return protectSubject(m[1]);
+    if (/^(?:this card|this|this monster|this item)(?: on the field)?$/i.test(x)) return { self: true };
+    if (/\bcannot\b|\bthat card\b|\bchosen\b/i.test(x)) return null;
+    const np = parseNP(/ on (?:your|the) |on you and/i.test(x) ? x : x + " on your field");
+    if (!np || np.junk || np.ref) return null;
+    return { np };
+  }
+  function protectRule(m, kinds, byOpp, subj) {
+    const sj = protectSubject(subj); if (!sj) return null;
+    if (!kinds.length) return null;
+    return sj.self ? SDEF("protect", { kinds, byOpp, self: true }) : SDEF("protect", { np: sj.np, kinds, byOpp });
+  }
+  // "Abilities of X cannot be nullified [by your opponent's card effects]"
+  ar(/^(?:the )?abilities of (.+?) cannot be nullified(?: by (?:your opponent's|the opponent's|opponent's) (?:card )?effects?)?$/i, (m) => protectRule(m, ["nullified"], /opponent/i.test(m[0]), m[1]));
+  // "X cannot be destroyed or [Rest] (and their abilities cannot be nullified) (by your opponent's card effects)"
+  ar(new RegExp("^(?:all |the )?(.+?) cannot (?:be )?((?:" + PK_RE + ")(?:(?:,| or| nor| and|, nor|, or|, and) (?:be )?(?:" + PK_RE + "))*)(?:,? (?:and|nor) (?:their|its) abilities cannot be nullified)?(?: by (?:your opponent's|the opponent's|opponent's|effects from your opponent's) (?:card )?(?:effects?|cards?|abilities))?$", "i"), (m) => {
+    if (/\bcannot\b/i.test(m[1])) return null;
+    const tail = m[0].slice(m[1].length);
+    const kinds = Array.from(new Set((tail.match(new RegExp(PK_RE + "|abilities cannot be nullified", "ig")) || []).map(x => /abilities/i.test(x) ? "nullified" : lc(x).replace(/[\[\]]/g, "").replace(/^dropped$/, "put into the drop zone"))));
+    return protectRule(m, kinds, /opponent/i.test(m[0]), m[1]);
+  });
   ar(/^(.+?) cannot (?:be )?(attack|destroyed|\[?rest\]?|returned to hand|called|\[?stand\]?|nullified|put into the drop zone|put to other areas)(?:(?: or| and| nor) (?:be )?(?:destroyed|returned to hand|\[?rest\]?|\[?stand\]?|nullified|put into the drop zone))*(?: by (?:your opponent's |the )?(?:card )?(?:effects?|abilities))?$/i, (m) => {
     const np = parseNP(m[1]); if (!np) return null;
     const kinds = (m[0].match(/destroyed|returned to hand|\[?rest\]?|\[?stand\]?|nullified|put into the drop zone|attack|called|put to other areas/ig) || []).map(x => lc(x).replace(/[\[\]]/g, ""));
@@ -788,7 +917,10 @@
 
 
   /* ===================== BATCH 3 ===================== */
+  ar(/^add (it|that card|them|the chosen card) to your hand$/i, () => ({ op: "move", np: { raw: "the chosen card", qty: { n: 1, all: true }, ref: "chosen", self: false, filter: {}, zone: null }, to: { area: "hand", owner: "you", end: "top" } }));
+  ar(/^(?:it|that card|the chosen card|that monster) cannot \[?stand\]? during (?:their|your|its owner's) next stand phase$/i, () => ({ op: "restrict", np: { ref: "chosen", qty: { n: 1 }, filter: {}, raw: "chosen" }, kinds: ["stand"], duration: "next" }));
   ar(/^change the target of the attack to (?:this card|this monster|this item)$/i, () => ({ op: "redirectAttack" }));
+  ar(/^change the target of the attack to (?:it|that monster|that card|the chosen (?:card|monster))$/i, () => ({ op: "redirectAttack", toChosen: true }));
   ar(/^(?:for this turn, )?nullify the attacking card's \[?([^\]]+?)\]?$/i, (m) => ({ op: "nullifyKeyword", kw: lc(m[1]) }));
   ar(/^your opponent cannot \[counter\](?: against this ability)?$/i, () => ({ op: "noCounter" }));
   ar(/^(?:you )?pay (\d+|a|one|two|three) gauge and \[rest\] this card$/i, (m) => ({ op: "pay", gauge: toNum(m[1]), cost: true, restSelf: true }));
@@ -828,7 +960,7 @@
   /* ============================================================
    * 6. SENTENCE -> STEPS
    * ============================================================ */
-  const VERB_START = "(?:draw|destroy|deal|gain|put|call|drop|return|\\[rest\\]|\\[stand\\]|rest|stand|choose|look|search|shuffle|reveal|discard|pay|nullify|you |your |for |this |that |the chosen|it |they |each |all |another|up to|add|move|set|equip|transform|take|lose|replace|if |when |then|also|instead|but |end |give |cannot|a |an |one )";
+  const VERB_START = "(?:change|draw|destroy|deal|gain|put|call|drop|return|\\[rest\\]|\\[stand\\]|rest|stand|choose|look|search|shuffle|reveal|discard|pay|nullify|you |your |for |this |that |the chosen|it |they |each |all |another|up to|add|move|set|equip|transform|take|lose|replace|if |when |then|also|instead|but |end |give |cannot|a |an |one )";
   const SEG_SPLIT = new RegExp(",\\s*(?:and\\s+)?(?:then,?\\s*)?(?=" + VERB_START + ")|\\s+and\\s+(?=(?:draw|destroy|deal|gain|put|call|drop|return|\\[rest\\]|\\[stand\\]|choose|look|search|shuffle|reveal|discard|pay|nullify|give|you |your opponent|end )\\b)|\\.\\s*(?=then,?\\s)|,?\\s+then,?\\s+|\\s*\\bthen,\\s*", "i");
 
   function splitSegments(sentence) {
@@ -853,9 +985,11 @@
 
   // Break one sentence into clause chunks, splitting only where a new clause starts.
   function splitClauses(sentence) {
-    const s = stripEnd(ABX.norm(sentence));
+    let s = stripEnd(ABX.norm(sentence)).replace(/,\s*and,\s+/ig, ", and ").replace(/\s+and (for this (?:turn|battle|fight)),/ig, ", $1,");
+    s = s.replace(/^((?:(?:all |the )?(?:abilities of )?)(.+?)) cannot (be )?(.+?),? and (?:they |it )?gets? (.+)$/i, (mm, whole, subj, be, mid, rest) =>
+      /\bcannot\b/i.test(subj) ? mm : ("" + whole + " cannot " + (be || "") + mid + " then " + subj.replace(/^(?:the )?abilities of /i, "") + " get " + rest));
     const pieces = [];
-    const re = /,\s*(?:and\s+)?(?:then,?\s*)?|\s+and\s+(?=(?:draw|destroy|deal|gain|put|call|drop|return|\[rest\]|\[stand\]|choose|look|search|shuffle|reveal|discard|pay|nullify|give|end|you |your opponent|this card)\b)|\s+then,?\s+|\.\s+(?=then\b)/ig;
+    const re = /,\s*(?:and\s+)?(?:then,?\s*)?|\s+and\s+(?=(?:add|it cannot|that card cannot|change|draw|destroy|deal|gain|put|call|drop|return|\[rest\]|\[stand\]|choose|look|search|shuffle|reveal|discard|pay|nullify|give|end|you |your opponent|this card)\b)|\s+then,?\s+|\.\s+(?=then\b)/ig;
     let last = 0, m;
     // iterate over split points, but don't split inside quotes / brackets
     const inside = (idx) => {
@@ -911,7 +1045,9 @@
       let m;
       if ((m = s.match(/^(?:for|during) (?:this|that) (turn|battle|fight)(?: and the next turn)?,?\s*/i))) { info.turn = lc(m[1]) === "turn" ? "turn" : lc(m[1]); if (/next turn/i.test(m[0])) info.turn = "next"; s = s.slice(m[0].length); again = true; }
       else if ((m = s.match(/^you may /i))) { info.optional = true; s = s.slice(m[0].length); again = true; }
-      else if ((m = s.match(/^(?:if you do|if you did|if you can),?\s*/i))) { info.ifYouDo = true; s = s.slice(m[0].length); again = true; }
+      else if ((m = s.match(/^for the rest of (?:this|the) turn,?\s*/i))) { info.turn = "turn"; s = s.slice(m[0].length); again = true; }
+      else if ((m = s.match(/^for the next turn,?\s*/i))) { info.turn = "next"; s = s.slice(m[0].length); again = true; }
+      else if ((m = s.match(/^(?:if you do(?!\s+not\b)|if you did|if you can),?\s*/i))) { info.ifYouDo = true; s = s.slice(m[0].length); again = true; }
       else if ((m = s.match(/^(?:then|also|and),?\s*/i))) { s = s.slice(m[0].length); again = true; }
       else if ((m = s.match(/^up to /i)) && false) { s = s; }
     }
@@ -939,14 +1075,14 @@
       let work = info.text;
       if (info.ifYouDo && !work) { ifYouDoPending = true; continue; }
       if (!work) continue;
-      if (/^if you do not\b|^otherwise\b|^if you did not\b/i.test(stripEnd(txt))) {
+      if (/^if you do not(?=\s*(?:,|$))|^otherwise\b|^if you did not(?=\s*(?:,|$))/i.test(stripEnd(txt))) {
         const rest = stripEnd(txt).replace(/^(?:if you do not|if you did not|otherwise),?\s*/i, "");
         if (!rest) { elsePending = true; continue; }
         txt = rest; work = rest; elsePending = true;
       }
       // condition clause ("if ..." / "when ...") applies to the clauses that follow
       let cm = work.match(/^(if|when|while)\s+(.+)$/i);
-      if (cm && !/^if you do\b/i.test(work)) {
+      if (cm && !/^if you do(?!\s+not\s+(?:have|control|own)\b)/i.test(work)) {
         const cond = ABX.parseCondition(work);
         if (cond) { condStack.push(cond); continue; }
         // "if X, Y" where the comma was not split: try to find the comma
@@ -1144,7 +1280,7 @@
       let sentP = sent;
       const tm = stripEnd(sent).match(/^(?!if\b)(.+?)(?<!\b(?:even|as|what|see|check))(?<!\beven),?\s+if (.+?)$/i);
       let trailingUnread = false;
-      if (tm && !/\bif you do\b/i.test(tm[2])) {
+      if (tm && !/\bif you do(?!\s+not\s+(?:have|control|own)\b)/i.test(tm[2])) {
         if (ABX.parseCondition(stripEnd(tm[2]))) sentP = "If " + stripEnd(tm[2]) + ", " + tm[1] + ".";
         else if (!/,/.test(tm[2]) && /^(?:call|you may call|put|draw|destroy|deal|you gain)\b/i.test(tm[1])) trailingUnread = true;
       }
@@ -1154,7 +1290,7 @@
         ab.unparsed.push(sent);
       }
       // "If you do" at sentence start gates the whole sentence on the previous optional step
-      const startsIfYouDo = /^(?:then,?\s*)?if you do\b/i.test(sent);
+      const startsIfYouDo = /^(?:then,?\s*)?if you do(?!\s+not\s+(?:have|control|own)\b)/i.test(sent);
       r.steps.forEach((st, i) => { if (startsIfYouDo && i === 0) st.gate = "ifYouDo"; ab.steps.push(st); });
     }
     ab.kind = ab.tags.includes("act") ? "act" : (ab.trigger ? "triggered" : "spell");
@@ -1200,7 +1336,8 @@
     const ACTION_OPS = new Set(["pay", "discard", "draw", "mill", "move", "moveSelf", "call", "destroy", "damage", "life", "search", "look", "lookPick", "reveal", "rest", "stand", "shuffle", "dropSoul", "nullifyAttack", "redirectAttack", "choose", "deckToBottom", "oppDiscard"]);
     out.abilities.forEach(ab => {
       if (ab.kind !== "spell") return;
-      if (card.type === "Spell" || card.type === "Impact") return;
+      if (card.type === "Spell") return;
+      if (card.type === "Impact" && !(typeof IMX !== "undefined" && IMX.isImpactMonster && IMX.isImpactMonster(card))) return;
       const acts = (ab.steps || []).some(st => ACTION_OPS.has(st.op));
       const onlyBoost = (ab.steps || []).every(st => ["boost", "restrict", "static", "noop", "sizeMod"].includes(st.op));
       if (acts && !onlyBoost && (ab.tags.includes("counter") || ab.name) && !ab.tags.some(t => /^kw:(overturn|overkill|overthrow)/.test(t))) { ab.kind = "act"; ab.tags.push("act"); return; }

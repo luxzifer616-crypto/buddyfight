@@ -169,6 +169,7 @@
     if (dest.area === "soul") {
       let host = null;
       if (dest.host === "self") host = ctx.unit;
+      else if (dest.host === "chosen") { const hr = (ctx.bind.chosen || []).find(r => r.unit && !refs.some(x => x.unit === r.unit)); host = hr && hr.unit; }
       else if (dest.hostNP) {
         const movingUnits = new Set(refs.map(r => r.unit).filter(Boolean));
         const hs = refsFor(dest.hostNP, ctx, { owner: "you", area: "field" }).filter(r => r.unit && !movingUnits.has(r.unit));
@@ -209,11 +210,10 @@
         refs = await pick(cands, s.np, ctx, { intent: s.np.zone && s.np.zone.owner === "opp" ? "harm" : "help", title: `${ctx.card.name} — choose`, subtitle: ABX.clean(s.np.raw), ordered: s.order === "any" });
       }
       const ok = await moveRefs(refs, s.to, ctx, s.order);
-      // anything revealed/looked that was moved no longer returns to the deck
-      refs.forEach(r => { r.pending = false; });
+      // (moveRefs clears `pending` on every card it actually placed; cards it could not place stay pending)
       return ok;
     },
-    check: (s) => !!s.np && !!s.to && ["hand", "gauge", "drop zone", "deck", "soul"].includes(s.to.area) && (s.to.area !== "soul" || s.to.host === "self" || !!s.to.hostNP)
+    check: (s) => !!s.np && !!s.to && ["hand", "gauge", "drop zone", "deck", "soul"].includes(s.to.area) && (s.to.area !== "soul" || s.to.host === "self" || s.to.host === "chosen" || !!s.to.hostNP)
   };
   OPS.moveSelf = {
     async run(s, ctx) {
@@ -280,8 +280,27 @@
       const cands = s.np.self ? refsFor(s.np, ctx) : (s.np.ref ? (ctx.bind.chosen || []).slice() : refsFor(s.np, ctx, { owner: "any", area: "field" }));
       const targets = s.np.ref ? cands : (s.np.qty.all ? cands : await pick(cands, s.np, ctx, { intent: "harm", title: `${ctx.card.name} — destroy`, subtitle: ABX.clean(s.np.raw) }));
       let did = 0;
+      let groupMode = null;
+      if (s.orDamage && !(F(ctx.side).isBot || ABX.autoPlay || ctx.auto)) {
+        const i = await ABX.ui.pickOption({ title: `${ctx.card.name} — choose one`, options: [{ label: "💥 Destroy" }, { label: `🔥 Deal ${s.orDamage} damage to your opponent` }] });
+        if (i === 1) { core.applyDamage(otherSide(ctx.side), s.orDamage, { kind: "effect" }); fresh(); return true; }
+      }
       for (const r of targets) {
         if (r.k !== "unit" && r.k !== "item") continue;
+        if (s.orReturn) {
+          // "destroy or return to hand": the player decides (once for an "all" group); bots / auto-play destroy
+          let mode = groupMode;
+          if (!mode) {
+            if (F(ctx.side).isBot || ABX.autoPlay || ctx.auto) mode = "destroy";
+            else { const i = await ABX.ui.pickOption({ title: `${ctx.card.name} — ${r.card.name}`, options: [{ label: "💥 Destroy it" }, { label: "↩️ Return it to hand" }] }); mode = i === 1 ? "return" : "destroy"; }
+            if (s.np.qty.all) groupMode = mode;
+          }
+          if (mode === "return") {
+            if (r.side !== ctx.side && isProtected(r.unit, r.side, "returned to hand", ctx)) continue;
+            if (await moveRefs([r], { area: "hand", owner: "owner" }, ctx)) did++;
+            continue;
+          }
+        }
         if (r.side !== ctx.side && isProtected(r.unit, r.side, "destroyed", ctx)) continue;
         if (isProtected(r.unit, r.side, "destroyed", { side: ctx.side }) && r.side !== ctx.side) continue;
         const pos = core.posOfUnit(F(r.side), r.unit);
@@ -315,6 +334,7 @@
       const refs = s.np.ref ? (ctx.bind.chosen || []).filter(r => r.unit) : s.np.self ? refsFor(s.np, ctx) : refsFor(s.np, ctx, { owner: "you", area: "field" }).filter(r => r.unit);
       const ch = s.np.ref || s.np.self || s.np.qty.all ? refs : await pick(refs, s.np, ctx, { intent: "help", title: `${ctx.card.name} — choose` });
       const mult = s.each ? refsFor(s.each, ctx, { owner: "you", area: "field" }).length : 1;
+      if (s.alsoSelf && ctx.unit && !ch.some(r => r.unit === ctx.unit)) ch.push({ k: "unit", side: ctx.side, unit: ctx.unit, card: ctx.card, id: ctx.card.id });
       ch.forEach(r => {
         r.unit.tempPower = (r.unit.tempPower || 0) + (s.mods.power || 0) * mult;
         r.unit.tempDef = (r.unit.tempDef || 0) + (s.mods.defense || 0) * mult;
@@ -390,14 +410,16 @@
       }
       return n > 0;
     },
-    check: (s) => !!s.np && !s.np.junk && (s.free || s.pay || s.np.self || s.np.ref) && !s.np.soulOf && s.np.qty &&
+    check: (s) => !!s.np && !s.np.junk && (s.free || s.pay || s.np.self || s.np.ref) && (!s.np.soulOf || s.np.soulOf.ref === "chosen") && s.np.qty &&
       (s.np.self ? /hand|drop zone/i.test((s.np.selfTail || "") + " " + (s.np.raw || "")) : (s.np.ref || (s.np.zone && ["hand", "drop zone", "deck", "soul"].includes(s.np.zone.area)))) && !(s.np.onTop && s.np.onTop.np && s.np.onTop.np.junk)
   };
   OPS.redirectAttack = {
     run(s, ctx) {
       const bc = ABX.battleCtx;
-      if (!bc || !bc.active || !ctx.calledPos) return false;
-      bc.redirectTo = ctx.calledPos;
+      let pos = ctx.calledPos;
+      if (!pos && s.toChosen) { const r = (ctx.bind.chosen || []).find(x => x.unit); pos = r && core.posOfUnit(F(r.side), r.unit); if (pos === "item") pos = null; }
+      if (!bc || !bc.active || !pos) return false;
+      bc.redirectTo = pos;
       if (B.setPrompt) B.setPrompt(`🎯 The attack's target was changed to "${ctx.card.name}"!`);
       return true;
     }
@@ -493,7 +515,25 @@
     },
     check: (s) => s.np && (s.kinds || []).length > 0 && (s.kinds || []).every(k => ["attack", "stand", "destroyed", "returned to hand", "rest", "nullified", "put into the drop zone", "put to other areas", "leave the field"].includes(k)) && (s.duration === "turn" || !!s.duration || true) && !(s.np.zone && !["field", "center", "left", "right"].includes(s.np.zone.area))
   };
-  core.isRestricted = function (unit, kind) { return !!(unit && unit.abxNo && unit.abxNo[kind] === B.turnCount); };
+  core.isRestricted = function (unit, kind) {
+    if (!unit) return false;
+    if (unit.abxNo && unit.abxNo[kind] === B.turnCount) return true;
+    if (kind === "attack" && unit.card && !(unit.abxNullified === B.turnCount)) {
+      // continuous "this card cannot attack" (optionally behind a condition)
+      const side = ["plr", "opp"].find(sd => core.fieldUnits(F(sd), true).some(x => x.unit === unit));
+      if (!side) return false;
+      for (const ab of ABX.get(unit.card).abilities) {
+        if (ab.kind !== "static" || (ab.unparsed && ab.unparsed.length)) continue;
+        for (const st of ab.steps || []) {
+          const no = (st.op === "static" && st.kind === "cannotAttack") || (st.op === "restrict" && st.np && st.np.self && !st.duration && (st.kinds || []).includes("attack"));
+          if (!no) continue;
+          const ctx = { side, f: F(side), e: F(otherSide(side)), card: unit.card, unit, bind: { chosen: [] } };
+          if ((ab.conds || []).every(c => ABX.condExecutable(c) && evalCond(c, ctx)) && (!st.cond || evalCond(st.cond, ctx))) return true;
+        }
+      }
+    }
+    return false;
+  };
 
   /* ---------- "the next time that card would be destroyed this turn, it remains on the field" ---------- */
   OPS.saveOnce = {
