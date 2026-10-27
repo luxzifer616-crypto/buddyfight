@@ -93,7 +93,7 @@
   ABX.stepExecutable = stepExecutable;
 
   const TRIG_OK = {
-    enter: t => t.self, attack: t => t.self && !t.target, otherAttack: t => !!t.np, oppAttack: () => true, battleEnd: () => true,
+    enter: t => t.self, attack: t => t.self && !(t.target && t.target.junk), dealsDamage: t => t.self || !!t.np, damaged: () => true, attackDestroys: t => t.self, link: t => t.self, discardedFromHand: t => t.self, otherAttack: t => !!t.np, oppAttack: () => true, battleEnd: () => true,
     turnStart: () => true, turnEnd: () => true, phaseStart: t => ["start", "draw", "main", "attack", "final", "turn"].includes(t.phase),
     otherEnter: t => !!t.np, otherDestroyed: t => !!t.np && !t.np.self, youCast: () => true, oppCast: () => true, leave: t => t.self && !t.byOpp
   };
@@ -601,7 +601,7 @@
   ABX.ownsEnter = function (card) { return abilitiesOf(card, a => a.trigger && a.trigger.event === "enter" && a.trigger.self && ABX.isExecutable(a)).length > 0; };
 
   // Is this an activated ability usable right now?
-  ABX.actAbilities = function (card) { return abilitiesOf(card, a => a.kind === "act" && ABX.isExecutable(a)); };
+  ABX.actAbilities = function (card) { return abilitiesOf(card, a => a.kind === "act" && ABX.isExecutable(a) && !(a.steps || []).some(x => x.op === "call" && x.np && x.np.self)); };
   ABX.canUseAct = function (side, card, ab, unit) {
     const f = F(side), e = F(otherSide(side));
     const ctx = { side, f, e, card, unit, ab, bind: { chosen: [], revealed: [], looked: [] }, lastDone: true, auto: true, log: [], hostArea: "field" };
@@ -706,13 +706,45 @@
 
   const whoOK = (t, side) => !t.who || t.who === "any" || t.who === "each" || (t.who === "you" ? B.activeSide === side : B.activeSide !== side);
 
-  ABX.fireAttack = function (attSide, units, defSide) {
+  ABX.fireAttack = function (attSide, units, defSide, targetPos) {
     return ABX.queue(async () => {
       const us = new Set(units.map(u => u.unit));
-      await fireTriggers((t, src, side) => (t.event === "attack" && t.self && !t.target && side === attSide && us.has(src.unit)) ||
+      const defUnit = ["left", "center", "right"].includes(targetPos) ? F(defSide).monsters[targetPos] : null;
+      const tgtOK = (t) => !t.target || (defUnit && matchFilter(defUnit.card, t.target.filter || {}, { unit: defUnit, side: defSide }, { f: F(defSide) }));
+      await fireTriggers((t, src, side) => (t.event === "attack" && t.self && tgtOK(t) && side === attSide && us.has(src.unit)) ||
+        (t.event === "link" && t.self && units.length > 1 && side === attSide && us.has(src.unit)) ||
         (t.event === "otherAttack" && side === attSide && src.unit && !us.has(src.unit) && !t.np.self && units.some(u => matchFilter(u.unit.card, t.np.filter || {}, { unit: u.unit, side: attSide }, { f: F(attSide) }))) ||
         (t.event === "oppAttack" && side === defSide), { name: "attack", attSide, defSide });
     }).catch(() => {});
+  };
+  ABX.fireAttackOutcome = function (attSide, units, defSide, outcome) {
+    return ABX.queue(async () => {
+      const us = new Set(units.map(u => u.unit));
+      if (outcome && outcome.dealtDamage) {
+        await fireTriggers((t, src, side) => (t.event === "dealsDamage" && side === attSide && (t.self ? us.has(src.unit) : units.some(u => t.np && matchFilter(u.unit.card, t.np.filter || {}, { unit: u.unit, side: attSide }, { f: F(attSide) })))) ||
+          (t.event === "damaged" && ((t.who === "opp" ? side === attSide : side === defSide))), { name: "dealsDamage" });
+      }
+      if (outcome && outcome.destroyedMonster) {
+        await fireTriggers((t, src, side) => t.event === "attackDestroys" && t.self && side === attSide && us.has(src.unit), { name: "attackDestroys" });
+      }
+    });
+  };
+  ABX.fireDamaged = function (side) {
+    return ABX.queue(() => fireTriggers((t, src, s) => t.event === "damaged" && (t.who === "opp" ? s !== side : s === side), { name: "damaged" }));
+  };
+  ABX.fireDiscarded = function (side, card) {
+    return ABX.queue(async () => {
+      const f = F(side);
+      for (const ab of abilitiesOf(card, a => a.kind === "triggered" && a.trigger && a.trigger.event === "discardedFromHand" && ABX.isExecutable(a))) {
+        if (onceUsed(f, card, ab, null)) continue;
+        const idx = f.drop.lastIndexOf(card.id);
+        if (idx < 0) continue;
+        const ctx = { side, f, e: F(otherSide(side)), card, unit: null, ab, bind: { chosen: [], revealed: [], looked: [] }, lastDone: true, auto: true, log: [], hostArea: "drop", selfRef: { k: "zone", side, area: "drop", idx, id: card.id, card } };
+        if (!(ab.conds || []).every(c => evalCond(c, ctx))) continue;
+        markOnce(f, card, ab, null);
+        await runAbility(side, card, ab, null, { event: { name: "discarded" }, hostArea: "drop", selfRef: ctx.selfRef });
+      }
+    });
   };
   ABX.fireBattleEnd = function (attSide, units) {
     return ABX.queue(() => fireTriggers((t, src, side) => t.event === "battleEnd" && side === attSide && (!t.self || units.some(u => u.unit === src.unit)), { name: "battleEnd" }));
@@ -949,6 +981,60 @@
     } catch (e) { /* ignore */ }
     inSize--;
     return d;
+  };
+
+  /* ---- abilities activated from the HAND while defending ("call this card from your hand, change the target ...") ---- */
+  function isSelfCallAct(ab) { return ab.kind === "act" && ABX.isExecutable(ab) && (ab.steps || []).some(x => x.op === "call" && x.np && x.np.self); }
+  ABX.handActs = (card) => abilitiesOf(card, a => isSelfCallAct(a) && /attack/i.test(a.cleaned || a.raw || "") && /from your hand/i.test(a.cleaned || a.raw || ""));
+  ABX.isDefenseHandAct = (card) => ABX.handActs(card).length > 0;
+  function makeBc(defSide, info) {
+    const attSide = info.attSide, attF = F(attSide), defF = F(defSide);
+    return {
+      active: true, attSide, defSide, nullified: false, redirectTo: null, link: (info.attackerZones || []).length > 1,
+      attUnits: (info.attackerZones || []).map(z => z === "item" ? attF.item : attF.monsters[z]).filter(Boolean),
+      defUnit: ["left", "center", "right"].includes(info.targetPos) ? defF.monsters[info.targetPos] : null
+    };
+  }
+  function handCtx(side, card, handIdx, ab) {
+    return { side, f: F(side), e: F(otherSide(side)), card, unit: null, ab, bind: { chosen: [], revealed: [], looked: [] }, lastDone: true, auto: true, log: [], hostArea: "hand",
+      selfRef: { k: "zone", side, area: "hand", idx: handIdx, id: card.id, card }, event: { name: "handAct" } };
+  }
+  ABX.defenseHandOption = function (side, card, handIdx, targetPos, attUnits) {
+    const acts = ABX.handActs(card);
+    if (!acts.length) return false;
+    const prev = ABX.battleCtx;
+    ABX.battleCtx = { active: true, attSide: otherSide(side), defSide: side, attUnits: attUnits || [], defUnit: null };
+    try {
+      return acts.some(ab => {
+        const ctx = handCtx(side, card, handIdx, ab);
+        if (onceUsed(ctx.f, card, ab, null)) return false;
+        if (!(ab.conds || []).every(c => evalCond(c, ctx))) return false;
+        for (const st of ab.steps) { if (st.gate || st.optional) break; if (st.cost && !costAffordable(st, ctx)) return false; if (!st.cost) break; }
+        const first = ab.steps[0];
+        if (first && first.op === "pay" && !costAffordable(first, ctx)) return false;
+        const call = ab.steps.find(x => x.op === "call");
+        if (call && call.pay) { const cc = parseCardCost(card.cost, card.skill, ctx.f, card); if (ctx.f.gauge.length < cc.gauge || ctx.f.life <= cc.life) return false; }
+        return true;
+      });
+    } finally { ABX.battleCtx = prev; }
+  };
+  ABX.runHandAct = async function (side, handIdx, info) {
+    const f = F(side), card = cardOf(f.hand[handIdx]);
+    const bc = ABX.battleCtx = makeBc(side, info);
+    let target = info.targetPos;
+    try {
+      for (const ab of ABX.handActs(card)) {
+        const ctx = handCtx(side, card, handIdx, ab);
+        if (onceUsed(f, card, ab, null) || !(ab.conds || []).every(c => evalCond(c, ctx))) continue;
+        markOnce(f, card, ab, null);
+        ctx.bc = bc;
+        await runSteps(ab.steps, ctx);
+        break;
+      }
+    } catch (e) { if (ABX.debug) console.error(e); }
+    ABX.battleCtx = null;
+    if (bc.redirectTo) target = bc.redirectTo;
+    return { nullified: bc.nullified, targetPos: target };
   };
 
   // Observe phase changes without touching every `this.phase = ...` site.

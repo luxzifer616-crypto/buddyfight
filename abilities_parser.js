@@ -485,6 +485,15 @@
   ar(/^look at (?:your|your opponent's) hand$/i, () => ({ op: "noop" }));
   ar(/^reveal the top (\d+|one|two|three|four|five|six|seven) cards? of your deck$/i, (m) => ({ op: "reveal", n: toNum(m[1]) }));
 
+  ar(/^(?:you may )?(?:drop|put) (?:(up to) )?(\w+) souls? from (.+?)(?: into (?:the |your |its owner's |their )?drop zone)?$/i, (m) => {
+    const np = /^this card$/i.test(m[3]) ? { self: true, qty: { n: 1 }, filter: {}, raw: "this card" } : parseNP(m[3]);
+    if (!np) return null;
+    return { op: "dropSoul", n: toNum(m[2]) || 1, upTo: !!m[1], hostNP: np };
+  });
+  ar(/^(?:you may )?(?:drop|put) all souls? from (.+?)(?: into (?:the |your |its owner's |their )?drop zone)?$/i, (m) => {
+    const np = /^this card$/i.test(m[1]) ? { self: true, qty: { n: 1 }, filter: {}, raw: "this card" } : parseNP(m[1]);
+    return np ? { op: "dropSoul", n: 99, hostNP: np } : null;
+  });
   /* ---------- moving cards ---------- */
   // put <NP> <dest>
   function parsePut(m) {
@@ -726,15 +735,6 @@
     return { op: "lookPick", n: toNum(m[1]), np, to: { area: lc(m[6]).replace(/^the /, ""), owner: "you", end: "top" }, rest: { area: "deck", owner: "you", end: "top", order: null }, gainLife: 0 };
   });
   ar(/^put the top (\w+) cards? from the top of your deck (?:into|in) (?:the |your )?(gauge|drop zone)$/i, (m) => ({ op: "mill", who: "you", n: toNum(m[1]) || 1, to: lc(m[2]) }));
-  ar(/^(?:you may )?(?:drop|put) (?:(up to) )?(\w+) souls? from (.+?)(?: into (?:the |your |its owner's |their )?drop zone)?$/i, (m) => {
-    const np = /^this card$/i.test(m[3]) ? { self: true, qty: { n: 1 }, filter: {}, raw: "this card" } : parseNP(m[3]);
-    if (!np) return null;
-    return { op: "dropSoul", n: toNum(m[2]) || 1, upTo: !!m[1], hostNP: np };
-  });
-  ar(/^(?:you may )?(?:drop|put) all souls? from (.+?)(?: into (?:the |your |its owner's |their )?drop zone)?$/i, (m) => {
-    const np = /^this card$/i.test(m[1]) ? { self: true, qty: { n: 1 }, filter: {}, raw: "this card" } : parseNP(m[1]);
-    return np ? { op: "dropSoul", n: 99, hostNP: np } : null;
-  });
   ar(/^put the top of your deck (?:into|in) (?:your |the )?(gauge|drop zone)$/i, (m) => ({ op: "mill", who: "you", n: 1, to: lc(m[1]) }));
   /*@@MORE_ACTIONS@@*/
 

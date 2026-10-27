@@ -55,6 +55,7 @@
       const side = sideOf(ctx, s.who);
       const n = amount(s.n, ctx);
       const dealt = core.applyDamage(side, n, { kind: "effect" });
+      if (dealt > 0 && ABX.fireDamaged) ABX.fireDamaged(side);
       afterChange();
       return dealt > 0 || n === 0;
     },
@@ -96,7 +97,7 @@
       if (cands.length < n) return false;
       const chosen = await pick(cands, { qty: { n }, raw: "a card from your hand" }, ctx, { intent: "cost", title: `${ctx.card.name} — discard`, min: n, max: n });
       if (chosen.length < n) return false;
-      chosen.forEach(r => { const id = detach(r); if (id != null) f.drop.push(id); });
+      chosen.forEach(r => { const id = detach(r); if (id != null) { f.drop.push(id); ABX.fireDiscarded && ABX.fireDiscarded(ctx.side, cardOf(id)); } });
       fresh();
       return true;
     },
@@ -107,7 +108,7 @@
       const e = ctx.e; if (!e.hand.length) return false;
       const cands = e.hand.map((id, i) => ({ k: "zone", side: otherSide(ctx.side), area: "hand", idx: i, id, card: cardOf(id) }));
       const ch = await pick(cands, { qty: { n: 1 } }, ctx, { chooserSide: otherSide(ctx.side), intent: "cost", title: "Choose a card to drop" });
-      ch.forEach(r => { const id = detach(r); if (id != null) e.drop.push(id); });
+      ch.forEach(r => { const id = detach(r); if (id != null) { e.drop.push(id); ABX.fireDiscarded && ABX.fireDiscarded(otherSide(ctx.side), cardOf(id)); } });
       fresh(); return ch.length > 0;
     }
   };
@@ -317,7 +318,8 @@
     async run(s, ctx) {
       const f = ctx.f;
       let cands;
-      if (s.np.ref) cands = (ctx.bind.chosen || []).filter(r => r.k === "zone" && ["drop", "hand", "deck"].includes(r.area) && r.card && r.card.type === "Monster");
+      if (s.np.self) cands = ctx.selfRef && ctx.selfRef.card && ctx.selfRef.card.type === "Monster" ? [ctx.selfRef] : [];
+      else if (s.np.ref) cands = (ctx.bind.chosen || []).filter(r => r.k === "zone" && ["drop", "hand", "deck"].includes(r.area) && r.card && r.card.type === "Monster");
       else {
         const area = (s.np.zone && s.np.zone.area) || "hand";
         if (!["hand", "drop zone", "deck"].includes(area)) return false;
@@ -328,26 +330,36 @@
         const cost = parseCardCost(r.card.cost, r.card.skill, f, r.card);
         return f.gauge.length >= cost.gauge && f.life > cost.life && ABX.canPayExtras(ctx.side, r.card, -1);
       });
-      const ch = s.np.ref ? cands : await pick(cands, s.np, ctx, { intent: "help", title: `${ctx.card.name} — call`, subtitle: ABX.clean(s.np.raw) });
+      const ch = (s.np.ref || s.np.self) ? cands : await pick(cands, s.np, ctx, { intent: "help", title: `${ctx.card.name} — call`, subtitle: ABX.clean(s.np.raw) });
       let n = 0;
       for (const r of ch) {
-        const pos = (s.pos && !f.monsters[s.pos]) ? s.pos : SLOTS.find(p => !f.monsters[p]);
-        if (!pos) break;
+        const pos = (s.pos && s.pos !== "open area") ? s.pos : (SLOTS.find(p => !f.monsters[p]) || "center");
         const cost = s.pay ? parseCardCost(r.card.cost, r.card.skill, f, r.card) : { gauge: 0, life: 0 };
         if (s.pay && (f.gauge.length < cost.gauge || f.life <= cost.life)) continue;
-        if (B.getCurrentSizeUsed(f) + (r.card.size || 0) > (f.maxSize || 3)) continue;
         if (r.area !== "hand") { const arr = f[r.area]; const i = arr.indexOf(r.id); if (i < 0) continue; arr.splice(i, 1); f.hand.push(r.id); }
-        const hi = f.hand.lastIndexOf(r.id);
+        const hi = (r.area === "hand" && f.hand[r.idx] === r.id) ? r.idx : f.hand.lastIndexOf(r.id);
         if (hi < 0) continue;
         for (let g = 0; g < cost.gauge; g++) f.drop.push(f.gauge.pop());
         f.life -= cost.life;
         B.completeMonsterCall(ctx.side, pos, hi, false, true);
+        if (!f.monsters[pos]) continue;
+        ctx.calledPos = pos;
         if (s.pay && ABX.hasExtras(r.card)) await ABX.payExtras(ctx.side, r.card, f.monsters[pos]);
         n++;
       }
       return n > 0;
     },
-    check: (s) => !!s.np && !s.np.self && (s.free || s.pay || (s.np.ref && true)) && (s.np.ref || (s.np.zone && ["hand", "drop zone", "deck"].includes(s.np.zone.area))) && !s.np.soulOf && s.np.qty && !s.np.junk
+    check: (s) => !!s.np && !s.np.junk && (s.free || s.pay || s.np.self || s.np.ref) && !s.np.soulOf && s.np.qty &&
+      (s.np.self ? /hand|drop zone/i.test((s.np.selfTail || "") + " " + (s.np.raw || "")) : (s.np.ref || (s.np.zone && ["hand", "drop zone", "deck"].includes(s.np.zone.area))))
+  };
+  OPS.redirectAttack = {
+    run(s, ctx) {
+      const bc = ABX.battleCtx;
+      if (!bc || !bc.active || !ctx.calledPos) return false;
+      bc.redirectTo = ctx.calledPos;
+      if (B.setPrompt) B.setPrompt(`🎯 The attack's target was changed to "${ctx.card.name}"!`);
+      return true;
+    }
   };
 
   OPS.lookPick = {

@@ -6391,6 +6391,10 @@ const battle = {
     defFighter.hand.forEach((cid, handIdx) => {
       const c = CARD_MAP.get(cid);
       if (!c) return;
+      if (window.ABX && ABX.defenseHandOption && ABX.defenseHandOption(defSide, c, handIdx, targetPos, attUnits)) {
+        valid.push({ card: c, handIdx, info: { category: "abx_hand_act" } });
+        return;
+      }
       const info = classifyDefensiveCounterCard(c);
       if (!info) return;
 
@@ -6616,6 +6620,14 @@ const battle = {
       return;
     }
 
+    if (window.ABX && ABX.isDefenseHandAct && ABX.isDefenseHandAct(c) && ABX.defenseHandOption(defSide, c, handIdx, targetPos, [])) {
+      ABX.runHandAct(defSide, handIdx, { attSide, attackerZones, targetPos }).then(res => {
+        if (this.matchOver) return;
+        this.executeAttackResolution(attSide, attackerZones, res.targetPos, !!res.nullified);
+      });
+      return;
+    }
+
     const cost = parseCardCost(c.cost, c.skill, defFighter, c);
     for (let i = 0; i < cost.gauge && defFighter.gauge.length > 0; i++) {
       defFighter.drop.push(defFighter.gauge.pop());
@@ -6795,6 +6807,7 @@ const battle = {
       this.renderBattle();
       if (this.imAfterBattle && !this.matchOver) this.imAfterBattle(attSide, units, outcome);
       if (window.ABX && ABX.fireBattleEnd && !this.matchOver) ABX.fireBattleEnd(attSide, units);
+      if (window.ABX && ABX.fireAttackOutcome && !this.matchOver) ABX.fireAttackOutcome(attSide, units, defSide, outcome);
 
       if (attSide === "opp" && this.opp.isBot && this.oppContinueCallback) {
         setTimeout(this.oppContinueCallback, 650);
@@ -6802,7 +6815,7 @@ const battle = {
     });
     };
     const goStrike = () => { if (this.imOnAttack) this.imOnAttack(attSide, units, defSide, strike); else strike(); };
-    if (window.ABX && ABX.fireAttack) ABX.fireAttack(attSide, units, defSide).then(goStrike, goStrike); else goStrike();
+    if (window.ABX && ABX.fireAttack) ABX.fireAttack(attSide, units, defSide, targetPos).then(goStrike, goStrike); else goStrike();
   },
 
   resolveMonsterVsMonster(attSide, attUnits, defSide, targetPos, combinedPower, combinedCrit, anyPenetrate) {
