@@ -1543,6 +1543,148 @@ function generateFlagDeck(flagId, customTitle, preferredBuddyId, includeLostWorl
   };
 }
 
+/* ==================== SMART RANDOM AUTO-BUILD (Deck editor "⚡ Auto") ==================== */
+// Builds a different deck every time, but themed around the player's Flag and Buddy:
+// cards of the Buddy's tribes, cards of tribes the Flag names (e.g. «Chaos», «Thunder Empire»),
+// and spells/items/impacts that support those tribes or mention the Buddy by name are picked first.
+function normTribeKey(t) {
+  return (t || "").toLowerCase().replace(/[^a-z0-9]/g, "").replace(/^\d+/, "").replace(/s$/, "");
+}
+
+function getSkillTribeKeys(card) {
+  const out = [];
+  const txt = card && card.skill ? card.skill : "";
+  const re = /«([^»]+)»/g;
+  let m;
+  while ((m = re.exec(txt))) out.push(normTribeKey(m[1]));
+  return out;
+}
+
+function generateSmartDeck(flagId, customTitle, preferredBuddyId, includeLostWorld = false) {
+  const flagCard = CARD_MAP.get(flagId) || ALL_CARDS.find(c => c.type === "Flag" && c.worlds.includes("Dragon World")) || ALL_CARDS[0];
+  const cfg = getFlagConfig(flagCard);
+  const legality = new Map();
+  const legalPool = [];
+  ALL_CARDS.forEach(c => {
+    if (c.type === "Flag" && c.id !== 6202) return;
+    const leg = checkCardLegalityForFlag(c, flagCard, false);
+    if (!leg.allowed) return;
+    legality.set(c.id, leg.maxCopies || 4);
+    legalPool.push(c);
+  });
+  const monsters = legalPool.filter(c => c.type === "Monster");
+
+  // How many legal monsters belong to each tribe (used to pick themes that actually have cards).
+  const tribeCount = new Map();
+  monsters.forEach(c => (c.attrs || []).forEach(a => {
+    const k = normTribeKey(a);
+    tribeCount.set(k, (tribeCount.get(k) || 0) + 1);
+  }));
+
+  // 1) Buddy: keep the player's buddy if it's legal, otherwise pick a random size 1–3 monster.
+  let buddyCard = CARD_MAP.get(preferredBuddyId);
+  const buddyLegal = buddyCard && buddyCard.type !== "Flag" && legality.has(buddyCard.id);
+  if (!buddyLegal) {
+    if (cfg.key === "godclock") {
+      buddyCard = CARD_MAP.get(6065) || CARD_MAP.get(5956) || CARD_MAP.get(5955);
+    } else {
+      const choices = monsters.filter(c => c.size >= 1 && c.size <= 3 && (c.attrs || []).some(a => (tribeCount.get(normTribeKey(a)) || 0) >= 12));
+      const pool = choices.length ? choices : monsters;
+      buddyCard = pool[Math.floor(Math.random() * pool.length)] || ALL_CARDS[45];
+    }
+  }
+
+  // 2) Theme tribes: the Buddy's tribes + any tribe the Flag names. Very common tribes count for less.
+  const theme = new Map();
+  const addTheme = (k, w) => { if (k) theme.set(k, Math.max(theme.get(k) || 0, w)); };
+  (buddyCard.attrs || []).forEach(a => {
+    const k = normTribeKey(a);
+    const n = tribeCount.get(k) || 0;
+    addTheme(k, n === 0 ? 0 : (n > monsters.length * 0.35 ? 0.5 : 1));
+  });
+  getSkillTribeKeys(flagCard).forEach(k => addTheme(k, 1.2));
+  if (![...theme.values()].some(w => w > 0)) {
+    const common = [...tribeCount.entries()].filter(([, n]) => n >= 12);
+    if (common.length) addTheme(common[Math.floor(Math.random() * common.length)][0], 1);
+  }
+  const buddyNameRef = `"${buddyCard.name}"`;
+
+  // 3) Score every legal card: synergy first, plus a random shake so each build is different.
+  const scored = legalPool.map(c => {
+    let score = Math.random() * 2.5;
+    let tribeW = 0;
+    (c.attrs || []).forEach(a => { tribeW = Math.max(tribeW, theme.get(normTribeKey(a)) || 0); });
+    score += tribeW * 4;
+    const refs = getSkillTribeKeys(c);
+    if (refs.length) {
+      const refW = Math.max(0, ...refs.map(k => theme.get(k) || 0));
+      if (refW > 0) score += refW * 3;
+      else if (c.type !== "Monster") score -= 3; // support card for a tribe this deck doesn't run
+      else score -= 1;
+    }
+    if (c.skill && c.skill.includes(buddyNameRef)) score += 5;
+    if (c.type === "Monster") score += (c.move ? 0.5 : 0) + (c.sg ? 0.5 : 0) + (c.pen ? 0.3 : 0);
+    if (c.id === buddyCard.id) score -= 100; // added separately
+    return { c, score };
+  }).sort((a, b) => b.score - a.score);
+
+  const cards = [];
+  const counts = {};
+  function addCopies(card, qty) {
+    if (!card) return;
+    const maxLim = legality.get(card.id) || (card.id === 4569 ? 2 : 4);
+    for (let i = 0; i < qty; i++) {
+      if (cards.length >= DECK_SIZE) return;
+      if ((counts[card.id] || 0) >= maxLim) return;
+      cards.push(card.id);
+      counts[card.id] = (counts[card.id] || 0) + 1;
+    }
+  }
+  const rnd = (lo, hi) => lo + Math.floor(Math.random() * (hi - lo + 1));
+  const pick = (filter, n, lo, hi) => {
+    scored.filter(x => filter(x.c) && !counts[x.c.id]).slice(0, n).forEach(x => addCopies(x.c, rnd(lo, hi)));
+  };
+
+  // Flag-specific core cards (same as the starter decks).
+  if (cfg.key === "dragon_zwei") addCopies(CARD_MAP.get(2789), 2);
+  if (cfg.key === "godclock") {
+    [[6202, 2], [6205, 3], [6065, 3], [5955, 3], [5948, 3], [6010, 2]].forEach(([id, q]) => addCopies(CARD_MAP.get(id), q));
+  }
+  if (includeLostWorld) addCopies(CARD_MAP.get(4569), 2);
+
+  addCopies(buddyCard, 4);
+
+  const isDef = c => c.type === "Spell" && isDefensiveCounterCard(c);
+  // Roughly 30 monsters + 20 spells/items/impacts, like a normal tournament deck.
+  pick(c => c.type === "Monster" && (c.size === 0 || c.size === 1), 5, 3, 4);
+  pick(c => c.type === "Monster" && c.size === 2, 3, 2, 3);
+  pick(c => c.type === "Monster" && c.size >= 3, 2, 2, 2);
+  pick(isDef, 3, 2, 3);
+  pick(c => c.type === "Impact", rnd(1, 2), 2, 2);
+  pick(c => c.type === "Item", rnd(1, 2), 2, 2);
+  pick(c => c.type === "Spell" && !isDef(c), 3, 2, 3);
+
+  // Top up to 50 with the next-best on-theme cards (no more monsters once there are ~32).
+  const monsterCount = () => cards.filter(id => (CARD_MAP.get(id) || {}).type === "Monster").length;
+  for (const pass of [0, 1]) {
+    for (const x of scored) {
+      if (cards.length >= DECK_SIZE) break;
+      if (x.c.type === "Flag") continue;
+      if (pass === 0 && x.c.type === "Monster" && monsterCount() >= 32) continue;
+      addCopies(x.c, 2);
+    }
+  }
+
+  return {
+    name: customTitle || `${cfg.world} Deck`,
+    world: cfg.world,
+    flagId: flagCard.id,
+    buddyId: buddyCard ? buddyCard.id : 46,
+    cards,
+    lostDeck: includeLostWorld ? generateLostDeck() : []
+  };
+}
+
 function getPackPriceAndRarity(cardCount) {
   if (cardCount <= 80) {
     return { price: 350, tier: "💎 Limited / Ultra Rare Set" };
@@ -2707,7 +2849,7 @@ const app = {
     }
     if (!confirm(`Your deck already has ${deck.cards.length} cards (50+ required). Rebuild a 50-card deck automatically from scratch? (This replaces your current cards.)`)) return;
     const hasLost = deck.cards.some(cid => [4569, 5760].includes(cid));
-    const built = generateFlagDeck(deck.flagId, deck.name, deck.buddyId, hasLost);
+    const built = generateSmartDeck(deck.flagId, deck.name, deck.buddyId, hasLost);
     this.state.decks[this.state.activeDeckIndex] = built;
     this.saveState();
     this.renderCurrentDeckPane();
@@ -2719,8 +2861,19 @@ const app = {
     const deck = this.state.decks[this.state.activeDeckIndex];
     const flagCard = CARD_MAP.get(deck.flagId) || ALL_CARDS[0];
     const hasLost = deck.cards.some(cid => [4569, 5760].includes(cid));
-    const suggestion = generateFlagDeck(deck.flagId, deck.name, deck.buddyId, hasLost);
-    const pool = [...suggestion.cards, ...ALL_CARDS.filter(c => c.type !== "Flag" && checkCardLegalityForFlag(c, flagCard, false).allowed).map(c => c.id)];
+    const suggestion = generateSmartDeck(deck.flagId, deck.name, deck.buddyId, hasLost);
+    const extra = generateSmartDeck(deck.flagId, deck.name, suggestion.buddyId, false);
+    // If the current buddy isn't legal for this flag, use the buddy the builder picked.
+    const curBuddy = CARD_MAP.get(deck.buddyId);
+    if (!curBuddy || curBuddy.type === "Flag" || !checkCardLegalityForFlag(curBuddy, flagCard, false).allowed) {
+      deck.buddyId = suggestion.buddyId;
+    }
+    const fallback = ALL_CARDS.filter(c => c.type !== "Flag" && checkCardLegalityForFlag(c, flagCard, false).allowed).map(c => c.id);
+    for (let i = fallback.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [fallback[i], fallback[j]] = [fallback[j], fallback[i]];
+    }
+    const pool = [...suggestion.cards, ...extra.cards, ...fallback];
     const counts = {};
     deck.cards.forEach(cid => counts[cid] = (counts[cid] || 0) + 1);
     for (const cid of pool) {
