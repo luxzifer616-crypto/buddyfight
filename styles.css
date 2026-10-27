@@ -1794,3 +1794,143 @@ body {
   font-family: monospace;
   font-size: 12px;
 }
+
+/* ==================== DECK BUILDER: CARD INFO BUTTON (works without right-click) ==================== */
+.tile-info-btn {
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid var(--accent-gold);
+  background: rgba(8, 12, 26, 0.88);
+  color: #fde68a;
+  font-weight: 900;
+  font-size: 13px;
+  cursor: pointer;
+  z-index: 3;
+}
+
+/* ==================== PHONES & SMALL TABLETS ==================== */
+@media (max-width: 820px) {
+  body { height: 100dvh; }
+
+  .top-nav {
+    height: auto;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px 10px;
+  }
+  .brand-subtitle { display: none; }
+  .nav-tabs {
+    order: 3;
+    width: 100%;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+  .nav-btn { flex-shrink: 0; padding: 8px 12px; }
+  .player-status-bar { flex-wrap: wrap; gap: 6px; }
+  .stat-pill, .lang-toggle-btn { font-size: 11px; padding: 5px 9px; }
+
+  .screen { padding: 12px; }
+
+  .hub-grid { grid-template-columns: 1fr; height: auto; gap: 14px; }
+  .hub-grid > *, .hub-modes > *, .mode-split > *, .deck-builder-layout > * { min-width: 0; }
+  .hub-card { min-width: 0; overflow-wrap: anywhere; }
+  .profile-hero { flex-wrap: wrap; }
+  .record-row { gap: 6px; }
+  .rec-box { min-width: 0; }
+  .deck-name-edit-bar { flex-wrap: wrap; }
+  .deck-name-edit-bar input { flex-basis: 100%; }
+  .deck-name-edit-bar button { flex: 1 1 auto; }
+  .hub-card { padding: 16px; gap: 14px; }
+  .hub-modes { gap: 14px; }
+  .mode-split { grid-template-columns: 1fr; gap: 14px; }
+  .mode-banner h3 { font-size: 19px; }
+  .bot-selector { flex-direction: column; align-items: stretch; }
+  .avatar-ring { width: 84px; }
+
+  .screen-header { flex-direction: column; align-items: stretch; gap: 10px; }
+  .shop-header-actions { flex-wrap: wrap; }
+  .shop-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+  .filter-bar { padding: 10px; }
+  .filter-bar .search-input { min-width: 0; width: 100%; flex-basis: 100%; }
+  .filter-bar .styled-select { flex: 1 1 45%; min-width: 0; }
+  .card-grid { grid-template-columns: repeat(auto-fill, minmax(108px, 1fr)); gap: 8px; }
+  .card-tile img { height: 140px; }
+  .collection-meta-bar { flex-wrap: wrap; gap: 8px; }
+
+  .deck-banners-grid { grid-template-columns: 1fr; }
+  .deck-banner-card { flex-direction: column; align-items: stretch; }
+  .deck-banner-art-pair { justify-content: center; }
+  .deck-banner-btns { flex-wrap: wrap; }
+
+  .deck-builder-layout { grid-template-columns: 1fr; height: auto; }
+  .deck-editor-pane { height: auto; max-height: 75vh; order: -1; }
+  .compact-grid { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); }
+  .compact-grid .card-tile img { height: 128px; }
+
+  /* Modals */
+  .card-banner-backdrop { padding: 10px; align-items: flex-start; overflow-y: auto; }
+  .card-banner-panel {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 16px;
+    max-height: none;
+  }
+  .banner-card-art img { max-height: 220px; width: auto; }
+  .banner-title { font-size: 19px; }
+  .banner-actions-row .primary-cta-btn,
+  .banner-actions-row .action-btn,
+  .banner-actions-row .secondary-btn { flex: 1 1 100%; }
+  .modal-box { padding: 14px; }
+  .ds-scroll-grid { max-height: 60vh; }
+  .godclock-modal-layout { grid-template-columns: 1fr; }
+  .godclock-2x2-preview { width: min(260px, 80vw); height: auto; aspect-ratio: 300 / 416; margin: 0 auto; }
+  .godclock-controls-col { grid-template-columns: 1fr; }
+  .room-lobby-grid { grid-template-columns: 1fr; }
+  .def-option-card { width: 112px; flex-shrink: 0; }
+  .def-option-card img { height: 120px; }
+
+  /* Battle */
+  .battle-screen { height: 100dvh; }
+  .battle-hud-top {
+    height: auto;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 6px;
+    padding: 6px 8px;
+  }
+  .hud-avatar { display: none; }
+  .fighter-hud { gap: 6px; }
+  .hud-name { font-size: 12px; }
+  .hud-sub { font-size: 10px; }
+  .turn-phase-banner {
+    order: 3;
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+  }
+  .turn-indicator { font-size: 10.5px; padding: 4px 8px; }
+  .phase-pill { font-size: 10px; padding: 3px 6px; }
+  .phase-controls {
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px;
+  }
+  .battle-ctrl-btn { padding: 6px 8px; font-size: 10.5px; }
+  .battle-toast-bar { font-size: 11px; padding: 4px 12px; margin: 4px 8px 0; text-align: center; }
+  .battle-stage-center { padding: 4px; }
+  .field-playmat {
+    width: min(98vw, 52dvh);
+    height: auto;
+    aspect-ratio: 740 / 710;
+  }
+  .hand-dock-wrap { height: 104px; padding: 4px 6px; }
+  .hand-cards-row { justify-content: flex-start; gap: 6px; }
+  .hand-card, .hand-card-item { width: 68px; height: 94px; flex-shrink: 0; }
+}

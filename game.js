@@ -107,6 +107,38 @@ const SET_TITLES = {
   "PR": "PR — Official Promo & Special Cards"
 };
 
+// Escape text before putting it inside innerHTML (deck names, rule text like "<Dragon World>", card names in attributes).
+function escapeHtml(str) {
+  return String(str === null || str === undefined ? "" : str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+// Validate a deck that came from a Deck Code, room or friend so bad data can't break the game.
+function sanitizeImportedDeck(raw) {
+  if (!raw || typeof raw !== "object") return null;
+  const flag = CARD_MAP.get(Number(raw.flagId));
+  if (!flag || flag.type !== "Flag") return null;
+  const toIds = (arr, limit) => (Array.isArray(arr) ? arr : [])
+    .map(Number)
+    .filter(id => Number.isInteger(id) && CARD_MAP.has(id))
+    .slice(0, limit);
+  const cards = toIds(raw.cards, 200);
+  if (cards.length === 0) return null;
+  const buddy = CARD_MAP.get(Number(raw.buddyId));
+  return {
+    name: String(raw.name || "Imported Deck").slice(0, 60),
+    world: getFlagConfig(flag).world,
+    flagId: flag.id,
+    buddyId: buddy ? buddy.id : cards.find(id => CARD_MAP.get(id).type === "Monster") || 46,
+    cards,
+    lostDeck: toIds(raw.lostDeck, 30)
+  };
+}
+
 function getSetDisplayName(setCode) {
   return SET_TITLES[setCode] || `${setCode} — Booster Pack`;
 }
@@ -739,8 +771,8 @@ function getUnitEffectiveCombatStats(fighter, unit) {
   const s = c.skill || "";
   const revCnt = getFighterReversalCount(fighter);
 
-  let power = (c.power !== null && c.power !== undefined ? c.power : 0) + (unit.tempPower || 0) + (fighter.setSpells.length * 1000);
-  let defense = (c.defense !== null && c.defense !== undefined ? c.defense : 0) + (unit.tempDef || 0) + (fighter.setSpells.length * 1000);
+  let power = (c.power !== null && c.power !== undefined ? c.power : 0) + (unit.tempPower || 0);
+  let defense = (c.defense !== null && c.defense !== undefined ? c.defense : 0) + (unit.tempDef || 0);
   let crit = (c.crit !== null && c.crit !== undefined ? c.crit : 1) + (unit.tempCrit || 0);
   let pen = Boolean(c.pen || unit.tempPen);
   let da = Boolean(c.da);
@@ -1009,10 +1041,10 @@ function parseDeckSearchCriteria(card) {
   }
 
   const attrSubstrings = [];
-  const attrRegex = /«([^»]+)»|([^]+)/g;
+  const attrRegex = /«([^»]+)»/g;
   let am;
   while ((am = attrRegex.exec(cleaned)) !== null) {
-    const attrVal = (am[1] || am[2] || "").trim();
+    const attrVal = (am[1] || "").trim();
     if (attrVal) attrSubstrings.push(attrVal);
   }
 
@@ -1297,6 +1329,8 @@ function generateLostDeck() {
   return lostCards;
 }
 
+const DECK_SIZE = 50; // Buddyfight main decks are exactly 50 cards
+
 function generateFlagDeck(flagId, customTitle, preferredBuddyId, includeLostWorld = false) {
   const flagCard = CARD_MAP.get(flagId) || ALL_CARDS.find(c => c.type === "Flag" && c.worlds.includes("Dragon World")) || ALL_CARDS[0];
   const cfg = getFlagConfig(flagCard);
@@ -1325,6 +1359,7 @@ function generateFlagDeck(flagId, customTitle, preferredBuddyId, includeLostWorl
   function addCopies(card, qty, maxLim = 4) {
     if (!card) return;
     for (let i = 0; i < qty; i++) {
+      if (cards.length >= DECK_SIZE) return;
       if ((counts[card.id] || 0) >= maxLim) return;
       cards.push(card.id);
       counts[card.id] = (counts[card.id] || 0) + 1;
@@ -1366,7 +1401,7 @@ function generateFlagDeck(flagId, customTitle, preferredBuddyId, includeLostWorl
   }
 
   let idx = 0;
-  while (cards.length < 50 && idx < legalPool.length) {
+  while (cards.length < DECK_SIZE && idx < legalPool.length) {
     addCopies(legalPool[idx], 2);
     idx++;
   }
@@ -1469,7 +1504,6 @@ const app = {
       this.state.decks.forEach(dk => {
         if (dk.flagId === 5957) {
           if (dk.buddyId === 5961) dk.buddyId = 6065;
-          if (!dk.cards.includes(6202)) dk.cards.unshift(6202, 6202, 6205, 6205, 5955);
         }
       });
     }
@@ -1675,9 +1709,9 @@ const app = {
     const hasLost = deck.cards.some(cid => [4569, 5760].includes(cid));
     const missingTotal = this.getDeckMissingCardCount(deck);
     document.getElementById("hub-deck-summary").innerHTML = `
-      <div>🏳️ <strong>Flag:</strong> ${flag.name} (${cfg.ruleSummary})</div>
-      <div>🌟 <strong>Buddy:</strong> ${buddy.name}</div>
-      <div>🃏 <strong>Main Deck:</strong> ${deck.cards.length} Cards (Min 50)${hasLost ? ` • 🌌 <strong>Lost Deck:</strong> ${(deck.lostDeck || []).length}/30` : ""}</div>
+      <div>🏳️ <strong>Flag:</strong> ${escapeHtml(flag.name)} (${escapeHtml(cfg.ruleSummary)})</div>
+      <div>🌟 <strong>Buddy:</strong> ${escapeHtml(buddy.name)}</div>
+      <div>🃏 <strong>Main Deck:</strong> ${deck.cards.length} Cards (Need 50)${hasLost ? ` • 🌌 <strong>Lost Deck:</strong> ${(deck.lostDeck || []).length}/30` : ""}</div>
       ${missingTotal > 0 ? `<div style="color:#fca5a5; font-weight:800;">⚠️ Missing ${missingTotal} card copies in Collection (Open Packs or Unlock Sandbox)</div>` : ""}
     `;
   },
@@ -1842,7 +1876,7 @@ const app = {
       item.style.animationDelay = `${idx * 0.08}s`;
       item.onclick = () => this.openCardModal(c.id);
       item.innerHTML = `
-        <img src="${c.img}" alt="${c.name}" />
+        <img src="${c.img}" alt="${escapeHtml(c.name)}" />
         <div class="reveal-card-name">${c.name}</div>
         <div class="tile-sub">${c.type} ${c.size !== null ? "• Size " + c.size : ""} (Owned: x${this.state.owned[c.id]})</div>
       `;
@@ -1923,7 +1957,7 @@ const app = {
         : `${c.type} • ${tribeTag}`;
       tile.innerHTML = `
         <div class="tile-owned-badge">x${qty}</div>
-        <img src="${c.img}" alt="${c.name}" loading="lazy" />
+        <img src="${c.img}" alt="${escapeHtml(c.name)}" loading="lazy" />
         <div class="tile-name">#${c.id} ${c.name}</div>
         <div class="tile-sub">${statStr}</div>
       `;
@@ -1967,15 +2001,15 @@ const app = {
       card.className = `deck-banner-card ${isEquipped ? "active-equipped" : ""}`;
       card.innerHTML = `
         <div class="deck-banner-art-pair">
-          <img src="${flag.img}" alt="${flag.name}" title="Flag: ${flag.name}" />
-          <img src="${buddy.img}" alt="${buddy.name}" title="Buddy: ${buddy.name}" />
+          <img src="${flag.img}" alt="${escapeHtml(flag.name)}" title="Flag: ${escapeHtml(flag.name)}" />
+          <img src="${buddy.img}" alt="${escapeHtml(buddy.name)}" title="Buddy: ${escapeHtml(buddy.name)}" />
         </div>
         <div class="deck-banner-info">
-          <div class="deck-banner-title">${dk.name} ${isEquipped ? "⭐(Equipped)" : ""}</div>
+          <div class="deck-banner-title">${escapeHtml(dk.name)} ${isEquipped ? "⭐(Equipped)" : ""}</div>
           <div class="deck-banner-sub">
-            🏳️ <strong>Flag:</strong> ${flag.name}<br/>
-            🌟 <strong>Buddy:</strong> ${buddy.name}<br/>
-            🃏 <strong>Cards:</strong> ${dk.cards.length} Main${hasLost ? ` + ${(dk.lostDeck || []).length} Lost Deck` : ""} • ${cfg.ruleSummary}
+            🏳️ <strong>Flag:</strong> ${escapeHtml(flag.name)}<br/>
+            🌟 <strong>Buddy:</strong> ${escapeHtml(buddy.name)}<br/>
+            🃏 <strong>Cards:</strong> ${dk.cards.length} Main${hasLost ? ` + ${(dk.lostDeck || []).length} Lost Deck` : ""} • ${escapeHtml(cfg.ruleSummary)}
           </div>
           ${missingCnt > 0 ? `<div class="deck-banner-missing-warn">⚠️ Need ${missingCnt} unowned card(s) to complete</div>` : ""}
           <div class="deck-banner-btns">
@@ -2026,6 +2060,7 @@ const app = {
     if (this.state.decks.length <= 1) return;
     if (!confirm(`Delete "${this.state.decks[idx].name}"?`)) return;
     this.state.decks.splice(idx, 1);
+    if (idx < this.state.activeDeckIndex) this.state.activeDeckIndex -= 1;
     this.state.activeDeckIndex = Math.max(0, Math.min(this.state.activeDeckIndex, this.state.decks.length - 1));
     this.saveState();
     this.renderDeckOverviewGallery();
@@ -2054,9 +2089,9 @@ const app = {
     const raw = prompt("📥 Paste a Deck Code below to import it into your Decks (any cards you don't own yet will be shown as transparent with how many copies you still need):");
     if (!raw || !raw.trim()) return;
     try {
-      const imported = JSON.parse(decodeURIComponent(escape(atob(raw.trim()))));
-      if (!imported.cards || !imported.flagId) throw new Error("Invalid format");
-      imported.name = `${imported.name || "Imported Deck"} (Imported)`;
+      const imported = sanitizeImportedDeck(JSON.parse(decodeURIComponent(escape(atob(raw.trim())))));
+      if (!imported) throw new Error("Invalid format");
+      imported.name = `${imported.name} (Imported)`;
       this.state.decks.push(imported);
       this.state.activeDeckIndex = this.state.decks.length - 1;
       this.saveState();
@@ -2118,7 +2153,7 @@ const app = {
     const activeList = this.deckEditTab === "lost" ? deck.lostDeck : deck.cards;
     document.getElementById("dk-editing-label").textContent = this.deckEditTab === "lost"
       ? `🌌 Lost World Sub-Deck (${activeList.length} / 30)`
-      : `🃏 Main Deck (${activeList.length} Cards — Min 50)`;
+      : `🃏 Main Deck (${activeList.length} Cards — Need 50)`;
 
     let mCnt = 0, iCnt = 0, sCnt = 0, impCnt = 0;
     const grouped = new Map();
@@ -2147,7 +2182,7 @@ const app = {
       const row = document.createElement("div");
       row.className = `deck-row-item ${missingQty > 0 ? "missing-copies" : ""}`;
       row.innerHTML = `
-        <img src="${c.img}" alt="${c.name}" onclick="app.openCardModal(${c.id})" style="cursor:pointer" />
+        <img src="${c.img}" alt="${escapeHtml(c.name)}" onclick="app.openCardModal(${c.id})" style="cursor:pointer" />
         <div class="deck-row-info" onclick="app.openCardModal(${c.id})" style="cursor:pointer">
           <div class="deck-row-title">
             ${c.name}
@@ -2266,10 +2301,21 @@ const app = {
       tile.innerHTML = `
         <div class="tile-owned-badge">${badgeLabel}</div>
         ${ownedQty === 0 ? `<div class="tile-missing-badge">Unowned (0)</div>` : needMore ? `<div class="tile-missing-badge">Need x${inDeckQty - ownedQty}</div>` : ""}
-        <img src="${c.img}" alt="${c.name}" loading="lazy" />
+        <img src="${c.img}" alt="${escapeHtml(c.name)}" loading="lazy" />
         <div class="tile-name">${c.name}</div>
         <div class="tile-sub">${c.type} ${c.size !== null ? "• Sz " + c.size : ""} (Own: ${ownedQty})</div>
       `;
+      // Phones have no right-click, so give every tile a visible "card details" button.
+      const infoBtn = document.createElement("button");
+      infoBtn.className = "tile-info-btn";
+      infoBtn.type = "button";
+      infoBtn.title = "Card details";
+      infoBtn.textContent = "i";
+      infoBtn.onclick = (e) => {
+        e.stopPropagation();
+        this.openCardModal(c.id);
+      };
+      tile.appendChild(infoBtn);
       grid.appendChild(tile);
     });
   },
@@ -2344,6 +2390,10 @@ const app = {
       alert("Your Lost World Sub-Deck is full (30 cards maximum)!");
       return;
     }
+    if (!isLostTab && targetList.length >= DECK_SIZE) {
+      alert(`Your Main Deck is full (${DECK_SIZE} cards). Remove a card first.`);
+      return;
+    }
 
     const copies = targetList.filter(id => id === cardId).length;
     if (copies >= leg.maxCopies) {
@@ -2381,12 +2431,42 @@ const app = {
 
   autoBuildDeck() {
     const deck = this.state.decks[this.state.activeDeckIndex];
+    // The "⚡ Auto" button fills empty slots; it only rebuilds from scratch when the deck is already full.
+    if (deck.cards.length < DECK_SIZE) {
+      this.completeCurrentDeck();
+      this.renderCurrentDeckPane();
+      this.renderDeckCatalog(1);
+      return;
+    }
+    if (!confirm("Your deck already has 50 cards. Rebuild it automatically from scratch? (This replaces your current cards.)")) return;
     const hasLost = deck.cards.some(cid => [4569, 5760].includes(cid));
     const built = generateFlagDeck(deck.flagId, deck.name, deck.buddyId, hasLost);
     this.state.decks[this.state.activeDeckIndex] = built;
     this.saveState();
     this.renderCurrentDeckPane();
     this.renderDeckCatalog(1);
+  },
+
+  // Fill the current deck up to 50 cards, keeping every card the player already chose.
+  completeCurrentDeck() {
+    const deck = this.state.decks[this.state.activeDeckIndex];
+    const flagCard = CARD_MAP.get(deck.flagId) || ALL_CARDS[0];
+    const hasLost = deck.cards.some(cid => [4569, 5760].includes(cid));
+    const suggestion = generateFlagDeck(deck.flagId, deck.name, deck.buddyId, hasLost);
+    const pool = [...suggestion.cards, ...ALL_CARDS.filter(c => c.type !== "Flag" && checkCardLegalityForFlag(c, flagCard, false).allowed).map(c => c.id)];
+    const counts = {};
+    deck.cards.forEach(cid => counts[cid] = (counts[cid] || 0) + 1);
+    for (const cid of pool) {
+      if (deck.cards.length >= DECK_SIZE) break;
+      const c = CARD_MAP.get(cid);
+      if (!c) continue;
+      const leg = checkCardLegalityForFlag(c, flagCard, false);
+      if (!leg.allowed || (counts[cid] || 0) >= (leg.maxCopies || 4)) continue;
+      deck.cards.push(cid);
+      counts[cid] = (counts[cid] || 0) + 1;
+    }
+    if (hasLost && (!deck.lostDeck || deck.lostDeck.length === 0)) deck.lostDeck = suggestion.lostDeck;
+    this.saveState();
   },
 
   clearCurrentDeck() {
@@ -2416,7 +2496,7 @@ const app = {
       statsHtml = `Power: ${c.power || 0} &nbsp;|&nbsp; Critical: ${c.crit || 0} ${c.defense ? "&nbsp;|&nbsp; Defense: " + c.defense : ""}`;
     } else if (c.type === "Flag") {
       const cfg = getFlagConfig(c);
-      statsHtml = `Flag Rules: ${cfg.ruleSummary}`;
+      statsHtml = `Flag Rules: ${escapeHtml(cfg.ruleSummary)}`;
       if (c.power !== null && c.power !== undefined) {
         statsHtml += ` &nbsp;|&nbsp; Power: ${c.power} &nbsp;|&nbsp; Critical: ${c.crit} &nbsp;|&nbsp; Defense: ${c.defense}`;
       }
@@ -2647,8 +2727,8 @@ const app = {
 
     // 3. Fallback: Full Base64 Deck Code
     try {
-      const oppDeck = JSON.parse(decodeURIComponent(escape(atob(raw))));
-      if (!oppDeck.cards || !oppDeck.flagId) throw new Error("Invalid Deck Code");
+      const oppDeck = sanitizeImportedDeck(JSON.parse(decodeURIComponent(escape(atob(raw)))));
+      if (!oppDeck) throw new Error("Invalid Deck Code");
       this.closeRoomModal();
       this.startBattle("friend_code", oppDeck);
     } catch (e) {
@@ -2699,10 +2779,27 @@ const app = {
   },
 
   startBattle(mode, customOppDeck = null) {
+    if (customOppDeck) {
+      customOppDeck = sanitizeImportedDeck(customOppDeck);
+      if (!customOppDeck) {
+        alert("Your opponent's deck data is invalid, so the match can't start.");
+        return;
+      }
+    }
     const deck = this.state.decks[this.state.activeDeckIndex] || this.state.decks[0];
-    if (deck.cards.length < 50) {
-      if (confirm(`Buddyfight Rule: Your Main Deck currently has ${deck.cards.length} cards (minimum 50 required). Would you like to Auto-Complete it to 50 cards before starting?`)) {
-        this.autoBuildDeck();
+    if (deck.cards.length < DECK_SIZE) {
+      if (confirm(`Buddyfight Rule: Your Main Deck has ${deck.cards.length} cards (it needs ${DECK_SIZE}). Fill the rest automatically and start? Your chosen cards are kept.`)) {
+        this.completeCurrentDeck();
+      } else {
+        return;
+      }
+    }
+
+    if (deck.cards.length > DECK_SIZE) {
+      // Older saves could hold oversized decks (the old auto-builder made 51–79 cards).
+      if (confirm(`Buddyfight Rule: Your Main Deck has ${deck.cards.length} cards, but it must be exactly ${DECK_SIZE}. Remove the last ${deck.cards.length - DECK_SIZE} card(s) added and start?`)) {
+        deck.cards = deck.cards.slice(0, DECK_SIZE);
+        this.saveState();
       } else {
         return;
       }
@@ -2828,6 +2925,8 @@ const battle = {
   },
 
   start(mode, plrDeck, customOppDeck = null) {
+    this.matchOver = false;
+    this.oppContinueCallback = null;
     this.mode = mode;
     this.turnCount = 1;
     this.activeSide = "plr";
@@ -2852,7 +2951,7 @@ const battle = {
         oppDeck = generateFlagDeck(1, "Tetsuya Deck", 46, false);
       } else if (botKey === "kyoya_ein") {
         oppName = "🐲 Kyoya Gaen (Dragon Ein)";
-        oppDeck = generateFlagDeck(969, "Dragon Ein Deck", 1045, false);
+        oppDeck = generateFlagDeck(969, "Dragon Ein Deck", 2372, false);
       } else if (botKey === "kyoya_zwei") {
         oppName = "🌑 Kyoya Gaen (Dragon Zwei)";
         oppDeck = generateFlagDeck(2370, "Dragon Zwei Deck", 2371, false);
@@ -2992,8 +3091,13 @@ const battle = {
     const imgToShow = side === "plr" && c ? c.img : "Sprite/Sleeves/s0.png";
 
     this.animateCardFlight(fromId, toId, imgToShow, "🃏 DRAW!", 0, () => {
+      if (this.matchOver) return;
       f.hand.push(cid);
       this.renderBattle();
+      if (f.deck.length === 0) {
+        this.checkWinCondition();
+        if (this.matchOver) return;
+      }
 
       if (side === "plr" && [4569, 5760].includes(cid) && !f.isLostWorldActive) {
         this.promptActivateLostWorldFlag(side, f.hand.length - 1, () => {
@@ -3038,6 +3142,14 @@ const battle = {
     return side === "plr" ? this.plr : this.opp;
   },
 
+  // True when the person at this screen is allowed to act right now.
+  // Blocks input during a bot's turn, during an online friend's turn, and after the match ends.
+  isLocalTurn() {
+    if (this.matchOver) return false;
+    if (this.activeSide === "opp" && (this.opp.isBot || this.mode === "online_p2p")) return false;
+    return true;
+  },
+
   getEnemy(side) {
     return side === "plr" ? this.opp : this.plr;
   },
@@ -3076,6 +3188,7 @@ const battle = {
 
     const bYes = document.createElement("button");
     bYes.className = "primary-cta-btn";
+    bYes.disabled = !canPay;
     bYes.textContent = "🌌 Activate Belost! (Switch to Lost World Deck)";
     bYes.onclick = () => {
       document.getElementById("ability-prompt-modal").classList.add("hidden");
@@ -3097,6 +3210,11 @@ const battle = {
 
   executeLostWorldBelost(side, handIdx, onContinue = null) {
     const f = this.getFighter(side);
+    if (f.gauge.length < 2) {
+      if (!f.isBot) alert(`"Belost" costs 2 Gauge (you have ${f.gauge.length}).`);
+      if (onContinue) onContinue();
+      return;
+    }
     const cid = f.hand.splice(handIdx, 1)[0];
     const lostFlag = CARD_MAP.get(cid) || CARD_MAP.get(4569);
 
@@ -3198,7 +3316,7 @@ const battle = {
       artPreview.innerHTML = f.godclock.quadrants.map((q, idx) => {
         const activeId = (f.godclock.awakened || q.reversed) ? q.backId : q.frontId;
         const c = CARD_MAP.get(activeId) || CARD_MAP.get(5957);
-        return `<img src="${c.img}" alt="${q.name}" style="cursor:pointer;" onclick="battle.closeGodclockModal(); ${f.godclock.awakened || q.reversed ? "battle.openEndrulerOrOvergodBanner('plr')" : `battle.openCardBanner({ card: CARD_MAP.get(${activeId}), context: 'view', side: 'plr' })`}" title="${q.pos}: ${q.name} (#${q.frontId} ➔ #${q.backId}) — Click to view Skill Banner!" />`;
+        return `<img src="${c.img}" alt="${escapeHtml(q.name)}" style="cursor:pointer;" onclick="battle.closeGodclockModal(); ${f.godclock.awakened || q.reversed ? "battle.openEndrulerOrOvergodBanner('plr')" : `battle.openCardBanner({ card: CARD_MAP.get(${activeId}), context: 'view', side: 'plr' })`}" title="${q.pos}: ${q.name} (#${q.frontId} ➔ #${q.backId}) — Click to view Skill Banner!" />`;
       }).join("");
     }
 
@@ -3244,9 +3362,9 @@ const battle = {
         btnG.className = "primary-cta-btn full-width";
         btnG.style.padding = "7px 10px";
         btnG.style.fontSize = "11.5px";
-        btnG.disabled = !clocksFlipped;
+        btnG.disabled = !clocksFlipped || !trFound;
         btnG.textContent = clocksFlipped
-          ? (trFound ? `👑 Drop "${trFound.card.name}" (${trFound.source.toUpperCase()}) & Flip Godclock (#5957 ➔ #5961)!` : `👑 Flip Godclock (#5957 ➔ #5961) & Awaken Endruler Dragon!`)
+          ? (trFound ? `👑 Drop "${trFound.card.name}" (${trFound.source.toUpperCase()}) & Flip Godclock (#5957 ➔ #5961)!` : `🔒 Needs a "Time Ruler" monster on your field or in hand`)
           : `🔒 Flip Clock-I, Clock-II & Clock-III first (${[0, 1, 3].filter(i => f.godclock.quadrants[i].reversed).length}/3 Flipped)`;
         btnG.onclick = () => {
           this.closeGodclockModal();
@@ -3467,12 +3585,16 @@ const battle = {
       if (dropIdxToCall === null || dropIdxToCall === undefined || !f.drop[dropIdxToCall]) {
         dropIdxToCall = tdList.length > 0 ? tdList[0].dropIdx : -1;
       }
-      if (dropIdxToCall !== -1 && f.drop[dropIdxToCall]) {
+      const callPreview = dropIdxToCall !== -1 ? CARD_MAP.get(f.drop[dropIdxToCall]) : null;
+      const targetZone = ["center", "left", "right"].find(z => !f.monsters[z]);
+      const fitsSize = callPreview && this.getCurrentSizeUsed(f) + getEffectiveCardSize(f, callPreview) <= (f.maxSize || 3);
+      if (callPreview && (!targetZone || !fitsSize)) {
+        this.setPrompt(`⏳ Clock-III flipped, but "${callPreview.name}" couldn't be called (${!targetZone ? "no open Monster Zone" : "over your size limit"}).`);
+      } else if (dropIdxToCall !== -1 && f.drop[dropIdxToCall]) {
         const callCid = f.drop.splice(dropIdxToCall, 1)[0];
         const callCard = CARD_MAP.get(callCid);
         const cost = parseCardCost(callCard.cost, callCard.skill, f, callCard);
         for (let i = 0; i < cost.gauge && f.gauge.length > 0; i++) f.drop.push(f.gauge.pop());
-        const targetZone = !f.monsters.center ? "center" : !f.monsters.left ? "left" : "right";
         const soulArr = [];
         for (let i = 0; i < Math.max(cost.soul, callCard.sg ? 1 : 0) && f.deck.length > 0; i++) {
           soulArr.push(f.deck.shift());
@@ -3547,8 +3669,12 @@ const battle = {
       return;
     }
 
-    // Put a monster with "Time Ruler" in its card name from field or hand into Drop Zone if present
+    // Cost: put a monster with "Time Ruler" in its card name from your field or hand into the Drop Zone
     const trFound = this.findTimeRulerMonsterForGodclockReversal(f);
+    if (!trFound) {
+      if (!f.isBot) alert(`Godclock's [Reversal] costs a monster with "Time Ruler" in its card name from your field or hand. You don't have one right now.`);
+      return;
+    }
     if (trFound) {
       if (trFound.source === "field") {
         const m = f.monsters[trFound.pos];
@@ -3559,6 +3685,13 @@ const battle = {
         const cid = f.hand.splice(trFound.handIdx, 1)[0];
         f.drop.push(cid);
       }
+    }
+
+    // The Endruler Dragon takes the Flag/Item slot, so any equipped item goes to the Drop Zone.
+    if (f.item && !f.item.isEndrulerFlag) {
+      if (f.item.soul) f.drop.push(...f.item.soul);
+      f.drop.push(f.item.card.id);
+      f.item = null;
     }
 
     f.godclock.awakened = true;
@@ -3677,18 +3810,30 @@ const battle = {
     const grid = document.getElementById("ds-grid");
     grid.innerHTML = "";
 
+    // A forced choice: remember it so closing the popup still resolves it
+    // (auto-picks the first option) instead of losing the cards being chosen from.
+    const firstItem = cardsList.find(it => it.card);
+    this.activeChoice = firstItem ? { onSelect, firstPayload: firstItem.payload } : null;
+    this.setDeckSearchFiltersEnabled(false);
+    const footerEl = document.getElementById("ds-footer-actions");
+    if (footerEl) {
+      footerEl.innerHTML = `<button class="secondary-btn" onclick="battle.closeDeckSearch()">Close (auto-picks the first card)</button>`;
+    }
+
     cardsList.forEach(item => {
       const c = item.card;
       if (!c) return;
       const tile = document.createElement("div");
       tile.className = "card-tile";
       tile.onclick = () => {
+        this.activeChoice = null;
+        this.setDeckSearchFiltersEnabled(true);
         document.getElementById("deck-search-modal").classList.add("hidden");
         onSelect(item.payload);
       };
       tile.innerHTML = `
         <div class="tile-owned-badge">${item.badge || "SELECT"}</div>
-        <img src="${c.img}" alt="${c.name}" />
+        <img src="${c.img}" alt="${escapeHtml(c.name)}" />
         <div class="tile-name">${c.name}</div>
         <div class="tile-sub">${c.type} ${c.size !== null ? "• Sz " + c.size : ""}</div>
       `;
@@ -3717,14 +3862,50 @@ const battle = {
     }
   },
 
+  // Board state from an online peer is untrusted: rebuild every card object from the local card database
+  // (by id) so a modified client can't inject HTML/scripts through card names or image paths.
+  rehydrateFighterFromPeer(f) {
+    if (!f || typeof f !== "object") return f;
+    const known = (card) => {
+      const base = card && CARD_MAP.get(Number(card.id));
+      if (!base) return null;
+      if (Number(card.id) === 5961 || Number(card.id) === 6202) {
+        return Object.assign({}, base, {
+          type: "Flag",
+          power: Number(card.power) || 0,
+          crit: Number(card.crit) || 0,
+          defense: Number(card.defense) || 0,
+          atk_max: Number(card.atk_max) || 1,
+          ta: Boolean(card.ta)
+        });
+      }
+      return base;
+    };
+    const fixUnit = (u) => {
+      if (!u || typeof u !== "object") return null;
+      const card = known(u.card);
+      return card ? Object.assign(u, { card }) : null;
+    };
+    ["left", "center", "right"].forEach(pos => {
+      if (f.monsters) f.monsters[pos] = fixUnit(f.monsters[pos]);
+    });
+    f.item = fixUnit(f.item);
+    f.setSpells = (f.setSpells || []).map(known).filter(Boolean);
+    ["hand", "deck", "drop", "gauge", "lostDeck"].forEach(k => {
+      f[k] = (Array.isArray(f[k]) ? f[k] : []).map(Number).filter(id => CARD_MAP.has(id));
+    });
+    f.life = Number(f.life) || 0;
+    return f;
+  },
+
   receiveOnlineStateFromPeer(msg) {
     this.mode = "online_p2p";
     this.turnCount = msg.turnCount || 1;
     this.activeSide = msg.activeSideForReceiver || "opp";
     this.phase = msg.phase || "main";
     // Flip perspective so local player is always this.plr at the bottom of the screen!
-    this.plr = msg.senderOpp;
-    this.opp = msg.senderPlr;
+    this.plr = this.rehydrateFighterFromPeer(msg.senderOpp);
+    this.opp = this.rehydrateFighterFromPeer(msg.senderPlr);
     if (this.plr) {
       this.plr.name = "You";
       this.plr.isBot = false;
@@ -3781,7 +3962,7 @@ const battle = {
       div.className = "def-option-card";
       div.onclick = () => this.resolveDefenseChoice(opt.handIdx);
       div.innerHTML = `
-        <img src="${opt.card.img}" alt="${opt.card.name}" />
+        <img src="${opt.card.img}" alt="${escapeHtml(opt.card.name)}" />
         <div class="def-option-title">${opt.card.name}</div>
         <div class="tile-sub">${cost.gauge ? cost.gauge + " Gauge" : "0 Gauge"}</div>
       `;
@@ -3803,6 +3984,7 @@ const battle = {
   },
 
   startTurn(side) {
+    if (this.matchOver) return;
     this.activeSide = side;
     this.phase = "start";
     this.pendingAction = null;
@@ -3866,7 +4048,7 @@ const battle = {
   },
 
   advancePhase() {
-    if (this.activeSide === "opp" && this.opp.isBot) return;
+    if (!this.isLocalTurn()) return;
     this.pendingAction = null;
     this.linkAttackers = [];
 
@@ -3943,7 +4125,7 @@ const battle = {
   },
 
   startLinkAttackMode() {
-    if (this.activeSide === "opp" && this.opp.isBot) return;
+    if (!this.isLocalTurn()) return;
     if (this.turnCount === 1) {
       alert("🚫 First Round Rule: You cannot attack on the first turn of the game (Turn 1)!");
       return;
@@ -4001,7 +4183,7 @@ const battle = {
   },
 
   onHandCardClick(handIdx) {
-    if (this.activeSide === "opp" && this.opp.isBot) return;
+    if (!this.isLocalTurn()) return;
     const side = this.activeSide;
     const f = this.getFighter(side);
     const cid = f.hand[handIdx];
@@ -4178,10 +4360,13 @@ const battle = {
         actionsEl.appendChild(bCast);
       }
 
-      if (card.type === "Impact") {
+      if (card.type === "Impact" && card.id !== 6202) {
         const bImp = document.createElement("button");
         bImp.className = "primary-cta-btn";
-        bImp.textContent = `💥 Cast Impact (${cost.gauge} Gauge)`;
+        bImp.disabled = this.phase !== "final";
+        bImp.textContent = this.phase === "final"
+          ? `💥 Cast Impact (${cost.gauge} Gauge)`
+          : `🔒 Impact — Final Phase Only (${cost.gauge} Gauge)`;
         bImp.onclick = () => {
           this.closeCardBanner();
           this.castImpactFromHand(side, handIdx);
@@ -4294,50 +4479,7 @@ const battle = {
         actionsEl.appendChild(bSpec);
       }
     } else if (context === "drop") {
-      const dIdx = (unit && unit.dropIdx !== undefined) ? unit.dropIdx : f.drop.lastIndexOf(card.id);
-      if (side === "plr" && dIdx !== -1) {
-        const bToHand = document.createElement("button");
-        bToHand.className = "primary-cta-btn";
-        bToHand.textContent = `♻️ Return "${card.name}" to Hand`;
-        bToHand.onclick = () => {
-          this.closeCardBanner();
-          this.executeDropZoneCardAction("plr", dIdx, "hand");
-        };
-        actionsEl.appendChild(bToHand);
-
-        if (card.type === "Monster") {
-          const bCallDrop = document.createElement("button");
-          bCallDrop.className = "primary-cta-btn";
-          bCallDrop.textContent = `🐉 Call from Drop Zone (${cost.gauge} Gauge)`;
-          bCallDrop.onclick = () => {
-            this.closeCardBanner();
-            this.executeDropZoneCardAction("plr", dIdx, "call");
-          };
-          actionsEl.appendChild(bCallDrop);
-        }
-
-        const hasFieldUnit = getAllFieldUnits(f).length > 0;
-        if (hasFieldUnit) {
-          const bToSoul = document.createElement("button");
-          bToSoul.className = "action-btn";
-          bToSoul.textContent = `🟣 Put into Field Card's Soul`;
-          bToSoul.onclick = () => {
-            this.closeCardBanner();
-            this.executeDropZoneCardAction("plr", dIdx, "soul");
-          };
-          actionsEl.appendChild(bToSoul);
-        }
-
-        const bToBot = document.createElement("button");
-        bToBot.className = "action-btn";
-        bToBot.textContent = `⬇️ Put on Bottom of Deck`;
-        bToBot.onclick = () => {
-          this.closeCardBanner();
-          this.executeDropZoneCardAction("plr", dIdx, "bottom");
-        };
-        actionsEl.appendChild(bToBot);
-      }
-
+      // Cards in the Drop Zone can only be moved by a card ability, so this view is read-only.
       const bBackDrop = document.createElement("button");
       bBackDrop.className = "action-btn";
       bBackDrop.textContent = `📂 Back to Drop Zone List (${f.drop.length})`;
@@ -4618,7 +4760,7 @@ const battle = {
     const grantsStand = sLower.includes("[stand]");
 
     if (unit) {
-      unit.tempPower = (unit.tempPower || 0) + (pMatch ? parseInt(pMatch[1], 10) : 3000);
+      if (pMatch) unit.tempPower = (unit.tempPower || 0) + parseInt(pMatch[1], 10);
       if (dMatch) unit.tempDef = (unit.tempDef || 0) + parseInt(dMatch[1], 10);
       if (cMatch) unit.tempCrit = (unit.tempCrit || 0) + parseInt(cMatch[1], 10);
       if (grantsCA) unit.tempCA = true;
@@ -4650,11 +4792,22 @@ const battle = {
   },
 
   openDeckMenu() {
-    if (this.activeSide === "opp" && this.opp.isBot) return;
-    this.openDeckSearchModal("Deck Inspector & Search", null, null);
+    // Your deck is hidden information: tapping it only shows how many cards are left.
+    // Deck searches are opened by card abilities (openDeckSearchModal with criteria).
+    const f = this.plr;
+    this.setPrompt(`🂠 Your Deck has ${f.deck.length} card(s) left. Cards can only be searched from it by a card ability.`);
+  },
+
+  setDeckSearchFiltersEnabled(enabled) {
+    ["ds-filter", "ds-tribe", "ds-only-matching"].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.disabled = !enabled;
+    });
   },
 
   openDeckSearchModal(sourceLabel = "Card Ability", criteria = null, onDone = null) {
+    this.activeChoice = null;
+    this.setDeckSearchFiltersEnabled(true);
     this.deckSearchState = { sourceLabel, criteria, onDone };
     document.getElementById("ds-title").textContent = `🔍 SEARCH YOUR DECK${criteria && criteria.allowDropZone ? " OR DROP ZONE" : ""} (${this.plr.deck.length} Cards) — ${sourceLabel}`;
 
@@ -4690,6 +4843,7 @@ const battle = {
   },
 
   renderDeckSearchGrid() {
+    if (this.activeChoice) return; // a forced-choice popup is showing; don't replace it
     const q = (document.getElementById("ds-filter").value || "").trim().toLowerCase();
     const qNorm = normalizeSearchToken(q);
     const tribeFilter = (document.getElementById("ds-tribe")?.value || "");
@@ -4766,7 +4920,7 @@ const battle = {
       const zoneTag = entry.zone === "drop" ? "♻️ DROP ZONE" : "✅ MATCH";
       tile.innerHTML = `
         ${(matchesCrit && criteria) || entry.zone === "drop" ? `<div class="tile-owned-badge">${zoneTag}</div>` : ""}
-        <img src="${c.img}" alt="${c.name}" loading="lazy" />
+        <img src="${c.img}" alt="${escapeHtml(c.name)}" loading="lazy" />
         <div class="tile-name">${c.name}</div>
         <div class="tile-sub">${c.type} ${c.size !== null ? "• Sz " + c.size : ""} ${(c.attrs && c.attrs.length) ? "• «" + formatTribeDisplayName(c.attrs[0]) + "»" : ""}</div>
       `;
@@ -4818,6 +4972,18 @@ const battle = {
   },
 
   closeDeckSearch() {
+    if (this.activeChoice) {
+      const choice = this.activeChoice;
+      this.activeChoice = null;
+      this.setDeckSearchFiltersEnabled(true);
+      document.getElementById("deck-search-modal").classList.add("hidden");
+      choice.onSelect(choice.firstPayload);
+      return;
+    }
+    if (this.deckSearchState && this.deckSearchState.isDropZoneMode) {
+      document.getElementById("deck-search-modal").classList.add("hidden");
+      return;
+    }
     this.shuffleDeckAndClose();
   },
 
@@ -4832,6 +4998,8 @@ const battle = {
     const actionType = abilityOptions ? abilityOptions.actionType : null;
     const sourceLabel = abilityOptions ? abilityOptions.sourceLabel : null;
 
+    this.activeChoice = null;
+    this.setDeckSearchFiltersEnabled(true);
     this.deckSearchState = {
       isDropZoneMode: true,
       dropSide: side,
@@ -4848,7 +5016,7 @@ const battle = {
       ? "Choose a card from your Drop Zone to put into SOUL"
       : actionType === "hand"
       ? "Choose a card from your Drop Zone to return to your HAND"
-      : "Click any card in the Drop Zone to inspect its Card Detail Banner, Call it, Return it to Hand, or Put it into Soul";
+      : "Click any card in the Drop Zone to inspect its Card Detail Banner";
 
     document.getElementById("ds-title").textContent = `♻️ ${f.name.toUpperCase()}'S DROP ZONE (${f.drop.length} Cards)${sourceLabel ? " — " + sourceLabel : ""}`;
     document.getElementById("ds-subtitle").textContent = criteria && criteria.rawText
@@ -4887,13 +5055,17 @@ const battle = {
         alert(`Not enough Gauge to call "${c.name}" from the Drop Zone! Need ${cost.gauge} Gauge.`);
         return;
       }
-      for (let i = 0; i < cost.gauge; i++) f.drop.push(f.gauge.pop());
-      f.drop.splice(dropIdx, 1);
-
-      const targetZone = !f.monsters.center ? "center" : !f.monsters.left ? "left" : "right";
-      if (f.monsters[targetZone]) {
-        this.sendMonsterToDropWithAnimation(side, targetZone, true);
+      const targetZone = ["center", "left", "right"].find(z => !f.monsters[z]);
+      if (!targetZone) {
+        alert(`All of your Monster Zones are full, so "${c.name}" can't be called.`);
+        return;
       }
+      if (this.getCurrentSizeUsed(f) + getEffectiveCardSize(f, c) > (f.maxSize || 3)) {
+        alert(`Calling "${c.name}" would go over your size limit of ${f.maxSize || 3}.`);
+        return;
+      }
+      f.drop.splice(dropIdx, 1);
+      for (let i = 0; i < cost.gauge; i++) f.drop.push(f.gauge.pop());
       const soulArr = [];
       for (let i = 0; i < Math.max(cost.soul, c.sg ? 1 : 0) && f.deck.length > 0; i++) {
         soulArr.push(f.deck.shift());
@@ -4968,7 +5140,7 @@ const battle = {
   },
 
   triggerBuddyCallFromZone() {
-    if (this.activeSide === "opp" && this.opp.isBot) return;
+    if (!this.isLocalTurn()) return;
     const f = this.getFighter(this.activeSide);
     if (f.buddyCalled) {
       alert("You have already performed your Buddy Call this fight!");
@@ -4977,10 +5149,10 @@ const battle = {
     const buddyCard = CARD_MAP.get(f.buddyId);
     if (!buddyCard) return;
 
-    let handIdx = f.hand.indexOf(f.buddyId);
+    const handIdx = f.hand.indexOf(f.buddyId);
     if (handIdx === -1) {
-      f.hand.push(f.buddyId);
-      handIdx = f.hand.length - 1;
+      alert(`Buddy Call needs "${buddyCard.name}" in your hand. Draw or search for it first!`);
+      return;
     }
     this.startMonsterCall(this.activeSide, handIdx, true);
   },
@@ -5045,13 +5217,15 @@ const battle = {
     const fromHandId = side === "plr" ? "bt-plr-hand" : "hud-opp-target";
     const toZoneId = `z-${side}-${zonePos}`;
 
-    this.animateCardFlight(fromHandId, toZoneId, c.img, isBuddyCall ? "🌟 BUDDY CALL!" : "🐉 CALL!", 0, () => {
-      f.monsters[zonePos] = unit;
-      const eff = getUnitEffectiveCombatStats(f, unit);
-      unit.attacksLeft = eff.qa ? 4 : eff.ta ? 3 : eff.da ? 2 : (c.atk_max || 1);
+    // Occupy the zone right away (not after the animation) so size checks and
+    // back-to-back calls (e.g. the bot's turn) see the real board state.
+    f.monsters[zonePos] = unit;
+    const eff = getUnitEffectiveCombatStats(f, unit);
+    unit.attacksLeft = eff.qa ? 4 : eff.ta ? 3 : eff.da ? 2 : (c.atk_max || 1);
+    if (isBuddyCall) f.buddyCalled = true;
 
+    this.animateCardFlight(fromHandId, toZoneId, c.img, isBuddyCall ? "🌟 BUDDY CALL!" : "🐉 CALL!", 0, () => {
       if (isBuddyCall) {
-        f.buddyCalled = true;
         f.life += 1;
         this.showCutin("BUDDY CALL!", `${c.name} (+1 Buddy Gift Life!)`, c.img);
       }
@@ -5069,6 +5243,11 @@ const battle = {
     const cid = f.hand[handIdx];
     const c = CARD_MAP.get(cid);
     if (!c) return;
+
+    if (f.item && f.item.isEndrulerFlag) {
+      if (!f.isBot) alert(`Your Flag/Item slot is held by "${f.item.card.name}", so you can't ${modeLabel.toLowerCase()} "${c.name}" right now.`);
+      return;
+    }
 
     const cost = parseCardCost(c.cost, c.skill, f, c);
     if (f.gauge.length < cost.gauge) {
@@ -5131,8 +5310,10 @@ const battle = {
     this.animateCardFlight(fromHandId, destId, c.img, c.set ? "🔮 [SET]!" : "✨ CAST!", 0, () => {
       if (c.set) {
         f.setSpells.push(c);
-        this.setPrompt(`🔮 [Set] "${c.name}" remains on the field! (+1000 Power/Def aura)`);
-        this.renderBattle();
+        this.showCutin("[SET]!", c.name, c.img);
+        // Resolve the spell's own text instead of a generic stat aura.
+        this.executeCardAbilityEffect(side, c, null);
+        this.setPrompt(`🔮 [Set] "${c.name}" remains on the field!`);
         return;
       }
 
@@ -5169,6 +5350,11 @@ const battle = {
       return;
     }
 
+    if (this.phase !== "final" || this.turnCount === 1) {
+      alert(`Impact cards can only be cast during your Final Phase (after your Attack Phase, not on Turn 1).`);
+      return;
+    }
+
     const cond = evaluateCardConditions(c, f, enemy);
     if (!cond.met) {
       alert(`Cannot cast Impact "${c.name}" yet:\n• ${cond.reasons.join("\n• ")}`);
@@ -5176,7 +5362,6 @@ const battle = {
     }
 
     const cost = parseCardCost(c.cost, c.skill, f, c);
-    this.phase = "final";
     for (let i = 0; i < cost.gauge; i++) f.drop.push(f.gauge.pop());
     if (cost.life > 0) f.life = Math.max(1, f.life - cost.life);
     f.hand.splice(handIdx, 1);
@@ -5205,7 +5390,7 @@ const battle = {
   },
 
   onZoneClick(zoneSide, zonePos) {
-    if (this.activeSide === "opp" && this.opp.isBot) {
+    if (!this.isLocalTurn()) {
       // Even during bot's Attack Phase, allow player to click their Godclock Flag!
       if (zoneSide === "plr" && zonePos === "item" && this.plr.godclock) {
         if (this.plr.godclock.awakened) this.openEndrulerOrOvergodBanner("plr");
@@ -5305,7 +5490,7 @@ const battle = {
   },
 
   onEnemyFighterClick() {
-    if (this.activeSide === "opp" && this.opp.isBot) return;
+    if (!this.isLocalTurn()) return;
     const mySide = this.activeSide;
     const attFighter = this.getFighter(mySide);
     const defFighter = this.getEnemy(mySide);
@@ -5497,7 +5682,7 @@ const battle = {
             this.initiateClockFlipInteractive(defSide, qIdx, true);
           };
           div.innerHTML = `
-            <img src="${qCard.img}" alt="${q.name}" />
+            <img src="${qCard.img}" alt="${escapeHtml(q.name)}" />
             <div class="def-option-title">⏳ [Reversal] ${q.name}</div>
             <div class="tile-sub">${qIdx === 1 ? "Draw 1 & END BATTLE!" : qIdx === 0 ? "Top 3 Deck Pick" : "Call Time Dragon"}</div>
           `;
@@ -5511,7 +5696,7 @@ const battle = {
         div.className = "def-option-card";
         div.onclick = () => this.resolveDefenseChoice(opt.handIdx);
         div.innerHTML = `
-          <img src="${opt.card.img}" alt="${opt.card.name}" />
+          <img src="${opt.card.img}" alt="${escapeHtml(opt.card.name)}" />
           <div class="def-option-title">${opt.card.name}</div>
           <div class="tile-sub">${cost.gauge ? cost.gauge + " Gauge" : "0 Gauge"}</div>
         `;
@@ -5718,6 +5903,7 @@ const battle = {
     });
 
     this.animateAttackStrike(attSide, units[0].zone, defSide, targetPos, leadAttacker.card.img, () => {
+      if (this.matchOver) return;
       defFighter.timeStoppedThisBattle = false;
       const targetMonster = ["left", "center", "right"].includes(targetPos) ? defFighter.monsters[targetPos] : null;
 
@@ -5838,7 +6024,9 @@ const battle = {
       if (deadSoul.length > 0) f.drop.push(...deadSoul);
       f.drop.push(deadCard.id);
 
-      if (deadCard.ll_lose) {
+      if (isRetire) {
+        // [Lifelink] only triggers when the monster is destroyed.
+      } else if (deadCard.ll_lose) {
         f.life = 0;
         this.checkWinCondition();
       } else if (deadCard.ll > 0) {
@@ -5851,16 +6039,17 @@ const battle = {
   },
 
   activateOncePerFightSpecial() {
-    if (this.activeSide === "opp" && this.opp.isBot) return;
+    if (!this.isLocalTurn()) return;
     const f = this.getFighter(this.activeSide);
     if (f.overturnUsed) {
       alert("You can only use [Overturn], [Overkill], or [Overthrow] once per fight!");
       return;
     }
 
-    let unit = ["center", "left", "right"].map(p => f.monsters[p]).find(m => m && (m.card.ot || m.card.ok || m.card.oth));
+    const unit = ["center", "left", "right"].map(p => f.monsters[p]).find(m => m && (m.card.ot || m.card.ok || m.card.oth));
     if (!unit) {
-      unit = ["center", "left", "right"].map(p => f.monsters[p]).find(Boolean);
+      alert("You need a monster with [Overturn], [Overkill] or [Overthrow] on your field to use this.");
+      return;
     }
     const cardForCutin = unit ? unit.card : CARD_MAP.get(f.buddyId) || ALL_CARDS[0];
     const tag = (unit && unit.card.ok) ? "OVERKILL" : (unit && unit.card.oth) ? "OVERTHROW" : "OVERTURN";
@@ -5894,7 +6083,7 @@ const battle = {
   },
 
   runBotTurn() {
-    if (this.activeSide !== "opp" || !this.opp.isBot) return;
+    if (this.matchOver || this.activeSide !== "opp" || !this.opp.isBot) return;
     const bot = this.opp;
 
     if (bot.godclock && !bot.godclock.awakened) {
@@ -5902,7 +6091,7 @@ const battle = {
       if (nextQuadIdx !== undefined && !bot.godclock.horaryDominationUsedThisTurn && bot.hand.length > 0) {
         this.initiateClockFlipInteractive("opp", nextQuadIdx, false);
       }
-      if ([0, 1, 3].every(i => bot.godclock.quadrants[i].reversed)) {
+      if ([0, 1, 3].every(i => bot.godclock.quadrants[i].reversed) && this.findTimeRulerMonsterForGodclockReversal(bot)) {
         this.awakenEndrulerDragon("opp");
       }
     }
@@ -5912,16 +6101,18 @@ const battle = {
         const c = CARD_MAP.get(cid);
         return c && c.type === "Item" && parseCardCost(c.cost, c.skill, bot, c).gauge <= bot.gauge.length;
       });
-      if (itemIdx !== -1 && !bot.item) {
+      if (itemIdx !== -1 && !bot.item) {  // (bot.item is also set while its Endruler flag is active)
         this.equipCardFromHand("opp", itemIdx, "Equip");
       }
 
-      if (!bot.buddyCalled && bot.life <= 7 && bot.gauge.length >= 1) {
+      const botBuddyIdx = bot.hand.indexOf(bot.buddyId);
+      if (!bot.buddyCalled && botBuddyIdx !== -1) {
         const bCard = CARD_MAP.get(bot.buddyId);
-        if (bCard) {
-          bot.hand.push(bot.buddyId);
-          const targetZone = !bot.monsters.left ? "left" : !bot.monsters.center ? "center" : "right";
-          this.completeMonsterCall("opp", targetZone, bot.hand.length - 1, true);
+        const bCost = bCard ? parseCardCost(bCard.cost, bCard.skill, bot, bCard) : null;
+        const targetZone = ["center", "left", "right"].find(z => !bot.monsters[z]);
+        if (bCard && targetZone && bCost.gauge <= bot.gauge.length &&
+            this.getCurrentSizeUsed(bot) + getEffectiveCardSize(bot, bCard) <= (bot.maxSize || 3)) {
+          this.completeMonsterCall("opp", targetZone, botBuddyIdx, true);
         }
       }
 
@@ -5942,7 +6133,7 @@ const battle = {
       this.renderBattle();
 
       setTimeout(() => {
-        if (this.activeSide !== "opp") return;
+        if (this.matchOver || this.activeSide !== "opp") return;
         this.phase = "attack";
         this.renderBattle();
 
@@ -5951,10 +6142,11 @@ const battle = {
 
         let step = 0;
         const runNextBotAttack = () => {
+          if (this.matchOver) return;
           if (this.activeSide !== "opp" || step >= attackers.length) {
             this.oppContinueCallback = null;
             // Check end-of-opponent's-turn Godclock #5957 awakening for Player!
-            if (this.plr.godclock && !this.plr.godclock.awakened && [0, 1, 3].every(i => this.plr.godclock.quadrants[i].reversed)) {
+            if (this.plr.godclock && !this.plr.godclock.awakened && [0, 1, 3].every(i => this.plr.godclock.quadrants[i].reversed) && this.findTimeRulerMonsterForGodclockReversal(this.plr)) {
               this.awakenEndrulerDragon("plr");
             }
             setTimeout(() => {
@@ -5996,14 +6188,8 @@ const battle = {
     const f = this.getFighter(side);
     if (f.dreiUsed || f.flagKey !== "dragon_zwei") return false;
 
-    let dreiHandIdx = f.hand.indexOf(2789);
-    const hasDreiInDeck = f.deck.indexOf(2789);
-    if (dreiHandIdx === -1 && hasDreiInDeck !== -1) {
-      f.deck.splice(hasDreiInDeck, 1);
-      f.hand.push(2789);
-      dreiHandIdx = f.hand.length - 1;
-    }
-    if (dreiHandIdx === -1) return false;
+    const dreiHandIdx = f.hand.indexOf(2789);
+    if (dreiHandIdx === -1) return false; // Dragon Drei must be in your hand
 
     f.dreiUsed = true;
     f.hand.splice(dreiHandIdx, 1);
@@ -6028,17 +6214,31 @@ const battle = {
   },
 
   checkWinCondition() {
+    if (this.matchOver || !this.plr || !this.opp) return;
     if (this.plr.life <= 0) {
       if (this.tryTriggerDragonDrei("plr")) return;
       this.finishMatch(false);
     } else if (this.opp.life <= 0) {
       if (this.tryTriggerDragonDrei("opp")) return;
       this.finishMatch(true);
+    } else if (this.plr.deck.length === 0) {
+      // Buddyfight rule: a fighter with no cards left in their deck loses.
+      this.finishMatch(false, "deck");
+    } else if (this.opp.deck.length === 0) {
+      this.finishMatch(true, "deck");
     }
   },
 
-  finishMatch(playerWon) {
+  finishMatch(playerWon, reason = "life") {
+    if (this.matchOver) return;
+    this.matchOver = true;
     this.oppContinueCallback = null;
+    this.pendingAction = null;
+    this.pendingDefenseContext = null;
+    ["defense-prompt-modal", "ability-prompt-modal", "deck-search-modal", "card-detail-banner", "godclock-modal"].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.add("hidden");
+    });
     if (playerWon) {
       app.state.wins += 1;
       app.state.streak += 1;
@@ -6056,7 +6256,8 @@ const battle = {
       app.state.coins += 100;
       app.saveState();
       setTimeout(() => {
-        alert(`💔 DEFEAT! ${this.opp.name} reduced your Life to 0.\n\nConsolation Reward: +100 BP`);
+        const why = reason === "deck" ? "Your deck ran out of cards." : `${this.opp.name} reduced your Life to 0.`;
+        alert(`💔 DEFEAT! ${why}\n\nConsolation Reward: +100 BP`);
         app.showScreen("hub");
       }, 450);
     }
@@ -6064,7 +6265,11 @@ const battle = {
 
   confirmLeave() {
     if (confirm("Leave the current battle and return to the Main Lobby?")) {
+      // Stop the match so bot timers and animations can't keep playing it in the background.
+      this.matchOver = true;
       this.oppContinueCallback = null;
+      this.pendingAction = null;
+      this.pendingDefenseContext = null;
       app.showScreen("hub");
     }
   },
@@ -6080,7 +6285,7 @@ const battle = {
     return `
       <div class="field-card ${unit.rested ? "rested" : ""} ${unit.isBuddyGift || unit.isEndrulerFlag ? "buddy-gift" : ""}">
         ${soulHtml}
-        <img src="${c.img}" alt="${c.name}" />
+        <img src="${c.img}" alt="${escapeHtml(c.name)}" />
         <div class="field-stat-overlay">${statLabel}</div>
       </div>
     `;
@@ -6102,7 +6307,7 @@ const battle = {
             const c = CARD_MAP.get(activeId) || CARD_MAP.get(5957);
             return `
               <div class="gc-quad ${q.reversed ? "reversed" : ""}">
-                <img src="${c.img}" alt="${q.name}" />
+                <img src="${c.img}" alt="${escapeHtml(q.name)}" />
               </div>
             `;
           }).join("")}
@@ -6116,7 +6321,7 @@ const battle = {
     }
 
     const flagCard = CARD_MAP.get(fighter.flagId) || ALL_CARDS[0];
-    return `<div class="field-card"><img src="${flagCard.img}" alt="${flagCard.name}" /></div>`;
+    return `<div class="field-card"><img src="${flagCard.img}" alt="${escapeHtml(flagCard.name)}" /></div>`;
   },
 
   renderGaugeStackHtml(gaugeArr) {
@@ -6244,7 +6449,7 @@ const battle = {
       div.onclick = () => this.onHandCardClick(idx);
       div.innerHTML = `
         <div class="hand-cost-tag">${isBuddy ? "🌟 BUDDY" : isSpecialFlag ? "🏳️ FLAG" : `${cost.gauge}G`}</div>
-        <img src="${c.img}" alt="${c.name}" />
+        <img src="${c.img}" alt="${escapeHtml(c.name)}" />
       `;
       handEl.appendChild(div);
     });
