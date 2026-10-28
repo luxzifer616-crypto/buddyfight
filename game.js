@@ -5010,6 +5010,14 @@ const battle = {
     });
   },
 
+  // [Final Phase] button: from the Main Phase it passes through the Attack Phase (so its start / end abilities still
+  // happen), then into the Final Phase. An extra attack phase given by a card still comes first.
+  goToFinalPhase() {
+    if (!this.isLocalTurn()) return;
+    if (this.phase === "main") this.advancePhase();
+    if (this.phase === "attack") this.advancePhase();
+  },
+
   advancePhase() {
     if (!this.isLocalTurn()) return;
     this.pendingAction = null;
@@ -7949,23 +7957,11 @@ const battle = {
       document.getElementById(`ph-${ph}`).classList.toggle("active", this.phase === ph);
     });
 
+    // Main Phase: [Attack Phase] and [Final Phase]; Attack Phase: [Final Phase]; Final Phase: only [End Turn]
     const nextBtn = document.getElementById("btn-next-phase");
-    nextBtn.textContent = this.phase === "main"
-      ? "⚔️ Attack Phase"
-      : this.phase === "attack"
-      ? "🔥 Final Phase"
-      : "⏭️ End Turn";
-
-    const gcBtn = document.getElementById("btn-godclock");
-    gcBtn.classList.toggle("hidden", !this.plr.godclock);
-    if (this.plr.godclock) {
-      const flippedCnt = this.plr.godclock.quadrants.filter(q => q.reversed).length;
-      gcBtn.textContent = this.plr.godclock.overgodActive
-        ? `👑 Overgod, "0" (12 Crit)`
-        : this.plr.godclock.awakened
-        ? `👑 Endruler Dragon (Banner)`
-        : `⏳ Godclock (${flippedCnt}/4 Flipped)`;
-    }
+    if (nextBtn) nextBtn.classList.toggle("hidden", this.phase !== "main");
+    const finalBtn = document.getElementById("btn-final-phase");
+    if (finalBtn) finalBtn.classList.toggle("hidden", this.phase !== "main" && this.phase !== "attack");
 
     document.getElementById("z-opp-deck-cnt").textContent = this.opp.deck.length;
     document.getElementById("z-opp-drop-cnt").textContent = this.opp.drop.length;
