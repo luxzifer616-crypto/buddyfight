@@ -194,7 +194,6 @@ id,name,type,world,status,abilities,working,first_unread_sentence
 1042,"Martian UFO, Takosuke",Monster,Hero World,NOT BUILT,1,0,"If you do, declare the name of a card, and look at all cards in your opponent's hand."
 1052,Why is there a banana peel here!?,Spell,Hero World,PARTLY BUILT,2,1,when a size 2 or less monster enters your opponent's center
 1057,Reckless Bravery......,Spell,Hero World,NOT BUILT,1,0,"At the end of the turn, put that monster into your gauge."
-1066,I Knew Something Like This Would Happen...,Spell,Hero World,NOT BUILT,1,0,into a card with [Transform] from your drop zone by paying its [Transform] cost.
 1069,"Rescue Dragon, Metamorph Effect",Monster,Hero World,NOT BUILT,1,0,"For this turn, this card on the field is also regarded to have the same card name as the card you put into the drop zone."
 1076,Armorknight Little Drake,Monster,Danger World,NOT BUILT,1,0,"If you do, put a card from your drop zone into soul of a card on your field."
 1080,"Drum Bunker Dragon, ""Father""",Monster,Dragon World,NOT BUILT,1,0,"If your opponent is your child, this card gets power+10000."
@@ -255,7 +254,6 @@ id,name,type,world,status,abilities,working,first_unread_sentence
 1330,"Dragon Lord Initiation, Giga Howling Crusher!!",Impact,Dragon World,PARTLY BUILT,2,1,Deal damage to your opponent equal to the total critical of a monster and an item on your field.
 1331,Dead or Alive!,Impact,Hero World,PARTLY BUILT,2,1,Deal 3 damage to the player who loses.
 1335,Arduous Training,Spell,Hero World,PARTLY BUILT,2,1,"if you are [Transform] into, or [Ride] on a card"
-1337,"Combitrooper, Dziem",Monster,Hero World,PARTLY BUILT,4,3,into to your hand]
 1351,Long-range Cannon,Spell,Hero World,PARTLY BUILT,2,1,"For this turn, a card you are [Ride] on can attack your opponent even if there is a monster in their center."
 1352,"Super Headquarters, Brave Fort",Spell,Hero World,PARTLY BUILT,3,1,"When a «Brave Machine» on your field enters the field or [Ride], put the top card of your deck into your gauge."
 1353,For Such an Attack to...,Spell,Hero World,PARTLY BUILT,2,1,when your opponent is attacking alone with a card with 4000 or less power
@@ -264,9 +262,6 @@ id,name,type,world,status,abilities,working,first_unread_sentence
 1360,Brave Energy Full Drive!,Impact,Hero World,PARTLY BUILT,2,1,"Then, deal damage to your opponent equal to number of cards in the soul of a card you are [Ride] on."
 1379,"Bird Deity, Sabird",Monster,Hero World,PARTLY BUILT,2,1,"If you have 6 life or less, and this card is in the soul of a card you are Ride into, you may pay 1 gauge."
 1381,Sneak Judgement,Item,Hero World,PARTLY BUILT,2,1,"When a monster leaves your field during your attack phase, draw a card."
-1383,Gaigrander 01,Monster,Hero World,PARTLY BUILT,2,1,into back into your hand]
-1384,"Gaigrander, ""Finish Form""",Monster,Hero World,NOT BUILT,2,0,[Transform] into this card from your hand by paying the [Transform] cost.
-1385,"Gaigrander, ""Analyze Form""",Monster,Hero World,NOT BUILT,2,0,[Transform] into this card from your hand by paying the [Transform] cost.
 1387,Be Glad That You Can be of Use to Me,Spell,Hero World,NOT BUILT,1,0,"If the card put into your drop zone is «Darkhero», destroy an item on your opponent's field, and you gain 2 life."
 1389,"Hundred Demons General, Iyonorasetsuryu",Monster,Dragon World,PARTLY BUILT,2,1,"If there are a total of ten or more cards with «Armordragon» or «Hundred Demons» in your drop zone, nullify the Lifelink of this card on your field."
 1394,"Resurrected Evil Deity, Yamigedo",Monster,Generic,PARTLY BUILT,2,1,"This card gets all ""Thunder Mine"" of cards in its soul."
@@ -315,7 +310,6 @@ id,name,type,world,status,abilities,working,first_unread_sentence
 1552,"Thunder Emperor, Zein Blestand",Monster,Dungeon World,NOT BUILT,2,0,"When your opponent equips an item, deal 1 damage to your opponent."
 1554,Command of the Water Lord,Spell,Dungeon World,PARTLY BUILT,2,1,Stand a Demon Lord on your field.
 1561,"Scorpion Armor, Kenrosai",Monster,Katana World,NOT BUILT,1,0,your opponent's item cannot [Stand] during their next stand phase.
-1566,"Happiness by Pudding, Drum",Monster,Hero World,PARTLY BUILT,2,1,"if you do not have an item equipped, [Transform] into a card with [Transform] from your drop zone by paying its [Transform] cost."
 1569,"Daredevil, ""Barrett""",Monster,Darkness Dragon World,NOT BUILT,1,0,"If that card is a monster, or an item, deal 1 damage to your opponent."
 1573,Scramble Crossnize,Spell,Star Dragon World,PARTLY BUILT,2,1,"You can only cast ""Scramble Crossnize"""
 1578,"Drum Bunker Dragon ""SD""",Monster,Dragon World,NOT BUILT,1,0,"""GO, Towards Tomorrow.""When a monster with ""Drum"" in its card name enters your field, if this card is in your drop zone, you may pay 1 gauge."
@@ -437,7 +431,6 @@ id,name,type,world,status,abilities,working,first_unread_sentence
 2099,Solar Furnace Jet Type-1,Spell,Dragon World,PARTLY BUILT,2,1,"Choose a size 2 or less «Sun Dragon» on your field, and for this turn, that card can attack your opponent even if there is a monster in your opponent's center."
 2101,Magical Eyes Release!,Spell,Dungeon World,PARTLY BUILT,2,1,You can only cast this card if you have a Demon Lord on your field.
 2106,Electric Source,Spell,Star Dragon World,NOT BUILT,1,0,"Then, if there is a card with two or more souls on your field, put the top two cards of your deck into your gauge."
-2109,"Bandage Warrior, Masked Vantage",Monster,Hero World,PARTLY BUILT,2,1,"If a «Superheroine» on your field is being attacked, you may [Transform] into this card by paying the [Transform] cost."
 2112,"Gravity Battle-armor, G-Force",Monster,Hero World,PARTLY BUILT,2,1,All monsters on your opponent's field cannot [Move] or return to hand.
 2113,"Battle Poet, Thinking",Monster,Hero World,NOT BUILT,1,0,"You may discard a card with ""Battle Poet"" in its card name."
 2115,"Martial Arts Chief, Duel Jaeger",Monster,Ancient World,NOT BUILT,1,0,"During this card's battle, you may discard a «Dragon Chief Emperor» from your hand."
@@ -445,14 +438,10 @@ id,name,type,world,status,abilities,working,first_unread_sentence
 2118,"Byakuya, ""Shiroyasha mode""",Monster,Katana World,PARTLY BUILT,2,1,"If this card is in the soul of a monster, that monster can attack your opponent even if there is a monster in your opponent's center."
 2124,"Harbringer of Death Black Dragon, Abygale",Monster,Darkness Dragon World,NOT BUILT,1,0,put the top three cards of your opponent's deck and deal 1 damage to your opponent.
 2126,"Tasuku & Jack & Gaito & Abygale, ""Gindaco-eating Buddyfight!""",Impact,Dragon World,NOT BUILT,1,0,both players put the top card of their decks into their gauge.
-2128,"Protection Deity of Steel, Caardian",Monster,Hero World,PARTLY BUILT,3,2,"This card cannot [Transform] other than by the [Act] of ""Transform Belt, Card Winder""."
 2129,"Masked Vantage, ""Lavish Body, Gorgeous Mask!""",Impact,Hero World,NOT BUILT,1,0,"you may [Transform] into, or [Ride] on a card with [Transform] or [Ride] from your hand without paying the cost."
-2130,"Caardian, ""Mode SPEED""",Monster,Hero World,PARTLY BUILT,2,1,"This card cannot [Transform] other than by the [Act] of ""Transform Belt, Card Winder""."
 2148,Activate Barrier!,Spell,Hero World,NOT BUILT,1,0,"When an item would leave your field by your opponent's card effects, you may put this card from your field into the drop zone. If you do, that item remains on the field."
-2149,"Transform Belt, Card Winder",Item,Hero World,NOT BUILT,1,0,"You may pay 2 gauge and return this card from your field into your hand. If you do, choose a monster with ""Caardian"" in its card name from your hand or deck and [Transform] into it. If you searched yo"
 2150,Shout Out Battle Poets! Lyric Over!,Impact,Hero World,PARTLY BUILT,2,1,"If this card is the soul of a card with ""Battle Poet"" in its card name on your field, that card cannot be destroyed by your opponent's card effects, and all cards with ""Battle Poet"" in its card name o"
 2152,Card Wyvern,Monster,Hero World,NOT BUILT,1,0,"If you do, [Ride] ""Ultimate Card Burn ""D-Wing"""" from your hand or deck."
-2153,"Caardian, ""Mode ARMOR""",Monster,Hero World,PARTLY BUILT,4,3,"This card cannot [Transform] other than by the [Act] of ""Transform Belt, Card Winder""."
 2160,"Constructor, Buildian",Monster,Hero World,PARTLY BUILT,2,1,"When you [Transform] into a card with ""Caardian"" in its card name, put the top card of your deck into your gauge."
 2169,I Won't Let You!,Spell,Hero World,PARTLY BUILT,2,1,"during an attack on your opponent's turn and if you are [Transform] into, or [Ride] on a card"
 2171,New Plasma-mine,Spell,Hero World,PARTLY BUILT,2,1,when your opponent calls a size 2 or less monster
@@ -615,7 +604,6 @@ id,name,type,world,status,abilities,working,first_unread_sentence
 2755,"Retainer of the Demonic Dragon, Bazori",Monster,Darkness Dragon World,NOT BUILT,1,0,"If there are no cards other than size 1 or less monsters in your drop zone, this card gets power+3000, defense+3000, and critical+2."
 2756,Cursed Demon Idol,Item,Darkness Dragon World,PARTLY BUILT,2,1,Souls of your «Deep» monster in your center cannot be put into your drop zone by your opponent's card effects.
 2760,"Demonic Battle Demon, Zetta",Monster,Hero World,PARTLY BUILT,2,1,"At the start of your final phase, you may discard a card from your hand and put this card from your field into your drop zone. If you do, choose up to one impact monster with ""Zetta"" in its card name "
-2761,"Lost Memory Masked Vantage, Mid Knight",Monster,Hero World,PARTLY BUILT,3,2,you may [Transform] into this card from your hand by paying it's [Transform] cost.
 2762,"Captain Answer, ""THE Another Lesson!""",Impact,Hero World,PARTLY BUILT,2,1,"into, into the drop zone]"
 2771,Liberate Shoot,Spell,Star Dragon World,PARTLY BUILT,2,1,"if you have a size 2 or greater «Neodragon» with two or more soul on your field, and if you do not have a monster in the center"
 2772,"Aettir ""SD""",Monster,Star Dragon World,PARTLY BUILT,2,1,put up to one card from you or your opponent's drop zone on the bottom of the deck.
@@ -719,7 +707,6 @@ id,name,type,world,status,abilities,working,first_unread_sentence
 3218,"Former Baron, Shido",Monster,Dungeon World / Darkness Dragon World,PARTLY BUILT,2,1,"If you do, for this turn, that card can attack your opponent even if there is a monster in your opponent's center."
 3219,"Mud-Wind Demon, Geanemos",Impact,Hero World,NOT BUILT,1,0,"if you have «Earth» and «Wind» in your drop zone, return a card from your opponent's field to their hand, and you gain 1 life."
 3226,F5 Attack,Spell,Hero World,PARTLY BUILT,2,1,"Then, your opponent may call a monster from hand by paying its [Call Cost]."
-3228,Gaigrander 04,Monster,Hero World,PARTLY BUILT,2,1,into back to hand & Pay 1 gauge]
 3229,"Beast Deity, Elphasean",Monster,Hero World,PARTLY BUILT,2,1,"If you do, you may [Ride] a card with [Ride] and with ""Kaizerion"" in its card name from your hand on top of the chosen card without paying its [Ride] cost."
 3230,2nd Generation!? Captain Answer,Monster,Hero World,NOT BUILT,1,0,"Then, if both were of the declared card type, destroy all cards on your opponent's field."
 3234,"Death Dragon Knight, Davide",Monster,Dungeon World / Darkness Dragon World,PARTLY BUILT,2,1,"When a «Disaster» on your field attacks a monster, that attack cannot be nullified."
@@ -731,7 +718,7 @@ id,name,type,world,status,abilities,working,first_unread_sentence
 3250,"Battle Poet, Shouting",Monster,Hero World,PARTLY BUILT,3,2,"When this card is discarded from your hand by an effect of a card with ""Battle Poet"" in its card name, put the top card of your deck into your gauge, and you gain 1 life."
 3251,"Dark Uniform Warrior, Garter Frill",Monster,Hero World / Darkness Dragon World,PARTLY BUILT,2,1,"When another card on your field returns to your hand, you may return this card to your hand."
 3253,"Martian Handsome Superhero, Takosuke",Monster,Hero World,NOT BUILT,1,0,"Pay 1 gauge. If you do, declare monster or spell, and look at your opponent's hand. If there is a card of the declared card type among them, you gain 1 life, then, if there are two or more, draw a car"
-3254,"Super Sword Deity, King Kaizerion",Monster,Hero World,PARTLY BUILT,3,1,"If this card has three or more souls, it cannot be [Rest], and its attack cannot be nullified if it is attacking alone, by your opponent's card effects."
+3254,"Super Sword Deity, King Kaizerion",Monster,Hero World,PARTLY BUILT,2,1,"If this card has three or more souls, it cannot be [Rest], and its attack cannot be nullified if it is attacking alone, by your opponent's card effects."
 3256,Wrath of a Maiden! Blazer Frill,Monster,Hero World,PARTLY BUILT,2,1,"At the end of the battle that a «Superheroine» on your field attacked, you may return that card from the field to hand."
 3257,"Battle Demon of Revenge, Zetta",Impact,Hero World,PARTLY BUILT,2,1,"Then, you cannot call monsters other than impact monsters, and you may call impact monsters any number of times in one turn."
 3258,"Heavy Cannon Specialist Chassis, Veronica",Monster,Hero World,PARTLY BUILT,2,1,"If this card would be destroyed, you may call a «Crew Trooper» from this card's soul without paying its [Call Cost]."
@@ -1069,7 +1056,7 @@ id,name,type,world,status,abilities,working,first_unread_sentence
 4427,Scariest Stare!,Spell,Danger World,PARTLY BUILT,2,1,"Then, if the chosen card's critical is 0, draw a card."
 4430,"Summer With Ace of Games! Yuga & Garga ""SD""",Monster,Generic,PARTLY BUILT,3,2,"If this month is July or August, this card gets power+3000, defense+3000, and critical+3."
 4433,"""First Style Tempest, Blue Skies"" Ichijo Haruka",Monster,Hero World,PARTLY BUILT,2,1,"If this card has «Weaponry» in its soul, it gets power+3000, defense+3000, and critical+1."
-4436,"Satsuki Operated Convertible Outframe, Hazakura",Monster,Hero World,PARTLY BUILT,4,2,This card gets all abilities of size 5 «Battleship» in its soul.
+4436,"Satsuki Operated Convertible Outframe, Hazakura",Monster,Hero World,PARTLY BUILT,3,2,This card gets all abilities of size 5 «Battleship» in its soul.
 4439,"Daredevil, ""Crimson""",Monster,Darkness Dragon World,PARTLY BUILT,2,1,"Call this card from your drop zone without paying its [Call Cost], and for this turn, all cards on your opponent's field get power-10000 and critical-3."
 4442,"Guardian Electrobeast, Komaji",Monster,Katana World,NOT BUILT,1,0,"Then, if that item has souls, draw a card."
 4445,Miracle Fighters,Spell,Dungeon World / Katana World,NOT BUILT,1,0,"Put up to one size 3 monster or item with the attribute chosen for this card's [Cast Cost] from your deck into your hand, and shuffle your deck."
@@ -1094,7 +1081,6 @@ id,name,type,world,status,abilities,working,first_unread_sentence
 4503,"Friendship Combi, I-Borg",Monster,Hero World,PARTLY BUILT,2,1,"When this card enters the field or [Ride], you gain 2 life. Then, if it entered the field or was [Ride] by another «Battle Building» effect, you gain 3 life."
 4506,"Illusions Dragon, Thorns Dragon",Monster,Dungeon World,PARTLY BUILT,2,1,"choose a monster or item on your opponent's field, and that card cannot [Stand] during this turn and the next turn."
 4508,"Blood Lance Doyenne, Lady Wallachia",Monster,Dungeon World,PARTLY BUILT,2,1,"All cards on your field get power+2000 and this card on the field gets size reduced by 1, for each item on your field."
-4522,Cosmo Falcon No.3,Monster,Hero World,NOT BUILT,1,0,"If you do, [Transform] into up to one «Galaxy Exalt» from your hand by paying its [Transform] cost."
 4523,"Simul Lock-on, G-Gold Pav & S-Silver Pav",Monster,Hero World,PARTLY BUILT,2,1,"Then, if it entered the field by a «Battle Building» effect, destroy a card on your opponent's field."
 4525,Battle Building! Online!,Spell,Hero World,NOT BUILT,1,0,"Drop up to one «Battle Building» monster from your deck, put up to one «Battle Building» spell with [Set] into your hand, and shuffle your deck."
 4527,"Galaxy Exalt, Cosmonine",Monster,Hero World,PARTLY BUILT,4,3,"The «Galaxy Exalt» you [Transform] into cannot be [Rest] by your opponent's card effects, and it gets [Penetrate]."
@@ -1193,7 +1179,7 @@ id,name,type,world,status,abilities,working,first_unread_sentence
 4968,"Primitive Power, Zerberos",Monster,Ancient World,NOT BUILT,1,0,"If you do, nullify the spell your opponent cast."
 4969,Maxim of Absolute Strength,Spell,Ancient World,PARTLY BUILT,2,1,"Then, look at the number of cards from the top of your deck equal to your center monster's size, put one from among them into your hand, and put the rest on the bottom of your deck in any order."
 4970,Indestructible Domilord,Spell,Ancient World,PARTLY BUILT,3,2,"When a «MAX Dragon» on your field other than ""Indestructible Domilord"" would leave the field, you may put this card from the field into the drop zone. If you do, that card remains on the field."
-4971,"Meteor Galaxy Exalt, Ultra Cosmoman",Monster,Hero World,PARTLY BUILT,4,2,"If you would take damage, you may pay 1 gauge."
+4971,"Meteor Galaxy Exalt, Ultra Cosmoman",Monster,Hero World,PARTLY BUILT,3,2,"If you would take damage, you may pay 1 gauge."
 4972,Cosmo Change!,Spell,Hero World,NOT BUILT,1,0,"Then, you may [Transform] as a «Galaxy Exalt» in your drop zone by paying its [Transform] cost."
 4974,"Mystic Girl, Hanako",Monster,Legend World,PARTLY BUILT,3,2,This card can only enter the field by «Toilet» item effects.
 4982,Foul Snoop  Deep Lurker,Monster,Dragon World,PARTLY BUILT,3,1,Souls in the «Dragonblood Sect» with this card in its soul cannot be dropped by your opponent's card effects.
@@ -1463,19 +1449,18 @@ id,name,type,world,status,abilities,working,first_unread_sentence
 5851,"Born Darkness, Nanashi Kyomu",Monster,GeGeGe no Kitaro,PARTLY BUILT,2,1,This card on the field cannot be [Rest] and it cannot have its abilities nullified or its souls cannot be dropped by your opponent's card effects.
 5852,"Trick or Treat, Carmilla",Monster,GeGeGe no Kitaro,NOT BUILT,1,0,"If you do, put up to one card from the top of your deck face down on the field as a ""«Western Yokai»/size 0/6000 power/2000 defense/2 critical"" character, and you gain 2 life."
 5856,Memories of Only Us Two,Spell,SSSS.GRIDMAN,PARTLY BUILT,3,2,All cards on your opponent's field cannot attack characters on your left and right.
-5857,Battle Tracto Max,Monster,SSSS.GRIDMAN,PARTLY BUILT,2,1,"into up to one ""Max Gridman"" from your hand or drop zone by paying its [Transform] cost."
 5859,Akane's Declaration of War,Spell,SSSS.GRIDMAN,NOT BUILT,1,0,"For this turn, all [Alexis] and «Kaiju» on your field cannot be destroyed, returned to hand or [Rest] by your opponent's card effects."
 5862,"Anti (Kaiju Form), the Perseverance Kaiju",Monster,SSSS.GRIDMAN,PARTLY BUILT,2,1,"choose an originally character on your opponent's field, and for this turn, this card gets all abilities originally written on the chosen card."
 5863,"Zegga, the Self Constraining Kaiju",Monster,SSSS.GRIDMAN,PARTLY BUILT,3,1,it attacks all of your opponent's characters and your opponent instead.
 5865,"Devadadan, the Karma Kaiju",Monster,SSSS.GRIDMAN,NOT BUILT,1,0,"For this turn, the next time you would take damage by card effects and this card is on your field, it is reduced to 0, and deal 1 damage to your opponent for each damage reduced."
 5866,"Anonymous B, the **** Kaiju",Monster,SSSS.GRIDMAN,PARTLY BUILT,3,2,"This card on the field cannot be destroyed, returned to hand or [Rest] by your opponent's card effects."
 5867,"Anonymous A, the **** Kaiju",Monster,SSSS.GRIDMAN,PARTLY BUILT,3,2,"At the end of the turn that this card is destroyed, call up to one ""Anonymous B, the **** Kaiju"" from your hand or deck. If you looked in your deck, shuffle it."
-5870,Full Powered Gridman,Monster,SSSS.GRIDMAN,PARTLY BUILT,4,1,into this card from your hand by paying its [Transform] cost.
+5870,Full Powered Gridman,Monster,SSSS.GRIDMAN,PARTLY BUILT,4,2,"If four or more different «Assist Weapon» are in this card's soul, this card gets [Penetrate] and [Quadruple Attack], and during the battle that this card is attacking your opponent's character, they "
 5872,Max Gridman,Monster,SSSS.GRIDMAN,PARTLY BUILT,3,1,This card's power and critical on the field cannot be reduced by your opponent's card effects.
 5873,Sky Gridman,Monster,SSSS.GRIDMAN,PARTLY BUILT,3,2,from your field or drop zone into its soul & Put this on top of a [Gridman] you are [Transform] into & Pay 2 gauge]
 5875,Gridman,Monster,SSSS.GRIDMAN,PARTLY BUILT,4,2,Damage your opponent takes by your cards cannot be reduced.
 5876,Buster Gridman,Monster,SSSS.GRIDMAN,PARTLY BUILT,3,2,from your field or drop zone into its soul & Put this on top of a [Gridman] you are [Transform] into & Pay 2 gauge]
-5877,Buster Borr,Monster,SSSS.GRIDMAN,NOT BUILT,2,0,"into up to one ""Buster Gridman"" from your hand or drop zone by paying its [Transform] cost."
+5877,Buster Borr,Monster,SSSS.GRIDMAN,PARTLY BUILT,2,1,"During the battle that this card in the soul of a [Gridman] or [Powered Zenon] is attacking alone, damage dealt to your opponent by that card cannot be reduced."
 5879,Alexis Kerib,Monster,SSSS.GRIDMAN,PARTLY BUILT,3,2,"If you do not have an item equipped, all «Kaiju» characters' size on your field is reduced by 4."
 5884,Yuta Hibiki,Monster,SSSS.GRIDMAN,PARTLY BUILT,2,1,"When you [Transform], you may put this card from your field into the soul of a [Gridman] on your field. If you do, draw a card, and put a card from your hand on the bottom of your deck."
 5894,Vampire Elite,Monster,GeGeGe no Kitaro,PARTLY BUILT,2,1,"If you do, swap the areas of the chosen cards."
@@ -1488,7 +1473,7 @@ id,name,type,world,status,abilities,working,first_unread_sentence
 5923,JUNK SHOP Aya,Spell,SSSS.GRIDMAN,PARTLY BUILT,3,2,"this card and all «Gridman Alliance» on your field cannot be destroyed, returned to hand or be [Rest] by your opponent's card effects."
 5924,"Diriver, the Malice Kaiju",Monster,SSSS.GRIDMAN,PARTLY BUILT,2,1,"If «Diriver UFO» is not on your field, put the top card of your deck face down on the field as a ""«Diriver UFO» «Kaiju»/size 4/7000 power/7000 defense/2 critical"" character."
 5925,Special Signature to Save a Soul,Spell,SSSS.GRIDMAN,PARTLY BUILT,2,2,"- [Transform] into up to one ""Gridman"" from your hand or drop zone by paying its [Transform] cost."
-5928,Sky Vitter,Monster,SSSS.GRIDMAN,NOT BUILT,2,0,"into up to one ""Sky Gridman"" from your hand or drop zone by paying its [Transform] cost."
+5928,Sky Vitter,Monster,SSSS.GRIDMAN,PARTLY BUILT,2,1,"When this card in the soul of a [Gridman] or [Powered Zenon] is attacking a character alone, it attacks all of your opponent's characters instead."
 5930,Awakening,Spell,SSSS.GRIDMAN,PARTLY BUILT,2,1,if twelve or more cards are in your drop zone
 5933,Inherited Glass Bead,Spell,SSSS.GRIDMAN,PARTLY BUILT,2,1,"Then, if two more more different characters are on your field, put the top card of your deck into your gauge, you gain 1 life and draw a card."
 5939,"Duel Sieger ""Tempest Enforcer Re:B""",Monster,Ancient World,PARTLY BUILT,3,1,"This card on your field cannot be destroyed or returned to hand or [Rest], and its abilities cannot be nullified, by your opponent's card effects."
@@ -1593,7 +1578,7 @@ id,name,type,world,status,abilities,working,first_unread_sentence
 6214,"Paal Battleship, Satsuki",Monster,Hero World,PARTLY BUILT,4,2,This card on the field cannot be destroyed or returned to hand and its souls cannot be dropped by your opponent's card effects.
 6215,"Paal Academy Combi, I-Borg",Monster,Hero World,NOT BUILT,2,0,"This card is also treated as ""Friendship Combi, I-Borg""."
 6216,"Paal Combi, Ultimate Card Burn",Monster,Hero World,NOT BUILT,2,0,into this card from your hand by paying its [Ride] cost.
-6217,"Paal Great Sword Deity, Kaizerion",Monster,Hero World,PARTLY BUILT,4,2,"put up to four «Brave Machine» with ""Deity"" in their card names into this card's soul from your deck, and shuffle your deck."
+6217,"Paal Great Sword Deity, Kaizerion",Monster,Hero World,PARTLY BUILT,3,2,"put up to four «Brave Machine» with ""Deity"" in their card names into this card's soul from your deck, and shuffle your deck."
 6220,This is... Hyper Energy!!,Spell,Hero World,NOT BUILT,1,0,"If you looked at your deck, shuffle it."
 6221,I won't... Let you!,Spell,Hero World,NOT BUILT,1,0,Choose and use one of the following two.
 6223,"Mirror Hero, Gaigrander ""Gaigrander Kick!!""",Impact,Hero World,PARTLY BUILT,4,2,"When this card enters the field or [Impact Transform], look at the top five cards of your deck, put up to one card with ""Gaigrander"" in its card name other than impact monster, or up to one size 3 imp"
@@ -1670,7 +1655,7 @@ id,name,type,world,status,abilities,working,first_unread_sentence
 6413,"Dragod Hero, Gargantua Justice",Monster,Hero World,PARTLY BUILT,2,1,"choose up to one card with [Transform] or [Ride] from your hand or drop zone, and you may [Transform] or [Ride] on it without paying its cost."
 6414,Finish Effect: MIRRORS SPACE,Impact,Hero World,PARTLY BUILT,2,1,This card on the field cannot have its souls dropped by your opponent's card effects.
 6416,"Martian Speedy UFO, Takokichi Double Omega",Monster,Hero World,NOT BUILT,1,0,"If you are [Ride] on a «Battle Building», return two or more spells with different card names from your drop zone to your deck, and shuffle your deck."
-6417,"Twinsky Azurewing, Haruka & Fubuki",Monster,Hero World,PARTLY BUILT,4,2,"put up to one «Weaponry» from your deck into your hand or this card's soul, and shuffle your deck."
+6417,"Twinsky Azurewing, Haruka & Fubuki",Monster,Hero World,PARTLY BUILT,3,2,"put up to one «Weaponry» from your deck into your hand or this card's soul, and shuffle your deck."
 6418,"Great General Kinko, Dynagoya",Monster,Hero World,PARTLY BUILT,2,1,"Then, if this card entered the field by the effect of «Battle Building» effect, for this turn, all «Battle Building» on your field get power+5000 and [Penetrate]."
 6420,"Mending Acceleration Unit, ""Flying Swallow""",Item,Hero World,PARTLY BUILT,3,2,A «Mobile Aerial Team» with this card in its soul cannot have its souls dropped by your opponent's card effects.
 6422,Seconders Accel,Monster,Hero World,NOT BUILT,2,0,All «Galaxy Exalt» on your field cannot be destroyed or returned to hand and their souls cannot be dropped by your opponent's card effects.
