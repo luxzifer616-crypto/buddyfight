@@ -1,0 +1,10 @@
+# System files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Design sources (keep them outside the repo, e.g. cloud drive)
+*.psd
+
+# Test tooling
+node_modules/

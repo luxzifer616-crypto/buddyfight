@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script>
+    /* Big-screen scaling: enlarges the whole UI on large monitors (2K / 4K)
+       so it fills the screen like it does on a 1080p display. Phones are untouched. */
+    (function () {
+      var KEY = "bf_ui_scale";
+      var BASE_W = 1920, BASE_H = 960;      // layout size the game was designed for
+      var MIN_W = 1180, MIN_H = 660;        // never zoom so far that the layout gets cramped
+      var OPTIONS = ["auto", "1", "1.15", "1.3", "1.5", "1.75", "2"];
+      function getPref() {
+        try { var v = localStorage.getItem(KEY); return OPTIONS.indexOf(v) >= 0 ? v : "auto"; }
+        catch (e) { return "auto"; }
+      }
+      function compute(pref) {
+        var w = window.innerWidth, h = window.innerHeight;
+        if (w <= 820) return 1;                               // phone / small tablet layout
+        var fit = Math.max(1, Math.min(w / MIN_W, h / MIN_H));
+        var z = pref === "auto"
+          ? Math.max(1, Math.min(w / BASE_W, h / BASE_H))
+          : parseFloat(pref) || 1;
+        return Math.round(Math.min(z, fit, 3) * 100) / 100;
+      }
+      function apply() {
+        var z = compute(getPref());
+        var root = document.documentElement;
+        root.style.zoom = z === 1 ? "" : String(z);
+        root.style.setProperty("--ui-zoom", String(z));
+        window.BF_UI_ZOOM = z;
+        var btn = document.getElementById("btn-ui-size");
+        if (btn) {
+          var pref = getPref();
+          btn.textContent = "🔍 " + (pref === "auto" ? "Auto " + Math.round(z * 100) + "%" : Math.round(z * 100) + "%");
+        }
+      }
+      window.BF_UI_SCALE = {
+        apply: apply,
+        cycle: function () {
+          var i = OPTIONS.indexOf(getPref());
+          var next = OPTIONS[(i + 1) % OPTIONS.length];
+          try { localStorage.setItem(KEY, next); } catch (e) {}
+          apply();
+        }
+      };
+      apply();
+      window.addEventListener("resize", apply);
+      document.addEventListener("DOMContentLoaded", apply);
+    })();
+  </script>
+  <title>Future Card Buddyfight — Complete Anime Simulator</title>
+  <link rel="stylesheet" href="styles.css?v=20261029a" />
+  <link rel="stylesheet" href="battle_fx.css?v=20261029a" />
+</head>
+<body>
+  <!-- TOP NAVIGATION BAR (Hidden during active battle) -->
+  <header id="top-nav" class="top-nav">
+    <div class="brand-logo" onclick="app.showScreen('hub')">
+      <img src="Sprite/Sleeves/s0.png" alt="Buddyfight" class="brand-icon" />
+      <div>
+        <div class="brand-title">FUTURE CARD BUDDYFIGHT</div>
+        <div class="brand-subtitle" data-i18n="subtitle">6,573-Card Complete Anime Simulator</div>
+      </div>
+    </div>
+
+    <nav class="nav-tabs">
+      <button class="nav-btn active" data-screen="hub" onclick="app.showScreen('hub')">
+        <span>🏠</span> <span data-i18n="nav_hub">Main Lobby</span>
+      </button>
+      <button class="nav-btn" data-screen="shop" onclick="app.showScreen('shop')">
+        <span>🛒</span> <span data-i18n="nav_shop">Card Shop</span>
+      </button>
+      <button class="nav-btn" data-screen="collection" onclick="app.showScreen('collection')">
+        <span>📖</span> <span data-i18n="nav_collection">Collection</span>
+      </button>
+      <button class="nav-btn" data-screen="deck" onclick="app.showScreen('deck')">
+        <span>⚔️</span> <span data-i18n="nav_deck">Decks</span>
+      </button>
+    </nav>
+
+    <div class="player-status-bar">
+      <button class="lang-toggle-btn ui-size-btn" id="btn-ui-size" onclick="BF_UI_SCALE.cycle()" title="Screen size: Auto fits big monitors (2K/4K). Click to cycle 100% → 200%.">
+        🔍 Auto
+      </button>
+      <button class="lang-toggle-btn" id="btn-lang-toggle" onclick="app.toggleLanguage()" title="Switch Language (English / ภาษาไทย)">
+        🇹🇭 ภาษาไทย / EN
+      </button>
+      <div class="stat-pill rank-pill" id="nav-rank-badge">🛡️ Rookie Fighter</div>
+      <div class="stat-pill gold-pill">🪙 <span id="nav-coins">2,500</span> BP</div>
+      <div class="stat-pill owned-pill">🃏 <span id="nav-owned">0</span> / 6,573</div>
+    </div>
+  </header>
+
+  <!-- MAIN APPLICATION CONTAINER -->
+  <main id="app-container">
+
+    <!-- ==================== 1. MAIN HUB SCREEN ==================== -->
+    <section id="screen-hub" class="screen active">
+      <div class="hub-grid">
+        <!-- Left Column: Fighter Profile & Rank -->
+        <div class="hub-card profile-panel">
+          <div class="panel-header" data-i18n="hub_profile_header">FIGHTER LICENSE & RANKING</div>
+          <div class="profile-hero">
+            <div class="avatar-ring" id="hub-buddy-ring" onclick="app.previewActiveBuddy()" title="Click to preview Buddy Banner">
+              <div id="hub-buddy-visual" class="buddy-visual-wrap">
+                <img id="hub-buddy-img" src="CardSprite/n46.png" alt="Buddy" />
+              </div>
+              <div class="buddy-ring-tag">BUDDY</div>
+            </div>
+            <div class="profile-details">
+              <h2 id="hub-player-name">Buddyfighter</h2>
+              <div class="rank-banner" id="hub-rank-title">Rookie Fighter (1000 RP)</div>
+              <div class="rp-progress-wrap">
+                <div class="rp-progress-bar" id="hub-rp-bar" style="width: 25%"></div>
+              </div>
+              <div class="record-row">
+                <div class="rec-box"><span data-i18n="wins">WINS</span><strong id="hub-wins">0</strong></div>
+                <div class="rec-box"><span data-i18n="losses">LOSSES</span><strong id="hub-losses">0</strong></div>
+                <div class="rec-box"><span data-i18n="streak">STREAK</span><strong id="hub-streak">0🔥</strong></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="active-deck-box">
+            <div class="sub-label" data-i18n="equipped_deck">EQUIPPED FIGHT DECK</div>
+            <select id="hub-deck-select" class="styled-select" onchange="app.selectActiveDeck(this.value)"></select>
+            <div id="hub-deck-summary" class="deck-mini-info"></div>
+          </div>
+
+          <div class="active-deck-box">
+            <div class="sub-label">PLAYMAT</div>
+            <select id="hub-mat-select" class="styled-select" onchange="app.selectMat(this.value)"></select>
+            <div id="hub-mat-preview" class="mat-preview"></div>
+          </div>
+
+          <div class="unlock-all-box">
+            <button class="secondary-btn full-width" onclick="app.unlockAllCards()" data-i18n="btn_sandbox">
+              🔓 Sandbox Mode: Unlock All 6,573 Cards & +10,000 BP
+            </button>
+          </div>
+        </div>
+
+        <!-- Right Column: Game Modes -->
+        <div class="hub-modes">
+          <div class="mode-banner bot-mode">
+            <div class="mode-badge-glow">ANIME ARENA DUEL</div>
+            <h3 data-i18n="hub_bot_title">🤖 Battle vs. Anime AI Rivals</h3>
+            <p data-i18n="hub_bot_desc">Experience full Buddyfight anime battles on Field1.png with 2x2 connected Godclock Reversal & Overgod "0", Link Attacks, Universal Card Ability & Condition checks, Lost World Sub-Decks, and Attack/Drop animations!</p>
+            <div class="bot-selector">
+              <label data-i18n="select_rival">Select Rival:</label>
+              <select id="bot-difficulty" class="styled-select">
+                <option value="tasuku">🐉 Tasuku Ryuenji (Dragon World — Jackknife & Gargantua Punisher!)</option>
+                <option value="tetsuya">😈 Tetsuya Kurodake (Magic World — Demon Lord Asmodai & 72 Pillars)</option>
+                <option value="kyoya_ein">🐲 Kyoya Gaen (Dragon Ein — 12 Life / 4 Hand / Azi Dahaka)</option>
+                <option value="kyoya_zwei">🌑 Kyoya Gaen (Dragon Zwei & Drei — 20 Life / Dragon Drei Revival)</option>
+                <option value="wisdom">⚙️ Wisdom (The Chaos — Size 99 Limit / GEARGOD)</option>
+                <option value="time_god">⏳ Time Ruler (Godclock — 2x2 Connected 4-Card Flag Reversal & Overgod "0")</option>
+                <option value="zanya">🥷 Zanya Kisaragi (Katana World — Tsukikage & Ninja Arts)</option>
+                <option value="mirror">🪞 Mirror Match (Faces Your Active Deck)</option>
+              </select>
+            </div>
+            <button class="primary-cta-btn big-launch-btn" onclick="app.startBattle('bot')" data-i18n="btn_start_bot">
+              🔥 LUMINIZE! RAISE THE FLAG! (START BATTLE)
+            </button>
+          </div>
+
+          <div class="mode-split">
+            <div class="mode-banner friend-mode">
+              <div class="mode-badge-glow purple">ONLINE ROOM & MULTIPLAYER</div>
+              <h3 data-i18n="hub_friend_title">🌐 Play Online Room / Friends</h3>
+              <p data-i18n="hub_friend_desc">Create an Online Room Code for another player to join, paste a Room/Deck Code, or play 2-Player Local Hotseat!</p>
+              <div class="friend-actions">
+                <button class="primary-cta-btn" onclick="app.openRoomModal()" data-i18n="btn_room_lobby">🌐 Create / Join Room Code</button>
+                <button class="action-btn" onclick="app.startBattle('hotseat')" data-i18n="btn_hotseat">⚔️ 2-Player Local Hotseat</button>
+              </div>
+            </div>
+
+            <div class="mode-banner quick-links">
+              <div class="mode-badge-glow cyan">FIGHTER COMMANDS</div>
+              <h3 data-i18n="hub_shortcuts">⚡ Quick Navigation</h3>
+              <div class="quick-grid">
+                <button class="quick-card" onclick="app.showScreen('shop')">
+                  <span class="q-icon">🎁</span>
+                  <span class="q-title" data-i18n="nav_shop">Card Shop</span>
+                  <span class="q-desc" data-i18n="shop_short_desc">Dynamic World Packs</span>
+                </button>
+                <button class="quick-card" onclick="app.showScreen('deck')">
+                  <span class="q-icon">🛠️</span>
+                  <span class="q-title" data-i18n="nav_deck">Decks</span>
+                  <span class="q-desc" data-i18n="deck_short_desc">Build & Deck Codes</span>
+                </button>
+                <button class="quick-card" onclick="app.showScreen('collection')">
+                  <span class="q-icon">🔍</span>
+                  <span class="q-title" data-i18n="nav_collection">Collection</span>
+                  <span class="q-desc">6,573 Cards</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 2. SHOP PAGE (OFFICIAL BT01 / TD01 BOOSTER PACKS & DYNAMIC PRICING) ==================== -->
+    <section id="screen-shop" class="screen">
+      <div class="screen-header">
+        <div>
+          <h2 data-i18n="shop_title">🛒 BUDDYFIGHT BOOSTER PACK & TRIAL DECK SHOP (BT01, TD01...)</h2>
+          <p data-i18n="shop_subtitle">Open official Booster Packs (BT01, H-BT01, D-BT01, X-BT01, S-BT01...) and Trial Decks (TD01...)! Pack prices scale dynamically by how many cards are in each set.</p>
+        </div>
+        <div class="shop-header-actions" style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+          <input type="text" id="shop-search" class="search-input" style="min-width:210px;" placeholder="Search Pack (e.g. BT01, TD01, SCBT03)..." oninput="app.renderShop()" />
+          <select id="shop-era-filter" class="styled-select" onchange="app.renderShop()">
+            <option value="ALL">All Booster Packs & Trial Decks</option>
+            <option value="BT">📦 Booster Packs (BT / HBT / DBT / XBT / SBT)</option>
+            <option value="TD">🛡️ Trial & Starter Decks (TD / HTD / DTD / XTD / SD)</option>
+            <option value="EB">✨ Extra & Character Packs (EB / CP / PP / SS / CBT)</option>
+            <option value="S1">🐉 Season 1 (BT01–BT05 / TD01–TD07 / EB01–CP01)</option>
+            <option value="H">🔥 Hundred Series (H-BT / H-TD / H-EB / H-PP)</option>
+            <option value="D">☀️ DDD Series (D-BT / D-TD / D-EB / D-SS)</option>
+            <option value="X">⚡ X Series (X-BT / X-TD / X-CP / X-UB)</option>
+            <option value="S">👑 Shin / Ace Series (S-BT / S-CBT / Crossover / Re:B)</option>
+          </select>
+          <button class="primary-cta-btn" onclick="app.claimFreeCoins()" data-i18n="btn_free_bp">🎁 Claim +500 Free BP</button>
+        </div>
+      </div>
+
+      <div id="shop-packs-grid" class="shop-grid"></div>
+    </section>
+
+    <!-- ==================== 3. CARD COLLECTION SCREEN ==================== -->
+    <section id="screen-collection" class="screen">
+      <div class="filter-bar">
+        <input type="text" id="col-search" class="search-input" placeholder="Search card name, tribe (Time Dragon, Hundred Demons, Executioners, Guardians), skill, or #ID..." oninput="app.renderCollection(1)" />
+        <select id="col-set" class="styled-select" onchange="app.renderCollection(1)">
+          <option value="">All Sets (BT01, TD01...)</option>
+        </select>
+        <select id="col-world" class="styled-select" onchange="app.renderCollection(1)">
+          <option value="">All 19 Worlds</option>
+        </select>
+        <select id="col-tribe" class="styled-select" onchange="app.renderCollection(1)">
+          <option value="">All Tribes («Attribute»)</option>
+        </select>
+        <select id="col-type" class="styled-select" onchange="app.renderCollection(1)">
+          <option value="">All Card Types</option>
+          <option value="Monster">Monster</option>
+          <option value="Item">Item</option>
+          <option value="Spell">Spell</option>
+          <option value="Impact">Impact</option>
+          <option value="Flag">Flag</option>
+        </select>
+        <select id="col-size" class="styled-select" onchange="app.renderCollection(1)">
+          <option value="">Any Size</option>
+          <option value="0">Size 0</option>
+          <option value="1">Size 1</option>
+          <option value="2">Size 2</option>
+          <option value="3">Size 3</option>
+        </select>
+        <select id="col-skill" class="styled-select" onchange="app.renderCollection(1)">
+          <option value="">Any Skill Keyword</option>
+          <option value="move">[Move]</option>
+          <option value="pen">[Penetrate]</option>
+          <option value="sg">[Soulguard]</option>
+          <option value="set">[Set]</option>
+          <option value="ca">[Counterattack]</option>
+          <option value="da">[Double Attack]</option>
+          <option value="ta">[Triple Attack]</option>
+          <option value="qa">[Quadruple Attack]</option>
+          <option value="ll">[Lifelink]</option>
+          <option value="ot">[Overturn]</option>
+          <option value="ok">[Overkill]</option>
+          <option value="oth">[Overthrow]</option>
+          <option value="sd">[Shadow Dive]</option>
+          <option value="amb">[Ambush]</option>
+          <option value="eqc">[Equipment Change]</option>
+          <option value="tr">[Transform]</option>
+          <option value="ride">[Ride]</option>
+          <option value="st">[Station]</option>
+          <option value="cnz">[Crossnize]</option>
+          <option value="dragod">[Dragod] (All Flags)</option>
+          <option value="omni">[Omni Lord]</option>
+          <option value="rev">[Reversal]</option>
+          <option value="cnt">[Counter]</option>
+          <option value="act">[Act]</option>
+        </select>
+        <select id="col-owned" class="styled-select" onchange="app.renderCollection(1)">
+          <option value="all">All 6,573 Cards</option>
+          <option value="owned">Owned Only</option>
+          <option value="missing">Unowned Only</option>
+        </select>
+      </div>
+
+      <div class="collection-meta-bar">
+        <span id="col-results-count">Showing 0 cards</span>
+        <div class="pagination-controls">
+          <button class="page-btn" onclick="app.changeCollectionPage(-1)">◀ Prev</button>
+          <span id="col-page-indicator">Page 1</span>
+          <button class="page-btn" onclick="app.changeCollectionPage(1)">Next ▶</button>
+        </div>
+      </div>
+
+      <div id="collection-grid" class="card-grid"></div>
+    </section>
+
+    <!-- ==================== 4. DECKS SCREEN (OVERVIEW GALLERY FIRST + FULL BUILDER SUB-PAGE) ==================== -->
+    <section id="screen-deck" class="screen">
+      <!-- 4A. DECK OVERVIEW LANDING PAGE -->
+      <div id="deck-overview-view" class="deck-overview-container">
+        <div class="screen-header">
+          <div>
+            <h2 data-i18n="deck_gallery_title">⚔️ YOUR FIGHT DECKS</h2>
+            <p data-i18n="deck_gallery_sub">Select a deck banner to edit or equip for battle, create a brand-new deck, or import a friend's Deck Code!</p>
+          </div>
+          <div class="shop-header-actions">
+            <button class="primary-cta-btn" onclick="app.createNewDeckAndEdit()" data-i18n="btn_build_new_deck">➕ Build New Deck</button>
+            <button class="action-btn" onclick="app.openImportDeckCodeModal()" data-i18n="btn_import_deck">📥 Import Deck Code</button>
+          </div>
+        </div>
+
+        <div id="deck-banners-list" class="deck-banners-grid"></div>
+      </div>
+
+      <!-- 4B. ACTUAL DECK BUILDER EDITOR VIEW -->
+      <div id="deck-editor-view" class="deck-builder-layout hidden">
+        <!-- Left Catalog -->
+        <div class="deck-catalog-pane">
+          <div class="filter-bar compact">
+            <button class="action-btn" onclick="app.backToDeckOverview()" data-i18n="btn_back_decks">⬅️ Back to Decks</button>
+            <input type="text" id="dk-search" class="search-input" placeholder="Search card name, tribe (Time Dragon, Hundred Demons, Guardians...), or 'Overgod'..." oninput="app.renderDeckCatalog(1)" />
+            <select id="dk-world" class="styled-select" onchange="app.renderDeckCatalog(1)">
+              <option value="">Legal For Current Flag</option>
+              <option value="FLAGS_ONLY">🏳️ Show All Flags</option>
+              <option value="DRAGOD_ONLY">🐉 Show All [Dragod] (All Flags — Max 4)</option>
+              <option value="OMNI_LORDS">👑 Show All [Omni Lord] (Off-World — Max 1)</option>
+              <option value="ALL">Show All Worlds (Unrestricted)</option>
+            </select>
+            <select id="dk-tribe" class="styled-select" onchange="app.renderDeckCatalog(1)">
+              <option value="">All Tribes («Attribute»)</option>
+            </select>
+            <select id="dk-type" class="styled-select" onchange="app.renderDeckCatalog(1)">
+              <option value="">All Types</option>
+              <option value="Monster">Monster</option>
+              <option value="Item">Item</option>
+              <option value="Spell">Spell</option>
+              <option value="Impact">Impact</option>
+              <option value="Flag">Flag</option>
+            </select>
+            <select id="dk-skill" class="styled-select" onchange="app.renderDeckCatalog(1)">
+              <option value="">Any Skill</option>
+              <option value="move">[Move]</option>
+              <option value="pen">[Penetrate]</option>
+              <option value="sg">[Soulguard]</option>
+              <option value="set">[Set]</option>
+              <option value="ca">[Counterattack]</option>
+              <option value="da">[Double Attack]</option>
+              <option value="ta">[Triple Attack]</option>
+              <option value="dragod">[Dragod] (All Flags)</option>
+          <option value="omni">[Omni Lord]</option>
+              <option value="rev">[Reversal]</option>
+              <option value="ot">[Overturn]</option>
+              <option value="ok">[Overkill]</option>
+              <option value="ll">[Lifelink]</option>
+            </select>
+          </div>
+          <div class="collection-meta-bar">
+            <span id="dk-catalog-count">Left-click to add to deck (50+ cards) • Right-click to preview Card Banner</span>
+            <div class="pagination-controls">
+              <button class="page-btn" onclick="app.changeDeckCatalogPage(-1)">◀</button>
+              <span id="dk-page-indicator">1</span>
+              <button class="page-btn" onclick="app.changeDeckCatalogPage(1)">▶</button>
+            </div>
+          </div>
+          <div id="deck-catalog-grid" class="card-grid compact-grid"></div>
+        </div>
+
+        <!-- Right Current Deck List -->
+        <div class="deck-editor-pane">
+          <div class="deck-name-edit-bar">
+            <input type="text" id="dk-name-input" class="search-input" placeholder="Enter Deck Name..." oninput="app.renameCurrentDeck(this.value)" />
+            <button class="action-btn small" onclick="app.exportCurrentDeckCode()" title="Copy Shareable Deck Code">📋 Code</button>
+            <button class="action-btn small" onclick="app.autoBuildDeck()" title="Fill the deck up to 50 cards (keeps your cards)">⚡ Auto</button>
+            <button class="action-btn small danger" onclick="app.clearCurrentDeck()" title="Clear Deck">🗑️</button>
+          </div>
+
+          <!-- Flag & Buddy Preview Cards -->
+          <div class="deck-core-slots">
+            <div class="core-slot" id="dk-flag-slot" onclick="app.previewDeckFlag()" title="Click to Preview Flag Banner or Change Flag">
+              <div class="slot-label">🏳️ FLAG (CLICK TO PREVIEW)</div>
+              <img id="dk-flag-img" src="CardSprite/n1.png" alt="Flag" />
+              <div id="dk-flag-name" class="slot-name">Magic World</div>
+              <div id="dk-flag-rule-tag" class="slot-rule-sub">Life: 10 • Hand: 6 • Gauge: 2</div>
+            </div>
+            <div class="core-slot" id="dk-buddy-slot" onclick="app.previewDeckBuddy()" title="Click to Preview Buddy Banner">
+              <div class="slot-label">🌟 BUDDY (CLICK TO PREVIEW)</div>
+              <div id="dk-buddy-visual" class="dk-buddy-visual-wrap">
+                <img id="dk-buddy-img" src="CardSprite/n46.png" alt="Buddy" />
+              </div>
+              <div id="dk-buddy-name" class="slot-name">Demon Lord, Asmodai</div>
+              <div class="slot-rule-sub">Tap a card's ⓘ (or right-click), then "Set as Buddy"</div>
+            </div>
+          </div>
+
+          <!-- Sub-Deck Toggle Tabs -->
+          <div class="deck-subtabs" id="dk-subtabs">
+            <button class="subtab-btn active" id="tab-main-deck" onclick="app.switchDeckEditTab('main')">
+              🃏 Main Deck (<span id="dk-total-count">50</span> / 50+)
+            </button>
+            <button class="subtab-btn lost-tab hidden" id="tab-lost-deck" onclick="app.switchDeckEditTab('lost')">
+              🌌 Lost World Deck (<span id="dk-lost-count">0</span> / 30)
+            </button>
+          </div>
+
+          <div class="deck-count-header">
+            <span id="dk-editing-label">Editing: Main Deck (50+ Cards)</span>
+            <span id="dk-type-breakdown">M:0 I:0 S:0 Imp:0</span>
+          </div>
+
+          <div id="dk-card-list" class="deck-list-scroll"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 5. FULL-SCREEN ANIME BATTLE ARENA ==================== -->
+    <section id="screen-battle" class="screen battle-screen">
+      <!-- Sleek Floating Top Battle HUD -->
+      <div class="battle-hud-top">
+        <!-- Opponent Status Pill -->
+        <div class="fighter-hud opp-hud" id="hud-opp-target" onclick="battle.onEnemyFighterClick()" title="Click to Attack Opponent Fighter Directly!">
+          <div class="fx-vitals">
+            <div class="fx-heart-wrap" aria-hidden="true">
+              <span class="fx-heart-ring"></span><span class="fx-heart-ring r2"></span>
+              <svg class="fx-heart" viewBox="0 0 32 29"><path d="M16 28.5S1 19.4 1 9.3C1 4.6 4.6 1 9 1c3 0 5.6 1.7 7 4.2C17.4 2.7 20 1 23 1c4.4 0 8 3.6 8 8.3 0 10.1-15 19.2-15 19.2z"/></svg>
+            </div>
+            <div class="fx-meters">
+              <div class="fx-label">LIFE</div>
+              <div class="life-orb opp-life"><span class="fx-emoji">❤️ </span><span id="bt-opp-life">10</span></div>
+              <div class="fx-lifebar" aria-hidden="true"><i></i></div>
+            </div>
+            <div class="gauge-orb" title="Gauge"><span class="fx-battery" aria-hidden="true"><i></i></span><span class="fx-emoji">⚡ </span><span id="bt-opp-gauge">2</span></div>
+          </div>
+          <svg class="fx-ecg" viewBox="0 0 200 24" preserveAspectRatio="none" aria-hidden="true"><path d="M0 12h60l6-8 6 16 6-20 6 22 6-10h110"/></svg>
+          <div class="fx-id">
+            <div class="hud-avatar opp-avatar">🔥</div>
+            <div class="hud-info">
+              <div class="hud-name" id="bt-opp-name">Opponent</div>
+              <div class="hud-sub">Hand: <strong id="bt-opp-hand-cnt">6</strong> • Deck: <strong id="bt-opp-deck-cnt">42</strong> • Drop: <strong id="bt-opp-drop-cnt">0</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Center Turn / Phase / Action Bar -->
+        <div class="turn-phase-banner">
+          <div class="turn-indicator" id="bt-turn-label">TURN 1 — YOUR TURN</div>
+          <div class="phase-steps"><span class="fx-phase-line" aria-hidden="true"><i></i></span>
+            <span class="phase-pill" id="ph-start">Start</span>
+            <span class="phase-pill active" id="ph-main">Main</span>
+            <span class="phase-pill" id="ph-attack">Attack</span>
+            <span class="phase-pill" id="ph-final">Final</span>
+          </div>
+        </div>
+
+        <!-- Player Status Pill -->
+        <div class="fighter-hud plr-hud">
+          <div class="fx-vitals">
+            <div class="fx-heart-wrap" aria-hidden="true">
+              <span class="fx-heart-ring"></span><span class="fx-heart-ring r2"></span>
+              <svg class="fx-heart" viewBox="0 0 32 29"><path d="M16 28.5S1 19.4 1 9.3C1 4.6 4.6 1 9 1c3 0 5.6 1.7 7 4.2C17.4 2.7 20 1 23 1c4.4 0 8 3.6 8 8.3 0 10.1-15 19.2-15 19.2z"/></svg>
+            </div>
+            <div class="fx-meters">
+              <div class="fx-label">LIFE</div>
+              <div class="life-orb plr-life"><span class="fx-emoji">❤️ </span><span id="bt-plr-life">10</span></div>
+              <div class="fx-lifebar" aria-hidden="true"><i></i></div>
+            </div>
+            <div class="gauge-orb" title="Gauge"><span class="fx-battery" aria-hidden="true"><i></i></span><span class="fx-emoji">⚡ </span><span id="bt-plr-gauge">2</span></div>
+          </div>
+          <svg class="fx-ecg" viewBox="0 0 200 24" preserveAspectRatio="none" aria-hidden="true"><path d="M0 12h60l6-8 6 16 6-20 6 22 6-10h110"/></svg>
+          <div class="fx-id">
+            <div class="hud-avatar plr-avatar">🛡️</div>
+            <div class="hud-info right">
+              <div class="hud-name" id="bt-plr-name">You</div>
+              <div class="hud-sub">Size: <strong id="bt-plr-size">0</strong>/<span id="bt-plr-max-size">3</span> • Hand: <strong id="bt-plr-hand-cnt">6</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action buttons (bottom-right panel on wide screens) -->
+        <div class="phase-controls">
+          <button class="battle-ctrl-btn charge-btn" id="btn-charge-draw" onclick="battle.startChargeMode()">⚡ Charge & Draw</button>
+          <button class="battle-ctrl-btn buddy-btn" id="btn-buddy-call" onclick="battle.triggerBuddyCallFromZone()">🌟 Buddy Call</button>
+          <button class="battle-ctrl-btn link-btn" id="btn-link-attack" onclick="battle.startLinkAttackMode()">🔗 Link Attack</button>
+          <button class="battle-ctrl-btn godclock-btn hidden" id="btn-godclock" onclick="battle.openGodclockModal()">⏳ Godclock (4 Flags)</button>
+          <button class="battle-ctrl-btn overturn-btn" id="btn-overturn" onclick="battle.activateOncePerFightSpecial()">🔥 Overturn</button>
+          <button class="battle-ctrl-btn phase-next-btn" id="btn-next-phase" onclick="battle.advancePhase()">⚔️ Attack Phase</button>
+          <button class="battle-ctrl-btn end-turn-btn" id="btn-end-turn" onclick="battle.endTurn()">⏭️ End Turn</button>
+          <button class="battle-ctrl-btn quit-btn" onclick="battle.confirmLeave()" title="Leave match">🏳️</button>
+        </div>
+      </div>
+
+      <!-- Floating Action Prompt Toast -->
+      <div class="battle-toast-bar" id="bt-action-prompt">
+        Main Phase: Click any card to view its Card Detail Banner, Call, Cast, Equip, or Charge & Draw!
+      </div>
+
+      <!-- Center Full-Stage Playmat Area -->
+      <div class="battle-stage-center">
+        <div class="field-playmat" id="field-playmat">
+          <div class="mat-half mat-half-opp" aria-hidden="true"></div>
+          <div class="mat-half mat-half-plr" aria-hidden="true"></div>
+          <div class="fx-board" aria-hidden="true">
+            <div class="fx-board-glow opp"></div><div class="fx-board-glow plr"></div>
+            <svg class="fx-runes" viewBox="0 0 200 200">
+              <defs><path id="fxRunePath" d="M100 100m-82 0a82 82 0 1 1 164 0a82 82 0 1 1-164 0"/></defs>
+              <circle cx="100" cy="100" r="92"/><circle cx="100" cy="100" r="72"/><circle cx="100" cy="100" r="40" class="thin"/>
+              <text><textPath href="#fxRunePath">ᚠᚢᚦᚨᚱᚲ ᚷᚹᚺᚾ ᛁᛃᛇᛈ ᛉᛊᛏᛒ ᛖᛗᛚᛜ ᛞᛟ ᚠᚢᚦᚨᚱᚲ ᚷᚹᚺᚾ ᛁᛃᛇᛈ ᛉᛊᛏᛒ ᛖᛗᛚᛜ</textPath></text>
+              <polygon points="100,30 160,135 40,135" class="thin"/><polygon points="100,170 40,65 160,65" class="thin"/>
+            </svg>
+            <div class="fx-divider"></div>
+            <div class="fx-sparks"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          </div>
+          <!-- ================= OPPONENT ZONES (Top Half of Field1.png) ================= -->
+          <div class="field-zone opp-deck-zone" id="z-opp-deck" onclick="battle.showBannerForZone('opp','deck')" title="Opponent Deck">
+            <div class="zone-badge">Opp Deck (<span id="z-opp-deck-cnt">42</span>)</div>
+            <div class="deck-3d-stack">
+              <img src="Sprite/Sleeves/s0.png" alt="Opp Deck" />
+            </div>
+          </div>
+
+          <div class="field-zone opp-drop-zone" id="z-opp-drop" onclick="battle.openDropZoneViewer('opp')" title="Opponent Drop Zone (Click to Open & Inspect All Cards)">
+            <div class="zone-badge">Drop (<span id="z-opp-drop-cnt">0</span>)</div>
+            <div id="z-opp-drop-slot" class="zone-card-holder"></div>
+          </div>
+
+          <div class="field-zone opp-buddy-zone" id="z-opp-buddy" onclick="battle.onZoneClick('opp','buddy')" title="Opponent Buddy Zone">
+            <div class="zone-badge">Buddy</div>
+            <div id="z-opp-buddy-slot" class="zone-card-holder"></div>
+          </div>
+
+          <div class="field-zone opp-item-zone" id="z-opp-fighter" onclick="battle.onEnemyFighterClick()" title="Opponent Fighter / Flag / Item — Click here during Attack to strike the Opponent Fighter!">
+            <div class="zone-badge fighter-target-badge">🎯 Opp Fighter / Flag</div>
+            <div id="z-opp-item-slot" class="zone-card-holder"></div>
+          </div>
+
+          <div class="field-zone opp-set-zone" id="z-opp-set" onclick="battle.showBannerForZone('opp','set')" title="Opponent [Set] Spells">
+            <div class="zone-badge">Set (<span id="z-opp-set-cnt">0</span>)</div>
+            <div id="z-opp-set-slot" class="zone-card-holder"></div>
+          </div>
+
+          <!-- Opponent Monster Hexagons -->
+          <div class="field-zone hex-zone opp-m-right" id="z-opp-right" onclick="battle.onZoneClick('opp','right')">
+            <div class="zone-watermark">Opp Right</div>
+            <div id="slot-opp-right" class="zone-card-holder"></div>
+          </div>
+          <div class="field-zone hex-zone opp-m-center" id="z-opp-center" onclick="battle.onZoneClick('opp','center')">
+            <div class="zone-watermark">Opp Center</div>
+            <div id="slot-opp-center" class="zone-card-holder"></div>
+          </div>
+          <div class="field-zone hex-zone opp-m-left" id="z-opp-left" onclick="battle.onZoneClick('opp','left')">
+            <div class="zone-watermark">Opp Left</div>
+            <div id="slot-opp-left" class="zone-card-holder"></div>
+          </div>
+
+          <!-- Opponent Gauge Bar (Rotated Horizontal Sleeve Cards!) -->
+          <div class="field-zone opp-gauge-zone" id="z-opp-gauge" title="Opponent Gauge (Horizontal Sleeves)">
+            <div class="zone-badge">Opp Gauge (<span id="z-opp-gauge-cnt">2</span>)</div>
+            <div id="z-opp-gauge-visual" class="gauge-horiz-stack"></div>
+          </div>
+
+          <!-- ================= PLAYER ZONES (Bottom Half of Field1.png) ================= -->
+          <!-- Player Gauge Bar (Rotated Horizontal Sleeve Cards!) -->
+          <div class="field-zone plr-gauge-zone" id="z-plr-gauge" title="Your Gauge (Horizontal Sleeves)">
+            <div class="zone-badge">Your Gauge (<span id="z-plr-gauge-cnt">2</span>)</div>
+            <div id="z-plr-gauge-visual" class="gauge-horiz-stack"></div>
+          </div>
+
+          <!-- Player Monster Hexagons -->
+          <div class="field-zone hex-zone plr-m-left" id="z-plr-left" onclick="battle.onZoneClick('plr','left')">
+            <div class="zone-watermark">Monster Left</div>
+            <div id="slot-plr-left" class="zone-card-holder"></div>
+          </div>
+          <div class="field-zone hex-zone plr-m-center" id="z-plr-center" onclick="battle.onZoneClick('plr','center')">
+            <div class="zone-watermark">Monster Center</div>
+            <div id="slot-plr-center" class="zone-card-holder"></div>
+          </div>
+          <div class="field-zone hex-zone plr-m-right" id="z-plr-right" onclick="battle.onZoneClick('plr','right')">
+            <div class="zone-watermark">Monster Right</div>
+            <div id="slot-plr-right" class="zone-card-holder"></div>
+          </div>
+
+          <!-- Player Deck Stack on Field (Clickable to Search Deck & Shuffle!) -->
+          <div class="field-zone plr-deck-zone" id="z-plr-deck" onclick="battle.openDeckMenu()" title="Your Deck — Click to Search Deck or Shuffle!">
+            <div class="zone-badge">🔍 Deck (<span id="z-plr-deck-cnt">42</span>)</div>
+            <div class="deck-3d-stack interactive-deck">
+              <img src="Sprite/Sleeves/s0.png" alt="Your Deck" />
+            </div>
+          </div>
+
+          <!-- Player Drop Zone -->
+          <div class="field-zone plr-drop-zone" id="z-plr-drop" onclick="battle.openDropZoneViewer('plr')" title="Your Drop Zone (Click to View)">
+            <div class="zone-badge">Drop (<span id="z-plr-drop-cnt">0</span>)</div>
+            <div id="z-plr-drop-slot" class="zone-card-holder"></div>
+          </div>
+
+          <!-- Player Bottom Trapezoid (Set, Flag/Item, Buddy) -->
+          <div class="field-zone plr-set-zone" id="z-plr-set" onclick="battle.showBannerForZone('plr','set')" title="Your [Set] Spells">
+            <div class="zone-badge">Set (<span id="z-plr-set-cnt">0</span>)</div>
+            <div id="z-plr-set-slot" class="zone-card-holder"></div>
+          </div>
+          <div class="field-zone plr-item-zone" id="z-plr-item" onclick="battle.onZoneClick('plr','item')" title="Your Flag & Equipped Item (Or Connected 2x2 Godclock / Endruler Dragon / Overgod '0')">
+            <div class="zone-badge" id="z-plr-flag-badge">Flag / Item</div>
+            <div id="slot-plr-item" class="zone-card-holder"></div>
+          </div>
+          <div class="field-zone plr-buddy-zone" id="z-plr-buddy" onclick="battle.onBuddyZoneClick()" title="Your Buddy Monster — Click to Buddy Call!">
+            <div class="zone-badge">Buddy Zone</div>
+            <div id="slot-plr-buddy" class="zone-card-holder"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Hand Dock -->
+      <div class="hand-dock-wrap">
+        <div id="bt-plr-hand" class="hand-cards-row"></div>
+      </div>
+
+      <!-- ================= FLOATING CARD DETAIL & ACTION BANNER ================= -->
+      <div id="card-detail-banner" class="card-banner-backdrop hidden" onclick="if(event.target===this) battle.closeCardBanner()">
+        <div class="card-banner-panel">
+          <button class="banner-close-x" onclick="battle.closeCardBanner()">✕</button>
+          <div class="banner-card-art" id="bnr-art-wrap">
+            <img id="bnr-img" src="CardSprite/n1.png" alt="Card" />
+          </div>
+          <div class="banner-card-content">
+            <div class="banner-top-row">
+              <span class="banner-world-pill" id="bnr-world">Dragon World • Monster</span>
+              <span class="banner-condition-pill" id="bnr-cond-status">✅ Conditions Ready</span>
+            </div>
+            <h2 id="bnr-name" class="banner-title">Card Name</h2>
+            <div id="bnr-stats" class="banner-stats-bar"></div>
+            <div id="bnr-kw" class="inspect-kw-badges"></div>
+            <div id="bnr-skill" class="banner-skill-scroll"></div>
+            <div id="bnr-actions" class="banner-actions-row"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= OPTIONAL ABILITY CONFIRMATION & CONDITION CHECK BANNER ================= -->
+      <div id="ability-prompt-modal" class="card-banner-backdrop hidden">
+        <div class="card-banner-panel ability-prompt-panel">
+          <div class="banner-card-art">
+            <img id="abp-img" src="CardSprite/n1.png" alt="Ability Card" />
+          </div>
+          <div class="banner-card-content">
+            <div class="banner-top-row">
+              <span class="banner-world-pill gold" id="abp-pill-tag">✨ OPTIONAL ABILITY TRIGGER</span>
+              <span class="banner-condition-pill" id="abp-cond-badge">✅ Condition Met</span>
+            </div>
+            <h2 id="abp-title" class="banner-title">Activate Card Ability?</h2>
+            <p id="abp-desc" class="abp-desc-text"></p>
+            <div id="abp-skill" class="banner-skill-scroll"></div>
+            <div id="abp-buttons" class="banner-actions-row"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= DEFENSE / [COUNTER] DECISION MODAL ================= -->
+      <div id="defense-prompt-modal" class="card-banner-backdrop hidden">
+        <div class="card-banner-panel defense-prompt-panel">
+          <div class="banner-card-art">
+            <img id="def-attacker-img" src="CardSprite/n1.png" alt="Attacker" />
+          </div>
+          <div class="banner-card-content">
+            <div class="banner-top-row">
+              <span class="banner-world-pill red">⚠️ INCOMING ATTACK — [COUNTER] TIMING!</span>
+            </div>
+            <h2 id="def-prompt-title" class="banner-title">Enemy is Attacking!</h2>
+            <p id="def-prompt-sub" class="abp-desc-text">Choose a defensive [Counter] card from your hand (or use Godclock [Reversal] "Horary Domination" if available) to defend, or Take the Hit:</p>
+            <div id="def-cards-list" class="def-cards-strip"></div>
+            <div class="banner-actions-row">
+              <button class="secondary-btn" onclick="battle.resolveDefenseChoice(null)">🛡️ Do Not Defend (Take Hit)</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= GODCLOCK 2x2 CONNECTED 4-CARD FLAG & REVERSAL MODAL ================= -->
+      <div id="godclock-modal" class="card-banner-backdrop hidden" onclick="if(event.target===this) battle.closeGodclockModal()">
+        <div class="modal-box godclock-box">
+          <div class="deck-search-header">
+            <div>
+              <h2 id="godclock-modal-title">⏳ GODCLOCK — CONNECTED 4-CARD FLAG & [REVERSAL]</h2>
+              <p id="godclock-modal-subtitle">Top-Left: <strong>Clock-I (#5958 ➔ #5962)</strong> • Top-Right: <strong>Clock-II (#5959 ➔ #5963)</strong> • Bottom-Left: <strong>Godclock (#5957 ➔ #5961)</strong> • Bottom-Right: <strong>Clock-III (#5960 ➔ #5964)</strong></p>
+            </div>
+          </div>
+          <div class="godclock-modal-layout">
+            <!-- Connected 2x2 Giant Artwork Preview (Click any quadrant to inspect its Card Detail Banner!) -->
+            <div class="godclock-2x2-preview" id="godclock-2x2-art"></div>
+            <!-- Individual Clock Controls -->
+            <div id="godclock-cards-row" class="godclock-controls-col"></div>
+          </div>
+          <div class="modal-actions center" id="godclock-actions"></div>
+        </div>
+      </div>
+
+      <!-- ================= DECK SEARCH & SHUFFLE MODAL ================= -->
+      <div id="deck-search-modal" class="card-banner-backdrop hidden" onclick="if(event.target===this) battle.closeDeckSearch()">
+        <div class="modal-box deck-search-box">
+          <div class="deck-search-header" style="flex-wrap:wrap; gap:10px;">
+            <div style="flex:1; min-width:260px;">
+              <h2 id="ds-title">🔍 SEARCH YOUR DECK & SHUFFLE</h2>
+              <p id="ds-subtitle">Select a matching card from your deck to add to your hand, then your deck will be automatically shuffled!</p>
+            </div>
+            <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+              <input type="text" id="ds-filter" class="search-input" style="min-width:200px;" placeholder="Filter by card name, words, or tribe..." oninput="battle.renderDeckSearchGrid()" />
+              <select id="ds-tribe" class="styled-select" onchange="battle.renderDeckSearchGrid()">
+                <option value="">All Tribes («Attribute»)</option>
+              </select>
+              <label style="display:flex; align-items:center; gap:5px; font-size:12px; color:#fde047; font-weight:700; cursor:pointer;">
+                <input type="checkbox" id="ds-only-matching" checked onchange="battle.renderDeckSearchGrid()" />
+                Only Valid Matches
+              </label>
+            </div>
+          </div>
+          <div id="ds-grid" class="card-grid compact-grid ds-scroll-grid"></div>
+          <div class="modal-actions center" id="ds-footer-actions">
+            <button class="action-btn" onclick="battle.shuffleDeckAndClose()">🔀 Shuffle Deck & Close</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= ANIME DRAMATIC CUT-IN OVERLAY ================= -->
+      <div id="anime-cutin" class="anime-cutin hidden">
+        <div class="cutin-stripe">
+          <img id="cutin-card-img" src="CardSprite/n46.png" alt="Cutin" />
+          <div class="cutin-text-block">
+            <div id="cutin-title" class="cutin-title">RAISE THE FLAG!</div>
+            <div id="cutin-sub" class="cutin-sub">Magic World!</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FLYING CARD & COMBAT SLASH ANIMATION LAYER -->
+      <div id="fx-layer" class="fx-layer"></div>
+    </section>
+  </main>
+
+  <!-- ================= GLOBAL PACK OPENING POPUP MODAL (FIXED CENTER OVERLAY!) ================= -->
+  <div id="pack-opening-modal" class="card-banner-backdrop hidden" onclick="if(event.target===this) app.closePackModal()">
+    <div class="modal-box pack-modal">
+      <h2 id="pack-modal-title">✨ BOOSTER PACK OPENED! ✨</h2>
+      <p class="pack-sub">Click any pulled card to inspect its full Card Detail Banner</p>
+      <div id="pack-cards-reveal" class="pack-reveal-row"></div>
+      <div class="modal-actions center">
+        <button class="primary-cta-btn" id="btn-reopen-pack" onclick="app.reopenLastPack()">🔄 Open Another Pack</button>
+        <button class="secondary-btn" onclick="app.closePackModal()">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= PACK PREVIEW POPUP (see every card in a pack before buying) ================= -->
+  <div id="pack-preview-modal" class="card-banner-backdrop hidden" onclick="if(event.target===this) app.closePackPreview()">
+    <div class="modal-box pack-preview-box">
+      <h2 id="pack-preview-title">👁 Cards in this Pack</h2>
+      <p id="pack-preview-sub" class="pack-sub"></p>
+      <div class="pack-preview-filters">
+        <input type="text" id="pack-preview-search" class="search-input" placeholder="Search card name..." oninput="app.renderPackPreview()" />
+        <select id="pack-preview-type" class="styled-select" onchange="app.renderPackPreview()"></select>
+        <select id="pack-preview-owned" class="styled-select" onchange="app.renderPackPreview()"></select>
+      </div>
+      <div id="pack-preview-grid" class="pack-preview-grid"></div>
+      <div class="modal-actions center">
+        <button class="primary-cta-btn" id="pack-preview-buy" onclick="app.buyFromPackPreview()">🪙 Buy Pack</button>
+        <button class="secondary-btn" id="pack-preview-close" onclick="app.closePackPreview()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= GLOBAL CARD INSPECT BANNER (From Shop / Collection / Deck Builder) ================= -->
+  <div id="global-card-modal" class="card-banner-backdrop hidden" onclick="if(event.target===this) app.closeCardModal()">
+    <div class="card-banner-panel">
+      <button class="banner-close-x" onclick="app.closeCardModal()">✕</button>
+      <div class="banner-card-art" id="mdl-art-wrap">
+        <img id="mdl-card-img" src="CardSprite/n1.png" alt="Card" />
+      </div>
+      <div class="banner-card-content">
+        <div class="banner-top-row">
+          <span class="banner-world-pill" id="mdl-card-world">World</span>
+          <span class="mdl-id-tag" id="mdl-card-id">#1</span>
+        </div>
+        <h2 id="mdl-card-name" class="banner-title">Card Name</h2>
+        <div id="mdl-card-stats" class="banner-stats-bar"></div>
+        <div id="mdl-card-kw" class="inspect-kw-badges"></div>
+        <div id="mdl-card-skill" class="banner-skill-scroll"></div>
+        <div id="mdl-card-flavor" class="mdl-flavor-box"></div>
+        <div class="banner-actions-row">
+          <button class="primary-cta-btn" id="mdl-add-deck-btn" onclick="app.addModalCardToDeck()">➕ Add to Current Deck</button>
+          <button class="primary-cta-btn" id="mdl-set-flag-btn" onclick="app.setModalCardAsFlag()">🏳️ Set as Deck Flag</button>
+          <button class="action-btn" id="mdl-set-buddy-btn" onclick="app.setModalCardAsBuddy()">🌟 Pick as Buddy</button>
+          <button class="secondary-btn" onclick="app.closeCardModal()">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= ONLINE MULTIPLAYER ROOM & DECK CODE LOBBY MODAL ================= -->
+  <div id="room-modal" class="card-banner-backdrop hidden" onclick="if(event.target===this) app.closeRoomModal()">
+    <div class="modal-box">
+      <h2>🌐 Online Multiplayer Room & Deck Code Lobby</h2>
+      <p>Create a Room Code to host a live match (another browser tab/window or friend can join with the Room Code), or paste a Friend's Room/Deck Code below!</p>
+
+      <div class="room-lobby-grid">
+        <div class="room-card-panel">
+          <h3>🏠 Host a Room</h3>
+          <p>Generate a 6-digit Room Code linked to your active deck:</p>
+          <div class="room-code-display" id="generated-room-code">------</div>
+          <button class="primary-cta-btn full-width" onclick="app.createMultiplayerRoom()">✨ Create Room & Generate Code</button>
+          <div id="room-host-status" class="room-status-text"></div>
+        </div>
+
+        <div class="room-card-panel">
+          <h3>🚀 Join a Room</h3>
+          <p>Enter a 6-digit Room Code (or paste a full Deck Code):</p>
+          <input type="text" id="join-room-input" class="search-input full-width" placeholder="Enter 6-digit Room Code (e.g. BF-4829) or Deck Code..." />
+          <button class="primary-cta-btn full-width" style="margin-top:10px;" onclick="app.joinMultiplayerRoom()">⚔️ Join Room & Start Battle!</button>
+        </div>
+      </div>
+
+      <div class="room-field" style="margin-top:16px;">
+        <label>📋 Your Shareable Deck Code (Copy & Send to Friends so they can import or battle your deck):</label>
+        <textarea id="my-deck-code" rows="2" readonly onclick="this.select()"></textarea>
+      </div>
+
+      <div class="modal-actions center">
+        <button class="action-btn" onclick="app.closeRoomModal(); app.startBattle('hotseat')">👥 Start 2P Local Hotseat</button>
+        <button class="secondary-btn" onclick="app.closeRoomModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PeerJS WebRTC for Real Online Multiplayer on GitHub Pages -->
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+  <script src="cards_data.js"></script>
+  <script src="game.js?v=20261029a"></script>
+  <script src="impact_monsters.js?v=20261029a"></script>
+  <script src="abilities_parser.js?v=20261029a"></script>
+  <script src="abilities_ui.js?v=20261029a"></script>
+  <script src="abilities_engine.js?v=20261029a"></script>
+  <script src="abilities_ops.js?v=20261029a"></script>
+  <script src="abilities_more.js?v=20261029a"></script>
+  <script src="abilities_r9.js?v=20261029a"></script>
+  <script src="abilities_r10.js?v=20261029a"></script>
+  <script src="abilities_gkw.js?v=20261029a"></script>
+  <script src="abilities_r13.js?v=20261029a"></script>
+  <script src="battle_fx.js?v=20261029a"></script>
+</body>
+</html>
