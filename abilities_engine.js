@@ -1144,7 +1144,8 @@
 
   /* ---- static (continuous) stat boosts, replacing the old per-line text guessing for lines ABX fully understands ---- */
   const STATIC_KW = ["penetrate", "counterattack", "double attack", "triple attack", "quadruple attack", "soulguard", "move", "weaponry link"];
-  const SPECIAL_LEGACY = /for each time your flags? \[reversal\]|overgod|endruler/i;
+  // ("for each time your flags [Reversal]" is read here now: the count is the fighter's real [Reversal] count)
+  const SPECIAL_LEGACY = /overgod|endruler/i;
   const STATIC_CACHE = new Map();
   function staticBoosts(card) {
     let r = STATIC_CACHE.get(card.id);
@@ -1154,6 +1155,10 @@
       const soulOnly = a.kind === "spell" && card.type === "Spell" && a.steps && a.steps.length && a.steps.every(x => x.op === "boost" && x.np && x.np.ref === "host");   // a Spell sitting in a soul: "A card with this card in its soul gets …"
       if ((a.kind !== "static" && !soulOnly) || (a.unparsed && a.unparsed.length) || !a.steps || !a.steps.length) return;
       if (SPECIAL_LEGACY.test(a.raw || a.cleaned || "")) return;
+      // "If this card is in the soul of X, that card gets A. Then, that card gets B": B keeps the soul condition
+      // (before, B also applied while this card was on the field, to itself). e.g. 6142 / 6227.
+      let soulC = null;
+      a.steps.forEach(x => { if (x.cond && x.cond.t === "selfInSoulOf") soulC = x.cond; else if (soulC && x.op === "boost" && !x.cond && x.np && x.np.ref) x.cond = soulC; });
       const boostOk = x => x.op === "boost" && x.np && !x.np.junk && !(x.np.zone && !["field", "center", "left", "right", "soul"].includes(x.np.zone.area)) && (x.mods.kws || []).every(k => STATIC_KW.includes(k)) && (!x.cond || condExecutable(x.cond));
       // Protection parts of a mixed line ("... get [Penetrate], and cannot be destroyed ...") are enforced by isProtected.
       const sideOk = x => x.op === "shield" || (x.op === "restrict" && isAuraRestrict(a, card, x)) || (x.op === "static" && ["protect", "unnullifiable", "unreducible", "noStatReduce"].includes(x.kind)) || (x.op === "noop" && x.note === "unnullifiable-ok");
@@ -1198,7 +1203,7 @@
               else if (st.np.ref) hit = (src.host ? src.host === unit : src.unit === unit) && (!st.np.hostFilter || matchFilter(unit.card, st.np.hostFilter, null, ctx));
               else hit = refsFor(st.np, ctx, { owner: "you", area: "field" }).some(r => r.unit === unit);
               if (!hit) continue;
-              const mult = st.each ? refsFor(st.each, ctx, { owner: "you", area: "field" }).length : 1;
+              const mult = !st.each ? 1 : st.each.perReversal ? (typeof getFighterReversalCount === "function" ? getFighterReversalCount(f) : 0) : refsFor(st.each, ctx, { owner: "you", area: "field" }).length;
               const lock = (stat, v) => (v < 0 && ABX.statLocked && ABX.statLocked(mySide, unit, stat, side !== mySide) ? 0 : v);
               out.power += lock("power", (st.mods.power || 0) * mult); out.defense += lock("defense", (st.mods.defense || 0) * mult); out.crit += lock("critical", (st.mods.critical || 0) * mult);
               (st.mods.kws || []).forEach(k => { if (k === "penetrate") out.pen = true; if (k === "double attack") out.da = true; if (k === "triple attack") out.ta = true; if (k === "counterattack") out.ca = true; if (k === "soulguard") out.sg = true; if (k === "move") out.move = true; if (k === "quadruple attack") out.qa = true; if (k === "weaponry link") out.wl = true; });

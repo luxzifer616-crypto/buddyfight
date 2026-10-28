@@ -1,0 +1,30 @@
+// Sweep: "if your flags [Reversal] N times or more" must be a flat bonus (no scaling with more reversals);
+// "for each time your flags [Reversal]" must scale.
+const { createEnv } = require("./headless.js");
+const env = createEnv({files:["cards_data.js","game.js","impact_monsters.js","abilities_parser.js","abilities_ui.js","abilities_engine.js","abilities_ops.js","abilities_more.js","abilities_r9.js","abilities_r10.js"]});
+const res = env.run(`(function(){
+ battle.start('hotseat', generateFlagDeck(447,'T',571,true), generateFlagDeck(447,'O',571,true)); battle.renderBattle=function(){};
+ const f=battle.plr; let nid=991000; const W={one:1,two:2,three:3,four:4,five:5,six:6};
+ const mku=(card)=>({card,rested:false,attacksLeft:1,soul:[1,2,3],tempPower:0,tempDef:0,tempCrit:0});
+ const out=[];
+ ALL_CARDS.forEach(c=>{ const s=c.skill||''; if(!/\\[reversal\\]/i.test(s) || !/power\\+|defense\\+|critical\\+/i.test(s)) return; if(!['Monster','Item','Spell'].includes(c.type)) return;
+   if (c.type==='Spell' && !/\\[set\\]/i.test(s)) return;
+   const m=s.match(/flags? \\[reversal\\] (\\w+) times? or more/i); const each=/for each time your flags \\[reversal\\]/i.test(s);
+   const N=m?(W[m[1].toLowerCase()]||parseInt(m[1])||1):1;
+   const tribes=[...s.matchAll(/«([^»]+)»/g)].map(x=>x[1].replace(/\\s+/g,''));
+   const dummy={id:++nid,name:'Dummy',type:'Monster',skill:'',cost:'',attrs:[...new Set([...(c.attrs||[]),...tribes])],worlds:c.worlds||[],world:c.world,img:'',size:1,power:5000,defense:5000,crit:1}; CARD_MAP.set(dummy.id,dummy);
+   const at=(rev)=>{ ['left','center','right'].forEach(p=>f.monsters[p]=null); f.item=null; f.setSpells=[]; f.godclock=f.godclock||{}; f.godclock.reversalCount=rev; f.godclock.overgodActive=false; if(ABX.resetCaches)ABX.resetCaches();
+     let self=null; if(c.type==='Monster'){self=mku(c); f.monsters.left=self;} else if(c.type==='Item'){self=mku(c); f.item=self;} else f.setSpells=[c];
+     const d=mku(dummy); f.monsters.center=d; const a=self?getUnitEffectiveCombatStats(f,self):null; const b=getUnitEffectiveCombatStats(f,d);
+     return JSON.stringify([a&&[a.power,a.defense,a.crit],[b.power,b.defense,b.crit]]); };
+   const r=[0,N-1,N,N+1,N+3].map(at);
+   const flatOK = r[2]===r[3] && r[3]===r[4];
+   out.push({id:c.id,name:c.name,N,each,flatOK,r});
+ });
+ return out; })()`);
+res.forEach(r=>console.log("ALL",r.id,r.name,r.flatOK,r.r.join("  ")));
+const show = res.filter(r => !r.each && !r.flatOK);
+console.log("cards checked", res.length, "| conditional bonus that keeps growing:", show.length);
+show.forEach(r=>console.log(r.id, r.name, "N="+r.N, r.r.join("  ")));
+console.log("--- 'for each time' cards:");
+res.filter(r=>r.each).forEach(r=>console.log(r.id, r.name, r.r.join("  ")));

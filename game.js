@@ -906,7 +906,11 @@ function getUnitEffectiveCombatStats(fighter, unit) {
         defense += 4000;
       }
     });
-    if (revCnt >= 2 && getAllFieldUnits(fighter).some(u => u.card && u.card.id === 6046)) {
+    // (only if the new engine doesn't apply this aura itself — before, both did: +20000 / +2)
+    const zeit = CARD_MAP.get(6046);
+    const zeitLine = zeit ? (zeit.skill || "").split(/\n+/).find(l => /time dragon/i.test(l) && /power\+10000/i.test(l)) : null;
+    const abxOwnsZeit = !!(zeitLine && window.ABX && ABX.ownsStaticLine && ABX.ownsStaticLine(zeit, zeitLine));
+    if (!abxOwnsZeit && revCnt >= 2 && getAllFieldUnits(fighter).some(u => u.card && u.card.id === 6046)) {
       power += 10000;
       crit += 1;
     }
@@ -914,7 +918,7 @@ function getUnitEffectiveCombatStats(fighter, unit) {
 
   // Check per-Reversal scaling (e.g. Time Scout, Val #6055)
   const perRevMatch = s.match(/gets?\s+power\+(\d+)\s+and\s+defense\+(\d+)\s+for\s+each\s+time\s+your\s+flags\s+\[reversal\]/i);
-  if (perRevMatch && revCnt > 0) {
+  if (perRevMatch && revCnt > 0 && !(window.ABX && ABX.ownsStaticLine && ABX.ownsStaticLine(c, (s.split(/\n+/).find(l => perRevMatch[0] && l.includes(perRevMatch[0])) || "")))) {
     power += parseInt(perRevMatch[1], 10) * revCnt;
     defense += parseInt(perRevMatch[2], 10) * revCnt;
   }
@@ -1508,6 +1512,16 @@ function classifyDefensiveCounterCard(card) {
   // Exclude spell-nullifiers ("when your opponent casts a spell")
   if (sLow.includes("when your opponent cast") && sLow.includes("spell") && !sLow.includes("nullify the attack")) {
     return null;
+  }
+
+  // Monsters / items are only [Counter] HAND cards if a [Counter] line is used from the hand
+  // ("discard this card from your hand", "drop this hand card", "call this card from your hand").
+  // Their other [Counter] [Act] abilities are used from the field / soul / drop zone (ABX.fieldCounterOptions),
+  // e.g. Time General, Zeitwelg (6046) — before, the old code let you play it from the hand like a spell.
+  if (card.type === "Monster" || card.type === "Item") {
+    const HAND_LINE = /\b(?:discard|drop) this (?:hand )?card\b(?! from (?:the|your) (?:field|soul|drop))|\bthis hand card\b|\bthis card from (?:your )?hand\b|\bthis card in your hand\b/i;
+    const counterLines = s.split(/\n+/).filter(l => /\[counter\]/i.test(l));
+    if (!counterLines.some(l => HAND_LINE.test(l))) return null;
   }
 
   // 1. Attack Nullifiers / Battle Enders
@@ -4682,18 +4696,7 @@ const battle = {
 
     const strip = document.getElementById("def-cards-list");
     strip.innerHTML = "";
-    defOptions.forEach(opt => {
-      const cost = parseCardCost(opt.card.cost, opt.card.skill, this.plr, opt.card);
-      const div = document.createElement("div");
-      div.className = "def-option-card";
-      div.onclick = () => this.resolveDefenseChoice(opt.handIdx);
-      div.innerHTML = `
-        <img src="${opt.card.img}" alt="${escapeHtml(opt.card.name)}" />
-        <div class="def-option-title">${escapeHtml(opt.card.name)}</div>
-        <div class="tile-sub">${cost.gauge ? cost.gauge + " Gauge" : "0 Gauge"}</div>
-      `;
-      strip.appendChild(div);
-    });
+    defOptions.forEach(opt => strip.appendChild(this.buildDefenseOptionTile(opt, this.plr)));
     document.getElementById("defense-prompt-modal").classList.remove("hidden");
   },
 
@@ -4712,6 +4715,9 @@ const battle = {
     if (!ctx) return;
     if (msg.chosenHandIdx === null || msg.chosenHandIdx === undefined) {
       this.executeAttackResolution(ctx.attSide, ctx.attackerZones, ctx.targetPos, false);
+    } else if (typeof msg.chosenHandIdx === "object" && typeof msg.chosenHandIdx.fieldKey === "string") {
+      // the friend used a field [Counter] [Act]: re-checked here against the real board (ABX.useFieldCounter)
+      this.applyFieldCounterAbility("opp", msg.chosenHandIdx.fieldKey, ctx.attSide, ctx.attackerZones, ctx.targetPos);
     } else {
       this.applyDefensiveCounterCard("opp", msg.chosenHandIdx, ctx.attSide, ctx.attackerZones, ctx.targetPos);
     }
@@ -6749,7 +6755,61 @@ const battle = {
       }
     });
 
+    // [Counter] [Act] abilities of cards on the field / in a soul / [Set] spells / drop zone (ABX):
+    // the defending player CHOOSES to use them here (never automatic). e.g. Zeitwelg "end that battle".
+    if (window.ABX && ABX.fieldCounterOptions) {
+      ABX.fieldCounterOptions(defSide, { attUnits, targetPos }).forEach(o => {
+        valid.push({ card: o.card, handIdx: null, fieldKey: o.key, fieldLabel: o.label, fieldSub: o.sub, info: { category: "abx_field_act", nullifies: o.nullifies } });
+      });
+    }
+
     return valid;
+  },
+
+  // One option tile in the defense window (hand card or field ability).
+  buildDefenseOptionTile(opt, fighter) {
+    const div = document.createElement("div");
+    div.className = "def-option-card";
+    if (opt.fieldKey) {
+      div.style.borderColor = "#38bdf8";
+      div.title = opt.fieldSub || "";
+      div.onclick = () => this.resolveDefenseChoice({ fieldKey: opt.fieldKey });
+      div.innerHTML = `
+        <img src="${opt.card.img}" alt="${escapeHtml(opt.card.name)}" />
+        <div class="def-option-title">${escapeHtml(opt.card.name)}</div>
+        <div class="tile-sub">✨ ${escapeHtml((opt.fieldSub || "Field [Counter] [Act]").replace(/^\[counter\]\s*\[act\]\s*/i, "").slice(0, 70))}</div>
+      `;
+      return div;
+    }
+    const cost = parseCardCost(opt.card.cost, opt.card.skill, fighter, opt.card);
+    div.onclick = () => this.resolveDefenseChoice(opt.handIdx);
+    div.innerHTML = `
+      <img src="${opt.card.img}" alt="${escapeHtml(opt.card.name)}" />
+      <div class="def-option-title">${escapeHtml(opt.card.name)}</div>
+      <div class="tile-sub">${cost.gauge ? cost.gauge + " Gauge" : "0 Gauge"}</div>
+    `;
+    return div;
+  },
+
+  // Use a field [Counter] [Act] picked in the defense window, then resolve the attack.
+  applyFieldCounterAbility(defSide, fieldKey, attSide, attackerZones, targetPos) {
+    if (!(window.ABX && ABX.useFieldCounter)) {
+      this.executeAttackResolution(attSide, attackerZones, targetPos, false);
+      return;
+    }
+    ABX.useFieldCounter(defSide, fieldKey, { attackerZones, targetPos }).then(res => {
+      if (this.matchOver) return;
+      // the ability may have removed every attacker (e.g. "destroy a monster on your opponent's field")
+      const attF = this.getFighter(attSide);
+      const left = attackerZones.some(z => (z === "item" ? attF.item : attF.monsters[z]));
+      if (!left) {
+        this.setPrompt("🛡️ The attacking card left the field — the attack ends.");
+        this.renderBattle();
+        if (attSide === "opp" && this.opp.isBot && this.oppContinueCallback) setTimeout(this.oppContinueCallback, 650);
+        return;
+      }
+      this.executeAttackResolution(attSide, attackerZones, res.targetPos || targetPos, !!res.nullified);
+    });
   },
 
   // "End the attack phase" (ABX): move the attacker to the Final Phase once the current battle is over.
@@ -6855,27 +6915,22 @@ const battle = {
         });
       }
 
-      defOptions.forEach(opt => {
-        const cost = parseCardCost(opt.card.cost, opt.card.skill, defFighter, opt.card);
-        const div = document.createElement("div");
-        div.className = "def-option-card";
-        div.onclick = () => this.resolveDefenseChoice(opt.handIdx);
-        div.innerHTML = `
-          <img src="${opt.card.img}" alt="${escapeHtml(opt.card.name)}" />
-          <div class="def-option-title">${escapeHtml(opt.card.name)}</div>
-          <div class="tile-sub">${cost.gauge ? cost.gauge + " Gauge" : "0 Gauge"}</div>
-        `;
-        strip.appendChild(div);
-      });
+      defOptions.forEach(opt => strip.appendChild(this.buildDefenseOptionTile(opt, defFighter)));
 
       document.getElementById("defense-prompt-modal").classList.remove("hidden");
       return;
     }
 
     if (defFighter.isBot && defOptions.length > 0) {
+      // Field [Counter] [Act] that stops the attack (e.g. Zeitwelg "end that battle"), when it is worth it
+      const fieldOpts = defOptions.filter(o => o.fieldKey);
+      if (fieldOpts.length && window.ABX && ABX.botFieldCounterPick) {
+        const pick = ABX.botFieldCounterPick(defSide, { attUnits: units, targetPos }, fieldOpts.map(o => ({ key: o.fieldKey, nullifies: o.info.nullifies })));
+        if (pick) { this.applyFieldCounterAbility(defSide, pick.key, attSide, attackerZones, targetPos); return; }
+      }
       if (targetPos === "fighter" && defFighter.life <= 6) {
         // When fighter is attacked directly, bot can only use nullify_attack or damage_reduce spells!
-        const fighterDefOpt = defOptions.find(o => o.info && (o.info.category === "nullify_attack" || o.info.category === "damage_reduce"));
+        const fighterDefOpt = defOptions.find(o => !o.fieldKey && o.info && (o.info.category === "nullify_attack" || o.info.category === "damage_reduce"));
         if (fighterDefOpt) {
           this.applyDefensiveCounterCard(defSide, fighterDefOpt.handIdx, attSide, attackerZones, targetPos);
           return;
@@ -6922,6 +6977,8 @@ const battle = {
 
     if (chosenHandIdx === null || chosenHandIdx === undefined) {
       this.executeAttackResolution(ctx.attSide, ctx.attackerZones, ctx.targetPos, false);
+    } else if (typeof chosenHandIdx === "object" && chosenHandIdx.fieldKey) {
+      this.applyFieldCounterAbility(ctx.defSide, chosenHandIdx.fieldKey, ctx.attSide, ctx.attackerZones, ctx.targetPos);
     } else {
       this.applyDefensiveCounterCard(ctx.defSide, chosenHandIdx, ctx.attSide, ctx.attackerZones, ctx.targetPos);
     }
