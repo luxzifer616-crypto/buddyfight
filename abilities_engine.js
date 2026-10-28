@@ -1249,6 +1249,7 @@
       if (!(ab.conds || []).every(c => condExecutable(c) && evalCond(c, ctx))) continue;
       for (const st of ab.steps || []) {
         if (st.op !== "static" || st.kind !== "attackThrough") continue;
+        if (st.cond && !(condExecutable(st.cond) && evalCond(st.cond, ctx))) continue;
         const raw = lc(st.raw || "");
         const own = /\byour center\b|\byou have\b/.test(raw) && !/opponent/.test(raw);
         if ((which === "own") !== own) continue;
@@ -1282,6 +1283,7 @@
   function sizeModMatches(m, card, unit, srcUnit, ctx) {
     if (m.origSize != null && !(m.origLe ? (card.size || 0) <= m.origSize : (card.size || 0) === m.origSize)) return false;
     if (!isMonsterCard(card)) return false;
+    if (m.leftRightOnly && unit && ctx.f && ctx.f.monsters && ctx.f.monsters.center === unit) return false;
     if (m.np.excludeSelf && srcUnit && unit && srcUnit === unit) return false;
     if (/\bother\b/i.test(m.np.raw || "") && srcUnit && unit === srcUnit) return false;
     return matchFilter(card, m.np.filter || {}, unit ? { unit, side: ctx.side } : null, ctx);
@@ -1343,6 +1345,7 @@
         if (!sm || (ab.steps || []).length !== 1) continue;
         const ctx = { side, f: fighter, e: F(otherSide(side)), card, unit: unit || null, bind: {} };
         if (!(ab.conds || []).every(c => condExecutable(c) && evalCond(c, ctx))) continue;
+        if (sm.cond && !(condExecutable(sm.cond) && evalCond(sm.cond, ctx))) continue;
         // "... is reduced by 1 for each X" (abilities_r18.js)
         d += (sm.delta || 0) * (sm.each ? countEach(sm.each, ctx) : 1);
       }

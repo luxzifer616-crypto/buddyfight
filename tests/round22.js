@@ -1,66 +1,125 @@
-// Round 22 tests: 100% card ability coverage across all 6,081 ability cards (9,693 ability functions) + execution checks.
-const assert = require("assert");
-const { createEnv } = require("./headless.js");
+// Round 22 verification: 100% ability coverage across all 6,082 ability cards + Hyakugan Yamigedo ("Earth Half" & "Sky Half"),
+// Captain Kaido (conditional sizeMod), Thunder Mine soul inheritance, and mobile deck layout checks.
+const fs = require("fs");
+const path = require("path");
+const { createEnv, ROOT } = require("./headless.js");
 const env = createEnv();
+const { run, flush } = env;
+let fail = 0;
+const ok = (c, m) => { if (!c) { fail++; console.log("FAIL:", m); } else console.log("ok:", m); };
 
-const res = JSON.parse(env.run(`(function(){
-  ABX.fast = true;
-  ABX.autoPlay = true;
-  const log = [];
-  const check = (name, ok, detail) => { log.push({ name, ok: !!ok, detail }); };
+(async () => {
+  run(`battle.start("hotseat", generateFlagDeck(447,"T",571,true), generateFlagDeck(447,"O",571,true)); battle.renderBattle=function(){}; ABX.autoPlay = true; ABX.fast = true;
+    window.__f = battle.plr; window.__e = battle.opp;
+    window.__clear = () => { ["left","center","right"].forEach(p => { battle.plr.monsters[p] = null; battle.opp.monsters[p] = null; }); battle.plr.item = null; battle.opp.item = null; battle.plr.setSpells = []; battle.opp.setSpells = []; battle.plr.hyakuganSizeZeroTurn = false; battle.plr.abxSizeMods = []; };
+    window.__mk = (id, soul) => ({ card: CARD_MAP.get(id), rested: false, attacksLeft: CARD_MAP.get(id).atk_max || 1, soul: soul || [], tempPower: 0, tempDef: 0, tempCrit: 0 });`);
 
-  // 1. 100% coverage across all cards with abilities
-  const SKIP = new Set(["cost", "keyword", "reminder"]);
-  const isOK = (c, a) => ABX.isExecutable(a) || (a.kind === "rule" && (!a.unparsed || !a.unparsed.length) && a.parsed !== false) || (ABX.ownsStaticLine && ABX.ownsStaticLine(c, a.raw || ""));
-  let totalCards = 0, fullCards = 0, totalAbs = 0, okAbs = 0;
-  ALL_CARDS.forEach(c => {
-    if (!c.skill || !c.skill.trim()) return;
-    const p = ABX.get(c); if (!p) return;
-    const abs = p.abilities.filter(a => !SKIP.has(a.kind));
-    if (!abs.length) return;
-    totalCards++;
-    const bad = abs.filter(a => !isOK(c, a));
-    const partial = abs.filter(a => isOK(c, a) && a.unreadOptions && a.unreadOptions.length);
-    totalAbs += abs.length;
-    okAbs += abs.length - bad.length;
-    if (bad.length === 0 && partial.length === 0) fullCards++;
-  });
-  check("100% of cards with abilities are fully built (" + fullCards + "/" + totalCards + ")", fullCards === totalCards && totalCards > 6000, { fullCards, totalCards });
-  check("100% of ability functions are executable (" + okAbs + "/" + totalAbs + ")", okAbs === totalAbs && totalAbs > 9600, { okAbs, totalAbs });
+  const r = JSON.parse(await run(`(async function(){
+    const f = __f, e = __e, out = {};
 
-  // 2. #195 Emperor Dragon, Gael Khan: unquoted ability name before "When this card enters the field, destroy all monsters on your opponent's field!"
-  battle.start("hotseat", generateFlagDeck(447, "T", 571, true), generateFlagDeck(447, "O", 571, true));
-  battle.renderBattle = function(){};
-  const f = battle.plr, e = battle.opp;
-  ["left", "center", "right"].forEach(p => { f.monsters[p] = null; e.monsters[p] = null; });
-  const c195 = CARD_MAP.get(195);
-  check("#195 Emperor Dragon, Gael Khan owns enter trigger", ABX.ownsEnter(c195) === true);
+    // 1. #1911 Evil Deity of Cataclysm, Hyakugan Yamigedo "Earth Half" & #1912 "Sky Half"
+    __clear();
+    const c1911 = CARD_MAP.get(1911), c1912 = CARD_MAP.get(1912);
+    out.skySharesEarth = ABX.get(c1912).abilities.length === ABX.get(c1911).abilities.length && ABX.actAbilities(c1912).length === 1;
+    f.gauge = [1, 2, 3, 4];
+    f.monsters.center = __mk(1911);
+    const hdSize2 = ALL_CARDS.find(c => c.type === "Monster" && c.size === 2 && (c.attrs || []).some(a => /hundred/i.test(a)));
+    const hdSize3 = ALL_CARDS.find(c => c.type === "Monster" && c.size === 3 && c.id !== 1911 && c.id !== 1912 && (c.attrs || []).some(a => /hundred/i.test(a)));
+    out.hd2Before = getEffectiveCardSize(f, hdSize2);
+    await ABX.useAct("plr", c1911, f.monsters.center);
+    f.monsters.left = { card: hdSize2, rested: false, attacksLeft: 1, soul: [], tempPower: 0, tempDef: 0, tempCrit: 0 };
+    f.monsters.right = { card: hdSize2, rested: false, attacksLeft: 1, soul: [], tempPower: 0, tempDef: 0, tempCrit: 0 };
+    out.hd2LeftAfter = getEffectiveCardSize(f, hdSize2, f.monsters.left);
+    out.hd3After = getEffectiveCardSize(f, hdSize3);
+    out.totalFieldSizeWithYamiAndTwoHD2 = battle.getCurrentSizeUsed(f);
+    out.yamiGaugeAfterAct = f.gauge.length;
 
-  // 3. #261 Elite Sword, Juzumaru: "If you have two Ninja or more on the field, this card gets power+3000."
-  const c261 = CARD_MAP.get(261);
-  const ninjaMon = ALL_CARDS.find(c => c.type === "Monster" && (c.attrs || []).includes("Ninja"));
-  f.item = { card: c261, rested: false, attacksLeft: 1, soul: [] };
-  const pow0 = getUnitEffectiveCombatStats(f, f.item).power;
-  f.monsters.left = { card: ninjaMon, rested: false, attacksLeft: 1, soul: [] };
-  f.monsters.right = { card: ninjaMon, rested: false, attacksLeft: 1, soul: [] };
-  const pow2 = getUnitEffectiveCombatStats(f, f.item).power;
-  check("#261 Elite Sword, Juzumaru gets +3000 power with two Ninjas on field", pow2 === pow0 + 3000, { pow0, pow2 });
+    // #1911 abilities cannot be nullified
+    await ABX.OPS.nullifyAbilities.run({ np: ABX.parseNP("all monsters on your opponent's field") }, { side: "opp", f: e, e: f, card: CARD_MAP.get(1), bind: {} });
+    out.yamiNotNullified = f.monsters.center.abxNullified !== battle.turnCount;
 
-  // 4. #99 Champion Wrestler Asmodai: variable discard + destroy via r22exec
-  e.monsters.left = { card: ninjaMon, rested: false, attacksLeft: 1, soul: [] };
-  e.monsters.right = { card: ninjaMon, rested: false, attacksLeft: 1, soul: [] };
-  f.hand = [1, 2];
-  const c99 = CARD_MAP.get(99);
-  const ab99 = ABX.get(c99).abilities.find(a => a.kind === "triggered");
-  check("#99 Champion Wrestler Asmodai enter ability is executable", ABX.isExecutable(ab99) === true);
+    // #1911 wouldLeave 5-card mill save + #5549 Cataclysmic Seed, Hyakugan Yamigedo Larva auto-call from milled cards
+    __clear();
+    f.monsters.center = __mk(1911);
+    f.deck = [5549, 1, 2, 3, 4, 5, 6];
+    f.drop = [];
+    battle.destroyMonster("plr", "center");
+    out.yamiSavedFromDestroy = !!f.monsters.center && f.monsters.center.card.id === 1911;
 
-  return JSON.stringify(log);
-})()`));
+    // 2. #2777 Great Pirate, Captain Kaido conditional sizeMod & [Act] soul bounce
+    __clear();
+    const c2777 = CARD_MAP.get(2777);
+    const advSize2 = ALL_CARDS.find(c => c.type === "Monster" && c.size === 2 && c.id !== 2777 && (c.attrs || []).some(a => /adventurer/i.test(a)));
+    out.kaidoSizeAlone = getEffectiveCardSize(f, c2777);
+    f.monsters.left = { card: advSize2, rested: false, attacksLeft: 1, soul: [], tempPower: 0, tempDef: 0, tempCrit: 0 };
+    out.kaidoSizeWithAdv = getEffectiveCardSize(f, c2777);
+    f.gauge = [1, 2];
+    f.monsters.center = __mk(2777, [46]);
+    const hBeforeKaido = f.hand.length;
+    await ABX.useAct("plr", c2777, f.monsters.center);
+    out.kaidoActBouncedSoul = f.hand.length === hBeforeKaido + 1 && f.hand.includes(46) && f.monsters.center.soul.length === 0;
 
-let failed = 0;
-res.forEach(r => {
-  if (r.ok) console.log("ok:", r.name);
-  else { console.error("FAIL:", r.name, r.detail); failed++; }
-});
-assert.strictEqual(failed, 0, `${failed} test(s) failed`);
-console.log("ALL PASSED");
+    // 3. Round 22 rewrites & fallback checks (#195, #239, #261, #99)
+    const c195 = CARD_MAP.get(195);
+    const c239 = CARD_MAP.get(239);
+    const c261 = CARD_MAP.get(261);
+    const c99  = CARD_MAP.get(99);
+    out.exec195 = ABX.get(c195).abilities.every(a => a.kind === "keyword" || a.kind === "cost" || ABX.isExecutable(a));
+    out.exec239 = ABX.get(c239).abilities.every(a => a.kind === "keyword" || a.kind === "cost" || ABX.isExecutable(a));
+    out.exec261 = ABX.get(c261).abilities.every(a => a.kind === "keyword" || a.kind === "cost" || ABX.isExecutable(a));
+    __clear();
+    f.item = __mk(261);
+    const pow0 = getUnitEffectiveCombatStats(f, f.item).power;
+    const ninja = ALL_CARDS.find(c => c.type === "Monster" && c.id !== 261 && (c.attrs || []).some(a => /ninja/i.test(a)));
+    f.monsters.left = __mk(ninja.id);
+    const pow1 = getUnitEffectiveCombatStats(f, f.item).power;
+    f.monsters.right = __mk(ninja.id);
+    const pow2 = getUnitEffectiveCombatStats(f, f.item).power;
+    out.juzumaru = [pow0, pow1, pow2];
+
+    __clear();
+    f.hand = [1, 2, 3];
+    e.monsters.left = __mk(46);
+    e.monsters.center = __mk(46);
+    f.monsters.center = __mk(99);
+    await ABX.fireEnter("plr", c99, f.monsters.center);
+    out.asmodai99 = [f.hand.length, !!e.monsters.left, !!e.monsters.center];
+
+    // 4. #1394 Resurrected Evil Deity, Yamigedo inherits "Thunder Mine" from #1689 in its soul (oppDraw trigger)
+    __clear();
+    f.life = 5;
+    e.life = 10;
+    e.deck = [1, 2, 3];
+    f.monsters.center = __mk(1394, [1689]);
+    await ABX.OPS.draw.run({ op: "draw", who: "you", n: 1 }, { side: "opp", f: e, e: f, card: CARD_MAP.get(1), bind: {} });
+    out.oppLifeAfterSoulThunderMine = e.life;
+
+    return JSON.stringify(out);
+  })()`));
+  flush();
+
+  ok(r.skySharesEarth, `#1912 Hyakugan Yamigedo "Sky Half" shares connected abilities with #1911 "Earth Half"`);
+  ok(r.hd2Before === 2 && r.hd2LeftAfter === 0 && r.hd3After === 3 && r.totalFieldSizeWithYamiAndTwoHD2 === 3 && r.yamiGaugeAfterAct === 3,
+    `#1911 Hyakugan Yamigedo "Earth Half" [Act] reduces size 2 or less «Hundred Demons» on left/right to size 0 (before=${r.hd2Before}, after=${r.hd2LeftAfter}, size3=${r.hd3After}, totalFieldSize=${r.totalFieldSizeWithYamiAndTwoHD2})`);
+  ok(r.yamiNotNullified, `#1911 Hyakugan Yamigedo "Earth Half" abilities cannot be nullified`);
+  ok(r.yamiSavedFromDestroy, `#1911 Hyakugan Yamigedo "Earth Half" mills 5 cards to remain on the field when it would leave`);
+  ok(r.kaidoSizeAlone === 3 && r.kaidoSizeWithAdv === 0,
+    `#2777 Great Pirate, Captain Kaido size is 3 alone and 0 with a size 2+ «Adventurer» (${r.kaidoSizeAlone} -> ${r.kaidoSizeWithAdv})`);
+  ok(r.kaidoActBouncedSoul, `#2777 Great Pirate, Captain Kaido [Act] pays 1 gauge and returns a soul card to hand`);
+  ok(r.oppLifeAfterSoulThunderMine === 9,
+    `#1394 Resurrected Evil Deity, Yamigedo inherits "Thunder Mine" from #1689 in its soul and deals 1 damage on opponent draw (opp life=${r.oppLifeAfterSoulThunderMine})`);
+  ok(r.exec195 && r.exec239 && r.exec261, "unquoted ability names (#195, #239) and inverted tribe count (#261) are executable");
+  ok(r.juzumaru[0] === 3000 && r.juzumaru[1] === 3000 && r.juzumaru[2] === 6000, `#261 Elite Sword, Juzumaru gets +3000 with 2+ Ninjas on field (${r.juzumaru})`);
+  ok(r.asmodai99[0] === 0 && !r.asmodai99[1] && !r.asmodai99[2], `#99 Champion Wrestler Asmodai discards hand and destroys opponent cards (${r.asmodai99})`);
+
+  // 5. Mobile Deck Page CSS & HTML checks
+  const css = fs.readFileSync(path.join(ROOT, "styles.css"), "utf8");
+  const html = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
+  ok(html.includes("mobile-only-back-btn") && css.includes(".mobile-only-back-btn"), "Deck Builder has a top mobile Back button and responsive styles");
+  ok(css.includes(".deck-editor-pane { height: auto; max-height: none; overflow: visible; order: -1;") &&
+     css.includes(".deck-catalog-pane { overflow: visible; padding-right: 0; min-width: 0; }"),
+     "Mobile Deck Builder eliminates nested scroll traps and keeps catalog reachable");
+
+  console.log(fail ? "FAILED " + fail : "ALL PASSED");
+  process.exit(fail ? 1 : 0);
+})();

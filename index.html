@@ -17,7 +17,7 @@
       }
       function compute(pref) {
         var w = window.innerWidth, h = window.innerHeight;
-        if (w <= 820) return 1;                               // phone / small tablet layout
+        if (w <= 820 || h <= 540) return 1;                   // phone / small tablet layout (portrait & landscape)
         var fit = Math.max(1, Math.min(w / MIN_W, h / MIN_H));
         var z = pref === "auto"
           ? Math.max(1, Math.min(w / BASE_W, h / BASE_H))
@@ -51,7 +51,7 @@
     })();
   </script>
   <title>Future Card Buddyfight — Complete Anime Simulator</title>
-  <link rel="stylesheet" href="styles.css?v=20261029i" />
+  <link rel="stylesheet" href="styles.css?v=20261029j" />
   <link rel="stylesheet" href="battle_fx.css?v=20261029f" />
 </head>
 <body>
@@ -378,6 +378,7 @@
         <!-- Right Current Deck List -->
         <div class="deck-editor-pane">
           <div class="deck-name-edit-bar">
+            <button class="action-btn small mobile-only-back-btn" onclick="app.backToDeckOverview()" data-i18n="btn_back_decks">⬅️ Back</button>
             <input type="text" id="dk-name-input" class="search-input" placeholder="Enter Deck Name..." oninput="app.renameCurrentDeck(this.value)" />
             <button class="action-btn small" onclick="app.exportCurrentDeckCode()" title="Copy Shareable Deck Code">📋 Code</button>
             <button class="action-btn small" onclick="app.autoBuildDeck()" title="Fill the deck up to 50 cards (keeps your cards)">⚡ Auto</button>

@@ -1295,7 +1295,7 @@
       ctx.lastCount = pick.length; return true;
     },
     dropSoul(s, ctx) { const u = ctx.unit; if (!u || !(u.soul || []).length) return false; const n = Math.min(s.n || 1, u.soul.length); if ((s.n || 1) > u.soul.length) return false; for (let i = 0; i < n; i++) ctx.f.drop.push(u.soul.pop()); ctx.lastCount = n; return true; },
-    mill(s, ctx) { const f = F(s.who === "opp" ? otherSide(ctx.side) : ctx.side); const n = typeof s.n === "number" ? s.n : 1; const ids = f.deck.splice(0, n); if (s.to === "gauge") f.gauge.push(...ids); else f.drop.push(...ids); ctx.bind.revealed = ids.map(id => ({ k: "zone", side: ctx.side, area: "drop", id, card: cardOf(id) })); ctx.bind.chosen = ctx.bind.revealed.slice(); ctx.lastCount = ids.length; return ids.length > 0; },
+    mill(s, ctx) { const f = F(s.who === "opp" ? otherSide(ctx.side) : ctx.side); const n = typeof s.n === "number" ? s.n : 1; if (f.deck.length < n) return false; const ids = f.deck.splice(0, n); if (s.to === "gauge") f.gauge.push(...ids); else { f.drop.push(...ids); if (ABX.fireDeckToDrop) ABX.fireDeckToDrop(s.who === "opp" ? otherSide(ctx.side) : ctx.side, ids); } ctx.bind.revealed = ids.map(id => ({ k: "zone", side: ctx.side, area: "drop", id, card: cardOf(id) })); ctx.bind.chosen = ctx.bind.revealed.slice(); ctx.lastCount = ids.length; return ids.length === n; },
     moveSelf(s, ctx) { return removeSelf(ctx); },
     move(s, ctx) { if (s.np && s.np.self && s.to && s.to.area === "drop zone") return removeSelf(ctx); return false; },
     destroy(s, ctx) {
@@ -1337,7 +1337,7 @@
     // the whole "you may ..." part is one question
     const opt = ab.steps.filter(x => x.optional);
     if (opt.length) {
-      if (!opt.every(x => x.op !== "pay" || ((x.gauge || 0) <= f.gauge.length && !(x.life && f.life <= x.life)))) return ctx;
+      if (!opt.every(x => (x.op !== "pay" || ((x.gauge || 0) <= f.gauge.length && !(x.life && f.life <= x.life))) && (x.op !== "mill" || f.deck.length >= (x.n || 1)))) return ctx;
       if (!askYes(side, card, `${extra && extra.question || "Use this ability"}? (${opt.map(describe).join(", ")})`)) return ctx;
     }
     for (const x of ab.steps) {

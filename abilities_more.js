@@ -54,6 +54,7 @@
           if (st.byOpp && !byOpp) continue;
           const ctx = { side, f, e: F(otherSide(side)), card: x.unit.card, unit: x.unit, bind: { chosen: [] } };
           if (!(ab.conds || []).every(c => evalCond(c, ctx))) continue;
+          if (st.cond && !evalCond(st.cond, ctx)) continue;
           if (refsFor(st.np, ctx, { owner: "you", area: "field" }).some(r => r.unit === unit)) return true;
         }
       }
@@ -95,6 +96,7 @@
           if (st.cond === "alone" && us.length > 1) continue;
           const ctx = { side: attSide, f: F(attSide), e: F(otherSide(attSide)), card: u.card, unit: u, bind: {} };
           if (!(ab.conds || []).every(c => ABX.condExecutable(c) && evalCond(c, ctx))) continue;
+          if (st.cond && st.cond !== "alone" && typeof st.cond === "object" && !(ABX.condExecutable(st.cond) && evalCond(st.cond, ctx))) continue;
           return true;
         }
       }

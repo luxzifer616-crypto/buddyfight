@@ -788,7 +788,7 @@ function getEffectiveCardSize(fighter, card, unit) {
   const s = (card.skill || "").toLowerCase();
   const revCnt = getFighterReversalCount(fighter);
 
-  if (fighter && fighter.hyakuganSizeZeroTurn && sz <= 2 && (card.attrs || []).some(a => normalizeSearchToken(a).includes("hundreddemon"))) {
+  if (fighter && fighter.hyakuganSizeZeroTurn && sz <= 2 && !(unit && fighter.monsters && fighter.monsters.center === unit) && (card.attrs || []).some(a => normalizeSearchToken(a).includes("hundreddemon"))) {
     return 0;
   }
 
@@ -6465,8 +6465,16 @@ const battle = {
     if (isYami) {
       const otherId = getOtherYamigedoHalfId(rawCard.id);
       const otherHandIdx = f.hand.indexOf(otherId);
+      const otherDeckIdx = isAbilityCall ? f.deck.indexOf(otherId) : -1;
+      const otherDropIdx = isAbilityCall ? f.drop.indexOf(otherId) : -1;
       if (otherHandIdx !== -1) {
         f.hand.splice(otherHandIdx, 1);
+        pairedHalfIds = [YAMIGEDO_SKY_ID, YAMIGEDO_EARTH_ID];
+      } else if (otherDeckIdx !== -1) {
+        f.deck.splice(otherDeckIdx, 1);
+        pairedHalfIds = [YAMIGEDO_SKY_ID, YAMIGEDO_EARTH_ID];
+      } else if (otherDropIdx !== -1) {
+        f.drop.splice(otherDropIdx, 1);
         pairedHalfIds = [YAMIGEDO_SKY_ID, YAMIGEDO_EARTH_ID];
       }
     }
