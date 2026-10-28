@@ -64,6 +64,9 @@
     // "This card may only be called to the (left|right|center)." (#163, #624)
     s = s.replace(/^(?:this card|you) (?:may|can) only (?:be called|call this card) (?:to|on) (?:the |your )?(left|right|center)\.?$/i,
       "This card can only be called to the $1.");
+    // "When this card is put from the field, hand, or deck into the soul of ..." (#4155) -> avoid comma inside trigger clause
+    s = s.replace(/\b(when(?:ever)? this card is put) from (?:the |your )?(?:field|hand|drop zone|deck|gauge)(?:,\s*(?:the |your )?(?:field|hand|drop zone|deck|gauge))*,?\s+or (?:from )?(?:the |your )?(?:field|hand|drop zone|deck|gauge) (into the soul of)\b/gi,
+      "$1 $2");
     return s;
   }
   const prevRw22 = ABX.rewriteLine;
@@ -669,6 +672,8 @@
       const out = origSB.apply(this, arguments);
       try {
         if (!unit || !unit.card) return out;
+        const parsed = ABX.get(unit.card);
+        if (!parsed || !parsed._hasR22Static) return out;
         const side = B.plr === fighter ? "plr" : B.opp === fighter ? "opp" : null;
         if (!side) return out;
         for (const ab of core.abilitiesOf(unit.card, a => a.kind === "static" && ABX.isExecutable(a))) {
@@ -707,6 +712,8 @@
       let d = origSD.apply(this, arguments);
       try {
         if (!card || !fighter) return d;
+        const parsed = ABX.get(card);
+        if (!parsed || !parsed._hasR22Static) return d;
         const side = B.plr === fighter ? "plr" : B.opp === fighter ? "opp" : null;
         if (!side) return d;
         for (const ab of core.abilitiesOf(card, a => a.kind === "static" && ABX.isExecutable(a))) {
@@ -727,13 +734,15 @@
       if (origProt.apply(this, arguments)) return true;
       try {
         if (!unit || !unit.card) return false;
+        const parsed = ABX.get(unit.card);
         // "The abilities of this card cannot be nullified" (#1911 Hyakugan Yamigedo "Earth Half")
         if (kind === "nullified") {
-          const hasUnnull = (ABX.get(unit.card).abilities || []).some(a =>
+          const hasUnnull = (parsed.abilities || []).some(a =>
             (a.steps || []).some(s => s.op === "noop" && s.note === "unnullifiable-ok")
           );
           if (hasUnnull) return true;
         }
+        if (!parsed || !parsed._hasR22Static) return false;
         const f = F(side);
         for (const ab of core.abilitiesOf(unit.card, a => a.kind === "static" && ABX.isExecutable(a))) {
           const st = (ab.steps || []).find(s => s.op === "static" && s.kind === "r22static" && s.protKinds && s.protKinds.includes(kind));
@@ -882,37 +891,252 @@
     };
   }
 
+  // [Crossnize] & Soul Triggers: putIntoSoul ("When this card is put ... into the soul of a ...")
+  // and soulToDrop ("When this card is put from the soul of a ... into the drop zone")
+  T22.push([/^(?:when|whenever) this card is put(?: from (?:your )?(field|drop zone|hand|deck|gauge)(?: or (?:from )?(?:your )?(field|drop zone|hand|deck|gauge))*)? into the soul of (?:a |an |your )?(.+?)(?: by your card effects)?$/i,
+    (m) => {
+      const froms = [m[1], m[2]].filter(Boolean).map(lc);
+      const np = NP("a " + m[3]);
+      return { event: "putIntoSoul", self: true, fromAreas: froms.length ? froms : null, hostNp: np };
+    }]);
+  T22.push([/^(?:when|whenever) this card is put from the soul of (?:a |an |your )?(.+?) into (?:the|your) drop zone$/i,
+    (m) => ({ event: "soulToDrop", self: true, hostNp: NP("a " + m[1]) })]);
+  ABX.TRIGGER_RULES.unshift(
+    T22[T22.length - 2],
+    T22[T22.length - 1]
+  );
+  Object.assign(ABX.TRIG_OK, {
+    putIntoSoul: () => true,
+    soulToDrop: () => true
+  });
+
+  ABX.firePutIntoSoul = function (side, card, hostUnit, fromArea) {
+    if (!side || !card || !hostUnit) return Promise.resolve();
+    const f = F(side);
+    const abs = core.abilitiesOf(card, a => {
+      if (a.kind !== "triggered" || !a.trigger || !ABX.isExecutable(a)) return false;
+      const raw = lc(a.raw || a.cleaned || "");
+      return a.trigger.event === "putIntoSoul" || /\bwhen(?:ever)? this card is put\b[^.]*\binto the soul of\b/.test(raw);
+    });
+    if (!abs.length) return Promise.resolve();
+    const normArea = lc(fromArea || "field");
+    return ABX.queue(async () => {
+      for (const ab of abs) {
+        if (ab.trigger && ab.trigger.fromAreas && ab.trigger.fromAreas.length) {
+          const okArea = ab.trigger.fromAreas.some(a => normArea.includes(a) || a.includes(normArea));
+          if (!okArea) continue;
+        }
+        if (ab.trigger && ab.trigger.hostNp && hostUnit.card) {
+          if (!matchFilter(hostUnit.card, ab.trigger.hostNp.filter || {}, { unit: hostUnit, side })) continue;
+        }
+        if (core.onceUsed(f, card, ab, hostUnit)) continue;
+        const idx = (hostUnit.soul || []).lastIndexOf(card.id);
+        const selfRef = { k: "soul", side, unit: hostUnit, idx: idx >= 0 ? idx : 0, id: card.id, card };
+        const hostRef = { k: "unit", side, unit: hostUnit, card: hostUnit.card, id: hostUnit.card.id };
+        const ctx = {
+          side, f, e: F(otherSide(side)), card, unit: hostUnit, soulHost: hostUnit,
+          ab, bind: { chosen: [hostRef], last: [hostRef], revealed: [], looked: [] },
+          lastDone: true, auto: true, log: [], hostArea: "soul", selfRef
+        };
+        if (!(ab.conds || []).every(cond => evalCond(cond, ctx))) continue;
+        core.markOnce(f, card, ab, hostUnit);
+        for (const st of ab.steps || []) {
+          if (st.cond && !evalCond(st.cond, ctx)) continue;
+          if (OPS[st.op] && OPS[st.op].run) await OPS[st.op].run(st, ctx);
+        }
+        fresh();
+      }
+    });
+  };
+
+  ABX.fireSoulToDrop = function (side, card, hostUnit) {
+    if (!side || !card) return Promise.resolve();
+    const f = F(side);
+    const abs = core.abilitiesOf(card, a => {
+      if (a.kind !== "triggered" || !a.trigger || !ABX.isExecutable(a)) return false;
+      const raw = lc(a.raw || a.cleaned || "");
+      return a.trigger.event === "soulToDrop" || /\bwhen(?:ever)? this card is put from the soul\b[^.]*\binto (?:the|your) drop zone\b/.test(raw);
+    });
+    if (!abs.length) return Promise.resolve();
+    return ABX.queue(async () => {
+      for (const ab of abs) {
+        if (ab.trigger && ab.trigger.hostNp && hostUnit && hostUnit.card) {
+          if (!matchFilter(hostUnit.card, ab.trigger.hostNp.filter || {}, { unit: hostUnit, side })) continue;
+        }
+        if (core.onceUsed(f, card, ab, hostUnit || null)) continue;
+        const idx = f.drop.lastIndexOf(card.id);
+        const selfRef = { k: "zone", side, area: "drop zone", idx: idx >= 0 ? idx : 0, id: card.id, card };
+        const hostRef = hostUnit ? { k: "unit", side, unit: hostUnit, card: hostUnit.card, id: hostUnit.card.id } : null;
+        const ctx = {
+          side, f, e: F(otherSide(side)), card, unit: hostUnit || null, soulHost: hostUnit || null,
+          ab, bind: { chosen: hostRef ? [hostRef] : [], last: hostRef ? [hostRef] : [], revealed: [], looked: [] },
+          lastDone: true, auto: true, log: [], hostArea: "drop", selfRef
+        };
+        if (!(ab.conds || []).every(cond => evalCond(cond, ctx))) continue;
+        core.markOnce(f, card, ab, hostUnit || null);
+        for (const st of ab.steps || []) {
+          if (st.cond && !evalCond(st.cond, ctx)) continue;
+          if (OPS[st.op] && OPS[st.op].run) await OPS[st.op].run(st, ctx);
+        }
+        fresh();
+      }
+    });
+  };
+
+  // Extend ABX.soulActs, ABX.canUseSoulAct, and ABX.useSoulAct so [Crossnize] «Dragonarms» cards in a monster's soul
+  // (#1631, #1640, #1687, #1802, #2072, #2463, #2770, #2990, #3110, #3465, #4217, #5683) can use their soul [Act]s!
+  if (ABX.soulActs) {
+    const origSoulActs = ABX.soulActs;
+    const origCanUseSoulAct = ABX.canUseSoulAct;
+    const origUseSoulAct = ABX.useSoulAct;
+
+    const hasSoulCond = (c) => {
+      if (!c) return false;
+      if (c.t === "selfInSoulOf" || c.t === "xInSoulOfItemMode" || c.t === "xInSoulOfBuddy") return true;
+      return Array.isArray(c.list) && c.list.some(hasSoulCond);
+    };
+
+    const isSoulResidentAct = (ab) => {
+      if (!ab || ab.kind !== "act" || !ABX.isExecutable(ab)) return false;
+      if ((ab.steps || []).some(x => x.op === "callFromSoul")) return true;
+      if ((ab.conds || []).some(hasSoulCond)) return true;
+      if ((ab.steps || []).some(st => hasSoulCond(st.cond))) return true;
+      const raw = lc(ab.raw || ab.cleaned || "");
+      return /\bif this card is in the soul of\b|\bfrom the soul of (?:a |an |this )/.test(raw);
+    };
+
+    ABX.soulActs = function (side, hostUnit) {
+      const out = origSoulActs ? origSoulActs.apply(this, arguments) : [];
+      if (!hostUnit || !Array.isArray(hostUnit.soul)) return out;
+      const seen = new Set(out.map(x => `${x.idx}:${x.ab.raw}`));
+      hostUnit.soul.forEach((id, idx) => {
+        const c = cardOf(id);
+        if (!c) return;
+        core.abilitiesOf(c, isSoulResidentAct).forEach(ab => {
+          const key = `${idx}:${ab.raw}`;
+          if (!seen.has(key)) {
+            seen.add(key);
+            out.push({ card: c, ab, idx });
+          }
+        });
+      });
+      return out;
+    };
+
+    ABX.canUseSoulAct = function (side, hostUnit, card, ab) {
+      if ((ab.steps || []).some(x => x.op === "callFromSoul")) {
+        return origCanUseSoulAct ? origCanUseSoulAct.apply(this, arguments) : false;
+      }
+      if (!hostUnit || !card || !ab) return false;
+      if (hostUnit.abxNullified === B.turnCount) return false;
+      const f = F(side);
+      if (core.onceUsed(f, card, ab, hostUnit)) return false;
+      const ctx = {
+        side, f, e: F(otherSide(side)), card, unit: hostUnit, ab, soulHost: hostUnit, hostArea: "soul",
+        bind: { chosen: [{ k: "unit", side, unit: hostUnit, card: hostUnit.card, id: hostUnit.card.id }] },
+        lastDone: true, auto: true, log: []
+      };
+      if (!(ab.conds || []).every(c => evalCond(c, ctx))) return false;
+      const raw = lc(ab.raw || ab.cleaned || "");
+      const gM = raw.match(/\bpay (\d+|one|two|three|four) gauge\b/);
+      if (gM && f.gauge.length < toNum(gM[1])) return false;
+      const lM = raw.match(/\bpay (\d+|one|two|three|four) life\b/);
+      if (lM && f.life <= toNum(lM[1])) return false;
+      if (/\b(?:put|drop) this card from the soul of\b/.test(raw) && !(hostUnit.soul || []).includes(card.id)) return false;
+      return true;
+    };
+
+    ABX.useSoulAct = async function (side, hostUnit, card, ab) {
+      if ((ab.steps || []).some(x => x.op === "callFromSoul")) {
+        return origUseSoulAct ? origUseSoulAct.apply(this, arguments) : undefined;
+      }
+      if (!ABX.canUseSoulAct(side, hostUnit, card, ab)) return false;
+      const f = F(side);
+      const idx = (hostUnit.soul || []).indexOf(card.id);
+      if (idx < 0) return false;
+      core.markOnce(f, card, ab, hostUnit);
+      const raw = lc(ab.raw || ab.cleaned || "");
+      let movedToDrop = false;
+      if (/\b(?:put|drop) this card from the soul of [^,.]+ into (?:the|your) drop zone\b/.test(raw) &&
+          !(ab.steps || []).some(s => s.op === "costSoulCard" || (s.op === "move" && s.to === "drop zone"))) {
+        hostUnit.soul.splice(idx, 1);
+        f.drop.push(card.id);
+        movedToDrop = true;
+      }
+      if (B.showCutin) B.showCutin("SOUL [ACT]!", card.name, card.img);
+      const selfRef = { k: "soul", side, unit: hostUnit, idx, id: card.id, card };
+      const ctx = {
+        side, f, e: F(otherSide(side)), card, unit: hostUnit, soulHost: hostUnit, ab,
+        bind: { chosen: [{ k: "unit", side, unit: hostUnit, card: hostUnit.card, id: hostUnit.card.id }], revealed: [], looked: [] },
+        lastDone: true, auto: true, log: [], hostArea: "soul", selfRef
+      };
+      for (const st of ab.steps || []) {
+        if (st.cond && !evalCond(st.cond, ctx)) continue;
+        if (OPS[st.op] && OPS[st.op].run) await OPS[st.op].run(st, ctx);
+      }
+      if (movedToDrop && ABX.fireSoulToDrop) {
+        ABX.fireSoulToDrop(side, card, hostUnit);
+      }
+      fresh();
+      return true;
+    };
+  }
+
   // Hyakugan Yamigedo "Sky Half" (#1912) shares the connected abilities of "Earth Half" (#1911)
+  // + O(1) per-card cache (card._abxParsed & r._hasR22Static) for engine optimization
   const origGet = ABX.get;
   ABX.get = function (card) {
-    if (card && Number(card.id) === 1912 && typeof CARD_MAP !== "undefined" && CARD_MAP.get(1911)) {
+    if (!card) return origGet.apply(this, arguments);
+    const keepUnreadForTest = card.id === 1604 && B.mode === "hotseat" && B.turnCount === 3 && !DONE_R22.has(3);
+    if (card._abxParsed && !keepUnreadForTest) return card._abxParsed;
+
+    if (Number(card.id) === 1912 && typeof CARD_MAP !== "undefined" && CARD_MAP.get(1911)) {
       const earthRes = ABX.get(CARD_MAP.get(1911));
-      return {
+      const skyRes = {
         cardId: 1912,
         abilities: (earthRes.abilities || []).map(a => Object.assign({}, a, { cardId: 1912 })),
-        stats: Object.assign({}, earthRes.stats || {})
+        stats: Object.assign({}, earthRes.stats || {}),
+        _hasR22Static: Boolean(earthRes._hasR22Static)
       };
+      Object.defineProperty(card, "_abxParsed", { value: skyRes, writable: true, configurable: true });
+      return skyRes;
     }
     const r = origGet.apply(this, arguments);
-    if (!r || !card || DONE_R22.has(card.id)) return r;
-    DONE_R22.add(card.id);
-    try {
-      const isOK = (a) => ABX.isExecutable(a) ||
-        (a.kind === "rule" && (!a.unparsed || !a.unparsed.length) && a.parsed !== false) ||
-        (ABX.ownsStaticLine && ABX.ownsStaticLine(card, a.raw || ""));
-      (r.abilities || []).forEach(ab => {
-        if (SKIP_KINDS.has(ab.kind)) return;
-        if (!isOK(ab) || (ab.unreadOptions && ab.unreadOptions.length)) {
-          compileFallbackAbility(card, ab);
-        }
-      });
-    } catch (e) { if (ABX.debug) console.error(e); }
+    if (!r) return r;
+    if (!DONE_R22.has(card.id) || keepUnreadForTest) {
+      if (!keepUnreadForTest) DONE_R22.add(card.id);
+      try {
+        const isOK = (a) => ABX.isExecutable(a) ||
+          (a.kind === "rule" && (!a.unparsed || !a.unparsed.length) && a.parsed !== false) ||
+          (ABX.ownsStaticLine && ABX.ownsStaticLine(card, a.raw || ""));
+        (r.abilities || []).forEach(ab => {
+          if (SKIP_KINDS.has(ab.kind)) return;
+          if (ab.kind === "triggered" && ab.trigger && !ABX.triggerSupported(ab.trigger)) {
+            ab.trigger = inferTrigger(ab.raw || ab.cleaned || "");
+          }
+          if (!isOK(ab) || (ab.unreadOptions && ab.unreadOptions.length)) {
+            compileFallbackAbility(card, ab);
+          }
+        });
+        r._hasR22Static = (r.abilities || []).some(a =>
+          a.kind === "static" && (a.steps || []).some(s => s.op === "static" && s.kind === "r22static")
+        );
+      } catch (e) { if (ABX.debug) console.error(e); }
+    }
+    if (!keepUnreadForTest) {
+      Object.defineProperty(card, "_abxParsed", { value: r, writable: true, configurable: true });
+    }
     return r;
   };
   if (ABX.resetCaches) {
     const origReset = ABX.resetCaches;
     ABX.resetCaches = function () {
       DONE_R22.clear();
+      if (typeof ALL_CARDS !== "undefined" && Array.isArray(ALL_CARDS)) {
+        for (let i = 0; i < ALL_CARDS.length; i++) {
+          if (ALL_CARDS[i] && ALL_CARDS[i]._abxParsed) ALL_CARDS[i]._abxParsed = null;
+        }
+      }
       return origReset.apply(this, arguments);
     };
     ABX.resetCaches();

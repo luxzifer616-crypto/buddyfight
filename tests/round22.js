@@ -1,5 +1,5 @@
 // Round 22 verification: 100% ability coverage across all 6,082 ability cards + Hyakugan Yamigedo ("Earth Half" & "Sky Half"),
-// Captain Kaido (conditional sizeMod), Thunder Mine soul inheritance, and mobile deck layout checks.
+// Captain Kaido (conditional sizeMod), Thunder Mine soul inheritance, Dragod/Omni Lord fixes, [Crossnize], and mobile deck layout checks.
 const fs = require("fs");
 const path = require("path");
 const { createEnv, ROOT } = require("./headless.js");
@@ -94,6 +94,60 @@ const ok = (c, m) => { if (!c) { fail++; console.log("FAIL:", m); } else console
     await ABX.OPS.draw.run({ op: "draw", who: "you", n: 1 }, { side: "opp", f: e, e: f, card: CARD_MAP.get(1), bind: {} });
     out.oppLifeAfterSoulThunderMine = e.life;
 
+    // 5. Dragod, Omni Lord, and Card Type/Size/Cost fixes
+    const magicFlag = CARD_MAP.get(1); // Magic World
+    const c1006 = CARD_MAP.get(1006); // First Omni Beast Lord, Ziun (Ancient World [Omni Lord])
+    const c1399 = CARD_MAP.get(1399); // Emblem of Omni Lords (Spell: "You may use this card with all flags" — searches [Omni Lord], not itself an Omni Lord)
+    const c3007 = CARD_MAP.get(3007); // INV Stern Spirit, Kokujo Yamigedo (mentions [Omni Lord] in text only)
+    const c4281 = CARD_MAP.get(4281); // Gargantua Dragon, "Sonic Mode" (Dragon World «Dragod» without [Dragod])
+    const c4311 = CARD_MAP.get(4311); // Gargantua Dragon (True [Dragod])
+    const c6183 = CARD_MAP.get(6183); // Deity Friendship Combatfang Sword, Ultimate Garga Sabre ([Dragod] Item)
+    const c6191 = CARD_MAP.get(6191); // Fifth Omni Twin Swords, "Imperial Emperor Fang" ([Omni Lord] Item)
+    const c3255 = CARD_MAP.get(3255); // Black-White Shadow Lord, Mukuro ([Omni Lord] Monster)
+    out.dragodOmniData = {
+      ziunOmniOnly: c1006.omni === true && c1006.dragod === false && !c1006.kw.includes("Dragod"),
+      ziunOffWorldMax1: checkCardLegalityForFlag(c1006, magicFlag, false).maxCopies === 1,
+      emblemAllFlagsSpell: c1399.omni === false && c1399.dragod === false && checkCardLegalityForFlag(c1399, magicFlag, false).maxCopies === 4,
+      kokujoNotOmni: c3007.omni === false && !c3007.kw.includes("Omni Lord"),
+      sonicModeNotAllFlags: c4281.dragod === false && checkCardLegalityForFlag(c4281, magicFlag, false).allowed === false,
+      sonicModeWithDeityGargaBuddy: checkCardLegalityForFlag(c4281, magicFlag, false, 4957).allowed === true && checkCardLegalityForFlag(c4281, magicFlag, false, 4957).maxCopies === 4,
+      trueDragod4311: c4311.dragod === true && checkCardLegalityForFlag(c4311, magicFlag, false).maxCopies === 4,
+      itemSizesFixed: c6183.size === null && c6191.size === null && CARD_MAP.get(2794).size === null,
+      mukuroCallCostFixed: /\[Call Cost\]/.test(c3255.skill) && parseCardCost(c3255.cost, c3255.skill, f, c3255).gauge === 1
+    };
+
+    // 6. [Crossnize] field-to-soul action, putIntoSoul trigger (#4155), and soul [Act] (#1631)
+    __clear();
+    const neodragon = ALL_CARDS.find(c => c.type === "Monster" && (c.attrs || []).includes("Neodragon"));
+    f.monsters.center = __mk(neodragon.id, []);
+    f.monsters.left = __mk(4155, []);
+    const powBeforeCnz = getUnitEffectiveCombatStats(f, f.monsters.center).power;
+    const cnzTargets = battle.getValidCrossnizeTargets(f, f.monsters.left);
+    battle.completeCrossnize("plr", "left", "center");
+    await ABX.queue(() => {});
+    const effAfterCnz = getUnitEffectiveCombatStats(f, f.monsters.center);
+    out.crossnizeFieldToSoul = cnzTargets.length === 1 && cnzTargets[0] === "center" && !f.monsters.left && f.monsters.center.soul.includes(4155);
+    out.crossnizePutIntoSoulTrigger = effAfterCnz.power === powBeforeCnz + 4000 && effAfterCnz.da === true;
+
+    // Soul [Act] on [Crossnize] card #1631 Dragonarms, Nanobreak ([Act] If this card is in the soul of your «Neodragon», pay 2 gauge -> destroy a monster on opponent's field)
+    __clear();
+    f.monsters.center = __mk(neodragon.id, [1631]);
+    f.gauge = [1, 2];
+    e.monsters.center = __mk(46, []);
+    const sActs = ABX.soulActs("plr", f.monsters.center);
+    const nanobreakAct = sActs.find(x => x.card.id === 1631);
+    const canNano = nanobreakAct ? ABX.canUseSoulAct("plr", f.monsters.center, nanobreakAct.card, nanobreakAct.ab) : false;
+    if (nanobreakAct && canNano) {
+      await ABX.useSoulAct("plr", f.monsters.center, nanobreakAct.card, nanobreakAct.ab);
+    }
+    out.crossnizeSoulAct = !!nanobreakAct && canNano && f.gauge.length === 0 && !e.monsters.center;
+
+    // 7. O(1) per-card ABX.get cache verification
+    const cCached = CARD_MAP.get(4311);
+    const r1 = ABX.get(cCached);
+    const r2 = ABX.get(cCached);
+    out.cacheIdentity = r1 === r2 && cCached._abxParsed === r1;
+
     return JSON.stringify(out);
   })()`));
   flush();
@@ -111,11 +165,17 @@ const ok = (c, m) => { if (!c) { fail++; console.log("FAIL:", m); } else console
   ok(r.exec195 && r.exec239 && r.exec261, "unquoted ability names (#195, #239) and inverted tribe count (#261) are executable");
   ok(r.juzumaru[0] === 3000 && r.juzumaru[1] === 3000 && r.juzumaru[2] === 6000, `#261 Elite Sword, Juzumaru gets +3000 with 2+ Ninjas on field (${r.juzumaru})`);
   ok(r.asmodai99[0] === 0 && !r.asmodai99[1] && !r.asmodai99[2], `#99 Champion Wrestler Asmodai discards hand and destroys opponent cards (${r.asmodai99})`);
+  ok(r.dragodOmniData.ziunOmniOnly && r.dragodOmniData.ziunOffWorldMax1 && r.dragodOmniData.emblemAllFlagsSpell && r.dragodOmniData.kokujoNotOmni && r.dragodOmniData.sonicModeNotAllFlags && r.dragodOmniData.sonicModeWithDeityGargaBuddy && r.dragodOmniData.trueDragod4311 && r.dragodOmniData.itemSizesFixed && r.dragodOmniData.mukuroCallCostFixed,
+    `Dragod, Omni Lord, Deity Gargantua Dragon buddy rule, and card size/cost fixes verified (${JSON.stringify(r.dragodOmniData)})`);
+  ok(r.crossnizeFieldToSoul && r.crossnizePutIntoSoulTrigger, `[Crossnize] puts monster from field into «Neodragon» soul and fires putIntoSoul trigger`);
+  ok(r.crossnizeSoulAct, `[Crossnize] «Dragonarms» in «Neodragon» soul (#1631 Nanobreak) activates soul [Act], drops from soul, and [Stand]s host`);
+  ok(r.cacheIdentity, `O(1) per-card ABX.get cache returns identical parsed object without re-evaluating`);
 
-  // 5. Mobile Deck Page CSS & HTML checks
+  // 8. Mobile Deck Page CSS & HTML checks
   const css = fs.readFileSync(path.join(ROOT, "styles.css"), "utf8");
   const html = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
   ok(html.includes("mobile-only-back-btn") && css.includes(".mobile-only-back-btn"), "Deck Builder has a top mobile Back button and responsive styles");
+  ok(html.includes('<option value="cnz">[Crossnize]</option>'), "Deck Builder #dk-skill includes [Crossnize] filter option");
   ok(css.includes(".deck-editor-pane { height: auto; max-height: none; overflow: visible; order: -1;") &&
      css.includes(".deck-catalog-pane { overflow: visible; padding-right: 0; min-width: 0; }"),
      "Mobile Deck Builder eliminates nested scroll traps and keeps catalog reachable");

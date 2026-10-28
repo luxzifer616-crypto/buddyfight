@@ -699,7 +699,14 @@ function hasDragonInCard(card) {
   return nameHas || worldHas || attrHas;
 }
 
-function checkCardLegalityForFlag(card, flagCard, editingLostDeck = false) {
+const DEITY_GARGA_BUDDY_IDS = [4957, 5021]; // Deity Gargantua Dragon: "if it is your buddy, you may use «Dragod» monsters from all worlds!"
+
+function isAllFlagsRuleCard(card) {
+  if (!card || card.omni || card.dragod) return false;
+  return /you may use this card with all flags|this card can be used with all flags/i.test(card.skill || "");
+}
+
+function checkCardLegalityForFlag(card, flagCard, editingLostDeck = false, buddyId = null) {
   if (!card || !flagCard) return { allowed: false, maxCopies: 0 };
 
   if (editingLostDeck) {
@@ -738,7 +745,7 @@ function checkCardLegalityForFlag(card, flagCard, editingLostDeck = false) {
   if (cfg.key === "dragon_ein" || cfg.key === "dragon_zwei") {
     const allowedTypes = cfg.key === "dragon_ein" ? ["Monster", "Item"] : ["Monster"];
     const ok = allowedTypes.includes(card.type) && hasDragonInCard(card);
-    return ok ? { allowed: true, maxCopies: 4 } : { allowed: false, maxCopies: 0 };
+    if (ok) return { allowed: true, maxCopies: 4 };
   } else if (cfg.key === "chaos") {
     nativeMatch = attrs.some(a => a.includes("chaos")) || nameLower.includes("chaos") || isTrueGenericCard(card);
   } else if (cfg.key === "thunder_empire") {
@@ -759,12 +766,24 @@ function checkCardLegalityForFlag(card, flagCard, editingLostDeck = false) {
     return { allowed: true, maxCopies: 4 };
   }
 
-  if (card.dragod) {
-    return { allowed: true, maxCopies: 4, isDragod: true };
-  }
-
+  // [Omni Lord]: max 1 copy per deck when off-world
   if (card.omni) {
     return { allowed: true, maxCopies: 1, isOffWorldOmni: true };
+  }
+
+  // [Dragod] or "You may use this card with all flags": max 4 copies with all flags
+  if (card.dragod || isAllFlagsRuleCard(card)) {
+    return { allowed: true, maxCopies: 4, isDragod: Boolean(card.dragod), isAllFlags: !card.dragod };
+  }
+
+  // Deity Gargantua Dragon (#4957 / #5021): "if it is your buddy, you may use «Dragod» monsters from all worlds!"
+  const activeBuddyId = buddyId !== null && buddyId !== undefined
+    ? Number(buddyId)
+    : (typeof app !== "undefined" && app.state && Array.isArray(app.state.decks) && app.state.decks[app.state.activeDeckIndex]
+      ? Number(app.state.decks[app.state.activeDeckIndex].buddyId)
+      : null);
+  if (activeBuddyId && DEITY_GARGA_BUDDY_IDS.includes(activeBuddyId) && card.type === "Monster" && attrs.includes("dragod")) {
+    return { allowed: true, maxCopies: 4, isDragod: true };
   }
 
   return { allowed: false, maxCopies: 0 };
@@ -2716,7 +2735,7 @@ const app = {
 
     const slice = filtered.slice((this.colPage - 1) * this.colPageSize, this.colPage * this.colPageSize);
     const grid = document.getElementById("collection-grid");
-    grid.innerHTML = "";
+    const frag = document.createDocumentFragment();
 
     slice.forEach(c => {
       const qty = this.state.owned[c.id] || 0;
@@ -2735,8 +2754,9 @@ const app = {
         <div class="tile-name">#${c.id} ${escapeHtml(c.name)}</div>
         <div class="tile-sub">${statStr}</div>
       `;
-      grid.appendChild(tile);
+      frag.appendChild(tile);
     });
+    grid.replaceChildren(frag);
   },
 
   changeCollectionPage(delta) {
@@ -2972,11 +2992,11 @@ const app = {
     document.getElementById("dk-type-breakdown").textContent = `M:${mCnt} I:${iCnt} S:${sCnt} Imp/Flg:${impCnt}`;
 
     const listEl = document.getElementById("dk-card-list");
-    listEl.innerHTML = "";
+    const frag = document.createDocumentFragment();
     Array.from(grouped.entries()).forEach(([cid, qty]) => {
       const c = CARD_MAP.get(cid);
       if (!c) return;
-      const legality = checkCardLegalityForFlag(c, flag, this.deckEditTab === "lost");
+      const legality = checkCardLegalityForFlag(c, flag, this.deckEditTab === "lost", deck.buddyId);
       const maxC = legality.maxCopies || 4;
       const ownedQty = this.state.owned[cid] || 0;
       const missingQty = Math.max(0, qty - ownedQty);
@@ -2999,8 +3019,9 @@ const app = {
           <button class="qty-btn" onclick="app.addCardToDeck(${c.id})">+</button>
         </div>
       `;
-      listEl.appendChild(row);
+      frag.appendChild(row);
     });
+    listEl.replaceChildren(frag);
   },
 
   renderDeckCatalog(page = 1) {
@@ -3048,14 +3069,19 @@ const app = {
 
     const slice = filtered.slice((this.dkPage - 1) * this.dkPageSize, this.dkPage * this.dkPageSize);
     const grid = document.getElementById("deck-catalog-grid");
-    grid.innerHTML = "";
+    const frag = document.createDocumentFragment();
 
     const activeList = isLostTab ? (deck.lostDeck || []) : deck.cards;
+    const deckCounts = new Map();
+    for (let i = 0; i < activeList.length; i++) {
+      const cid = activeList[i];
+      deckCounts.set(cid, (deckCounts.get(cid) || 0) + 1);
+    }
 
     slice.forEach(c => {
-      const inDeckQty = activeList.filter(id => id === c.id).length;
+      const inDeckQty = deckCounts.get(c.id) || 0;
       const ownedQty = this.state.owned[c.id] || 0;
-      const leg = checkCardLegalityForFlag(c, flagCard, isLostTab);
+      const leg = checkCardLegalityForFlag(c, flagCard, isLostTab, deck.buddyId);
       const maxC = leg.maxCopies || 4;
       const needMore = inDeckQty > ownedQty;
 
@@ -3089,6 +3115,8 @@ const app = {
           : "SET FLAG";
       } else if (leg.isDragod) {
         badgeLabel = `🐉 DRAGOD (${inDeckQty}/4)`;
+      } else if (leg.isAllFlags) {
+        badgeLabel = `🌐 ALL FLAGS (${inDeckQty}/4)`;
       } else if (leg.isOffWorldOmni) {
         badgeLabel = `👑 OMNI (${inDeckQty}/1)`;
       }
@@ -3110,8 +3138,9 @@ const app = {
         this.openCardModal(c.id);
       };
       tile.appendChild(infoBtn);
-      grid.appendChild(tile);
+      frag.appendChild(tile);
     });
+    grid.replaceChildren(frag);
   },
 
   changeDeckCatalogPage(delta) {
@@ -5525,6 +5554,22 @@ const battle = {
         }
       }
 
+      if (card.cnz && zonePos !== "item" && this.phase === "main" && this.isLocalTurn()) {
+        const cnzTargets = this.getValidCrossnizeTargets(f, unit);
+        const bCnz = document.createElement("button");
+        bCnz.className = "action-btn";
+        bCnz.disabled = cnzTargets.length === 0;
+        bCnz.textContent = cnzTargets.length > 0
+          ? `✨ Use [Crossnize] (Put into ${cnzTargets.length === 1 ? `"${f.monsters[cnzTargets[0]].card.name}"'s` : "a «Neodragon»'s"} Soul)`
+          : `🔒 [Crossnize] — Requires a «Neodragon» on your field`;
+        bCnz.onclick = () => {
+          if (cnzTargets.length === 0) return;
+          this.closeCardBanner();
+          this.startCrossnizeMode(side, zonePos);
+        };
+        actionsEl.appendChild(bCnz);
+      }
+
       const abxActs = (window.ABX && ABX.actAbilities) ? ABX.actAbilities(card) : [];
       if (!unit.isEndrulerFlag && (card.act || abxActs.length || ((parseDeckSearchCriteria(card) || (card.skill || "").toLowerCase().includes("you may")) && !abxOwnsOptionalLines(card))) && !unit.actUsed) {
         const bAct = document.createElement("button");
@@ -6802,6 +6847,15 @@ const battle = {
       return;
     }
 
+    if (this.pendingAction && this.pendingAction.type === "crossnize") {
+      const fromPos = this.pendingAction.fromPos;
+      const validPositions = this.pendingAction.validPositions || [];
+      if (zoneSide === mySide && validPositions.includes(zonePos)) {
+        this.completeCrossnize(mySide, fromPos, zonePos);
+      }
+      return;
+    }
+
     if (this.pendingAction && this.pendingAction.type === "link_select") {
       if (zoneSide === mySide && ["left", "center", "right", "item"].includes(zonePos)) {
         this.toggleLinkAttackerZone(mySide, zonePos);
@@ -7651,6 +7705,65 @@ const battle = {
     this.renderBattle();
   },
 
+  getValidCrossnizeTargets(fighter, sourceUnit) {
+    if (!fighter || !fighter.monsters) return [];
+    return ["center", "left", "right"].filter(pos => {
+      const u = fighter.monsters[pos];
+      if (!u || !u.card || u === sourceUnit) return false;
+      if ((u.card.attrs || []).some(a => normalizeSearchToken(a).includes("neodragon"))) return true;
+      if (window.ABX && ABX.core && ABX.core.matchFilter) {
+        return Boolean(ABX.core.matchFilter(u.card, { tribes: ["Neodragon"] }, { unit: u }));
+      }
+      return false;
+    });
+  },
+
+  startCrossnizeMode(side, fromPos) {
+    const f = this.getFighter(side);
+    const unit = f && f.monsters ? f.monsters[fromPos] : null;
+    if (!unit || !unit.card || !unit.card.cnz) return false;
+    const validPositions = this.getValidCrossnizeTargets(f, unit);
+    if (validPositions.length === 0) {
+      this.setPrompt(`🔒 [Crossnize]: Requires a «Neodragon» monster on your field!`);
+      return false;
+    }
+    if (validPositions.length === 1) {
+      return this.completeCrossnize(side, fromPos, validPositions[0]);
+    }
+    this.pendingAction = { type: "crossnize", fromPos, validPositions };
+    this.setPrompt(`✨ [Crossnize]: Click a «Neodragon» on your field (${validPositions.map(z => z.toUpperCase()).join(", ")}) to put "${unit.card.name}" into its soul!`);
+    this.renderBattle();
+    return true;
+  },
+
+  completeCrossnize(side, fromPos, targetPos) {
+    const f = this.getFighter(side);
+    const sourceUnit = f && f.monsters ? f.monsters[fromPos] : null;
+    const targetUnit = f && f.monsters ? f.monsters[targetPos] : null;
+    if (!sourceUnit || !targetUnit || sourceUnit === targetUnit) return false;
+    const validPositions = this.getValidCrossnizeTargets(f, sourceUnit);
+    if (!validPositions.includes(targetPos)) return false;
+
+    f.monsters[fromPos] = null;
+    this.pendingAction = null;
+    if (!Array.isArray(targetUnit.soul)) targetUnit.soul = [];
+    if (Array.isArray(sourceUnit.soul) && sourceUnit.soul.length > 0) {
+      targetUnit.soul.push(...sourceUnit.soul);
+    }
+    targetUnit.soul.push(sourceUnit.card.id);
+
+    this.showCutin("CROSSNIZE!", `${sourceUnit.card.name} ➔ ${targetUnit.card.name}`, sourceUnit.card.img);
+    if (window.ABX && ABX.firePutIntoSoul) {
+      ABX.firePutIntoSoul(side, sourceUnit.card, targetUnit, "field");
+    }
+    this.animateCardFlight(`z-${side}-${fromPos}`, `z-${side}-${targetPos}`, sourceUnit.card.img, "✨ [CROSSNIZE]!", 0, () => {
+      this.setPrompt(`✨ [Crossnize] Put "${sourceUnit.card.name}" into the soul of "${targetUnit.card.name}" (Soul: ${targetUnit.soul.length})!`);
+      this.renderBattle();
+    });
+    this.renderBattle();
+    return true;
+  },
+
   runBotTurn() {
     if (this.matchOver || this.activeSide !== "opp" || !this.opp.isBot) return;
     const bot = this.opp;
@@ -7701,6 +7814,17 @@ const battle = {
           });
           if (mIdx !== -1) {
             this.completeMonsterCall("opp", zonePos, mIdx, false);
+          }
+        }
+      });
+
+      // Bot AI: Use [Crossnize] on field monsters if a «Neodragon» is on the field
+      ["left", "right", "center"].forEach(zonePos => {
+        const u = bot.monsters[zonePos];
+        if (u && u.card && u.card.cnz) {
+          const targets = this.getValidCrossnizeTargets(bot, u);
+          if (targets.length > 0) {
+            this.completeCrossnize("opp", zonePos, targets[0]);
           }
         }
       });
@@ -8037,7 +8161,8 @@ const battle = {
 
       const isCallHighlight = this.pendingAction && (
         (this.pendingAction.type === "call" && this.pendingAction.side === "plr") ||
-        (this.pendingAction.type === "move" && pos !== this.pendingAction.fromPos && !this.plr.monsters[pos])
+        (this.pendingAction.type === "move" && pos !== this.pendingAction.fromPos && !this.plr.monsters[pos]) ||
+        (this.pendingAction.type === "crossnize" && Array.isArray(this.pendingAction.validPositions) && this.pendingAction.validPositions.includes(pos))
       );
       plrZoneEl.classList.toggle("selectable", Boolean(isCallHighlight));
       plrZoneEl.classList.toggle("link-selected", this.linkAttackers.includes(pos));
@@ -8054,7 +8179,7 @@ const battle = {
 
     const handOwner = (this.mode === "hotseat" && this.activeSide === "opp") ? this.opp : this.plr;
     const handEl = document.getElementById("bt-plr-hand");
-    handEl.innerHTML = "";
+    const handFrag = document.createDocumentFragment();
     handOwner.hand.forEach((cid, idx) => {
       const c = CARD_MAP.get(cid);
       if (!c) return;
@@ -8070,8 +8195,9 @@ const battle = {
         <div class="hand-cost-tag">${isBuddy ? "🌟 BUDDY" : isSpecialFlag ? "🏳️ FLAG" : isYami ? (yamiReady ? "👹 2/2 READY" : "🔒 1/2 HALF") : `${cost.gauge}G`}</div>
         <img src="${c.img}" alt="${escapeHtml(c.name)}" />
       `;
-      handEl.appendChild(div);
+      handFrag.appendChild(div);
     });
+    handEl.replaceChildren(handFrag);
 
     if (this.mode === "online_p2p" && !this.isReceivingP2P && this.activeSide === "plr") {
       this.sendOnlineStateToPeer();
