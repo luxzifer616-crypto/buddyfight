@@ -762,12 +762,14 @@
     if (!ab.once) return false;
     const S = st(f), k = onceKey(card, ab, unit);
     if (ab.once === "game") return !!S.onceGame[k];
+    if (ab.once === "phase") return S.onceTurn[k] === B.turnCount + ":" + B.phase;
     return S.onceTurn[k] === B.turnCount;
   }
   function markOnce(f, card, ab, unit) {
     if (!ab.once) return;
     const S = st(f), k = onceKey(card, ab, unit);
-    if (ab.once === "game") S.onceGame[k] = true; else S.onceTurn[k] = B.turnCount;
+    if (ab.once === "game") S.onceGame[k] = true;
+    else S.onceTurn[k] = ab.once === "phase" ? B.turnCount + ":" + B.phase : B.turnCount;
   }
   core.onceUsed = onceUsed; core.markOnce = markOnce;
 

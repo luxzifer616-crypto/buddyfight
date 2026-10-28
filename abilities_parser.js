@@ -1215,7 +1215,7 @@
     return { trigger: null, body: s, conds };
   }
 
-  const ONCE_RE = /\s*(?:you may only (?:use|cast|activate|set|call) (?:this ability|this card|"[^"]+"|[^.]*?) once per (turn|game|fight|battle)\.?|this (?:ability|effect) (?:can|may) only be used once per (turn|game)\.?|"[^"]+" only activates once per (turn|game)\.?|(?:this ability|this effect) (?:only activates|activates only) once per (turn|game)\.?|once per (turn|game)\.?)/ig;
+  const ONCE_RE = /\s*(?:you may only (?:use|cast|activate|set|call) (?:this ability|this card|"[^"]+"|[^.]*?) once per (turn|game|fight|battle)\.?|this (?:ability|effect) (?:can|may) only be used once per (turn|game)\.?|"[^"]+" only activates once per (turn|game)\.?|(?:this ability|this effect) (?:only activates|activates only) once per (turn|game|phase)\.?|this ability only activates once during the attack phase(?: and [^.]*)?\.?|once per (turn|game)\.?)/ig;
 
   function splitSentences(body) {
     // split on ". " / ".\"" outside brackets/quotes; keep "Then," continuations with the previous sentence
@@ -1258,8 +1258,10 @@
     if ((m = s.match(/^"([^"]+)"\s+(?=[A-Z\[])/)) || (m = s.match(/^""([^"]+)"[^"]*"\s+/))) { ab.name = m[1]; s = s.slice(m[0].length); }
     // once per turn / game
     let once = null;
-    s = s.replace(ONCE_RE, (mm, a, b, c, d, e) => { once = lc(a || b || c || d || e || "turn"); return " "; }).trim();
-    if (once) ab.once = once === "game" ? "game" : "turn";
+    s = s.replace(ONCE_RE, (mm, a, b, c, d, e) => { once = /once during the attack phase/i.test(mm) ? "phase" : lc(a || b || c || d || e || "turn"); return " "; }).trim();
+    // "once per fight" is the whole match, same as "once per game" (it used to fall through to once per turn);
+    // "once during the attack phase and once during the final phase" is once in each phase.
+    if (once) ab.once = (once === "game" || once === "fight") ? "game" : once === "phase" ? "phase" : "turn";
     // reminder text in parentheses is rules text, not an effect
     s = s.replace(/\s*\((?:[^()]|\([^()]*\))*\)\s*/g, " ").replace(/\s+/g, " ").trim();
     ab.cleaned = s;

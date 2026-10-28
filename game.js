@@ -1155,12 +1155,36 @@ function getReleaseConditionStatus(card, fighter) {
   return { has: true, met: reasons.length === 0, reasons, parts };
 }
 
+// "turn" / "game" when a spell says "You may only cast "<this card>" once per turn / game / fight", else null.
+function getSpellCastLimit(card) {
+  const m = String(card && card.skill || "").match(/you may only cast "(.*?)" once per (turn|game|fight)\b/i);
+  if (!m) return null;
+  return m[2].toLowerCase() === "turn" ? "turn" : "game";
+}
+
+// Remember a cast so the limit above can be checked (counts even if the opponent nullifies it).
+function noteSpellCast(fighter, card) {
+  if (!fighter || !getSpellCastLimit(card)) return;
+  (fighter.castLimitUsed = fighter.castLimitUsed || {})[card.name] = battle.turnCount;
+}
+
+function spellCastLimitReached(fighter, card) {
+  const limit = getSpellCastLimit(card);
+  if (!limit || !fighter) return false;
+  const used = (fighter.castLimitUsed || {})[card.name];
+  return limit === "game" ? used != null : used === battle.turnCount;
+}
+
 function evaluateCardConditions(card, fighter, enemy, isAbilityCall = false) {
   const s = card.skill || "";
   const sLower = s.toLowerCase();
   const cost = parseCardCost(card.cost, card.skill, fighter, card);
   const reasons = [];
   const revCnt = getFighterReversalCount(fighter);
+
+  if (spellCastLimitReached(fighter, card)) {
+    reasons.push(`You may only cast "${card.name}" once per ${getSpellCastLimit(card) === "game" ? "fight" : "turn"}.`);
+  }
 
   // Items with [Release Condition!] (Dragon Force ...): can only be equipped while the condition is met
   const rel = getReleaseConditionStatus(card, fighter);
@@ -3301,6 +3325,11 @@ const app = {
         });
 
         this.peer.on("connection", (conn) => {
+          // Only one friend per room: turn away anyone else who enters this code while a friend is connected.
+          if (this.peerConn && this.peerConn.open) {
+            conn.on("open", () => { try { conn.close(); } catch (e) {} });
+            return;
+          }
           this.peerConn = conn;
           this.setupPeerConnectionHandlers(conn, true);
         });
@@ -3370,6 +3399,11 @@ const app = {
 
         this.peer.on("error", (err) => {
           console.warn("PeerJS join error:", err);
+          // Already joined: this is a connection problem during the match, not a failed join.
+          if (this.joiningRoomCode !== normRoom) {
+            if (battle.mode === "online_p2p") battle.setPrompt(`⚠️ Connection problem (${err.type || "unknown"}). Trying to reconnect...`);
+            return;
+          }
           // Fallback to localStorage / BroadcastChannel if on same computer
           let savedRoomDeck = null;
           try {
@@ -3425,6 +3459,7 @@ const app = {
   setupPeerConnectionHandlers(conn, isHost) {
     conn.on("open", () => {
       clearTimeout(this._joinTimer);
+      if (!isHost) this.joiningRoomCode = null;
       const myDeck = this.state.decks[this.state.activeDeckIndex];
       if (!isHost) {
         conn.send({
@@ -3437,7 +3472,14 @@ const app = {
 
     conn.on("data", (msg) => {
       if (!msg || !msg.type) return;
+      // Ignore anything from a connection that isn't the current friend (e.g. a turned-away second joiner).
+      if (conn !== this.peerConn) return;
       if (msg.type === "P2P_HELLO_JOIN" && isHost) {
+        // A friend rejoining mid-match gets the current board instead of restarting the match.
+        if (battle.mode === "online_p2p" && !battle.matchOver && document.getElementById("screen-battle").classList.contains("active")) {
+          battle.sendOnlineStateToPeer("🔄 Reconnected to the match!");
+          return;
+        }
         const myDeck = this.state.decks[this.state.activeDeckIndex];
         this.closeRoomModal();
         this.startBattle("online_p2p", msg.guestDeck);
@@ -3469,6 +3511,7 @@ const app = {
     });
 
     conn.on("close", () => {
+      if (conn !== this.peerConn) return;
       this.peerConn = null;
       if (document.getElementById("screen-battle").classList.contains("active") && battle.mode === "online_p2p") {
         battle.setPrompt("⚠️ Online Friend disconnected from the room.");
@@ -4646,7 +4689,8 @@ const battle = {
       this.opp.isBot = false;
     }
     if (msg.cutin) {
-      this.showCutin(msg.cutin.title, msg.cutin.sub, msg.cutin.imgSrc);
+      // Same checks as a P2P_CUTIN message, and don't echo it back to the friend.
+      this.receiveCutinFromPeer(msg.cutin);
     }
     if (msg.prompt) {
       this.setPrompt(msg.prompt);
@@ -6153,6 +6197,13 @@ const battle = {
     }
   },
 
+  // "turn" / "game" when the card says "You may only call "<this card>" once per turn / game / fight", else null.
+  getCallLimit(card) {
+    const m = String(card && card.skill || "").match(/you may only call "(.*?)" (?:once )?per (turn|game|fight)\b/i);
+    if (!m) return null;
+    return m[2].toLowerCase() === "turn" ? "turn" : "game";
+  },
+
   completeMonsterCall(side, zonePos, handIdx, isBuddyCall, isAbilityCall = false) {
     const f = this.getFighter(side);
     const cid = f.hand[handIdx];
@@ -6168,6 +6219,21 @@ const battle = {
     }
 
     const c = isYami ? (getCanonicalYamigedoCard() || rawCard) : rawCard;
+
+    // "You may only call "X" once per turn / once per game" (was never checked, so a second copy could be called).
+    const callLimit = this.getCallLimit(c);
+    if (callLimit) {
+      const used = (f.callLimitUsed || {})[c.name];
+      if (callLimit === "game" ? used != null : used === this.turnCount) {
+        if (!f.isBot) {
+          this.pendingAction = null;
+          this.setPrompt(`Cannot call "${c.name}": you may only call it once per ${callLimit === "game" ? "game" : "turn"}.`);
+          this.renderBattle();
+        }
+        return;
+      }
+    }
+
     const cost = parseCardCost(c.cost, c.skill, f, c);
     if (!isAbilityCall && f.gauge.length < cost.gauge) {
       if (!f.isBot) {
@@ -6261,6 +6327,7 @@ const battle = {
     // Occupy the zone right away (not after the animation) so size checks and
     // back-to-back calls (e.g. the bot's turn) see the real board state.
     f.monsters[zonePos] = unit;
+    if (callLimit) (f.callLimitUsed = f.callLimitUsed || {})[c.name] = this.turnCount;
     if (onTopHost) unit.soul.unshift(...(onTopHost.soul || []), onTopHost.card.id);
     if (!isAbilityCall && window.ABX && ABX.payExtras && ABX.hasExtras(c)) ABX.payExtras(side, c, unit);
     const eff = getUnitEffectiveCombatStats(f, unit);
@@ -6383,6 +6450,7 @@ const battle = {
     for (let i = 0; i < cost.gauge; i++) f.drop.push(f.gauge.pop());
     if (cost.life > 0) f.life = Math.max(1, f.life - cost.life);
     f.hand.splice(handIdx, 1);
+    noteSpellCast(f, c);
 
     const fromHandId = side === "plr" ? "bt-plr-hand" : "hud-opp-target";
     const destId = c.set ? `z-${side}-set` : `z-${side}-drop`;
@@ -7017,6 +7085,7 @@ const battle = {
     }
     defFighter.hand.splice(handIdx, 1);
     defFighter.drop.push(cid);
+    noteSpellCast(defFighter, c);
 
     const s = (c.skill || "").toLowerCase();
     const revCnt = getFighterReversalCount(defFighter);

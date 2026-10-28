@@ -206,6 +206,7 @@
     if (cost.life > 0) f.life -= cost.life;
     f.hand.splice(i, 1);
     if (c.set) f.setSpells.push(c); else f.drop.push(c.id);
+    if (typeof noteSpellCast === "function") noteSpellCast(f, c);
     cut("COUNTER!", c.name, c.img);
     fresh();
     for (const ab of abilitiesOf(c, a => a.kind === "spell")) {
