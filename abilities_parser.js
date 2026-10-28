@@ -268,6 +268,9 @@
     q = q.replace(/\s+up to the number of (.+)$/i, (mm, w) => { const en = parseNP("each " + w); if (!en || en.junk) { np.junk = np.junk || "number of"; return ""; } np.qty.numOf = en; np.qty.upTo = true; return ""; });
     q = q.replace(/\bwith both ((?:«[^»]+»(?:\s*(?:,|and)\s*)?)+)/ig, (mm, w) => { np.filter.tribesAll = (w.match(/«([^»]+)»/g) || []).map(x => x.slice(1, -1)); return " "; });
     q = q.replace(/\b(?:non-|not )<([^>]+)>/ig, (mm, w) => { (np.filter.notWorlds = np.filter.notWorlds || []).push(w); return " "; });
+    // "non-monster card", "non-item", "non-«Dragon» monster" (they used to make the whole phrase unreadable)
+    q = q.replace(/\bnon-(monster|item|spell|impact)\b/ig, (mm, w) => { (np.filter.notTypes = np.filter.notTypes || []).push(w.toLowerCase()); return " "; });
+    q = q.replace(/\bnon-«([^»]+)»/ig, (mm, w) => { (np.filter.notTribes = np.filter.notTribes || []).push(w); return " "; });
     q = q.replace(/\b(?:each )?(?:of |with )?(different|the same) (sizes?|card names?)(?: in total)?\b/ig, (mm, w, what) => { const key = /size/i.test(what) ? "size" : "cardName"; if (/different/i.test(w)) np.filter.uniqueBy = key; else np.filter.sameBy = key; return " "; });
     q = q.replace(/\bat \[rest\]/ig, () => { np.filter.rested = true; return " "; });
     // multi-position zones: "on the left and right of your opponent's field", "on your opponent's left or right"

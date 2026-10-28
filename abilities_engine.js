@@ -135,9 +135,11 @@
   /* ============================================================
    * 3. CARD / TARGET MATCHING
    * ============================================================ */
+  // the card data spells some tribes both ways ("RagingSpirit" / "RagingSpirits"): a final "s" doesn't matter
+  const sing = (x) => x.replace(/s$/, "");
   function tribeEq(card, t) {
-    const k = norm(t);
-    return (card.attrs || []).some(a => norm(a) === k);
+    const k = norm(t), ks = sing(k);
+    return (card.attrs || []).some(a => { const n = norm(a); return n === k || sing(n) === ks; });
   }
   function kwOf(card, kw) {
     // [G.EVO] / [G.BOOST-X-] and other ability tags (abilities_gkw.js): only when printed as the ability's tag
@@ -195,6 +197,11 @@
       if (!ok) return false;
     }
     if (f.notImpact && isImpactMon(card)) return false;
+    if (f.notTypes && f.notTypes.length) {
+      const isMon2 = isMonsterCard(card);
+      if (f.notTypes.some(x => x === "monster" ? isMon2 : x === "item" ? card.type === "Item" : x === "spell" ? card.type === "Spell" : x === "impact" ? card.type === "Impact" : false)) return false;
+    }
+    if (f.notTribes && f.notTribes.length) { if (f.notTribes.some(tb => tribeEq(card, tb))) return false; }
     if (f.names && f.names.length) { const n = lc(card.name); if (!f.names.some(x => n.includes(x))) return false; }
     if (f.notNames && f.notNames.length) { const n2 = lc(card.name); if (f.notNames.some(x => n2.includes(x))) return false; }
     if (f.attrWords && f.attrWords.length) { const a = (card.attrs || []).map(norm); if (!f.attrWords.some(w => a.some(x => x.includes(norm(w))))) return false; }
