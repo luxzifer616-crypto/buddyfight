@@ -575,7 +575,6 @@ id,name,type,world,status,abilities,working,first_unread_sentence
 2681,Killer Order,Spell,Generic,PARTLY BUILT,1,1,"- Put the top two cards of your deck into your gauge. Then, if your opponent has two or more cards in their gauge more than yours, put the top two cards of your deck into your gauge."
 2683,"Wind Demon, Alra",Impact,Hero World,NOT BUILT,1,0,you may discard up to two cards from your hand.
 2684,"Invoke Impetuous Deity, Hibakara",Item,Danger World,PARTLY BUILT,2,1,You may not call monsters to the center.
-2685,Stronger Teagle:01,Monster,Star Dragon World,PARTLY BUILT,2,1,"This card gets power+1000 and defense+1000, for each card in this card's soul."
 2686,"Successor of the Omni Lord, Mukuro",Monster,Hero World,NOT BUILT,1,0,"if you have 4 life or less, or no monsters on your field, you may pay 1 gauge."
 2687,"Ghostly Spirit Yamigedo, ""Hundred Demons Thunder Mine""",Impact,Generic,NOT BUILT,1,0,"When an attack of a card on your field is nullified, if you have another «Hundred Demons» on your field, deal 2 damage to your opponent."
 2693,"Pinnacle of Martial Arts, Duel Jaeger ""God Vortoise""",Monster,Ancient World,NOT BUILT,2,0,"This card on your field cannot be [Rest] and its abilities cannot be nullified, by your opponent's card effects."
@@ -963,7 +962,6 @@ id,name,type,world,status,abilities,working,first_unread_sentence
 4102,CHAOS Teo Lao,Monster,Magic World,PARTLY BUILT,2,1,"If you do, return the chosen card to your opponent's hand."
 4104,"Ruinous Beast Battle Robo, CHAOS Gaidenoh",Monster,Hero World,PARTLY BUILT,2,1,"If you have an item equipped, the gauge cost written in this card's [Call Cost] is reduced by 1."
 4105,Taboo Contract,Spell,Legend World,PARTLY BUILT,2,1,"When you equip an item, destroy a size 2 or greater monster on your opponent's field."
-4106,CHAOS Mothman,Monster,Legend World,PARTLY BUILT,2,1,this card's size on the field is reduced by 1 for each other Wydar Sarkal monster on your field.
 4112,"Witching Hour Oni, Kid Ibuki ""Gedomaru""",Monster,Katana World,PARTLY BUILT,2,1,"Put up to three cards from your deck face down into this card's soul, and shuffle your deck."
 4115,"Eroded Beast Sword of the King, Laevateinn Savage",Item,Legend World,PARTLY BUILT,2,1,"Equip up to two items from your deck by paying their [Equip Cost], and shuffle your deck."
 4116,Mini Geargod Rainbow,Monster,Generic,NOT BUILT,1,0,"When a monster with ""Mini Geargod"" in its card name is put from your field into the drop zone, put the top card of your deck into your gauge, and draw a card."
@@ -1016,6 +1014,7 @@ id,name,type,world,status,abilities,working,first_unread_sentence
 4228,Warlord Sword Released,Spell,Dragon World,NOT BUILT,1,0,Draw cards equal to the number of different world names of cards on your field.
 4230,"Hyper Rescue Dragon, Justice Drum Fire",Monster,Hero World,PARTLY BUILT,2,1,"When this card enters the field, choose up to one «Superhero» with [Transform] in your deck, [Transform] into it by paying its [Transform] cost, and shuffle your deck."
 4233,"Loyal Dragon, Flarefang Dragon",Monster,Dragon World,PARTLY BUILT,2,1,This ability activates once per main phase and once per final phase.
+4234,"Freak-Wrist Beast Lord, Ziun",Monster,Katana World,NOT BUILT,1,0,"This card's attack cannot be nullified if it is attacking alone, and for each other [Omni Lord] or originally size 1 monster on your field, this card's size on the field is reduced by 1 and it gets po"
 4236,Jewelry Chest,Spell,Star Dragon World,PARTLY BUILT,2,1,Return all size 1 or less monsters on the field to their owners' hand.
 4237,"Inheritable Sun, Sunshine Impact",Item,Dragon World,PARTLY BUILT,2,1,"If the card in your buddy zone is in [Rest], this card gets [Penetrate], and its power becomes infinite."
 4241,"Saint Holy Sword, ""Thunder Edge""",Monster,Dragon World,PARTLY BUILT,2,1,"if you have three or more different world names of cards in your drop zone or 4 life or less, for this turn, this card gets [Penetrate] and [Double Attack]."
@@ -1129,7 +1128,6 @@ id,name,type,world,status,abilities,working,first_unread_sentence
 4815,Tyrant Elgar Cerberus,Monster,Danger World,PARTLY BUILT,2,1,"Then, if that «Weapon» has 4 or more critical, you gain 3 life."
 4816,"Bone Conductor, Rebel Gallows",Monster,Darkness Dragon World,NOT BUILT,1,0,"During your attack phase, if no cards are in battle, choose any number of monsters on your opponent's field, and [Rest] this card. If you do, [Stand] the chosen monsters, and attack your opponent with"
 4846,-Flame Quartet-,Spell,Magic World,PARTLY BUILT,2,1,"if this card is in your drop zone, your may drop a hand card."
-4847,Revolution of Red,Spell,Magic World,PARTLY BUILT,2,1,The gauge cost written in this card's [Cast Cost] is reduced by 1 for each different «Fire» in your drop zone.
 4857,"Rumbling Spiral Thunderaxe, Emperor Agito",Monster,Ancient World,PARTLY BUILT,2,1,This card gets all the [D] of [D-Share] in its soul and power+2000 for each of its souls.
 4859,Episto Ira Gnitz,Monster,Lost World,PARTLY BUILT,3,1,You cannot take damage by your opponent's monster effects.
 4860,Vile Vortex,Spell,Lost World,NOT BUILT,1,0,"For this turn, all [Call Cost], [Cast Cost] and [Equip Cost] of cards in your hand are lost."
@@ -1195,7 +1193,6 @@ id,name,type,world,status,abilities,working,first_unread_sentence
 5022,"Deity Against All, Gargantua Dragon ""Eisenwaechter""",Monster,Ancient World,NOT BUILT,2,0,"""[Call Cost] [Pay 3 gauge & Put the top card of your deck into its soul]"
 5023,Gargantua Thunder Deity Wind Demon Dragon,Monster,Katana World,PARTLY BUILT,2,1,"put up to one card from the top of your deck face down on the field as a ""«Dragod»/size 0/6000 power/6000 defense/2 critical"" monster."
 5026,Aegir Gardra,Monster,Dragon World,PARTLY BUILT,2,1,"When a «Dragod» on your field attacks alone, it attacks your opponent and all their monsters instead."
-5029,"Vile Demonic Particles, Lostless Heizer",Item,Lost World,PARTLY BUILT,3,2,The gauge cost written in this card's [Equip Cost] is reduced by 1 for each card on your field.
 5031,Day of Devastation,Spell,Lost World,PARTLY BUILT,1,1,"- For this turn, all cards on your field cannot be destroyed, returned to hand, and their abilities cannot be nullified, by your opponent's card effects!"
 5035,Cherry Blossom Dance,Spell,Katana World,NOT BUILT,2,0,Your opponent cannot call monsters from the drop zone.
 5038,Poison Mask,Item,Darkness Dragon World,PARTLY BUILT,2,1,"When a card from your opponent's deck is dropped by your card effects, put the top two cards of your deck into your gauge."
@@ -1241,7 +1238,7 @@ id,name,type,world,status,abilities,working,first_unread_sentence
 5167,Menthreit Shine,Spell,Star Dragon World,PARTLY BUILT,3,2,Souls in the «Prism Dragon» with this card in its soul cannot be dropped by your opponent's card effects.
 5171,"Here Comes the Event! Garga ""SD""",Monster,Generic,PARTLY BUILT,3,2,"If this card is in the soul of a monster, call this card from the soul."
 5173,"Left Arm of Genesis, Leftes",Monster,Ancient World,PARTLY BUILT,2,1,"on the left, and if ""Great Dragon of Genesis, Bigbang Dragon"" is on your field"
-5175,"Autodeity Heroic Sword of the King, Laevateinn",Item,Legend World,PARTLY BUILT,3,1,The gauge cost written in this card's [Equip Cost] is reduced by 1 for each card on your field.
+5175,"Autodeity Heroic Sword of the King, Laevateinn",Item,Legend World,PARTLY BUILT,3,2,This card on the field cannot be [Rest] and its critical cannot be reduced by your opponent's card effects.
 5184,"Calm & Collected, Conan Edogawa",Monster,Detective Conan,NOT BUILT,1,0,"During the final phase, when this card enters the field, declare a card type, and look at your opponent's hand. If there is a card of the declared card type among them, deal 2 damage to your opponent."
 5192,"Secretive, Vermouth",Monster,Detective Conan,PARTLY BUILT,2,1,Counter] [Act] Call this card from your hand by paying its [Call Cost].
 5193,"Informant, Bourbon",Monster,Detective Conan,PARTLY BUILT,3,2,"If you do, put this card face down into the chosen character's soul."
@@ -1260,7 +1257,6 @@ id,name,type,world,status,abilities,working,first_unread_sentence
 5224,"Cautious Man, Gin",Monster,Detective Conan,PARTLY BUILT,2,1,"or deals damage to your opponent, destroy a card on your opponent's field, you gain 1 life, and deal 1 damage to your opponent."
 5225,"Witch of a Thousand Faces, Vermouth",Monster,Detective Conan,PARTLY BUILT,2,1,"If you do, put this card face down in the chosen character's soul."
 5249,"Childhood Friend, Ran Mori",Monster,Detective Conan,NOT BUILT,2,0,This ability activates once per main phase and once per final phase.
-5268,Warrant Officer Pumpkin,Monster,Danger World,PARTLY BUILT,2,1,This card gets size reduced by 1 for each other «Dangerous Veggies» monster on your field.
 5269,"Strategic Arms, Dangerous Vegan Curry",Monster,Danger World,PARTLY BUILT,3,2,This card gets all abilities of all originally size 2 or less «Dangerous Veggies» in its soul.
 5273,Must-eat! Veggie-hater Annihilation Cannon!!,Impact,Danger World,PARTLY BUILT,2,1,"if your opponent's life is 5 or less, and an originaly size 3 «Dangerous Veggies» is on your field"
 5274,Danger World (Dangerous Veggies),Flag,Danger World,PARTLY BUILT,3,1,"But most of all, try the new Dangerous Veggies ."
@@ -1310,7 +1306,6 @@ id,name,type,world,status,abilities,working,first_unread_sentence
 5421,Retainer Shield,Spell,Legend World,PARTLY BUILT,2,1,"Then, if Dragod are on your left and right, you may drop a hand card."
 5422,De Ju Mau,Spell,Legend World,NOT BUILT,1,0,"[Stand] all Legend Dragon in your buddy zone, and put up to two monsters with both Dragod and Legend Dragon with different card names from your deck into your hand, and shuffle your deck. If you put t"
 5424,"Heavy Shield of Adjuvancy, Qalxan",Monster,Legend World,PARTLY BUILT,2,1,"When this card is dropped from your hand by card effects, [Stand] all «Legend Dragon» in your buddy zone."
-5429,"High Priest of Harvest, Mosone",Monster,Legend World,PARTLY BUILT,2,1,"If this card is on the center, this card on the field gets size reduced by 1 for each monster on your left and right."
 5433,The Wave Attack of Sparkling and Heart-Pounding,Spell,BanG Dream! Girls Band Party! PICO,NOT BUILT,2,0,character on your field.
 5434,Sparkling and Heart-Pounding Egosearching,Spell,BanG Dream! Girls Band Party! PICO,PARTLY BUILT,2,1,"At the end of the battle that a Pastel Palettes character with this card in its soul attacked, deal 1 damage to your opponent."
 5436,Red Mesh of Sparkling and Heart-Pounding,Spell,BanG Dream! Girls Band Party! PICO,PARTLY BUILT,2,1,"At the end of the battle that an Afterglow character with this card in its soul attacked, destroy or return to hand a character on your opponent's field."
@@ -1336,7 +1331,6 @@ id,name,type,world,status,abilities,working,first_unread_sentence
 5508,(Still Hasn't Changed),Spell,THE IDOLM@STER Cinderella Girls Theater,PARTLY BUILT,2,1,"Put up to one character from your drop zone into your hand, and for this turn, all buddy's power on your field becomes infinite."
 5511,"One Wing of the King, Freeza Horus",Monster,Legend World,PARTLY BUILT,2,1,"you may buddy call a ""One Wing of the King, Magma Horus"" from your hand."
 5513,"One Wing of the King, Magma Horus",Monster,Legend World,NOT BUILT,1,0,"When this card is called by the effect of ""One Wing of the King, Freeza Horus"", destroy all spells and items on your opponent's field, and deal 1 damage to your opponent for each cards destroyed."
-5516,"Grand Sage, Ilanral",Monster,Legend World,PARTLY BUILT,2,1,This card on the field gets size reduced by 1 for each «Dragod» in your buddy zone.
 5517,"Legendary Ice Deity, Freeza Horus",Monster,Legend World,PARTLY BUILT,2,1,"you may buddy call a ""Legendary Flame Deity, Magma Horus"" from your hand without paying its [Call Cost]."
 5519,"Lightblaze Sword of the King, Claiomh Solais",Item,Legend World,PARTLY BUILT,2,1,"If your opponent's card attacks you alone, you may pay 1 life."
 5523,"Legendary Flame Deity, Magma Horus",Monster,Legend World,NOT BUILT,1,0,"Freeza Horus"", destroy all monsters on your opponent's field, and deal 1 damage to your opponent for each card destroyed."
@@ -1345,7 +1339,6 @@ id,name,type,world,status,abilities,working,first_unread_sentence
 5528,"Fairy King, Alverich",Monster,Legend World,PARTLY BUILT,2,1,"If there are a total of three or more different cards with «Hero» and «Fairy» in your drop zone, this card gets critical+2, and [Penetrate]."
 5533,"Devoted Scholar of Hermetics, Kiamya",Monster,Legend World,NOT BUILT,1,0,"put up to one «Legend Dragon» item from your deck into your hand, and shufflle your deck."
 5536,"Junior Long-spear Warrior, Liim",Monster,Legend World,NOT BUILT,1,0,"At the start of the final phase of a turn that this card is dropped from your hand, if a «Legend Dragon» is on your field, you may put a ""Junior Long-spear Warrior, Liim"" from your drop zone into your"
-5543,"Foreseer of the Sky, Shamseiya",Monster,Legend World,PARTLY BUILT,2,1,"If this card is on the center, this card's size on the field is reduced by 1 for each card on your left or right."
 5545,"Dragon Force, ""Style of Binds""",Item,Legend World / Star Dragon World,PARTLY BUILT,2,1,"If you have a monster with ""Zodiac"" in its card name on your field or drop zone, all cards on your opponent's field cannot [Move], and cannot [Stand] during the start phase."
 5549,"Cataclysmic Seed, Hyakugan Yamigedo Larva",Monster,Generic,PARTLY BUILT,2,1,"When this card is put from your deck into your drop zone by card effects, you may call this card from your drop zone."
 5552,Promise of Rainbow,Spell,Generic,PARTLY BUILT,2,1,"When this card is put into the drop zone from your deck by your opponent's card effects, you may put this card from the drop zone into your hand."
@@ -1407,7 +1400,7 @@ id,name,type,world,status,abilities,working,first_unread_sentence
 5722,Sword of Misaha,Item,Legend World,PARTLY BUILT,3,2,The damage you take by card effects is reduced by 1 for each different «Dragod» on your field.
 5737,"Magma Horus ""SD"" & Freeza Horus ""SD""",Monster,Legend World,PARTLY BUILT,2,1,"if you buddy called during this fight, for this turn, this card gets [Triple Attack]."
 5741,"Messiah Arms, Siegsabre",Item,Legend World,PARTLY BUILT,2,1,"When a card with ""Dragon"" in its attribute attacks you alone, nullify the attack."
-5742,"Great Strategist on the Eve of Critical Battle, Balga Da Garuda",Monster,Legend World,NOT BUILT,2,0,This card on the field gets size reduced by 1 for each «Dragod» in your buddy zone.
+5742,"Great Strategist on the Eve of Critical Battle, Balga Da Garuda",Monster,Legend World,PARTLY BUILT,2,1,"When a «Dragod» on your field attacks alone, it attacks your opponent and all their monsters instead."
 5749,"Legendary Thunder Deity, Voltic Ra",Monster,Legend World,PARTLY BUILT,2,1,"you may buddy call a ""Legendary Ice Deity, Freeza Horus"" from your hand without paying its [Call Cost]."
 5750,"Projection Shell, ""Thraetaona""",Monster,Legend World,PARTLY BUILT,2,1,"During each player's attack phase and final phase, nullify all abilities of all cards with ""Dragon"" in their attributes on your opponent's field. This ability cannot be nullified."
 5752,"Dragon Slaying Arts, Ragnar Flame",Impact,Legend World,PARTLY BUILT,2,1,if «Messiah Arms» items on your field have souls
@@ -1484,7 +1477,6 @@ id,name,type,world,status,abilities,working,first_unread_sentence
 5972,"Steal Time, ""We say good bye!""",Spell,Magic World,PARTLY BUILT,2,1,"You may only cast ""Steal Time, ""We say good bye."""""
 5973,Chaser Beetle,Item,Magic World,PARTLY BUILT,2,1,"If six or more ""Magic Treasure"" are on your opponent's field, all «Drago Phantom Thief» on your field can attack your opponent even if they have monsters on the center."
 5976,Kronos Kronograph,Spell,Magic World,PARTLY BUILT,1,1,- Put a card in stopped time from your opponents field on the bottom of their deck.
-5980,Gate of Transmigration,Spell,Magic World,PARTLY BUILT,2,1,The gauge cost written in this card's [Cast Cost] is reduced by 1 for each different «Fire» in your drop zone.
 5987,"Time Scout, Khan",Monster,Magic World,NOT BUILT,1,0,"if your flag [Reversal] during this fight, your opponent chooses and puts a hand card on the bottom of their deck."
 5989,"Adorable Phantom Thief, Sophie Parker",Monster,Magic World,NOT BUILT,2,0,"During each player's attack phase, when a ""Magic Treasure"" is put on your opponent's field, you gain 1 life, and deal 1 damage to your opponent."
 5992,"Great Electrodeity of Freedom, Izanami",Monster,Katana World,PARTLY BUILT,1,1,"- During your turn, you may drop five different size 3 «Electrodeity» from your hand. If you do, after this turn, you get another turn!"
@@ -1683,7 +1675,6 @@ id,name,type,world,status,abilities,working,first_unread_sentence
 6483,"""Demonic Rock Mech Trooper"" Dra-gollum ""Re:B""",Monster,Danger World,PARTLY BUILT,3,2,All «Duel Golem» on your field cannot be [Rest] or have their abilities nullified by your opponent's card effects.
 6485,"Great Raging Dragon, Zargilragne ""Crazed Claw Raging Fang Re:B""",Impact,Danger World,PARTLY BUILT,3,2,"If you have three or more different «Duel Dragon» in your drop zone, this card gets critical+2, then, if you have six or more different, during the battle that this card is attacking alone, your oppon"
 6487,"Illusionist of Shadowform, Silhouette Joe ""Re:B""",Monster,Magic World,NOT BUILT,2,0,"At the start of each player's attack phase, you may put up to two monsters or spells in total from your drop zone into this card's soul. If you put one or more, you gain 1 life and draw a card."
-6488,"Fallen Demon Lord, Rucifiel ""Re:B""",Monster,Magic World,PARTLY BUILT,3,2,The gauge cost written in this card's [Call Cost] is reduced by 1 for each «72 Pillars» on your field.
 6489,"""Ashen Death Sorcery"" Yersinieas ""Re:B""",Monster,Magic World,PARTLY BUILT,3,1,You may cast a «Plague» spell from this card's soul by paying its [Cast Cost].
 6491,"Dragowizard, Qinus Axia ""Re:B""",Monster,Magic World,PARTLY BUILT,4,3,"All «Wizard» on your field cannot be destroyed or returned to hand by your opponent's card effects, and damage dealt to your opponent by your card effects cannot be reduced."
 6494,"Evil in Heart, Yamigitsune ""Re:B""",Monster,Katana World,NOT BUILT,3,0,All «Skull Warrior» on your field can attack your opponent even if they have monsters in their center.

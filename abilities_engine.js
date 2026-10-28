@@ -1310,6 +1310,16 @@
       || (f.item && f.item.card && String(f.item.card.name).replace(/[“”"]/g, "").trim().toLowerCase() === want)));
   };
 
+  // how many cards "each X" counts right now ("each other «X» on your field", "each different «Fire» in your drop zone")
+  function countEach(np, ctx) {
+    if (!np || np.junk) return 0;
+    let refs = refsFor(np, ctx, { owner: "you", area: "field" });
+    if (np.excludeSelf || /\bother\b/i.test(np.raw || "")) refs = refs.filter(r => !(ctx.unit && r.unit === ctx.unit) && !(r.id === ctx.card.id && r.unit && r.unit === ctx.unit));
+    if (np.filter && np.filter.distinct) { const seen = new Set(); refs = refs.filter(r => { const k = String(r.card && r.card.name).toLowerCase(); if (seen.has(k)) return false; seen.add(k); return true; }); }
+    return refs.length;
+  }
+  core.countEach = countEach;
+
   // Size changes from "this card's size is reduced by N" statics (only the ones the old text code does not already do).
   const LEGACY_SIZE = /dragod|reversal|overgod/i;
   let inSize = 0;
@@ -1329,7 +1339,8 @@
         if (!sm || (ab.steps || []).length !== 1) continue;
         const ctx = { side, f: fighter, e: F(otherSide(side)), card, unit: unit || null, bind: {} };
         if (!(ab.conds || []).every(c => condExecutable(c) && evalCond(c, ctx))) continue;
-        d += sm.delta || 0;
+        // "... is reduced by 1 for each X" (abilities_r18.js)
+        d += (sm.delta || 0) * (sm.each ? countEach(sm.each, ctx) : 1);
       }
     } catch (e) { /* ignore */ }
     inSize--;
