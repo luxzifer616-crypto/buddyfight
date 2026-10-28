@@ -221,8 +221,8 @@
   ABX.castWindow = async function (casterSide, card, kind) {
     if (!card || ABX.enabled === false || B.matchOver) return false;
     const rSide = otherSide(casterSide);
-    if (B.mode === "online_p2p" && rSide === "opp") return false;   // the friend's device can't be asked from here (yet)
     if (ABX.castUnnullifiable(card)) return false;
+    if (B.mode === "online_p2p" && rSide === "opp") return askOnlineFriend(casterSide, card, kind);
     let opts;
     try { opts = responseOptions(rSide, card, kind); } catch (e) { if (ABX.debug) console.error(e); return false; }
     if (!opts.length) return false;
@@ -247,6 +247,73 @@
     return cc.nullified;
   };
 
+  /* ---------- online: ask the friend's device ---------- */
+  // The friend's device gets the board, works out its own options and answers with the label + card id it picked.
+  // The answer is then run here (this device owns the cast), with the friend's small follow-up picks made automatically.
+  let onlineReq = 0;
+  const pendingOnline = new Map();
+  const ONLINE_WAIT_MS = 90000;
+  const peer = () => (typeof app !== "undefined" && app.peerConn && app.peerConn.open) ? app.peerConn : null;
+  async function askOnlineFriend(casterSide, card, kind) {
+    const conn = peer();
+    if (!conn) return false;
+    let opts;
+    try { opts = responseOptions("opp", card, kind); } catch (e) { if (ABX.debug) console.error(e); return false; }
+    if (!opts.length) return false;   // nothing the friend could answer with: don't make them wait
+    const reqId = ++onlineReq;
+    say(`⏳ Waiting for Online Friend to respond to "${card.name}"…`);
+    const answer = await new Promise(resolve => {
+      const timer = setTimeout(() => { pendingOnline.delete(reqId); resolve(null); }, ABX.onlineWaitMs || ONLINE_WAIT_MS);
+      pendingOnline.set(reqId, (a) => { clearTimeout(timer); pendingOnline.delete(reqId); resolve(a); });
+      try {
+        conn.send({
+          type: "P2P_CAST_PROMPT", reqId, cardId: card.id, kind,
+          stateSnapshot: { turnCount: B.turnCount, turn1AttackUsed: !!B.turn1AttackUsed, activeSideForReceiver: B.activeSide === "plr" ? "opp" : "plr", phase: B.phase,
+            senderPlr: JSON.parse(JSON.stringify(B.plr)), senderOpp: JSON.parse(JSON.stringify(B.opp)) }
+        });
+      } catch (e) { clearTimeout(timer); pendingOnline.delete(reqId); resolve(null); }
+    });
+    if (B.matchOver || !answer || answer.label == null) { say(`▶️ "${card.name}" resolves.`); return false; }
+    opts = responseOptions("opp", card, kind);   // re-check: the board may only be answered from what is still possible
+    const pickIdx = opts.findIndex(o => o.label === answer.label && o.card && Number(o.card.id) === Number(answer.cardId));
+    if (pickIdx < 0) return false;
+    const prev = ABX.castCtx, prevAuto = ABX.remoteAutoSide;
+    const cc = ABX.castCtx = { active: true, side: casterSide, card, kind, nullified: false };
+    ABX.remoteAutoSide = "opp";
+    try { await opts[pickIdx].run(); } catch (e) { if (ABX.debug) console.error(e); }
+    finally { ABX.castCtx = prev; ABX.remoteAutoSide = prevAuto; }
+    fresh();
+    try { B.sendOnlineStateToPeer && B.sendOnlineStateToPeer(cc.nullified ? `🚫 You nullified "${card.name}"!` : null); } catch (e) { /* ignore */ }
+    return cc.nullified;
+  }
+  // the friend's answer arrived (game.js routes P2P_CAST_RESPONSE here)
+  ABX.receiveCastResponse = function (msg) {
+    const done = msg && pendingOnline.get(Number(msg.reqId));
+    if (done) done({ label: typeof msg.label === "string" ? msg.label.slice(0, 300) : null, cardId: Number(msg.cardId) || 0 });
+  };
+  // On the friend's device: show the "respond?" window and send back what was picked (game.js routes P2P_CAST_PROMPT here).
+  ABX.answerCastPrompt = async function (msg) {
+    const conn = peer();
+    const reply = (label, cardId) => { try { conn && conn.send({ type: "P2P_CAST_RESPONSE", reqId: msg.reqId, label: label == null ? null : label, cardId: cardId || 0 }); } catch (e) { /* ignore */ } };
+    const card = typeof CARD_MAP !== "undefined" ? CARD_MAP.get(Number(msg.cardId)) : null;
+    if (!card || !["spell", "impact", "call"].includes(msg.kind) || ABX.castUnnullifiable(card)) return reply(null);
+    let opts = [];
+    try { opts = responseOptions("plr", card, msg.kind); } catch (e) { if (ABX.debug) console.error(e); }
+    if (!opts.length) return reply(null);
+    let idx = -1;
+    if (ABX.hooks && ABX.hooks.castResponse) idx = await ABX.hooks.castResponse("plr", card, msg.kind, opts);
+    else {
+      const what = msg.kind === "call" ? "is calling" : msg.kind === "impact" ? "is casting the Impact" : "is casting";
+      idx = await ABX.ui.pickOption({
+        title: `🌐 Online Friend ${what} "${card.name}" — respond?`,
+        subtitle: "You can nullify it now.",
+        options: opts.map(o => ({ label: o.label, sub: o.sub })).concat([{ label: "➡️ Let it resolve" }])
+      });
+    }
+    if (idx == null || idx < 0 || !opts[idx]) return reply(null);
+    reply(opts[idx].label, opts[idx].card && opts[idx].card.id);
+  };
+
   /* ---------- size 0 ---------- */
   OPS.setSize0 = {
     run(s, ctx) {
@@ -256,7 +323,8 @@
         if (ctx.calledPos && ctx.f.monsters[ctx.calledPos]) units = [ctx.f.monsters[ctx.calledPos]];
         else units = (ctx.bind.chosen || []).filter(r => r.unit).map(r => r.unit);
       }
-      units.forEach(u => { u.abxSize0 = true; });
+      // "... as long as "X" is on the field": remember X; the size 0 ends as soon as no X is on either field
+      units.forEach(u => { u.abxSize0 = s.whileName ? { whileName: s.whileName } : true; });
       fresh();
       return units.length > 0;
     },

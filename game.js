@@ -3314,6 +3314,10 @@ const app = {
         battle.receiveOnlineAttackPromptFromPeer(msg);
       } else if (msg.type === "P2P_DEFENSE_RESPONSE") {
         battle.receiveOnlineDefenseResponseFromPeer(msg);
+      } else if (msg.type === "P2P_CAST_PROMPT") {
+        battle.receiveOnlineCastPromptFromPeer(msg);
+      } else if (msg.type === "P2P_CAST_RESPONSE") {
+        if (window.ABX && ABX.receiveCastResponse) ABX.receiveCastResponse(msg);
       }
     });
 
@@ -4558,6 +4562,15 @@ const battle = {
       strip.appendChild(div);
     });
     document.getElementById("defense-prompt-modal").classList.remove("hidden");
+  },
+
+  // The friend cast a spell / impact or called a monster: they ask if we want to nullify it.
+  receiveOnlineCastPromptFromPeer(msg) {
+    if (this.mode !== "online_p2p" && !(msg && msg.stateSnapshot)) return;
+    if (msg.stateSnapshot) this.receiveOnlineStateFromPeer(msg.stateSnapshot);
+    if (this.matchOver) return;
+    if (window.ABX && ABX.answerCastPrompt) ABX.answerCastPrompt(msg);
+    else if (app.peerConn && app.peerConn.open) app.peerConn.send({ type: "P2P_CAST_RESPONSE", reqId: msg.reqId, label: null });
   },
 
   receiveOnlineDefenseResponseFromPeer(msg) {

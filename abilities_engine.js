@@ -375,7 +375,7 @@
   /* ============================================================
    * 5. TARGET SELECTION
    * ============================================================ */
-  function sideIsAuto(side) { return F(side).isBot || ABX.autoPlay === true; }
+  function sideIsAuto(side) { return F(side).isBot || ABX.autoPlay === true || ABX.remoteAutoSide === side; }   // remoteAutoSide: the online friend's answer runs here, its small picks are made automatically
 
   // How "valuable" a card is (for bot picks / which cards to throw away)
   function valueOf(card) { if (!card) return 0; return (card.power || 0) / 1000 + (card.defense || 0) / 2000 + (card.crit || 0) * 2 + (card.size == null ? 0 : card.size) + (card.type === "Monster" ? 1 : 0); }
@@ -1252,6 +1252,14 @@
     return d;
   }
 
+  // Is a card named `name` on either fighter's field (monster zones or item)?
+  ABX.nameOnField = function (name) {
+    const want = String(name || "").replace(/[“”"]/g, "").trim().toLowerCase();
+    if (!want) return false;
+    return [B.plr, B.opp].some(f => f && (["left", "center", "right"].some(p => f.monsters && f.monsters[p] && f.monsters[p].card && String(f.monsters[p].card.name).replace(/[“”"]/g, "").trim().toLowerCase() === want)
+      || (f.item && f.item.card && String(f.item.card.name).replace(/[“”"]/g, "").trim().toLowerCase() === want)));
+  };
+
   // Size changes from "this card's size is reduced by N" statics (only the ones the old text code does not already do).
   const LEGACY_SIZE = /dragod|reversal|overgod/i;
   let inSize = 0;
@@ -1259,7 +1267,8 @@
     if (inSize || !card) return 0;
     const side = B.plr === fighter ? "plr" : B.opp === fighter ? "opp" : null;
     if (!side) return 0;
-    if (unit && unit.abxSize0) return -99;   // "That card becomes size 0 until it leaves the field"
+    if (unit && unit.abxSize0 && unit.abxSize0.whileName && !ABX.nameOnField(unit.abxSize0.whileName)) unit.abxSize0 = false;
+    if (unit && unit.abxSize0) return -99;   // "That card becomes size 0 until it leaves the field" / "as long as "X" is on the field"
     inSize++;
     let d = 0;
     try {

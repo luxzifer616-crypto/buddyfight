@@ -851,7 +851,7 @@
   // --- size modification statics ---
   ar(/^(?:this card's size on the field|the size of this card on your (?:field|left or right)|this card on the field gets size|this card's size) (?:is )?(?:reduced|gets reduced) by (\d+)$/i, (m) => SDEF("sizeMod", { delta: -(+m[1]) }));
   ar(/^(?:this card on the field gets size reduced by|reduce the size of this card on your field by) (\d+)$/i, (m) => SDEF("sizeMod", { delta: -(+m[1]) }));
-  ar(/^(?:that card|this card) becomes (?:a )?size 0(?: monster)?(?: until it leaves the field| as long as .+)?$/i, (m) => ({ op: "setSize0", np: /^this/i.test(m[0]) ? { self: true, qty: { n: 1 }, filter: {}, raw: "this card" } : { ref: "chosen", qty: { n: 1 }, filter: {}, raw: "that card" } }));
+  ar(/^(?:that card|this card) becomes (?:a )?size 0(?: monster)?(?: until it leaves the field| as long as [“"']?(.+?)[”"']? is on (?:the|your) field)?$/i, (m) => ({ op: "setSize0", whileName: m[1] || null, np: /^this/i.test(m[0]) ? { self: true, qty: { n: 1 }, filter: {}, raw: "this card" } : { ref: "chosen", qty: { n: 1 }, filter: {}, raw: "that card" } }));
   ar(/^the size of (?:all )?(?:originally size (\d+)( or less)? )?(.+?) on your field is reduced by (\d+)$/i, (m) => { const np = parseNP(m[3] + " on your field"); return np ? SDEF("sizeModOthers", { np, delta: -(+m[4]), origSize: m[1] ? +m[1] : null, origLe: !!m[2] }) : null; });
   ar(/^the gauge cost written in its \[call cost\] is reduced by (\d+)$/i, (m) => SDEF("callCostReduce", { delta: +m[1] }));
   ar(/^the \[(cast|call|equip) cost\] of each of your (.+?) is reduced by (\d+) gauge$/i, (m) => SDEF("costReduceFor", { kind: lc(m[1]), np: parseNP(m[2]), delta: +m[3] }));
