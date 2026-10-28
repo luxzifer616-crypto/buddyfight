@@ -599,13 +599,17 @@
           if (isProt && !s.kinds.includes(kind)) continue;
           if (isAura && !protectKinds(s).has(kind)) continue;
           if (s.byOpp && !byOppSide) continue;
+          if (s.byMonster && !(ctx && ctx.card && isMonsterCard(ctx.card))) continue;   // "by monster effects" (abilities_r20.js)
           // Soul cards only work while in a soul; field / set cards only while on the field.
           const sctx = { side, f, e: F(otherSide(side)), unit: src.unit, card: src.card, soulHost: src.host, hostArea: src.host ? "soul" : "field",
             bind: { chosen: src.host ? [{ k: "unit", side, unit: src.host, card: src.host.card, id: src.host.card.id }] : [] } };
           if (!(ab.conds || []).every(c => evalCond(c, sctx))) continue;
           if (s.cond && !evalCond(s.cond, sctx)) continue;
           if (isProt) {
-            if (s.self) { if (src.unit === unit) return true; continue; }
+            // "The «X» with this card in its soul cannot ..." protects the soul's host (abilities_r20.js)
+            if (s.host) { if (src.host && src.host === unit && (!s.np || matchFilter(unit.card, s.np.filter || {}, { unit, side }, sctx))) return true; continue; }
+            if (s.self && src.unit === unit) return true;
+            if (s.self && !s.np) continue;   // "this card and all «X» ..." also checks the np below
             if (s.np) {
               const refs = refsFor(s.np, sctx, { owner: "you", area: "field" });
               if (refs.some(r => r.unit === unit)) return true;
