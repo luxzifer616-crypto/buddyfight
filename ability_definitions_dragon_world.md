@@ -5,6 +5,11 @@ Grouped by mechanism: each group is built by one handler. One line per ability: 
 "You choose" = the owner picks (the bot picks for itself). **JC** = judgment call (the text leaves it open).
 Not tested yet (by request); debug later.
 
+**Progress:** 224 → 179 missing. Built in `abilities_r24.js`: the new trigger events for groups A ([Move]), B (returned
+to hand), C (opponent's monster destroyed), D (attacks alone / link / "this card or a «Weapon»"), E ([Rest] / [Stand] by
+effects), F (damage other than by attacks), and "If <event>, <effect>" lines re-read as triggers. Still to build: the
+effect wordings in groups D–K.
+
 ## A. "When … [Move]" triggers (new event: a monster changes area by [Move])
 
 - **#1251** When this card [Move]s → put the top card of your deck into your gauge.

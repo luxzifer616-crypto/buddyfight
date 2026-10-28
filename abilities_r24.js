@@ -27,8 +27,9 @@
       if (t.pos && i.pos !== t.pos) return false;
       if (t.other && i.unit === src.unit) return false;
       if (!npOK(t, i.card, null, i.side)) return false;
-      if (t.byYou && !(i.byAttack ? i.attSide === side : i.effSide === side)) return false;
-      if (t.byEffect && (i.byAttack || i.effSide !== side)) return false;
+      // with no effect running (effSide unknown), a non-attack destroy counts as yours, like Round 13's xLeave
+      if (t.byYou && !(i.byAttack ? i.attSide === side : (i.effSide == null || i.effSide === side))) return false;
+      if (t.byEffect && (i.byAttack || (i.effSide != null && i.effSide !== side))) return false;
       if (t.byThisAttack && !(i.byAttack && (i.attUnits || []).includes(src.unit))) return false;
       if (t.attackerNP && !(i.byAttack && (i.attUnits || []).some(u => matchFilter(u.card, t.attackerNP.filter || {}, { unit: u, side }, { f: F(side) })))) return false;
       return true;
@@ -62,8 +63,9 @@
   tr(/^(?:when|whenever) your («[^»]+») on your field is returned to your hand$/i, (m) => ({ event: "r24", ev: "leave", own: true, kinds: ["hand"], np: NP(m[1]) }));
   // C. opponent's monster destroyed
   tr(/^(?:when|whenever) your opponent's center monster is destroyed$/i, () => ({ event: "r24", ev: "leave", kinds: ["destroyed"], pos: "center" }));
-  tr(/^(?:when|whenever) (?:a monster on your opponent's field is|your opponent's monsters? (?:is|are)) destroyed by your (attacks or card effects|card effects)$/i,
-    (m) => ({ event: "r24", ev: "leave", kinds: ["destroyed"], np: NP("a monster"), byYou: /attacks/i.test(m[1]), byEffect: !/attacks/i.test(m[1]) }));
+  // ("a monster on your opponent's field is destroyed by your card effects" alone is Round 13's xLeave)
+  tr(/^(?:when|whenever) (?:a monster on your opponent's field is destroyed by your attacks or card effects|your opponent's monsters are destroyed by your card effects)$/i,
+    (m) => ({ event: "r24", ev: "leave", kinds: ["destroyed"], np: NP("a monster"), byYou: /attacks/i.test(m[0]), byEffect: !/attacks/i.test(m[0]) }));
   tr(/^(?:when|whenever) an opponent's monster is destroyed (?:with|by) this card's attack$/i, () => ({ event: "r24", ev: "leave", kinds: ["destroyed"], byThisAttack: true }));
   tr(/^(?:when|whenever) an attack by (?:a |an )?(.+?) on your field destroys your opponent's monster$/i, (m) => ({ event: "r24", ev: "leave", kinds: ["destroyed"], attackerNP: NP(m[1]) }));
   // E. [Rest] / [Stand]

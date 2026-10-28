@@ -43,7 +43,7 @@ const execOf = (id) => run(`ABX.get(CARD_MAP.get(${id})).abilities.filter(a=>!['
   ck("3883 soul [Act] is offered on its host", run(`ABX.soulActs('plr', __neo).length===1 && ABX.canUseSoulAct('plr', __neo, CARD_MAP.get(3883), ABX.soulActs('plr', __neo)[0].ab)`));
   run(`ABX.useSoulAct('plr', __neo, CARD_MAP.get(3883), ABX.soulActs('plr', __neo)[0].ab)`); await settle();
   ck("…and calls it from the soul", run(`!__neo.soul.includes(3883) && ['left','right'].some(p=>battle.plr.monsters[p] && battle.plr.monsters[p].card.id===3883)`));
-  run(`fresh(); globalThis.__u=put('plr','left', CARD_MAP.get(5956)); battle.plr.drop=battle.plr.deck.splice(0,3);`);
+  run(`fresh(); globalThis.__u=put('plr','left', CARD_MAP.get(5956)); battle.plr.drop=battle.plr.deck.splice(0,3);`); await settle();   // let the queued turn-start Wind Kronos finish first
   run(`ABX.runAbility('plr', CARD_MAP.get(5956), ABX.get(CARD_MAP.get(5956)).abilities.find(a=>a.trigger && (a.trigger.event==='turnStart' || a.trigger.event==='phaseStart')), __u)`); await settle();
   ck("5956 'put cards into this card's soul until two cards are in it'", run(`__u.soul.length===2`), run(`__u.soul.length`));
   run(`fresh(); globalThis.__a=put('plr','left',mk('')); globalThis.__b=put('plr','right',mk('')); spellRun('plr', mk("",{type:"Spell",skill:"Swap the «Astrodragon» on your left and right."}))`); await settle();
