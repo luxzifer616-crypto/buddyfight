@@ -367,7 +367,7 @@
       case "attackedThisTurn": return turnStats(f).attacks >= 1;
       case "castThisTurn": { const S = turnStats(f); if (!c.np || !c.np.filter || !Object.keys(c.np.filter).some(k => k !== "types")) return S.castThisTurn >= 1; return S.castCards.some(id => { const cc = cardOf(id); return cc && matchFilter(cc, c.np.filter, null, ctx); }); }
       case "event": { if (!ctx.event || !ctx.event.name) return true; return ctx.event.name === c.trigger.event; }
-      default: return false;
+      default: { const xf = ABX.extraCond && ABX.extraCond[c.t]; return xf ? !!xf(c, ctx) : false; }   // condition types added by later files (abilities_r9.js)
     }
   }
   core.evalCond = evalCond;
@@ -1141,6 +1141,7 @@
     STATIC_CACHE.set(card.id, r);
     return r;
   }
+  ABX.resetCaches = function () { PARSE_CACHE.clear(); STATIC_CACHE.clear(); };   // after later files add parser rules
   ABX.ownsStaticLine = function (card, line) { const r = staticBoosts(card); return r.abs.length > 0 && r.lines.has(ABX.norm(line)); };
 
   let inStatic = 0;

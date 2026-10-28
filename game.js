@@ -939,18 +939,27 @@ function getUnitEffectiveCombatStats(fighter, unit) {
     if (l.includes("if your flag is \"overgod")) return;
 
     let condSatisfied = true;
+    // Lines that grant a keyword ("If ..., this card gets [Double Attack]") must have their condition checked:
+    // the new engine reads it when it can; if neither it nor the checks below understand it, nothing is granted.
+    const grantsKw = /\[(penetrate|double attack|triple attack)\]/i.test(line) && /^(if|while) /.test(l);
+    const abxCond = (grantsKw && window.ABX && ABX.lineCond) ? ABX.lineCond(c, line, fighter, unit) : null;
+    let recognized = false;
 
     const eqNameMatch = line.match(/item\s+with\s+"([^"]+)"\s+in\s+its\s+card\s+name/i);
     if (eqNameMatch) {
+      recognized = true;
       if (!fighterHasEquippedItemMatching(fighter, eqNameMatch[1])) condSatisfied = false;
     } else if (l.includes("item equipped") || l.includes("equipping an item")) {
+      recognized = true;
       if (!fighter.item) condSatisfied = false;
     }
 
     if (l.includes("omni lord") && l.includes("field")) {
+      recognized = true;
       if (!fighterHasOmniLordOnField(fighter)) condSatisfied = false;
     }
 
+    if (/flags? \[reversal\]|flag is in \[reversal\]/.test(l)) recognized = true;
     if (l.includes("flags [reversal] two times or more")) {
       if (revCnt < 2) condSatisfied = false;
     } else if (l.includes("flags [reversal] three times or more")) {
@@ -961,33 +970,42 @@ function getUnitEffectiveCombatStats(fighter, unit) {
 
     const fieldQuoteMatch = line.match(/"([^"]+)"\s+in\s+its\s+card\s+name\s+is\s+on\s+your\s+field|if\s+"([^"]+)"\s+is\s+on\s+your\s+field/i);
     if (fieldQuoteMatch) {
+      recognized = true;
       const targetName = fieldQuoteMatch[1] || fieldQuoteMatch[2];
       if (!fighterHasFieldCardMatching(fighter, targetName, unit)) condSatisfied = false;
     }
 
     const attrFieldMatch = line.match(/«([^»]+)»\s+(?:monster\s+)?is\s+on\s+your\s+field/i);
     if (attrFieldMatch) {
+      recognized = true;
       if (!fighterHasFieldCardMatching(fighter, attrFieldMatch[1], unit)) condSatisfied = false;
     }
 
     const lifeCondMatch = line.match(/if\s+you\s+have\s+(\d+)\s+life\s+or\s+less/i);
     if (lifeCondMatch) {
+      recognized = true;
       if (fighter.life > parseInt(lifeCondMatch[1], 10)) condSatisfied = false;
     }
 
     const dropCondMatch = line.match(/(three|four|five|six|ten|\d+)\s+or\s+more\s+[^\.\n]+\s+in\s+your\s+drop\s+zone/i);
     if (dropCondMatch) {
+      recognized = true;
       const wMap = { three: 3, four: 4, five: 5, six: 6, ten: 10 };
       const req = wMap[dropCondMatch[1].toLowerCase()] || parseInt(dropCondMatch[1], 10) || 3;
       if (fighter.drop.length < req) condSatisfied = false;
     }
 
+    if (grantsKw) {
+      if (abxCond === true || abxCond === false) condSatisfied = abxCond;   // the new engine read the condition: trust it
+      else if (!recognized) condSatisfied = false;                          // nobody understands the requirement: don't grant
+    }
     if (!condSatisfied) {
+      // (keywords the card really has, or got from an effect this turn, stay)
       if (l.includes("gets [penetrate]") || l.includes("get [penetrate]")) {
-        pen = Boolean(unit.tempPen);
+        pen = Boolean(c.pen || unit.tempPen);
       }
       if (l.includes("gets [double attack]") || l.includes("get [double attack]")) {
-        da = false;
+        da = Boolean(c.da || unit.tempDA);
       }
     } else {
       const pBoost = line.match(/power\s*\+\s*(\d+)/i);
