@@ -903,7 +903,8 @@
     }
   }
 
-  const whoOK = (t, side) => !t.who || t.who === "any" || t.who === "each" || (t.who === "you" ? B.activeSide === side : B.activeSide !== side);
+  // "both" = "at the start of each player's turn" (was read as the opponent's turn only)
+  const whoOK = (t, side) => !t.who || t.who === "any" || t.who === "each" || t.who === "both" || (t.who === "you" ? B.activeSide === side : B.activeSide !== side);
 
   ABX.fireAttack = function (attSide, units, defSide, targetPos) {
     turnStats(F(attSide)).attacks++;   // a link attack counts as one attack
