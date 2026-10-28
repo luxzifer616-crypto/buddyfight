@@ -1051,15 +1051,19 @@
       ((t.opp ? s !== side : s === side)) && (!t.np || matchFilter(card, t.np.filter || {}, { unit: null, side }, { f: F(side) })), { name: "otherDestroyed" }));
   };
   // Spell / impact resolution (kind "spell", no trigger).
+  // A spell's own text: a plain spell ability, or "Choose and use one of the following ..." (a modal with no trigger
+  // and no [Act]). Choice spells used to be left out, so the engine never ran them and the old generic code guessed.
+  const isSpellBody = (a) => a.kind === "spell" || (a.kind === "modal" && !a.trigger && !(a.tags || []).includes("act"));
+  ABX.isSpellBody = isSpellBody;
   ABX.ownsSpell = function (card) {
     const p = ABX.get(card);
-    const sp = p.abilities.filter(a => a.kind === "spell");
+    const sp = p.abilities.filter(isSpellBody);
     return sp.length > 0 && sp.every(a => ABX.isExecutable(a));
   };
   ABX.fireSpell = async function (side, card, onAfter) {
     busy++;
     try {
-      for (const ab of abilitiesOf(card, a => a.kind === "spell")) {
+      for (const ab of abilitiesOf(card, isSpellBody)) {
         const f = F(side);
         const probe = { side, f, e: F(otherSide(side)), card, unit: null, ab, bind: { chosen: [], revealed: [], looked: [] }, lastDone: true, auto: true, log: [], event: { name: "cast" } };
         if (!(ab.conds || []).every(c => evalCond(c, probe))) continue;
@@ -1080,7 +1084,7 @@
       defUnit: ["left", "center", "right"].includes(info.targetPos) ? defF.monsters[info.targetPos] : null
     };
     try {
-      for (const ab of abilitiesOf(card, a => a.kind === "spell")) {
+      for (const ab of abilitiesOf(card, isSpellBody)) {
         const probe = { side: defSide, f: defF, e: attF, card, unit: null, ab, bind: { chosen: [], revealed: [], looked: [] }, lastDone: true, auto: true, log: [], event: { name: "counter" } };
         if (!(ab.conds || []).every(c => evalCond(c, probe))) continue;
         await runAbility(defSide, card, ab, null, { event: { name: "counter" } });

@@ -21,12 +21,15 @@ const res = JSON.parse(env.run(`(function(){
     const bad = abs.filter(a => !isOK(a));
     const unread = [];
     bad.forEach(a => { (a.unparsed && a.unparsed.length ? a.unparsed : [a.cleaned || a.raw || ""]).forEach(u => unread.push(String(u && (u.text || u.raw) || u))); });
-    out.push({ id: c.id, name: c.name, type: c.type, world: c.world || c.flag || "", total: abs.length, ok: abs.length - bad.length, unread });
+    // a choice ability that runs with some options left out (abilities_r14.js) works, but the card isn't complete
+    const partial = abs.filter(a => isOK(a) && a.unreadOptions && a.unreadOptions.length);
+    partial.forEach(a => a.unreadOptions.forEach(o => unread.push(String(o.raw || o.cleaned || ""))));
+    out.push({ id: c.id, name: c.name, type: c.type, world: c.world || c.flag || "", total: abs.length, ok: abs.length - bad.length, incomplete: partial.length, unread });
   });
   return JSON.stringify(out);
 })()`));
 
-const full = res.filter(r => r.ok === r.total), none = res.filter(r => r.ok === 0), part = res.filter(r => r.ok > 0 && r.ok < r.total);
+const full = res.filter(r => r.ok === r.total && !r.incomplete), none = res.filter(r => r.ok === 0), part = res.filter(r => r.ok > 0 && (r.ok < r.total || r.incomplete));
 const lines = res.reduce((s, r) => s + r.total, 0), okLines = res.reduce((s, r) => s + r.ok, 0);
 console.log(`cards with abilities: ${res.length} | fully working: ${full.length} (${(full.length / res.length * 100).toFixed(1)}%) | partly: ${part.length} | none: ${none.length}`);
 console.log(`abilities: ${lines} | working: ${okLines} (${(okLines / lines * 100).toFixed(1)}%)`);

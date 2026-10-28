@@ -137,5 +137,26 @@
     return isExecPrev.apply(this, arguments);
   };
 
+  /* ============================================================
+   * 5. CHOICE ABILITIES WITH SOME UNREAD OPTIONS
+   * ============================================================ */
+  // "Choose and use one of the following two/three": a modal only ran when every option was readable, so one unread
+  // option left the whole card doing nothing. Now the readable options are offered and the unread ones are left out
+  // (kept in ab.unreadOptions so tests/coverage.js still reports them).
+  const pcModal = ABX.parseCard;
+  ABX.parseCard = function (card) {
+    const r = pcModal.apply(this, arguments);
+    try {
+      (r && r.abilities || []).forEach(ab => {
+        if (ab.kind !== "modal" || !(ab.options && ab.options.length > 1)) return;
+        const ok = ab.options.filter(o => ABX.isExecutable(o));
+        if (!ok.length || ok.length === ab.options.length) return;
+        ab.unreadOptions = ab.options.filter(o => !ok.includes(o));
+        ab.options = ok;
+      });
+    } catch (e) { if (ABX.debug) console.error(e); }
+    return r;
+  };
+
   if (ABX.resetCaches) ABX.resetCaches();
 })(typeof window !== "undefined" ? window : globalThis);
