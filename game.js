@@ -6862,6 +6862,8 @@ const battle = {
         this.renderBattle();
         this.animateCardFlight(`z-${mySide}-${fromPos}`, `z-${mySide}-${zonePos}`, movingUnit.card.img, "💨 [MOVE]!", 0, () => {
           f.monsters[zonePos] = movingUnit;
+          movingUnit.abxMovedTurn = this.turnCount;   // "used [Move] during this turn"
+          if (window.ABX && ABX.fireEv) ABX.fireEv("move", { side: mySide, unit: movingUnit, from: fromPos, to: zonePos });
           this.setPrompt(`💨 [Move] "${movingUnit.card.name}" moved from ${fromPos.toUpperCase()} to ${zonePos.toUpperCase()}!${zonePos === "center" ? " (Now guarding your Center!)" : ""}`);
           this.renderBattle();
         });
@@ -7144,6 +7146,8 @@ const battle = {
     }
     f.monsters[fromPos] = null;
     f.monsters.center = unit;
+    unit.abxMovedTurn = this.turnCount;
+    if (window.ABX && ABX.fireEv) ABX.fireEv("move", { side: defSide, unit, from: fromPos, to: "center" });
     this.setPrompt(`💨 [Move] "${unit.card.name}" moved from ${fromPos.toUpperCase()} to CENTER and blocks the attack!`);
     this.renderBattle();
     this.animateCardFlight(`z-${defSide}-${fromPos}`, `z-${defSide}-center`, unit.card.img, "💨 [MOVE] BLOCK!", 0, () => {
