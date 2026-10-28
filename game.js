@@ -7728,7 +7728,7 @@ const battle = {
       } else if (deadCard.ll_lose) {
         f.life = 0;
         this.checkWinCondition();
-      } else if (deadCard.ll > 0) {
+      } else if (deadCard.ll > 0 && !(window.ABX && ABX.lifelinkOff && ABX.lifelinkOff(side, deadCard))) {   // "nullify the [Lifelink] of this card"
         f.life -= deadCard.ll;
         this.setPrompt(`💔 [Lifelink ${deadCard.ll}] "${deadCard.name}" left the field — ${f.name} took ${deadCard.ll} damage!`);
         this.checkWinCondition();

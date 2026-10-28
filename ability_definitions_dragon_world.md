@@ -5,7 +5,13 @@ Grouped by mechanism: each group is built by one handler. One line per ability: 
 "You choose" = the owner picks (the bot picks for itself). **JC** = judgment call (the text leaves it open).
 Not tested yet (by request); debug later.
 
-**Progress:** 224 → 108 missing.
+**Progress:** 224 → 90 missing.
+- `abilities_r27.js`: "must attack this card (alone) first" (enforced in initiateAttackWithDefenseCheck), change the
+  target to you / to this card / to an «Armordragon» moved to the center, static "no [Counter] while it attacks alone",
+  "if that is the only card attacking … cannot be nullified", move this card to an open area / to the center,
+  gauge instead of drop zone, nullify this card's [Lifelink] (checked in game.js on destroy), [Overturn] [Stand],
+  static "opponent cannot call by card effects" combined with protections. [Set] spells with "If <event>, …" are
+  re-read as triggers too (abilities_r24.js).
 - `abilities_r26.js`: rewrites (once per main/final phase, drop two souls, equip "Fist" from the drop zone, [Stand]
   chosen card and this card, "if this is the attack phase", "no other monsters", Rock-Paper-Scissors wording, "When you
   use a …"), "… five times", "N+ world names of «X»", "you lose at the end of your next turn", size 0 for every card a

@@ -177,7 +177,7 @@
     const r = pcPrev.apply(this, arguments);
     try {
       (r && r.abilities || []).forEach(ab => {
-        if (!["static", "triggered"].includes(ab.kind) || !(ab.unparsed && ab.unparsed.length || (ab.trigger && !ABX.triggerSupported(ab.trigger)))) return;
+        if (!(["static", "triggered"].includes(ab.kind) || (ab.kind === "spell" && card && card.set)) || !(ab.unparsed && ab.unparsed.length || (ab.trigger && !ABX.triggerSupported(ab.trigger)))) return;
         const t = asTriggered(ab.cleaned || ab.raw || "");
         if (!t) return;
         ab.kind = "triggered"; ab.trigger = t.trigger; ab.steps = t.steps; ab.unparsed = [];
