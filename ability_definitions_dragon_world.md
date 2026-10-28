@@ -5,7 +5,19 @@ Grouped by mechanism: each group is built by one handler. One line per ability: 
 "You choose" = the owner picks (the bot picks for itself). **JC** = judgment call (the text leaves it open).
 Not tested yet (by request); debug later.
 
-**Progress:** 224 → 73 missing.
+**Progress: done — 224 → 0 missing** (Rounds 24–35). Known shortcuts (each marked `shortcut:` in the code):
+#456 "treated as a size 3 «Armordragon»" isn't counted by conditions · #657 moves to the first open area ·
+#1464 / #6189 ask people with the browser's yes/no box · #3882 fires on any enter, not only from the hand ·
+#4626 the rest always go to the bottom · #2051 any call is free of gauge, not only from the hand ·
+#4070 "use [Overthrow] twice" isn't counted across borrowed [Overthrow]s · #6471 the extra item slot isn't in the
+game (its protections work) · #3791's "drop one or more hand cards" is paid inside the effect.
+
+Earlier progress: 224 → 17 missing.
+- `abilities_r31.js` – `abilities_r33.js`: per-card readings for the one-off cards (stats, damage, destroy, attack,
+  protection and enter hooks; put-onto-the-field helper `ABX.placeFromZone`). Still unbuilt: #1254, #1422, #2800,
+  #3274, #3627, #3791, #3994, #4070, #4237, #4253, #4936, #5115, #5597 (option 2), #5800, #6189, #6468, #6471.
+- `abilities_r22.js`: continuous "size of all … is reduced" (e.g. #3126) is no longer turned into a one-turn effect, and
+  fully read statics are no longer replaced by the guesser (fixes tests/round7.js).
 - `abilities_r30.js`: "this card's world name is also treated as …" (chosen world / the world of the card put into the
   drop zone; counted by the "different world names on your field" checks), "call "Jackknife" monsters without paying
   gauge" as a [Call Cost] reduction.

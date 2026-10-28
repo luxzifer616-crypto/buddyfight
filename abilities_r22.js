@@ -1114,6 +1114,10 @@
             a.steps.every(s => s.op === "static" && OPS.static && OPS.static.check && OPS.static.check(s)));
         (r.abilities || []).forEach(ab => {
           if (SKIP_KINDS.has(ab.kind)) return;
+          // on a continuous ability the size change lasts while the card is there (the engine's sizeModOthers), not one turn
+          if (ab.kind === "static") (ab.steps || []).forEach((s, i) => {
+            if (s.op === "becomeSizeZero" && !s.leftRightOnly) ab.steps[i] = { op: "static", kind: "sizeModOthers", np: s.np, delta: s.delta != null ? s.delta : -99, origSize: s.origSize, origLe: s.origLe, src: s.src };
+          });
           if (ab.kind === "triggered" && ab.trigger && !ABX.triggerSupported(ab.trigger)) {
             ab.trigger = inferTrigger(ab.raw || ab.cleaned || "");
           }
