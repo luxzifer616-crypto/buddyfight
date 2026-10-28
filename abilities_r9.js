@@ -1251,6 +1251,8 @@
   };
 
   const REPL = new Set(["wouldLeave", "wouldDie", "wouldLeaveOther"]);
+  // these run through ABX.wouldLeaveSave / runSync (below), not fireTriggers; listed so code asking "is this trigger supported?" keeps them
+  REPL.forEach(e => { ABX.TRIG_OK[e] = () => true; });
   // "If this card would ..., <effect>" starts with "if", so the normal parser never looks for a trigger there
   const palRepl = ABX.parseAbilityLine;
   ABX.parseAbilityLine = function (rawLine, card) {

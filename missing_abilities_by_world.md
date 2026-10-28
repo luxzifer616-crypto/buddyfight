@@ -1,0 +1,2558 @@
+# Missing ability functions by world
+
+Total: 1263 missing ability sentences.
+
+## Ancient World — 64 cards, 69 missing
+
+- **974 Dragon Kid, Ricky** (Monster, 0/1 working)
+  - Nullify the [Lifelink] of size 3 «Raging Spirit» on your field.
+- **983 One-on-one Dragon Emperor, Everlock** (Monster, 1/2 working)
+  - If both you and your opponent have one monster on the field, this card gets power+2000, defense+2000 and cannot be destroyed by an effect.
+- **1397 Call Dragon Migidos** (Monster, 2/3 working)
+  - When a card is put into your opponent's gauge, deal 1 damage to your opponent
+- **1458 Armorider Dragon Emperor, Suvarious** (Monster, 1/2 working)
+  - When this card is on your field, you cannot cast spells.
+- **1513 Sturdy Dragon Strike** (Spell, 0/1 working)
+  - Drop up to two <Ancient World> monsters from your deck into your drop zone, and shuffle your deck. Then, put the top card of your deck into your gauge.
+- **1515 Guardian Dragon Emperor, Amuray** (Monster, 0/1 working)
+  - If you have a size 3 monster on your field, you may discard this card from your hand and pay 1 life. If you do, for this turn, nullify all [Lifelink] on your field.
+- **1530 No Matter Where, Dragon Rules Supreme** (Spell, 0/1 working)
+  - You and your opponent cannot call monsters to the center.
+- **1531 Ringlet, Loop of Fire** (Item, 1/2 working)
+  - Reduce the damage dealt by the [Lifelink] of your «Wild Dragon» by 1.
+- **1595 Duel Sieger "SD"** (Monster, 1/2 working)
+  - This card on the field or drop zone is also regarded as "Martial Arts Dragon Emperor, Duel Sieger".
+- **1635 Commandant of Enma Alliance, Burn Nova** (Monster, 0/1 working)
+  - You may discard a «Raging Spirits» monster from your hand. If you do, for this turn, this card gets all abilities written on the discarded card.
+- **1639 An Encounter with a Dragon** (Spell, 0/1 working)
+  - Search your deck for up to one size 3 «Raging Spirits», put it into your hand, and shuffle your deck. You may cast "An Encounter with a Dragon"
+- **1644 Enma Alliance, Regenthorn** (Monster, 2/3 working)
+  - When this card is put from your field or deck into your drop zone, put the top card of your deck into your gauge.
+- **2093 Billion Knuckle, "Spirit of the Chief!"** (Impact, 1/2 working)
+  - You may discard a «Raging Spirits» monster from your hand. If you do, for this turn, this card gets all abilities written on the discarded card.
+- **2115 Martial Arts Chief, Duel Jaeger** (Monster, 0/1 working)
+  - During this card's battle, you may discard a «Dragon Chief Emperor» from your hand. If you do, for this battle, this card gets defense+10000.
+- **2196 Stout Wrist Unmatched Chief, Duel Jaeger "Revolted"** (Monster, 0/1 working)
+  - If this card is on your center, you cannot be dealt damage by your opponent's card effects.
+- **2234 Schloss Dragon, Wanstein** (Monster, 0/1 working)
+  - You may discard a «Wild Dragon» and pay 1 life. If you do, for this turn, the next time this card on your field would be destroyed, this card remains on the field and for this turn, this card gets [Counterattack].
+- **2269 Apprentice Underling, Helper Sei** (Monster, 0/1 working)
+  - When a soul is put from a size 3 «Dragon Chief Emperor» on your field into your drop zone, you may put this card from your field into that monster's soul.
+- **2276 Godly-speed of Dragons** (Spell, 1/2 working)
+  - If this card is in the soul of a «Dragon Chief Emperor» monster, this card cannot be put into your drop zone by your opponent's card effects.
+- **2693 Pinnacle of Martial Arts, Duel Jaeger "God Vortoise"** (Monster, 1/2 working)
+  - The soul of this card cannot be put to the drop zone by your opponent's card effects.
+- **2733 Underling, Nocurve Sei** (Monster, 1/2 working)
+  - If this card is in the soul of a «Dragon Chief Emperor» monster, that card cannot be destroyed by the effects of your opponent's monsters.
+- **2785 Retainer of the Demonic Dragon, Fiellder** (Monster, 0/1 working)
+  - When this card enters the field, put the top card of your deck into the drop zone. If it is a monster with "Dragon" in its attribute, put it into your hand. If not, you gain 1 life.
+- **2849 Hot-blooded Headgear** (Item, 1/2 working)
+  - During your turn, when a card is put from your deck into your drop zone, deal 1 damage to your opponent.
+- **2902 Maximal Resistance! Duel Jaeger** (Monster, 0/1 working)
+  - During your turn, when a card is put from your deck into your drop zone, for this turn, this card gets [Double Attack], and deal 1 damage to your opponent.
+- **2960 Apprentice Underling, Value Dai** (Monster, 0/1 working)
+  - During your turn, when a card is put from your deck into your drop zone, for this turn, this card gets power+2000.
+- **2961 Youth Armor, Otokonaki** (Item, 0/1 working)
+  - When your opponent attacks and you have a Size 3 «Raging Spirit» on the field, draw a card.
+- **3484 Martial Arts Emperor Dragon King, Duel Sieger** (Monster, 0/1 working)
+  - When a monster on your field is being attacked, put the top two cards of your deck into the gauge.
+- **3502 Summer Recollection 2017 "Summer Muscle Thanksgiving"** (Spell, 0/2 working)
+  - You can only put a total of up to 4 "Summer Recollection 2017 "Summer Muscle Thanksgiving"" and "Sturdy Dragon Strike" in your deck.
+  - Search for up to two «Ancient World» monsters from your deck, put them into your drop zone and shuffle your deck. Then, put the top card of your deck into your gauge.
+- **3534 CHAOS Valvaros** (Monster, 0/1 working)
+  - When this card enters the field, look at up to five cards from the top of your deck, put them on top of your deck in any order, and draw a card. Then, you may call a monster from your hand by paying its [Call Cost].
+- **3800 CHAOS Champion Lord** (Monster, 1/2 working)
+  - When your opponent's cards attack, change the targets of the attacks to this monster.
+- **3968 Deluge of Life** (Spell, 1/3 working)
+  - When a card is put from your deck into the drop zone, draw a card.
+  - Put this card from the field into the drop zone. If you do, for this turn, nullify the [Lifelink] of all size 3 monsters on your field.
+- **4082 Corrosion Prosthesis** (Spell, 2/3 working)
+  - When a monster with this card in its soul is attacked, you gain 1 life.
+- **4121 Havoc in Dragon Land** (Spell, 1/2 working)
+  - Destroy a size 3 or less monster on the field. Put cards from the top of your deck into your gauge or gain life equal to the destroyed card's size.
+- **4141 Fist Emperor of Manliness, Burn Nova** (Monster, 0/1 working)
+  - During your opponent's turn, call this card from your hand by paying its [Call Cost]. If you call while you have 5 life or less, you gain 3 life.
+- **4192 Ricky on the Ban** (Monster, 1/2 working)
+  - Nullify the [Lifelink] of size 3 «Raging Spirits» on your field.
+- **4275 Retainer of the Demonic Dragon, Malgheld** (Monster, 0/1 working)
+  - When this card is put from the field or hand into the drop zone, put the top card of your deck into your gauge. Then, if you have a size 3 or greater monster on your field, draw a card.
+- **4872 Linkdragon Order's Forceful Fight** (Spell, 0/1 working)
+  - Choose a monster on your opponent's field, and for this turn, the chosen card gets critical-1 for each card with [D-Share] on your field.
+- **4884 Overcrest** (Spell, 3/4 working)
+  - If you have a «MAX Dragon» monster on your field, you may put monsters up to a total size of 6 on your field.
+- **4887 Domilord, Zerberos** (Monster, 1/2 working)
+  - If you only have one monster on your field, this card gets power+2000, defense+2000, critical+1, and all cards on your field cannot be destroyed or returned to hand by your opponent's card effects.
+- **4891 Dragon Lord Bursts Forth** (Spell, 0/1 working)
+  - Put the top card of your deck into your gauge, you gain 1 life, and draw two cards. Then, if the card dropped by this card's [Cast Cost] is size 4 or greater, draw a card.
+- **4963 Linkdragon Spirit** (Spell, 1/2 working)
+  - Nullify the attack, and drop the top card of your deck. If the card dropped has [D-Share], return this card to hand.
+- **4968 Primitive Power, Zerberos** (Monster, 0/1 working)
+  - When your opponent casts a spell, if you have a monster with "Zerberos" on your field, you may drop this hand card, pay 1 gauge, and pay 1 life. If you do, nullify the spell your opponent cast.
+- **4969 Maxim of Absolute Strength** (Spell, 1/2 working)
+  - Nullify the attack. Then, look at the number of cards from the top of your deck equal to your center monster's size, put one from among them into your hand, and put the rest on the bottom of your deck in any order.
+- **4970 Indestructible Domilord** (Spell, 2/3 working)
+  - When a «MAX Dragon» on your field other than "Indestructible Domilord" would leave the field, you may put this card into your drop zone. If you do, that card remains on your field.
+- **5022 Deity Against All, Gargantua Dragon "Eisenwaechter"** (Monster, 0/2 working)
+  - "[Call Cost] [Pay 3 gauge & Put the top card of your deck into its soul]
+  - During the battle of this card, you may drop a hand card. If you do, for this battle, this card gets power+10000 and defense+10000. Then, if this card has a soul with {G EVO
+- **5041 Cyclonic Thunderaxe, Agito** (Monster, 1/2 working)
+  - You may pay 2 gauge. If you do, [Stand] this card.
+- **5080 Handy, Toteki** (Monster, 0/1 working)
+  - When this card attacks, choose a monster on your opponent's field, and you may pay 1 life. If you do, the chosen card cannot [Stand] during your opponent's next start phase.
+- **5098 Linkdragon Sledge, Agitocrush** (Item, 1/2 working)
+  - When this card attacks, you may drop the top card of your deck. If the card dropped has [D-Share], deal 1 damage to your opponent.
+- **5158 Great Dragon of Genesis, Bigbang Dragon** (Monster, 2/3 working)
+  - This card on the field cannot have its abilities nullified. Its souls cannot be dropped by your opponent's card effects.
+- **5939 Duel Sieger "Tempest Enforcer Re:B"** (Monster, 2/3 working)
+  - If this card is on your center, the size of all originally size 3 monsters on your left and right are reduced by 3.
+- **6010 Time General, Teylor Luna** (Monster, 1/2 working)
+  - When this card attacks or is destroyed, if your flag [Reversal] during this fight, destroy up to one card on your opponent's field. If your flag is "Perfected Deity of Eon, The Endruler Dragon", put up to one card from your opponent«s field on the bottom of your opponent»s deck instead.
+- **6012 Kronos Nehdy** (Spell, 0/1 working)
+  - Put up to one «Time Dragon» monster of different sizes from your drop zone into your hand for each time your flags [Reversal] during this fight.
+- **6013 Fourth Omni Fire Lord, Burn Nova "Re:B"** (Monster, 0/1 working)
+  - Call this card from your hand by paying its [Call Cost]. If you do, drop all of your hand cards, and for this turn, all monsters on your field cannot be destroyed by attacks, and you cannot take damage. Then, for this turn and the next turn, all cards on your field cannot be destroyed or leave the field or [Rest] by your opponent's card effects.
+- **6014 Deity of Enthusiasm and Bonds, Godagito** (Monster, 0/2 working)
+  - At the start of your attack phase, drop the top three cards of your deck, and put any cards from among them into this card soul.
+  - If this card is on your center, this card gets all the [D] of [D-Share] in its soul, and monsters size on your left and right are reduced by 1.
+- **6022 Time Scout, Lange** (Monster, 0/2 working)
+  - When you would call a «Time Dragon», the gauge cost written in its [Call Cost] is reduced by 1 for each time your flags [Reversal] during this fight.
+  - When a soul is put into your originally size 3 «Time Dragon», draw two cards.
+- **6023 Kronos Vant** (Spell, 0/1 working)
+  - Choose and use one of the following two.
+- **6143 STAR SHINE FINALE** (Spell, 1/2 working)
+  - If this card is in the soul of a «Genesis Dragon» monster on your field, you may put up to two monsters each on your left and right, and during your turn, you may call «Genesis Dragon» from your hand without paying their [Call Cost].
+- **6144 For-Share Bath Time** (Spell, 1/2 working)
+  - All cards with [D-Share] on your field get all the [D] of [D-Share] in this card's soul.
+- **6148 The Strongest is ME!!** (Impact, 1/2 working)
+  - Deal damage to your opponent equal to the size of a «MAX Dragon» on your center.
+- **6430 Dragon Lord Crescent Blade** (Item, 2/3 working)
+  - If only one monster is on your field, this card gets power+10000, critical+2 and this card on the field cannot be destroyed or leave the field by your opponent's card effects.
+- **6431 Lovely, Chiwa** (Monster, 1/2 working)
+  - When a soul is put into your card with [D-Share], draw a card.
+- **6432 Champion's Intimidation** (Spell, 1/2 working)
+  - The power, defense and critical of all «MAX Dragon» on your field cannot be reduced by your opponent's card effects.
+- **6503 Dragon Kid, Ricky "Re:B"** (Monster, 2/3 working)
+  - If this card is in the soul of a «Raging Spirits», all «Raging Spirits» monsters on your field cannot be [Rest], their abilities cannot be nullified, and their souls dropped by your opponent's card effects. This ability cannot be nullified.
+- **6504 Stout Wrist Unmatched Chief, Duel Jaeger "Revolted Re:B"** (Monster, 1/2 working)
+  - If this card is on your center, this card on the field cannot be [Rest], its abilities cannot be nullified and its souls cannot be dropped by your opponent's card effects, and you cannot take damage by your opponent's card effects.
+- **6556 Space Dragon Emperor, Galiazond "Re:B"** (Monster, 2/3 working)
+  - At the start of each player's turn. put up to two size 2 or less monsters with "Dragon Emperor" in their card names from your drop zone into your hand.
+
+## Ancient World / Dungeon World — 1 cards, 1 missing
+
+- **2348 Dragon Blessing** (Spell, 1/2 working)
+  - Nullify the [Lifelink] of all monsters on your field, and return any number of monsters from your field into your hand.
+
+## Ancient World / Legend World — 1 cards, 1 missing
+
+- **2895 Holy Spirit Dragon, Felestas** (Monster, 0/1 working)
+  - When this card enters the field, if there a total of eight or more «Dragon Lord» and «Fairy» in your drop zone, deal 3 damage to your opponent.
+
+## BanG Dream! Girls Band Party! PICO — 13 cards, 17 missing
+
+- **5371 Ghost Story Cornet Loop** (Spell, 1/2 working)
+  - Choose and use one of the following two.
+- **5372 "Labyrinth Jelly Fish", Kanon Matsubara** (Monster, 1/2 working)
+  - Choose another «Hello, Happy World.» on your field, and [Rest] this card. If you [Rest], [Stand] the chosen card.
+- **5373 "Kitazawa Mark is the Mark of Vitality", Hagumi Kitazawa** (Monster, 1/2 working)
+  - During the attack phase, when you gain life, draw a card, and for this turn, all power and critical of «Hello, Happy World.» on your field cannot be reduced by your opponent's card effects.
+- **5374 "Nonsensical One-man Show", Kaoru Seta** (Monster, 0/2 working)
+  - If this card is on your field or in the soul of a «Hello, Happy World.» character on your field, all «Hello, Happy World.» characters on your field can attack your opponent even if your opponent has characters on the center.
+  - When you gain life, for this turn, if a «Hello, Happy World.» on your field attacks alone, its damage cannot be reduced.
+- **5380 "Out-of-control Machine Nerd", Maya Yamato** (Monster, 1/3 working)
+  - All «Pastel*Palettes» on your field cannot have their souls dropped by your opponent's card effects, and damage your opponent takes by your card effects cannot be reduced.
+  - When your opponent's cards attack, change the target of the attack to the «Pastel*Palettes» on your center.
+- **5385 Spreading Smiles Throughout the World, "Hello, Happy World!"** (Impact, 0/2 working)
+  - You cannot take damage by your opponent's character effects.
+  - When this card attacks and destroys your opponent's characters or deals damage to your opponent, if your life is 22 or greater, you win the fight.
+- **5388 Classic Rock Among Childhood Friends, "Afterglow"** (Impact, 1/2 working)
+  - During the attack phase and final phase, choose a card on your opponent's field, and you may drop a soul from this card. If you do, destroy the chosen card or return it to hand.
+- **5395 Marina Tsukishima** (Monster, 1/2 working)
+  - If your «Band» character would leave the field, you may put this card from your drop zone on the bottom of your deck and pay 1 life. If you do, that card remains on the field.
+- **5433 The Wave Attack of Sparkling and Heart-Pounding** (Spell, 0/2 working)
+  - Put this card into the soul of a Hello, Happy World. character on your field.
+  - At the end of the battle that a Hello, Happy World. character with this card in its soul attacked, you gain 2 life.
+- **5434 Sparkling and Heart-Pounding Egosearching** (Spell, 1/2 working)
+  - At the end of the battle that a Pastel Palettes character with this card in its soul attacked, deal 1 damage to your opponent.
+- **5436 Red Mesh of Sparkling and Heart-Pounding** (Spell, 1/2 working)
+  - At the end of the battle that an Afterglow character with this card in its soul attacked, destroy or return to hand a character on your opponent's field.
+- **5452 Poppin'Party Appears** (Spell, 0/1 working)
+  - [Stand] all «Poppin'Party» on your field. If you [Stand] five cards, draw a card.
+- **5495 Light and Cute Classic Rock Spirit Band** (Impact, 1/2 working)
+  - Drop up to three cards from your opponent's gauge, deal 3 damage to your opponent, and you gain 3 life.
+
+## Danger World — 54 cards, 56 missing
+
+- **115 Battle Spirit Unite** (Spell, 0/1 working)
+  - Choose a monster on your field, and for this turn, increase its power or defense by the power of a Weapon on your field, and it gets Counterattack. [Counterattack]
+- **119 Demon Slay Barrier** (Spell, 1/2 working)
+  - One of those cards remain on the field.
+- **124 Duel Law** (Spell, 1/2 working)
+  - When your opponent Link Attacks your Duel Dragon, he or she may pay 2 gauge. If he or she does not, nullify the attack.
+- **128 Final Battle Skill, MAJI Demon Slay** (Spell, 0/1 working)
+  - Neither you nor your opponent can call size 2 or less monster to the center.
+- **129 Invigorating Breath** (Spell, 1/2 working)
+  - Gain 4 life. The amount of life you gain is reduced by the number of "Invigorating Breath" you have in you drop zone.
+- **135 Drill Bunker!!** (Impact, 1/2 working)
+  - For this turn, give one of your Weapon on the field power+4000, critical+2, and [Penetrate]. If the Weapon is [Stand], attack with it.
+- **162 Armorknight Cerberus** (Monster, 1/2 working)
+  - You may discard one soul from this monster. If you do, destroy a monster on the opponent's field.
+- **163 Armorknight Cerberus "10000"** (Monster, 0/1 working)
+  - This card can only be called to the left.
+- **171 Armorknight Sphinx** (Monster, 0/1 working)
+  - When you are attacked directly and this card is on the left or right, pay 1 gauge. If you do, play "Rock-Paper-Scissors" with your opponent. If you win, nullify the attack.
+- **176 Fighting Dragon Emperor, Demongodol Ark** (Monster, 1/2 working)
+  - When your opponent attacks with a Weapon, you may discard 1 card from your hand. If you do, destroy that Weapon.
+- **841 Armorknight Eagle "A"** (Monster, 1/2 working)
+  - If this card is in the soul of your Weapon, that Weapon on your field cannot be returned to your hand, nor be destroyed.
+- **870 Armorknight Lethal Drake** (Monster, 0/1 working)
+  - When this card attacks, for this battle, increase the critical of this card by the sum of the critical of your item on your field and the item on your opponent's field.
+- **1076 Armorknight Little Drake** (Monster, 0/1 working)
+  - When this card enters the field, you may discard a card from your hand. If you do, put a card from your drop zone into soul of a card on your field.
+- **1124 Infinite Armament, Dangerous Cradle** (Item, 2/3 working)
+  - This card gets critical equal to the sum of the critical of Weapon in this card's soul.
+- **1151 Armorknight Ogre "A "** (Monster, 1/2 working)
+  - If you have 5 life or less put this card from your field into the soul of your Weapon.
+- **1674 Armorknight Battleborg** (Monster, 0/1 working)
+  - When your life is 5 or less, and you are equipped with a Weapon with one or more cards in its soul, this card gets [Double Attack].
+- **1708 Demon Slay Come Forth** (Spell, 0/1 working)
+  - Put the top card of your deck into your gauge. Then, reveal the top three cards of your deck, put up to one Demon Slay from among them from among them into your hand, and put the rest into your drop zone.
+- **1755 Hundred Demons Spear, Aratogame** (Item, 1/2 working)
+  - When your life is 6 or more, this card gets critical-1.
+- **1970 Armorknight Black Drake"A"** (Monster, 0/2 working)
+  - For each card in the souls of cards on your field, this card's size on the field is reduced by 1.
+  - When this card attacks, if there are a total of three or more cards in the souls of cards on your field, for this turn, this card gets [Double Attack].
+- **1971 Armorknight Evil Eye** (Monster, 0/1 working)
+  - When a monster with [Move] enters your opponent's field or when a monster on your opponent's field uses [Move], deal 1 damage to your opponent. This ability only activates once per a turn.
+- **1973 Eighth Omni Spear, Stormthrust** (Item, 0/1 working)
+  - When this attacks and destroys your opponent's monster, for this turn, this card gets [Double Attack].
+- **1974 Mythical Dragon, Perger** (Monster, 0/1 working)
+  - "Thunder Mine"When your opponent uses a spell, deal 1 damage to your opponent.
+- **2014 GIGA Armorknight Cerberus, "A"!** (Impact, 1/2 working)
+  - At the end of the attack of this card, you may stand your Weapon, if you do, put this card and a card from your drop zone into the soul of that Weapon.
+- **2368 Fang Spear Axe, Ogar Demon Slay** (Item, 0/1 working)
+  - Pay up to five life. If you do, for this turn, this card gets critical equal to the life paid.
+- **2369 Cerberus, "Violence Gazer!"** (Impact, 0/1 working)
+  - This card gets critical equal to the critical of «Weapon» on your field.
+- **2386 Sword Edge Jailer, Zagulus** (Monster, 0/1 working)
+  - When this card enters the field, search your deck or drop zone for up to one "Gate of Verdict, -Judgement-", and pit it into your hand. If you searched your deck, shuffle it.
+- **2424 Deep Qigong of the Hungry Wolf** (Spell, 0/1 working)
+  - You gain 2 life. If your opponent's life is more than yours by 4 or more, you gain 6 life.
+- **2427 Pyramid of the Danger Emperor** (Spell, 1/2 working)
+  - At the beginning of each fighter's turn, you may call a monster with "Mummy" in its card name from your drop zone by paying its [Call Cost].
+- **2428 Demongodol, "Gordric Jolt!"** (Impact, 1/2 working)
+  - During the battle in which your opponent attacks with one or more items, discard a card from your hand. If you do, destroy that item.
+- **2433 Battle Aura Rampage** (Spell, 0/1 working)
+  - Pay as much life as you like. If you do, put cards from the top of your deck into your gauge equal to the number of life you paid.
+- **2439 Demon Slay Interment Formation** (Spell, 1/2 working)
+  - Choose and use one of the following two.
+- **2684 Invoke Impetuous Deity, Hibakara** (Item, 1/2 working)
+  - You may not call monsters to the center.
+- **2711 Armorknight Buster Cerberus "A"** (Monster, 2/3 working)
+  - If this card is in the soul of a «Weapon» that has three or more souls, that «Weapon» gets [Penetrate].
+- **2936 Buddyfight Triple T "Rouga Aragami"** (Spell, 2/3 working)
+  - You can only put a total of up to 4 "Buddyfight Triple T "Rouga Aragami"" and "Battle Aura Circle" combined in your deck.
+- **3660 Ground Alpha** (Spell, 1/2 working)
+  - Draw a card, and put the number of cards from the top of your deck into your gauge equal to the number of «Duel Golem» monsters on your field.
+- **3662 Violent Thunder Evil Demon, Tyrant Demon** (Monster, 0/1 working)
+  - When this card destroys an opponent's monster or deals damage to your opponent, you gain life equal to this card's critical.
+- **3664 Thunderbolt Fighting Dragon, Demongodol** (Monster, 1/2 working)
+  - When your opponent's card attacks, charge the target of the attack to this card.
+- **3962 Steel-Beak Vul-gollum** (Monster, 1/2 working)
+  - During your turn, if this card is in your drop zone when a «Duel Golem» monster on your field is destroyed, you may call this card from your drop zone.
+- **4045 First aid-gollum** (Monster, 0/1 working)
+  - When a «Duel Golem» on your field is destroyed by card effects, you gain 1 life. Then, if it was destroyed by your opponent's card effects, draw a card.
+- **4177 Armorknight Cougar "A"** (Monster, 2/3 working)
+  - When a «Weapon» with this card is in its soul attacks, you gain 1 life, and draw a card.
+- **4204 Delusion Butterfly-gollum** (Monster, 1/2 working)
+  - If your «Duel Golem» was destroyed during this turn, call this card from your hand.
+- **4410 Bonesplitter, Shearzelus** (Monster, 0/1 working)
+  - When this card enters the field, return all of your opponent's gauge to their deck, shuffle it, and put the top two cards of your opponent's deck into their gauge. If any of their gauge were returned, you gain 2 life.
+- **4414 Topfist Punishment! Keravnos Burst Fist!** (Impact, 1/2 working)
+  - Deal 2 damage to your opponent. If your opponent has no gauge, deal 5 damage to your opponent instead.
+- **4783 Gate of Ruins - Greed -** (Spell, 1/2 working)
+  - During your main phase, when an «Executioners» monster enters your field, if this card is in your drop zone, you may pay 1 gauge. If you do, cast this card from the drop zone.
+- **5102 Almighty Group!** (Spell, 2/3 working)
+  - During your turn, when a card is put into your opponent's gauge by card effects, you gain 2 life, and draw a card.
+- **5269 Strategic Arms, Dangerous Vegan Curry** (Monster, 2/3 working)
+  - This card gets all abilities of all originally size 2 or less «Dangerous Veggies» in its soul.
+- **5274 Danger World (Dangerous Veggies)** (Flag, 1/3 working)
+  - But most of all, try the new Dangerous Veggies .
+  - April Fools.
+- **5351 Golden Bullet, Thwackdrill** (Monster, 1/2 working)
+  - When this card attacks, if you have three or more different world names in your drop zone, for this turn, this card gets power+8000 and [Double Attack].
+- **5769 Absolute Power! Gjallardos Exterminate!!** (Impact, 1/2 working)
+  - Deal 3 damage to your opponent, you gain 3 life, your opponent chooses and drops two hand cards, and draw two cards. Then, end the final phase.
+- **5771 Incomparable Tenki, Zugagagaia** (Monster, 1/2 working)
+  - Other than during your opponent's start phase, when the number of cards in your opponent's hand increases, your opponent chooses a hand card and drops it.
+- **6379 Death-Beating Metal Rod, Hermes Bat** (Item, 2/3 working)
+  - All originally size 2 or less «Godpunk» on your field get size reduced by 2.
+- **6380 Skycrushing Deity Strike, Brawlzeus** (Monster, 0/1 working)
+  - When this card attacks and destroys your opponent's monsters or deals damage to your opponent, your opponent chooses and put a hand card into their gauge. If put, draw a card.
+- **6481 Sound Speed Jailer, Helle Gepard "Re:B"** (Monster, 1/2 working)
+  - If ten or more «Executioners» are in your drop zone, call up to two «Executioners» monsters with different card names from your drop zone without paying their [Call Cost]. Those cards become size 0 until they leave the field.
+- **6482 Tempest Jailer, Helle Cougar "Re:B"** (Monster, 1/2 working)
+  - If ten or more cards are in your drop zone, all cards on your field cannot be destroyed or [Rest] by your opponent's card effects. Then, if twenty or more cards are in your drop zone, this card's attacks cannnot be nullified if it is attacking alone and its damage cannot be reduced.
+
+## Danger World / Magic World — 1 cards, 1 missing
+
+- **2342 Shadow Crusader** (Spell, 0/1 working)
+  - For this turn, the next time you would take damage, it is reduced by 3.
+
+## Darkness Dragon World — 141 cards, 160 missing
+
+- **753 Black Dragon Shield** (Spell, 1/2 working)
+  - Reduce the damage to 0, and you gain 1 life.
+- **756 Crush that Body, and Sustain Mine** (Spell, 2/3 working)
+  - When a monster with "Purgatory Knights" in its card name on your field is destroyed by an effect, put the top card of your deck into your gauge.
+- **757 Dark Energy** (Spell, 1/2 working)
+  - Choose one of those monsters, nullify its destruction, and for this turn, give it [Counterattack].
+- **762 Death Game** (Spell, 0/1 working)
+  - play "Rock-Paper-Scissors" with your opponent. The fighter who wins "Rock-Paper-Scissors" destroys a card on the field.
+- **765 Devil Stigma** (Spell, 1/2 working)
+  - You may not cast this card during a final phase.
+- **774 Redupsion Blood** (Spell, 1/2 working)
+  - Your opponent discards one card from their hand.
+- **779 Distortion Punisher!!** (Impact, 0/1 working)
+  - You may only choose and use one of the following two abilities if your opponent has 4 life or less, and neither you nor your opponent has a monster on the center.
+- **780 Nightmare Despair** (Impact, 1/2 working)
+  - The monster in your opponent's center becomes [Stand], and for this turn, gets critical+1, and that card attacks your opponent.
+- **835 Black Dragon of Demise, Death Tallica** (Monster, 1/2 working)
+  - When this card is attacked or when this card would leave the field, you may put three cards from this card's soul to the bottom of your deck to nullify that attack, or prevent this card from leaving the field.
+- **837 Death Ruler, Thirteen** (Monster, 0/1 working)
+  - When this card enters the field, deal 1 damage to your opponent. If there are exactly 13 cards in your opponent's drop zone, deal 5 damage instead.
+- **847 Death Ruler, Manifile** (Monster, 0/1 working)
+  - When this card enters the field, if your opponent does not have a monster in the center, choose a size 2 or less monster on your opponent's left or right, and move it to your opponent's center.
+- **867 Demonic Demise Dragon, Azi Dahaka** (Monster, 0/2 working)
+  - When this card attacks, it attacks all of your opponent's monsters and your opponent instead. When this card deals damage to your opponent, destroy all items on your opponent's field.
+  - When this card is destroyed, search your hand or deck for a "Demonic Demise Sword, Aqulta Gwaneff" and equip it. If you searched your deck, shuffle it.
+- **869 Purgatory Flame that Resides Within the Body** (Spell, 1/2 working)
+  - Destroy a monster with "Purgatory Knights" in its card name on your field. If you do, nullify the attack, and deal damage to your opponent equal to the critical of the card destroyed.
+- **942 Demonic Demise Sword, Aqulta Gwaneff** (Item, 1/3 working)
+  - For this turn, nullify the [Soulguard] of monsters this card attacks.
+  - If your opponent's card attacks you alone, nullify the attack.
+- **1141 Violence Familiar!** (Impact, 1/2 working)
+  - For this turn, damage dealt to your opponent from "Spectral Strike" is increased by 1.
+- **1305 Death Ruler, Daredevil** (Monster, 1/2 working)
+  - During your turn, when your opponent's monster is destroyed, deal 1 damage to your opponent.
+- **1324 One Winged Hate Dragon, Left Slasher** (Monster, 1/2 working)
+  - When a monster enters your opponent's field on their left, deal 1 damage to your opponent.
+- **1440 Hundred Demons Sorcery, Dark Target** (Spell, 0/1 working)
+  - Choose a monster on your opponent's field. for this turn, when that monster is destroyed, draw a card and you gain 1 life.
+- **1582 Emissary of Ruin, Megiddo Death Tallica** (Monster, 1/2 working)
+  - When this card is attacked or when this card would leave the field, you may put two cards from this card's soul to the bottom of your deck to nullify that attack, or prevent this card from leaving the field.
+- **1625 Absolute Attack** (Spell, 0/1 working)
+  - for this turn, during the battle in which a card on your field attacks an opponent's monster, your opponent cannot use or cast [Counter].
+- **1717 Jinxed Landfill, Curse Count** (Monster, 0/1 working)
+  - When an attack by this card destroys your opponent's monster, deal 1 damage to your opponent. If there are a total of four or more different Black Dragon monsters in your drop zone, deal 4 damage to your opponent instead.
+- **1718 Apocalypse Death Shield** (Spell, 0/1 working)
+  - Choose and use one of the following two.
+- **1723 DEATH Baton, Sterben** (Item, 0/1 working)
+  - Discard a card from your hand, and [Rest] this card. If you do, you put all monsters from your opponent's field into any separate area of your opponent's field as you like.
+- **1761 Hell River, Acheron** (Spell, 0/1 working)
+  - Your Death monsters cannot be destroyed by your opponent's card effects or returned to your hand.
+- **1762 Bloody Fault, Phantom Dust** (Impact, 0/1 working)
+  - Destroy all Black Dragon monsters on your field. Then, deal damage to your opponent equal to the total critical of the destroyed monsters.
+- **1860 Black Death Dragon, Abygale** (Monster, 0/1 working)
+  - Discard a card from your hand. If you do, destroy a monster on your opponent's field. If you destroyed a monster, put cards from the top of your opponent's deck into their drop zone equal to the size of that card.
+- **1878 Black Wolf, Ulbha** (Monster, 0/1 working)
+  - When an opponent's monster is destroyed due to the effect of one of your cards, you may call this from your drop zone.
+- **1952 Deadly Boost** (Spell, 0/1 working)
+  - Put the top three cards of your deck into your gauge. At the end of the turn, put all cards from your gauge into your drop zone.
+- **1953 Ability Shift** (Spell, 0/1 working)
+  - Choose a monster on your field in battle, and for this battle, the defense of that card is increased by its power.
+- **1993 Black Companion, Belphegol** (Monster, 0/1 working)
+  - When this card is destroyed, both players put the top two cards of their deck into the drop zone, and you gain 1 life.
+- **2018 Black Panoply, Abygale** (Monster, 1/2 working)
+  - When this card attacks, or is destroyed, put the top card of your opponent's deck into their drop zone.
+- **2019 Yearner of Extinction, Azi Dahaka** (Monster, 0/2 working)
+  - This card is also regarded as "Demonic Demise Dragon, Azi Dahaka".
+  - When this card is destroyed, search your hand or deck for a "Demonic Demise Sword, Aqulta Gwaneff" and equip it. If you searched your deck, shuffle it.
+- **2020 Wicked Lord Dragon Sword, Aqulta Gwaneff** (Item, 1/3 working)
+  - This card is also regarded as "Demonic Demise Sword, Aqulta Gwaneff".
+  - You may not equip this card other than by the ability of "Demonic Demise Dragon, Azi Dahaka".
+- **2044 Daredevil, "Soul Crusher!"** (Impact, 1/2 working)
+  - When this card attacks, if there is a total of four or more monsters and four or more spells in your opponent's drop zone, deal 3 damage to your opponent.
+- **2124 Harbringer of Death Black Dragon, Abygale** (Monster, 0/1 working)
+  - When this card attacks and deals damage to your opponent or destroys a monster on your opponent's field, put the top three cards of your opponent's deck and deal 1 damage to your opponent.
+- **2210 Death Gauge Timer** (Spell, 1/2 working)
+  - At the beginning of an attack phase, put a soul from this card into your gauge.
+- **2233 We Are Immortal** (Spell, 0/1 working)
+  - Choose a monster with "Purgatory Knights" in its card name on your field. For this turn, the next time that card would be destroyed, return that card into your hand, and put the top card of your deck into your gauge.
+- **2281 Million Edge** (Spell, 0/1 working)
+  - Put the top two cards of each fighter's deck into their owners' drop zone. Then, draw a card.
+- **2359 Gagalgarios, "Blazing Hot Magical Prison Break!"** (Impact, 0/2 working)
+  - When this card enters the field, if there are twenty or more cards in either player's drop zone, destroy all monsters on your opponent's field.
+  - When this card is attacking alone, if there are thirty or more cards in either player's drop zone, your opponent cannot use [Counter].
+- **2596 Knight Brigade Leader of the Apocalypse, Gratos** (Monster, 0/1 working)
+  - Choose a monster or item from your opponent's field and you may put cards from this card's soul on the bottom of your deck in any order equal to or more than the critical of that card. If you do, destroy that card.
+- **2612 Black Wind Blade, Devos** (Monster, 0/1 working)
+  - "Wind Summoning Blade" pay 1 gauge and 1 life. If you do, call up to one «Black Dragon» monster that is not an impact monster from your drop zone by paying its [Call Cost].
+- **2624 Soul Sucking Blade, Suctiwon** (Item, 0/1 working)
+  - When you put a card from your opponent's deck into their drop zone by the effect of your card, deal 1 damage to your opponent.
+- **2637 Black Downpour, Zicron** (Monster, 1/2 working)
+  - When this card's attack destroys an opponent's monster, put the top two cards of your opponent's deck into their drop zone.
+- **2638 Obituary** (Spell, 1/3 working)
+  - When this card is [Set]. If you have a «Black Dragon» in your drop zone, draw a card.
+  - When this card is put from the field into the drop zone, your opponent chooses a card in their hand and discards it.
+- **2659 Black Life, Nord** (Monster, 0/1 working)
+  - When you put a card from your opponent's deck into their drop zone by the effect of your card, you gain 1 life.
+- **2678 Pursuit Abygale** (Monster, 1/2 working)
+  - If a card was put into the drop zone from your opponent's deck during this turn, call this card from your hand without paying its [Call Cost].
+- **2754 Retainer of the Demonic Dragon, Agaroku** (Monster, 0/1 working)
+  - When this card enters the field, if there are no cards in your drop zone other than size 1 or less monsters, call up to one size 1 monster from your drop zone other than "Retainer of the Demonic Dragon, Agaroku" without paying its [Call Cost].
+- **2755 Retainer of the Demonic Dragon, Bazori** (Monster, 0/1 working)
+  - If there are no cards other than size 1 or less monsters in your drop zone, this card gets power+3000, defense+3000, and critical+2.
+- **3005 Genocide Punisher!!** (Impact, 1/2 working)
+  - Choose and use one of the following two.
+- **3076 Purgatory Knights, Needle Claw Dragon** (Monster, 0/1 working)
+  - During the attack phase, if this card is destroyed and put into the drop zone, return this card to hand.
+- **3383 Bone Master, Rebel Gallows** (Monster, 1/2 working)
+  - During your attack phase, if there are no cards in battle, choose a monster on your opponent's field, and [Rest] this card. If you do, [Stand] the chosen monster, and that monster attacks your opponent.
+- **3384 Bone Labor, Sabotage** (Monster, 0/2 working)
+  - 'Shadow Dive' This card can attack your opponent even if they have a monster in their center.
+  - During an attack where your opponent's card is attacking alone, you may choose a monster that is not in battle on your opponent's field and pay 2 gauge. If you do, change the attack target to the chosen card.
+- **3424 Bone Labor, Au Darks** (Monster, 0/1 working)
+  - During your attack phase, if there are no cards in battle, choose a monster on your opponent's field, and [Rest] this card. If you do, [Stand] the chosen monster, and that monster attacks your opponent.
+- **3425 Chain Blade, Killing Chain** (Item, 1/2 working)
+  - When a card is put from your opponent's deck into the drop zone by your card effects, put the top two cards of your opponent's deck into their drop zone.
+- **3429 CHAOS Thanatos** (Monster, 0/1 working)
+  - 'Shadow Dive' This card can attack your opponent even if there is a monster in your opponent's center.
+- **3430 Dead Earth Invitation** (Spell, 1/2 working)
+  - Your opponent cannot call monsters from the drop zone.
+- **3440 DEATH Pen, Shriver** (Item, 0/1 working)
+  - Choose a «Death» monster with 0 power from your drop zone, and [Rest] this card. If you do, call the chosen card by paying it [Call Cost].
+- **3441 Soul Reset** (Spell, 1/2 working)
+  - Put all souls from a card on your opponent's field into their drop zone. If one or more cards are put, draw a card.
+- **3499 Despaired Skull, Thirteen** (Monster, 0/1 working)
+  - When this card enters the field, if your opponent has 13 life, thirteen cards in the drop zone, or thirteen cards in the deck, deal 7 damage to your opponent.
+- **3500 Summer Recollection 2017 "Someday`s Rest"** (Spell, 2/3 working)
+  - You can only put a total of up to 4 "Summer Recollection 2017 "Someday's Rest"" and "Black Dragon Shield" in your deck.
+- **3501 Summer Recollection 2017 "Screaming! Hell`s Test of Courage!"** (Spell, 1/2 working)
+  - You can only put a total of up to 4 "Summer Recollection 2017 "Screaming. Hell's Test of Courage."" and "Noble Sacrifice" in your deck.
+- **3521 Bone Labor, Quenatar** (Monster, 0/1 working)
+  - If your opponent has no monsters on the center, choose a card in your opponent's drop zone, and [Rest] this card. If you do, put the chosen card face down on your opponent's center as a monster with "size 0/power 6000/defense 6000/critical 2".
+- **3525 Cornerstone of Victory** (Spell, 0/1 working)
+  - For this turn, the next time your life would become 0, it becomes 2 instead.
+- **3563 Vendidart Disaster** (Spell, 1/2 working)
+  - Put the top four cards of your deck into your gauge. Then, put the number of cards from your gauge into the drop zone equal to the number of monsters on your opponent's field.
+- **3566 Phantom Getter** (Spell, 1/2 working)
+  - When your opponent receives damage from "Spectral Strike", choose a card from your opponent's hand at random, and discard the chosen card. If you do, draw a card.
+- **3578 Evil Deity of Red Flash, Anti Verethragna** (Impact, 1/2 working)
+  - Deal 4 damage to your opponent. Damage from this card cannot be reduced.
+- **3609 Landmine Jailer, Izmain** (Monster, 0/1 working)
+  - When you are being attacked, choose one of the attacking cards, and you may put this card from the field into your drop zone. If you do, put the top card of both players' deck into the drop zone, and destroy the chosen card.
+- **3619 Overturn Black Death Dragon, Abygale** (Monster, 0/2 working)
+  - All cards on your field cannot be destroyed by card effects nor returned to hand by your opponent's card effects. Then, all cards in their soul cannot be put into your drop zone by your opponent's card effects.
+  - At the start of your opponent's turn, end the turn. Your cards cannot attack during your next turn.
+- **3636 Black Arc Dragon, Riverpain** (Monster, 1/2 working)
+  - During the attack phase, destroy a monster on your field. If you do, call a Black Dragon or Thunder Empire monster from your hand by paying its [Call Cost]. "Black Thunder Summon" can only be activated
+- **3638 Sealed Black Crest Dragon, Earlgod** (Monster, 0/1 working)
+  - The abilities of the monster in front of this monster are nullified. This ability cannot be nullified.
+- **3639 Sealed Black Death Dragon, Vidanouve** (Monster, 0/1 working)
+  - When you would call a Black Dragon from your hand, reduce that card's [Call Cost] by 1 gauge.
+- **3640 Thunder Bones, Spark Gallows** (Monster, 1/2 working)
+  - When this card enters the field, put all size 3 or less monsters from your opponent's field to separate areas on their field.
+- **3641 Sunken Seabed Ruins** (Spell, 0/3 working)
+  - During your main phase, when a size 3 or greater monster enters your field, if this card is in your drop zone, you may pay 1 life. If you do, cast this card from the drop zone.
+  - 3 or greater damage dealt to you by monster effects are reduced to 0.
+  - When monsters on your field attack, put the top card of your deck into your gauge.
+- **3643 Daredevil "Breaker"** (Monster, 1/2 working)
+  - All monsters on your center may attack your opponent even if your opponent has monsters on the center.
+- **3644 Earlbow "SD"** (Monster, 0/1 working)
+  - At the end of your opponent's turn if there's a Black Dragon [Set] on your field, put 2 cards from the top of your deck into gauge and you gain 2 life.
+- **3672 Disgusting Demonic Dragon, Jahi Barriga** (Monster, 1/2 working)
+  - When this card enters the field, choose a card on your opponent's field. For this turn, when the chosen card is destroyed, put the top card of your deck into your gauge, and draw a card.
+- **3673 Execution Ground** (Spell, 1/3 working)
+  - When a soul is put into your «Black Dragon», put the top card of your deck into your gauge, and draw a card.
+  - When a «Black Dragon» [Set] on your field is destroyed by your opponent's card effects, deal 4 damage to your opponent.
+- **3688 Purgatory Knights, Ringblade Dragon** (Monster, 0/1 working)
+  - When a card on your field is destroyed by your card effects, [Stand] this card.
+- **3703 Black Arc Dragon, Dirtiele** (Monster, 0/1 working)
+  - When this card enters the field, you gain 1 life, and if there are two or more world names on your field, destroy a monster on your opponent's field.
+- **3705 Collapse Roar** (Spell, 0/1 working)
+  - Destory a monster on your opponent's field.
+- **3706 Black Provoke** (Spell, 0/1 working)
+  - Choose a monster on your opponent's field. For this turn, when the Chosen card attacks or is destroyed, put the top card of your deckinto the gauge and you gain 1 life.
+- **3709 CHAOS Terrorizer** (Monster, 0/1 working)
+  - When a monster on your center attacks, if this card is on left or right, destroy a monster on your opponent's field.
+- **3710 Black Thunder Dragon, Zem Seventh** (Monster, 0/1 working)
+  - Choose a monster on your opponent's field and put a soul from this card into the drop zone. if you do, destory the chosen card.
+- **3711 Black Volt Ring** (Spell, 0/1 working)
+  - [Stand] A monster on your field, and for this turn, it gets power plus 3000.
+- **3741 CHAOS Death Tallica** (Monster, 0/1 working)
+  - If this card would leave the field, you may put three monsters or «Deep» from your drop zone on the bottom of your deck. If you do, this card remains on the field.
+- **3789 CHAOS Deathgaze** (Monster, 0/2 working)
+  - When a monster on your center attacks and destroys your opponent's monster, deal 2 damage to your opponent.
+  - When an attack of a monster on your center is nullified, put a card from your opponent's gauge into their drop zone.
+- **3905 Black Arc Dragon, Gen Tuly** (Monster, 1/2 working)
+  - When this attacking card destroys your opponent's monster or deals damage to your opponent, put a card from your opponent's gauge into the drop zone. Then, if there are no cards in your opponent's gauge, deal 2 damage to your opponent.
+- **4076 Black Chaos Claw** (Spell, 1/2 working)
+  - The gauge cost of this card's [Cast Cost] is reduced by the number of monsters on your field.
+- **4095 Hundred Mechs General, CHAOS Gokumengaiou** (Monster, 1/2 working)
+  - When this card enters the field, draw cards or gain life equal to the number of «Hundred Demons» monsters on your field.
+- **4122 Corrosion Code 666, Zeno CHAOS Darkness** (Monster, 1/2 working)
+  - When your "Infinity the Chaos" attacks, destroy a monster on your opponent's field.
+- **4153 Mark of Atonement, Azi Dahaka Daeva "SYS"** (Monster, 0/1 working)
+  - When this card is destroyed, draw a card. Then, if your flag is "Dragon Zwei", put up to one "Dragon Drei" from your hand or deck on top of your flag, and shuffle your deck. If you do, you gain 5 life.
+- **4174 Mark of Transgression, Azi Dahaka "SYS"** (Monster, 0/1 working)
+  - When this card is destroyed, you may pay 1 life. If you do, equip up to a total of two items with "Aqulta Gwaneff" in their card names from your hand and deck. If you looked in your deck, shuffle it. This ability is also treated as an ability of "Demonic Demise Dragon, Azi Dahaka".
+- **4175 Deity Sword of Creations, Aqulta Gwaneff** (Item, 0/3 working)
+  - You may not equip this card other than by the abilities of "Mark of Transgression, Azi Dahaka "SYS"".
+  - If you have this card equipped, you may put this card and a "Demonic Demise Sword, Aqulta Gwaneff" on your item area.
+  - If you are being link attacked, discard a hand card and pay 1 life. If you do, nullify the attack.
+- **4197 Evil Spirit of Bevar-Asp** (Spell, 1/2 working)
+  - When an «Evil Deity Dragon» on your field destroys your opponent's card, put the top card of your deck into your gauge, draw a card, and deal 1 damage to your opponent.
+- **4729 Bone Puppet Despair** (Impact, 1/2 working)
+  - Choose a monster on your opponent's field, and for this turn, nullify all its abilities, and it gets critical+3. Then, [Stand] the chosen card, and attack your opponent with it. At the end of the battle, destroy the chosen card.
+- **4942 Black-White Armor** (Spell, 1/2 working)
+  - Nullify the attack. Then, if your opponent has a card under their flag, put up to one «Curse Dragon» monster from your drop zone into your hand.
+- **4943 Black Dragon Knight, Geil** (Monster, 1/2 working)
+  - When this card enters the field, if your opponent has a card under their flag, destroy a card on your opponent's field.
+- **4997 Sentence of Curse** (Spell, 2/3 working)
+  - At the start of your opponent's turn, put the top card of your opponent's deck face up under their flag. Then, if your opponent has fifteen or more cards under their flag, you win the fight.
+- **4998 Curse Destruction** (Spell, 0/1 working)
+  - Choose and use one of the following two.
+- **4999 Black Dragon Knight, Belze** (Monster, 0/1 working)
+  - When this card is destroyed, if your opponent has three or more hand cards and a card under their flag, you gain 1 life, and your opponent chooses and drops a hand card.
+- **5000 Black Dragon Knight, Zest** (Monster, 0/1 working)
+  - When this card is destroyed, if your opponent has a card under their flag, you gain 1 life, and drop 1 of your opponent's gauge.
+- **5002 Deathraider Orven** (Monster, 1/2 working)
+  - When this card enters the field, drop up to the top three cards of your deck, and put all "Venom Swamp" from among them into your hand.
+- **5006 Black Dragon Knight, Zevens the "Stygian"** (Monster, 0/2 working)
+  - The size of all originally size 1 «Curse Dragon» on your field is reduced by 1.
+  - Choose a monster on the field, and you may drop a soul from this card. If you do, destroy the chosen card, and if your opponent has a card under their flag, you gain 2 life.
+- **5008 Venom Bind** (Spell, 1/2 working)
+  - Choose a card on your opponent's field, and for this turn, the chosen card's critical is reduced by 1 for each "Venom Swamp" on your field.
+- **5038 Poison Mask** (Item, 1/2 working)
+  - When a card from your opponent's deck is dropped by your card effects, put the top two cards of your deck into your gauge.
+- **5039 Curse Ritual** (Spell, 0/1 working)
+  - You gain 2 life, and draw two cards. Then, if your opponent has two or more cards under their flag, draw a card.
+- **5058 Black Dragon Knight, Arbol** (Monster, 0/1 working)
+  - When this card enters the field, put the top card of your deck into your gauge, and you gain 1 life. Then, if your opponent has a card under their flag, draw a card.
+- **5061 Underration** (Spell, 0/1 working)
+  - Put up to one «Curse Dragon» monster from your drop zone into your hand. Then, if your opponent has two or more cards under their flag, you gain 2 life, and if three or more, put the top two cards of your deck into your gauge.
+- **5063 Black Dragon Sword, Geilblade** (Item, 1/2 working)
+  - You may pay 1 gauge and [Rest] this card. If you do, put the top card of your opponent's deck face up under their flag, then, if your opponent has two or more cards under their flag, draw a card.
+- **5064 Black Dragon Knight, Birth the "Demon-Eye"** (Monster, 0/1 working)
+  - When this card attacks, drop the top card of your deck. If it is a monster, draw a card, if it is a spell, put the top card of your opponent's deck face up under their flag.
+- **5065 Black Dragon Knight, Leopard** (Monster, 1/2 working)
+  - When this card enters the field, if your opponent has a card under their flag, put up to three «Curse Dragon» from your drop zone into this card's soul.
+- **5066 Black Dragon Knight, Ynllay** (Monster, 0/1 working)
+  - When this card attacks, if your opponent has a card under their flag, destroy a monster on your opponent's field.
+- **5067 Black Dragon Knight, Eth** (Monster, 0/1 working)
+  - When this card enters the field, put the top card of your deck into your gauge, then, if your opponent has a card under their flag, put the top two cards of your deck into your gauge.
+- **5068 Black Dragon Knight, Namm** (Monster, 1/2 working)
+  - During your opponent's turn, when this card is destroyed, if your opponent has a card under their flag, you gain 2 life.
+- **5069 Scar Bind** (Spell, 1/2 working)
+  - [Rest] a monster on your opponent's field. If your opponent has eight or more cards under their flag, [Rest] all cards on your opponent's field instead.
+- **5070 Curse Field** (Spell, 2/3 working)
+  - When a card is put under your opponent's flag by your card effects, put the top card of your deck into your gauge, and draw a card.
+- **5163 Overeddy Black Sky Dragon, Abygale** (Monster, 1/2 working)
+  - from your drop zone on the bottom of your deck & Pay 1 gauge] During this fight, all cards on your opponent's field get power-5000, defense-5000, and critical-1.
+- **5560 Melody of the Evil Moon** (Spell, 1/2 working)
+  - Choose and use one of the following two.
+- **5561 Evil Demonic Dragon, Simiae** (Monster, 1/2 working)
+  - If an originally size 3 «Evil Demonic Dragon» would leave your field, you may put this card into your drop zone. If you do, that card remains on your field.
+- **5573 Evil Demonic Dragon, Cornix** (Monster, 1/2 working)
+  - When this card attacks, choose a monster on your opponent's field, destroy the chosen card. If your life is 6 or less, drop all souls of the chosen card instead, and destroy that card.
+- **5714 Jail Liberator, Befrien** (Monster, 2/3 working)
+  - When monsters enter your opponent's field by card effects, deal 1 damage to your opponent.
+- **6036 Retainer of the Demonic Dragon, Zeff Hiter** (Monster, 1/2 working)
+  - At the start of the final phase during the turn that this card is dropped from your hand, if you have a «Dragon» item equipped, you may put a "Retainer of the Demonic Dragon, Zeff Hiter" from your drop zone into your hand. If you do, put the top card of your deck into your gauge, and you gain 1 life.
+- **6162 Kronos Reverse** (Spell, 1/2 working)
+  - Nullify the spell cast by your opponent. Then, if your flags [Reversal] four times or more during this fight, for this turn, your opponent cannot cast spells with the same card name of the nullified spell.
+- **6349 Death Gospel, Deathgaze Reaper** (Monster, 1/2 working)
+  - During your turn, you may pay 1 life. If you do, put up to the top two cards of your opponent's deck face down on their separate open areas as "size 0/1000 power/1000 defense/1 critical" monsters.
+- **6351 Dark Burial Executer Dragon, Abygale** (Monster, 2/3 working)
+  - If three or more «Dark Burial» are [Set] on your field, this card's attack cannot be nullified if it is attacking alone, and its damage cannot be reduced.
+- **6354 Hunting Ground without a Life** (Spell, 0/2 working)
+  - Your opponent cannot [Counter] during the battle that a monster on your field is attacking your opponent's monsters alone.
+  - When a monster enters your opponent's field by your card effects, put the top two cards of your deck into your gauge, and deal 1 damage to your opponent.
+- **6356 Last Symphony -Epilogue-** (Impact, 1/2 working)
+  - At the start of each player's turn, if your opponent's life is 4 or more, and three or more different «Dark Burial» are [Set] on your field, your opponent's life becomes 3.
+- **6357 Second Symphony - Scherzo -** (Spell, 2/3 working)
+  - When this card is [Set] , if another «Dark Burial» is on your field, draw a card.
+- **6360 Dark Mad Knife** (Item, 2/3 working)
+  - If a monster with "Spectral Strike"is on your field, this card and all «Black Dragon» monsters on your field cannot be destroyed or returned to hand and their abilities cannot be nullified by your opponent's card effects.
+- **6361 Void Omni Wicked Lord, Negulbalz "Re:B"** (Monster, 1/2 working)
+  - Choose a monster on your opponent's field, and you may pay 1 gauge. If you do, change the chosen card's size to 3 until it leaves the field.
+- **6362 Dual Abyss, Galescissors** (Item, 2/3 working)
+  - At the end of your turn, if a «Dark Burial» impact is [Set] on your field, you gain 5 life.
+- **6363 Curse Count** (Impact, 1/2 working)
+  - At the end of your turn, put up to the top two cards of your opponent's deck under their flag face up.
+- **6364 Assault of Silver Moon, Geil Luna** (Monster, 1/2 working)
+  - At the start of your opponent's turn, if a card is under your opponent's flag, you gain 3 life, then, if eight or more cards are under your opponent's flag, draw a card.
+- **6424 Curse Grip** (Spell, 0/1 working)
+  - Choose a card on your opponent's field, and destroy the chosen card. If your opponent has six or more cards under their flag, put the chosen card face up under your opponent's flag instead.
+- **6425 Deathraider Lord, Karma Orven** (Monster, 1/2 working)
+  - When this card enters the field, drop up to four cards from the top of your deck, and put all «Swamp» spell with [Set] from among them into your hand.
+- **6518 First Knight of the Apocalypse, Gratos "Re:B"** (Monster, 1/3 working)
+  - Put one "Second Knight of the Apocalypse, Voremos", "Third Knight of the Apocalypse, Aberrucia" & "Fourth Knight of the Apocalypse, Thanatos" with this card in your buddy zone.
+  - The size of all other «Black Knight» on your field are reduced by 1.
+- **6520 Disaster Palace** (Spell, 1/2 working)
+  - Draw a card, and choose and use one of the following two.
+- **6523 Death Ruler, Gallows "Re:B"** (Monster, 2/3 working)
+  - All cards on your field can attack your opponent even if they have monsters on their center.
+- **6525 Purgatory Knights Leader, Demios Sword Dragon "Re:B"** (Monster, 1/2 working)
+  - You may destroy an «Armordragon» on your field. If destroyed, choose and use one of the following two.
+- **6526 Demonic Demise Dragon, Azi Dahaka "Re:B"** (Monster, 0/2 working)
+  - When this card is destroyed, put this card into the soul of up to one spell on your field, and equip up to one "Demonic Demise Sword, Aqulta Gwaneff" from your hand or deck. If you looked in your deck, shuffle it. This ability is also treated as the ability of "Demonic Demise Dragon, Azi Dahaka".
+  - When an item on your field attacks alone, if this card is in the soul of "Dragon Throne", it attacks all your opponent's monsters and your opponent instead, and for this turn, that item gets power+10000 and [Triple Attack].
+- **6560 Death Ruler Daredevil "Re:B"** (Monster, 1/3 working)
+  - "Thunder Mine"When your opponent's monster is destroyed, drop up to the top two cards of your opponent's deck, and deal 1 damage to your opponent.
+  - When this card attacks, if a total of twenty or more cards are in your and your opponent's drop zone, destroy all cards on your opponent's field, and for this turn, this card gets critical+3.
+
+## Darkness Dragon World / Hero World — 1 cards, 1 missing
+
+- **3498 Shadow Hero, Growl** (Monster, 0/1 working)
+  - When this card attacks, if you did not put any cards in your gauge during this turn, put the top four cards of your deck into your gauge.
+
+## Darkness Dragon World / Magic World — 1 cards, 1 missing
+
+- **2646 Black Sage, Bem** (Monster, 0/1 working)
+  - Discard a card from your hand. If you do, return a card to its owner's hand from the field or destroy a card on the field.
+
+## Detective Conan — 21 cards, 26 missing
+
+- **5192 Secretive, Vermouth** (Monster, 1/2 working)
+  - Counter] [Act] Call this card from your hand by paying its [Call Cost].
+- **5193 Informant, Bourbon** (Monster, 2/3 working)
+  - Choose a character on your field, and reveal this card from your hand. If you do, put this card face down into the chosen character's soul.
+- **5194 Mystery Train** (Spell, 2/3 working)
+  - When a «Black Organization» character enters your field by card effects, put the top card of your deck into your gauge, and draw a card.
+- **5199 Criminal** (Monster, 2/4 working)
+  - If you would take damage and you have two or more "Criminal" in your drop zone, you may face up one one of this card's face down soul. If you do, reduce that damage to 0.
+  - If you have six or more soul in this card you are [Transform] into, you win the game.
+- **5201 Well-prepared, Kazuha Toyama** (Monster, 1/2 working)
+  - Look at the top three cards of your opponent's deck, and put them back on the top of the deck in any order.
+- **5203 Locked Room Mystery Case** (Spell, 1/3 working)
+  - on your field cannot be destroyed and its souls cannot be dropped by your opponent's card effects.
+  - When a soul is put into your [Criminal], you gain 2 life and draw a card.
+- **5209 Junior Detective League, Mitsuhiko Tsuburaya** (Monster, 1/2 working)
+  - When this card attacks, if you have three or more «Junior Detective League» on your field, all characters and items on your opponent's field cannot [Stand] during this turn and the next turn.
+- **5211 Seeking the Truth, Conan Edogawa** (Monster, 0/1 working)
+  - Your opponent chooses one of their hand cards during your final phase. Then, declare a card type, and check your opponent's chosen card. If it is a card of the declared type, deal 5 damage to your opponent. This damage cannot be reduced.
+- **5214 High School Detective, Heiji Hattori** (Monster, 0/1 working)
+  - When this card attacks, declare a card type, and drop the top card from your opponent's deck. If it is a card of the declared card type, your opponent chooses and drops a hand card, and deal 2 damage to your opponent.
+- **5217 Modern-day Sherlock Holmes, Shinichi Kudo** (Monster, 1/2 working)
+  - When this card attacks, declare a card type, and look at your opponent's hand. If there is a card of the declared card type among them, your opponent chooses and drops a card of the declared card type.
+- **5218 Former Member of Black Organization, Shiho Miyano** (Monster, 1/2 working)
+  - When this card is destroyed, choose a card on your opponent's field, and it cannot [Stand] for this turn and the next turn.
+- **5219 Betrayal and Punishment, Bourbon** (Monster, 1/2 working)
+  - Choose a character on your field, and reveal this card from your hand. If you do, put this card face down into the chosen character's soul.
+- **5221 Quick-witted Detective** (Spell, 0/1 working)
+  - Put up to one [Conan] and up to one «Detective» event with [Set] from your deck into your hand, and shuffle youe deck.
+- **5225 Witch of a Thousand Faces, Vermouth** (Monster, 1/2 working)
+  - Choose a character on your field, and reveal this card from your hand. If you do, put this card face down in the chosen character's soul.
+- **5249 Childhood Friend, Ran Mori** (Monster, 0/2 working)
+  - When a [Shinichi Kudo] or [Conan] enters your field, you gain 2 life and draw a card. This ability activates once per main phase and once per final phase.
+  - and [Conan]'s power on your field becomes infinite.
+- **5285 Ai Haibara's Day** (Spell, 0/3 working)
+  - "[Cast Cost] [Drop a hand card]
+  - Draw two cards. "
+  - global. JuniorDetectiveLeague[CardStat] = 1
+- **5310 Saving Subordinates! Inspector Megure** (Monster, 1/2 working)
+  - If you have a «Police» or character with "Detective" in its attribute on your left or right, this card's size on the center is reduced by 2.
+- **5314 FBI Agent** (Spell, 2/3 working)
+  - When an «FBI«FBI» on your field destroys your opponent's cards or deals damage to your opponent, put the top card of your deck into your gauge, you gain 1 life and draw a card.
+- **5317 Conan Edogawa Giving Chase** (Monster, 2/3 working)
+  - During your opponent's turn, when this card is put into your drop zone from soul, put the top card of your deck into your gauge, you gain 1 life, and draw a card.
+- **6571 Boosted Shoot** (Impact, 1/2 working)
+  - Deal 3 damage. This damage can't be reduced. If you have "Kicking Enhancement Shoes" equipped, deal 5 damage instead, and this damage cant be reduced.
+- **6572 Anesthetic Dart-firing Wristwatch** (Spell, 0/1 working)
+  - Destroy a character on your opponent's field. If you have [Kogoro] on your field, destroy a card instead.
+
+## Dragon World — 115 cards, 119 missing
+
+- **456 Jackknife "Gold Ritter"** (Item, 0/2 working)
+  - This card cannot be destroyed, nor returned to your hand, and it is treated as if there is a size 3 «Armordragon» monster on your field.
+  - Damage dealt to you from link attacks become 2 instead.
+- **459 Sun Fist, Sunshine Impact** (Item, 0/1 working)
+  - When this card link attacks with your Buddy Monster, for this turn, this card's power becomes infinite. is larger than any number even if a number is added or subtracted.)
+- **471 Dragon Barrier** (Spell, 0/1 working)
+  - For this turn, the next time a size 2 or greater monster on your field would be destroyed, it remains on the field.
+- **476 Dragon's Seal** (Spell, 0/1 working)
+  - If your life is 3 or less, you may reveal all cards in this card's soul. If you do, choose up to one «Armordragon» monster from among them, call it by paying its [Call Cost], and destroy this card.
+- **483 Dragonic Formation** (Spell, 1/2 working)
+  - Move an «Armordragon» on your field to the center, and change the target of the attack to that monster.
+- **502 One to One** (Spell, 1/2 working)
+  - If both you and your opponent have an item equipped, both your item and your opponent's on the field get critical+1.
+- **504 Red Dragon Knights "Song of Burning March"** (Spell, 0/1 working)
+  - When a «Armordragon» on your field enters the field on the left or right, you may pay 1 gauge. If you do, deal 1 damage to your opponent.
+- **505 Slash Strike, Dragoslasher** (Spell, 2/3 working)
+  - For this turn, when you attack with a «Weapon», choose a card in the soul of an opponent's monster, and put it into the drop zone.
+- **507 Thunder Knights Formation!** (Spell, 1/2 working)
+  - If your monster with "Thunder Knights" in its card name [Move] during your opponent's turn, put the top card of your deck into the gauge.
+- **525 Maximum Skill, Breaking Flames** (Impact, 1/2 working)
+  - Put the monster from your opponent's center to the left or right, and deal 3 damage to your opponent.
+- **559 Dragon Knight, Maximilian** (Monster, 0/1 working)
+  - When this card enters the field, you may reveal a Dragon Knight from your hand. If you do, put that card into the gauge, and draw a card.
+- **568 Dragon Knight, Socrates** (Monster, 0/1 working)
+  - If you are being attacked, you may discard a «Dragon Knight» and pay 1 life. If you do, nullify the attack.
+- **597 Viking Sword Dragon** (Monster, 0/1 working)
+  - If this card is on your field, your monsters are not affected by the effect of "Day of the Dragon".
+- **608 Destroy Hammer Dragon** (Monster, 0/1 working)
+  - When you use a "Dragonic Destroy", deal 3 damage to your opponent.
+- **609 Dirk Shotel Dragon** (Monster, 0/1 working)
+  - If this is the only card attacking, this card's attack cannot be nullified by a card with "Dragon Shield" in its card name.
+- **615 Dragon Knight, Kagekiyo** (Monster, 0/1 working)
+  - When this card is destroyed, you may put it into the gauge instead of the drop zone.
+- **620 Dragon Knight, Vlad Dracula** (Monster, 0/1 working)
+  - This card gets critical+1 for each «Dragon Knight» monster in your drop zone. This card's critical cannot be greater than 6.
+- **657 Super Armordragon, Drum Breaker Dragon** (Monster, 0/1 working)
+  - Move this card to an open monster area on your field.
+- **675 Fire Wall Dragon** (Monster, 0/1 working)
+  - When this card is attacked, if it is a link attack, play "Rock-Paper-Scissors" with your opponent. If you win, nullify that link attack.
+- **677 Inferno Armor Dragon** (Monster, 1/2 working)
+  - You may discard two soul from this card's soul. If you do, destroy a monster on your opponent's field.
+- **889 Dragon Knight, Bokuden** (Monster, 0/1 working)
+  - When this card enters the field, look at all your gauge, choose as many «Dragon Knight» as you like from among them, and put them into your drop zone. Then, put cards from the top of your deck into your gauge equal to the number of cards you put into the drop zone.
+- **1007 Ultimate Neo Dragon, Drum the Future** (Monster, 0/1 working)
+  - When this card link attacks with you, if you have 5 life or less, you may pay 1 gauge and discard a card from your hand. If you do, the attack cannot be nullified and the damage cannot be reduced.
+- **1081 Scorching Crimson Battler, Drum** (Monster, 0/1 working)
+  - When this card enters the field, if you are not equipped with an item, you may equip an item from your drop zone with "Fist" in its card name by paying its [Equip Cost].
+- **1254 Ring of Crimson** (Spell, 1/2 working)
+  - When an item with "Fist" in its card name on your field would be destroyed, you may put this card into your drop zone. If you do, return that item to your hand.
+- **1330 Dragon Lord Initiation, Giga Howling Crusher!!** (Impact, 1/2 working)
+  - Deal damage to your opponent equal to the total critical of a monster and an item on your field. This card's damage cannot be reduced.
+- **1389 Hundred Demons General, Iyonorasetsuryu** (Monster, 1/2 working)
+  - If there are a total of ten or more cards with «Armordragon» or «Hundred Demons» in your drop zone, nullify the Lifelink of this card on your field.
+- **1395 Guillotine Axe Dragon** (Monster, 0/1 working)
+  - When a monster with "Dragon" in its attribute enters your opponent's field, or if your opponent casts a spell with "Dragon" in its attribute, deal 1 damage to your opponent.
+- **1421 Hundred Demons Formation, Thunder Mine Stance** (Spell, 1/2 working)
+  - During the main phase of your opponent's turn, call a size 2 or less monster with "Thunder Mine" from your drop zone by paying its [Call Cost].
+- **1422 Gate of Dragon** (Spell, 1/2 working)
+  - You and your opponent cannot call size 1 or less monsters from the drop zone.
+- **1464 Fifth Omni Cavalry Dragon, Ice Lance Merak** (Monster, 2/3 working)
+  - When you would be dealt damage, you may pay 1 gauge. If you do, that damage is reduced by 1.
+- **1468 Fifth Omni Armored Dragon, Soul Returner Seikirei** (Monster, 0/1 working)
+  - When this card enters the field, if you do not have other monsters on your field, you may call a size 1 or less monster with "Fifth Omni" in its card name from your drop zone by paying its [Call Cost].
+- **1473 Dragon Bind Attack** (Spell, 0/1 working)
+  - Draw a card. for this turn, during the battle in which cards on your field link attack your opponent's monster, your opponent cannot use or cast a [Counter].
+- **1479 Crimson Battler, The Blacksmith** (Monster, 0/1 working)
+  - If an item on your field with "Fist" is the only card attacking, the attack cannot be nullified.
+- **1484 Fifth Omni Cavalry Dragon, Sand Staff Arkaid** (Monster, 2/3 working)
+  - When you are dealt damage, if you have no monster in your center, you may move this monster to your center.
+- **1486 Dragon Guard** (Spell, 1/2 working)
+  - Change the target of the attack to you and draw a card.
+- **1493 Fifth Omni Armored Dragon, Leaping Zakuro** (Monster, 1/2 working)
+  - When this card enters the field, if you have 6 life or less, search your deck for up to one "Fifth Omni Dragon Lord, Drum", put it into your hand, and shuffle your deck. Then, if you put a "Fifth Omni Dragon Lord, Drum" into your hand, you take 1 damage.
+- **1578 Drum Bunker Dragon "SD"** (Monster, 0/1 working)
+  - "GO, Towards Tomorrow."When a monster with "Drum" in its card name enters your field, if this card is in your drop zone, you may pay 1 gauge. If you do, put this card from your drop zone into the soul of that card, or call it.
+- **1950 Knight Assault** (Spell, 0/1 working)
+  - Choose a «Dragon Knight» on your field. For this turn, if that is the only card attacking, that card's attack cannot be nullified.
+- **2051 Bushknife Dragon** (Monster, 0/1 working)
+  - If you would call a monster with "Jackknife" in its card name from your hand, you may call it without paying the gauge written in its [Call Cost].
+- **2099 Solar Furnace Jet Type-1** (Spell, 1/2 working)
+  - Choose a size 2 or less «Sun Dragon» on your field, and for this turn, that card can attack your opponent even if there is a monster in your opponent's center. At end of turn, put that card into your gauge.
+- **2410 Flame Dragon Jr.** (Monster, 0/2 working)
+  - Item on your field can attack your opponent even if there is a monster in your opponent's center.
+  - At the end of the battle that one or more items on your field attacked, put this card from your field into your drop zone.
+- **2512 Bal Dragon, "Bal Weapon Combination!"** (Impact, 1/2 working)
+  - When this card enters the field, [stand] a «Sun Dragon» item on your field, and for this turn, that item can attack during your final phase.
+- **2631 Dragon Knight, Magellan** (Monster, 0/1 working)
+  - When this card enters the field and if there are no other monsters on your field, you may call a size 1 or less «Dragon Knight» from your drop zone by paying its [Call Cost].
+- **2634 Dragonic Fortune** (Spell, 1/2 working)
+  - Nullify the attack and put the top card of each player's deck into the drop zone. If the card put into the drop zone is a monster card, that player takes damage equal to the monster's size.
+- **2704 Heat Wave** (Spell, 0/1 working)
+  - Choose a monster on your opponent's field. for this turn, when a «Sun Dragon» monster attacks, destroy the chosen monster.
+- **2800 Retainer of the Demonic Dragon, Devil Orb Dragon** (Monster, 0/1 working)
+  - You may discard this hand card. If you do, if your flag is "Dragon Zwei", the next damage dealt to you during this turn is reduced by 3, if your flag is "Dragon Drei", you gain 2 life.
+- **3038 Paramount Neo Dragon, Drum the Maximum Future** (Monster, 1/2 working)
+  - If this card link attacks with you, the attack cannot be nullified.
+- **3039 Drum Bunker Dragon, "Drill Ram Buster Break!"** (Impact, 1/2 working)
+  - During the battle that this card is attacking a monster on the center, your opponent cannot use [Counter].
+- **3051 Crimson Battler, Gunzarm Dragon** (Monster, 0/1 working)
+  - This card gets critical equal to the critical of the item with "Fist" in its card name you have equipped.
+- **3052 Buddy Together!** (Spell, 1/2 working)
+  - For this turn, the next time your life would become 0, you gain 2 life instead, then, draw a card.
+- **3115 Armordeity, Energeia** (Monster, 1/2 working)
+  - This card cannot attack the left or right, and during the battle that this card is attacking alone, your opponent cannot use [Counter].
+- **3329 100-Dragon Overseer of Mercenary Band, Anthem the Dual Sword** (Monster, 1/2 working)
+  - This card cannot attack the left and right, and cannot be destroyed by your opponent's spell effects.
+- **3596 Thunder Emperor Dragon, Barlbatzz** (Monster, 2/3 working)
+  - all cards on your field.
+- **3598 Far East Dragon Lord, Blade the Emperor** (Monster, 0/1 working)
+  - If you would be dealt 3 or greater damage, if you have an item equipped, reduce that damage by 2.
+- **3625 Execute Officer, Quadrangle** (Monster, 1/2 working)
+  - If you have four or more different world names of «Thunder Empire» in your drop zone, this card's size on the field is reduced by 2.
+- **3627 Guardians? Executioners? Or Worse!?** (Impact, 1/2 working)
+  - If your flag is «Divine Guardians», choose a card on your field, and deal damage to your opponent equal to that card's critical. If your flag is «Searing Executioners», deal damage to your opponent equal to the number of times your cards attacked during this turn.
+- **3629 Overturn Arc Dragon, Barlbatzz** (Monster, 1/2 working)
+  - a «Thunder Empire» on your field, and [Stand] this card.
+- **3722 Envoy of Sol, Meraciel** (Monster, 0/1 working)
+  - When you or your opponent puts a card on the bottom of the deck, you gain 1 life, and return up to one monster from your opponent's center to their hand.
+- **3791 Loud Voice** (Spell, 0/1 working)
+  - For this turn, all cards on your opponent's field get power-3000, defense-3000, and critical-1 for each card dropped by this card's [Cast Cost].
+- **3810 Second Barrier** (Spell, 1/2 working)
+  - Choose a size 2 monster on your field, and for this turn, the chosen monster cannot be destroyed by attacks.
+- **3812 World Linking Key the First, Drago-Uno** (Spell, 1/2 working)
+  - Discard your hand, and draw six cards. Then, for this turn, you cannot be dealt damage. At the end of your next turn, you lose the game.
+- **3949 Wiebly the Phantasmagoric** (Monster, 1/2 working)
+  - When this card enters the field, put up to one «Thunder Empire» monster from your deck into the drop zone, and shuffle your deck. For this turn, the world name of this card on the field is also treated as the world name of the card put into the drop zone.
+- **3951 All-Purpose Mech, CHAOS Tetra** (Monster, 1/2 working)
+  - When your opponent's cards attack, change the target of the attacks to this monster.
+- **3984 Warlord Crimson Thunder Wave** (Spell, 1/2 working)
+  - Choose a «Thunder Empire» on your field. For this turn, the chosen card's critical cannot be reduced by your opponent's card effects, and when the chosen card attacks, destroy a card on your opponent's field.
+- **3992 Flame Dragon, Burn** (Monster, 1/2 working)
+  - At the end of the turn that this card was destroyed, you may call a "Flame Dragon, Burn" from your drop zone.
+- **3993 Fiery Fist Dragon, Burn Pound Dragon** (Monster, 1/2 working)
+  - At the end of the turn that this card was destroyed, you may call a "Fiery Fist Dragon, Burn Pound Dragon" from your drop zone without paying its [Call Cost].
+- **3994 Bond Immortalized Dragon, Burn Bond Dragon** (Monster, 1/2 working)
+  - For this game, when a size 3 «Fire Dragon» monster on your field is destroyed, you may discard a «Fire Dragon» from your hand. If you do, call this card from the drop zone without paying its [Call Cost].
+- **4014 Military Deviser Mech, CHAOS Fanning** (Monster, 0/1 working)
+  - During your turn, all «Autodeity Army» on your field cannot be [Rest], returned to hand, and their abilities cannot be nullified, by your opponent's card effects.
+- **4070 Batzz's Protection, "Dragonificator" Gao** (Monster, 2/3 working)
+  - This card gets the [Overthrow] of the cards in its soul, and you may use [Overthrow] twice during this game.
+- **4160 Future Fangs, Barlbatzz Future Cross** (Monster, 1/2 working)
+  - When this card enters the field, put from your deck up to two «Thunder Empire» monsters into the drop zone, up to one «Thunder Empire» item into your hand, and shuffle your deck.
+- **4199 Dragomemoria - Dragon's Reminiscence -** (Spell, 1/2 working)
+  - If you have a monster with "Batzz" in its card name on your right, the size of monsters with "Drum" or "Bal Dragon" in their card names on your left is reduced by 1.
+- **4233 Loyal Dragon, Flarefang Dragon** (Monster, 1/2 working)
+  - When a size 2 or greater «Sun Dragon» monster enters your field, put the top card of your deck into your gauge, and draw a card. This ability activates once per main phase and once per final phase.
+- **4237 Inheritable Sun, Sunshine Impact** (Item, 1/2 working)
+  - If the card in your buddy zone is in [Rest], this card gets [Penetrate], and its power becomes infinite.
+- **4244 Thunder Knights, Motivated Halberd Dragon** (Monster, 1/2 working)
+  - If a monster with "Thunder Knights" in its card name on your field used [Move] for this turn, call this card from your hand without paying its [Call Cost].
+- **4253 Retainer of the Demonic Dragon, Abyss Shield Dragon** (Monster, 0/1 working)
+  - You may discard this hand card during an attack on your opponent's turn if you have three or more different world names of cards in your drop zone. If you do, nullify the attack,. If you have a card with "Azi Dahaka" in its card name on your field or drop zone, draw a card.
+- **4260 Balle Soleil Imagine** (Monster, 1/2 working)
+  - At the end of the battle that the «Sun Dragon» with this card in its soul attacked, if your opponent does not have a monster on the center, put the top card of your deck into your gauge, and you gain 1 life.
+- **4456 Deep Track  Endless Ladder** (Monster, 1/2 working)
+  - At the start of your opponent's attack phase, choose a monster at [Stand] on your opponent's field. For this turn, the chosen card must attack this card alone first for this attack phase if able.
+- **4457 Dragonblood Eyes  Bloody-Eyes** (Monster, 1/2 working)
+  - At the start of your opponent's attack phase, choose a monster at [Stand] on your opponent's field. For this turn, nullify all abilities of the chosen card, and that card must attack this card alone first for this attack phase if able.
+- **4580 Combat Deity's Pulsation** (Spell, 1/2 working)
+  - Drop the top four cards of your deck. Then, choose up to one «Dragod» from among them, and put it into your hand or call it on top of up to one «Deity Dragon Tribe» monster on your field by paying its [Call Cost].
+- **4622 «Esoteric Rites» Serioso** (Spell, 1/2 working)
+  - Abilities of all «Dragonblood Sect» on your field cannot be nullified and their souls cannot be dropped by your opponent's card effects.
+- **4626 Dimension Dragon, Ire** (Monster, 0/1 working)
+  - When this card attacks, look at the top three cards of your deck, put up to one from among them into your hand, and put the rest on the top or bottom of your deck in any order.
+- **4671 Guardian of Tomes, Gar-Sechster** (Monster, 0/1 working)
+  - During your attack phase, if a monster enters your field by [G EVO], draw two cards.
+- **4936 Huskblood Eyes  Deadly Eyes** (Monster, 0/2 working)
+  - At the start of your opponent's attack phase, choose all [Stand] monsters on your opponent's field. For this turn, nullify all abilities of the chosen cards, and they must attack this card first for this attack phase if able.
+  - This card [Counterattack] all attacking monsters.
+- **5044 Surprisingly Serious Garbird** (Monster, 1/2 working)
+  - When a soul goes into your «Dragod», put the top card of your deck into your gauge, you gain 1 life, and draw a card.
+- **5112 Super Speciality Skewer Dragon, Gar-Kushi Dragon** (Monster, 1/2 working)
+  - When this card attacks, play Rock-Paper-Scissors with your opponent once. If you win, you gain 3 life and draw three cards. If it's a draw, you gain 1 life, and draw a card.
+- **5115 Deity Creations Fangflare, Gargantua Punisher!!** (Impact, 1/2 working)
+  - Destroy all cards on your opponent's field five times. Your opponent cannot [Counter] against this card.
+- **5125 "Friendship Blade" Deity Creations Fangflare, Gargantua Punisher!!** (Impact, 1/2 working)
+  - Choose and use one of the following two.
+- **5277 Evolution Cyres, Vellute Dragon** (Monster, 2/3 working)
+  - When this card attacks a monster alone, it attacks all your opponent's monsters instead.
+- **5334 Beyond Aspiration, Chibi Panda** (Monster, 1/2 working)
+  - If another Thunder Empire would leave your field, you may put this card into your drop zone. If you do, that card remains on your field.
+- **5337 Dragon Fangs Thunder Emperor Sword, Bal X Bunker** (Item, 2/3 working)
+  - If a monster with "Batzz" in its card name is on your field, the size of monsters with "Drum" or "Bal Dragon" in their card names on your field is reduced by 2.
+- **5354 CHAOS Iyonorasetsuryu** (Monster, 1/2 working)
+  - If ten or more cards are in your drop zone, nullify the [Lifelink] of this card on the field.
+- **5358 Thunder Emperor Cavalry Dragon, Drum Bunker Dragon** (Monster, 1/2 working)
+  - Choose <Magic World>,<Dungeon World> or <Hero World>, and for this turn, this card's world name on the field is also treated as the chosen world name.
+- **5359 Thunder Emperor Sun Dragon, Bal Dragon** (Monster, 1/2 working)
+  - Choose Darkness Dragon World or Star Dragon World, and for this turn, this card's world name on the field is also treated as the chosen world name.
+- **5405 Awakened Deity Dragon, Kuhler Gardragon** (Monster, 1/2 working)
+  - When this card is attacked, for this turn, nullify the [Penetrate] of the attacking cards.
+- **5594 Gar Geo Dragon "HMS Mode"** (Monster, 0/1 working)
+  - At the start of your attack phase, drop the top 3 cards of your deck. If all of them have different card names, put all of those cards to your hand
+- **5597 Dragowhite, Fifth Omni Holy Light** (Spell, 1/2 working)
+  - Draw a card, and choose and use one of the following two.
+- **5790 Da Dan Territory** (Spell, 1/2 working)
+  - All «Dragonblood Sect» monster on your field cannot be returned to hand or put to other areas by your opponent's card effects.
+- **5798 Dance of Grim Light  Dancing Razor** (Monster, 1/2 working)
+  - At the start of your opponent's attack phase, choose a [Stand] monster on your opponent's field. For this turn, the chosen card must attack this card alone first for this attack phase if able.
+- **6037 Time General, Grasshilde** (Monster, 1/2 working)
+  - If your flags [Reversal] two times or more during this fight, this card gets power+5000, defense+5000, critical+1, and if three times or more, damage you take other than by your card effects is reduced by 2.
+- **6045 Awakened Deity Dragon, Garsquirrel** (Monster, 0/1 working)
+  - When this card enters the field, put up to one «Deity Dragon Tribe» item from your deck into your hand, and shuffle your deck. Then, if a monster with both «Dragod» and «Deity Dragon Tribe» is on your field, and if you don't have an item equipped, you may equip an item from your hand by paying its [Equip Cost].
+- **6189 Deity Strike!! Ultimate Gargantua Punisher!!** (Impact, 2/3 working)
+  - If your life becomes 0 in stopped time, you may drop this card from your hand. If you do, your life becomes 1, and deal 5 damage to your opponent. This damage cannot be reduced.
+- **6197 Apical Sun Deity, Bal Dragon** (Monster, 1/2 working)
+  - Damage dealt to your opponent by card effects of «Sun Dragon» monster with this card in its soul cannot be reduced.
+- **6199 Apical Fifth Omni Dragon Lord, Mugen Drum** (Monster, 2/3 working)
+  - When this card link attacks with you, that attack cannot be nullified and its damage cannot be reduced.
+- **6320 Thunder Flares Leader, Barlbatzz Dragoroyale** (Monster, 0/2 working)
+  - During your turn, all cards with "Thunder Flare" in their card names on your field cannot be destroyed or [Rest] by your opponent's card effects, and your opponent cannot call monsters by card effects.
+  - During each player's attack phase, look at the top five cards of your deck, call up to two «Thunder Empire» monsters from among them to separate areas by paying their [Call Cost], and put the rest on the bottom of your deck in any order. The cards called become size 0 until they leave the field.
+- **6324 Thunder Knights, Thunder Halberd** (Monster, 1/2 working)
+  - If monsters on your field used [Move] for this turn, call this card from your hand by paying its [Call Cost].
+- **6336 Turbulent Warlord Sword, Dragzamber** (Item, 1/2 working)
+  - Put up to one «Thunder Empire» monster from your deck into the drop zone, and shuffle your deck. For this turn, this card's world name on the field is also treated as the world name of the card put into the drop zone.
+- **6393 D.Road** (Spell, 0/1 working)
+  - Call a «Dimension Dragon» or «Lostvader» monster from your drop zone by paying its [Call Cost]. Then, you may reveal a "Lost World" from your hand. If you do, for this turn, all «Dimension Dragon» and «Lostvader» on your field cannot be destroyed or returned to hand and their abilities cannot be nullified by your opponent's card effects.
+- **6397 Enchanted Envy  Dizzy Lure** (Monster, 2/3 working)
+  - During your opponent's turn, if this card is in the soul of a «Dragonblood Sect» monster, when your opponent's monster is destroyed by your card effects, draw a card, and deal 1 damage to your opponent.
+- **6459 Jackknife Dragon "Re:B"** (Monster, 1/2 working)
+  - During your turn, you may pay 1 gauge. If you do, make your life 5, put up to two cards with "Jackknife" in their card names and different card names from your deck into your hand, and shuffle your deck. Then, equip up to one "Jackknife "Gold Ritter"" from your hand without paying its [Equip Cost].
+- **6462 Fifth Omni Dragon Lord, Tenbu "Re:B"** (Monster, 1/2 working)
+  - When this card enters the field or when you take damage, choose any number of cards with power on your opponent's field. If the total power of the chosen cards is 50000 or less, destroy all chosen cards.
+- **6465 Bal Dragon, "Bal Burst Smasher!!" "Re:B"** (Impact, 1/2 working)
+  - During the battle this card attacks alone, your opponent cannot use [Counter].
+- **6466 Buddy the Party** (Spell, 0/1 working)
+  - Put the top two cards of your deck into your gauge. Then, call up to one monster with "Drum" in its card name, and up to one monster with "Bal Dragon" in its card name, and up to one monster with "Batzz" in its card name from your drop zone to separate areas by paying their [Call Cost]. These cards becomes size 0 until they leave the field.
+- **6468 Future Card Buddyfight** (Spell, 2/3 working)
+  - At the start of your attack phase, if this card is in your buddy zone, for this turn, a buddy on your field gets critical+2.
+- **6471 Jackknife Trust** (Spell, 2/3 working)
+  - All cards with "Jackknife" in their card names on your field cannot have their abilities nullified or their souls dropped and they cannot be [Rest] by your opponent's card effects, and you may equip one additional item with "Jackknife" in its card name.
+- **6562 Yuga & Garga "SD" & Ranma & Vanity "SD"** (Monster, 1/2 working)
+  - Choose from your drop zone, up to one size 2 monster with "Garga" in its card name or up to one monster with "Destroyer" in its card name, and you may pay 1 gauge. If you do, call the chosen card on top of this card without paying its [Call Cost].
+
+## Dragon World / Darkness Dragon World — 2 cards, 2 missing
+
+- **4161 Purgatory Knights Reborn, Holy Grebe Dragon** (Monster, 2/3 working)
+  - When this card is destroyed by card effects during the attack phase, draw a card.
+- **4774 Atonement Purgatory Knights Leader, Orcus Sword Dragon** (Monster, 1/2 working)
+  - You may destroy another «Armordragon» on your field. If you do, [Stand] this card, then, if this is the attack phase, draw a card.
+
+## Dragon World / Darkness Dragon World / Star Dragon World — 2 cards, 2 missing
+
+- **4257 Super Sun Dragon Shield** (Spell, 1/2 working)
+  - Nullify the attack. Then, if you have a «Sun Dragon» on your field, draw a card, a «Neodragon», put the top card of your deck into your gauge, a «Black Dragon», you gain 1 life.
+- **6474 Super Sun Dragon, Balle Soleil "Re:B"** (Monster, 1/2 working)
+  - If this card has souls, damage dealt to you other than by your card effects is reduced by 3, and this card gets power+10000, defense+10000 and critical+2.
+
+## Dragon World / Star Dragon World — 2 cards, 2 missing
+
+- **3274 Jackknife, "World Linker!"** (Impact, 0/1 working)
+  - Choose a monster with "Jackknife" in its card name in this card's soul. For this turn, this card gets all abilities of the chosen card.
+- **5800 Buddyfighters Without Limits** (Spell, 2/3 working)
+  - When this card is dropped from your hand by your opponent's card effect, draw two cards, and for this turn, your hand cards cannot be dropped by your opponent's card effects.
+
+## Dungeon World — 59 cards, 65 missing
+
+- **199 Brave Equipment, Glory Seeker** (Item, 0/1 working)
+  - If your life would become 0, put this card into the drop zone, reveal the top card of your deck, and discard it. If that card is a spell, your life becomes 3.
+- **208 Dangerous Fuse** (Spell, 0/1 working)
+  - Look at the top two cards of your deck, reveal one card to your opponent. Return the cards face down, shuffle them, and your opponent picks a card at random from the two cards. If the card chosen by your opponent has the same card name as the card revealed with this effect, put the two cards into your hand. If it is not, put the two cards into your gauge.
+- **209 Divine Protection of Shalsana** (Spell, 1/2 working)
+  - You may cast this during an attack on your opponent's turn.
+- **213 Mission Card "Defeat Monsters!"** (Spell, 0/2 working)
+  - When an opponent's monster is destroyed by an attack of your Adventurer, put the top card of your deck into this card's soul face down.
+  - When this card's soul becomes 2 or more, put this card into the drop zone, and put all the cards in this card's soul into the hand. You may only [Set] one "Mission Card "Defeat Monsters."" on your field.
+- **214 Mission Card "Form a Party!"** (Spell, 0/1 working)
+  - If another card with "Mission" in its card name is placed on your field, you gain 1 life, search your deck for an Adventurer, put it into your hand, and shuffle your deck, and put this card into the drop zone.
+- **215 Mission Card "Rest at Nazaro Hot Springs!"** (Spell, 0/1 working)
+  - When your Adventurer is destroyed by an attack, put up to two Adventurer from your drop zone into your hand. Then, put this card into the drop zone.
+- **226 Big Surprise Pandora** (Monster, 0/1 working)
+  - When this monster is destroyed, play "Rock-Paper-Scissors" with your opponent. Deal 1 damage to the player who does not win.
+- **235 Mimic with a Prize** (Monster, 0/1 working)
+  - When this card is destroyed, put the top card of each player's deck into the drop zone. If the card put into the drop zone is a monster card, that player takes 1 damage. If the card put into the drop zone is not a monster card, that player gains 1 life.
+- **248 Magical Fortress, Orser Kleinz** (Monster, 0/1 working)
+  - You may put an Adventurer and a Dungeon Enemy from your drop zone to the bottom of your deck in any order. If you do, put the top card of your deck into the gauge, and draw a card.
+- **250 One-eyed Demon Lord, Keith Wanaid** (Monster, 0/1 working)
+  - When this card is destroyed, if this card is on the left or right, you may discard a Dungeon Enemy from your hand. If you do, this card remains on the field.
+- **256 Guardian Dragon of the Ruins, Meteor Rain** (Monster, 0/1 working)
+  - You may discard two Dungeon Enemy from your hand. If you do, destroy a monster on the opponent's field.
+- **907 Wandering Salaryman Buddyfighter, Amigo Takata** (Monster, 1/2 working)
+  - During your opponent's turn, when you would be dealt 2 damage or more, if you say "Tacos hurt me much.", that damage is reduced by 1.
+- **1134 Hades Dragon Chief, Red Arrogant** (Monster, 0/1 working)
+  - You may discard two Dungeon Enemy from your hand. If you do, destroy a monster on the field.
+- **1154 Entangle Roper** (Monster, 0/1 working)
+  - When this card is attacked, for this turn, nullify the [Penetrate] of all cards on your opponent's field.
+- **1168 Apprentice Ninja, Akatsuki** (Monster, 0/1 working)
+  - When this card link attacks with another Adventurer, choose a card on your field with "Mission" in its card name, and put the top card of your deck into that card's soul face down.
+- **1169 Mission Card "THE Teamwork"** (Spell, 0/2 working)
+  - When an Adventurer on your field link attacks, put the top card of your deck face down into this card's soul.
+  - When there are two or more cards in this card's soul, put a card from this card's soul into your hand, the rest into your gauge, and this card to your drop zone. If you do, you gain 1 life.
+- **1415 Hundred Demons Mission Card "Aim for the Link!"** (Spell, 1/3 working)
+  - When you cast a spell, put the top card of your deck into this card's face down.
+  - When there are three or more cards in this card's soul, put this card into your drop zone. If you do, destroy a card on your opponent's field.
+- **1461 Flash Lance, Blitz Tiger** (Item, 1/2 working)
+  - If you have this card equipped, you may equip up to one "Savage Lance, Eisen Tiger"
+- **1541 Darkness Final Mission Card "World End"** (Impact, 1/2 working)
+  - When your Demon Lord on your field attacks, put the top card of your deck face down into this card's soul.
+- **1546 Mission Card "Earn Experience Points!"** (Spell, 2/3 working)
+  - When an item on your field attacks, put the top card of your deck into this card's soul face down.
+- **1549 Purgatory Block** (Monster, 0/1 working)
+  - When this card attacks and deals damage to your opponent, put this card in your drop zone. If you do, play "Rock-Paper-Scissors" with your opponent. Deal 2 damage to the fighter that loses.
+- **1552 Thunder Emperor, Zein Blestand** (Monster, 1/2 working)
+  - When your opponent [Set] a spell, deal 1 damage to your opponent.
+- **1554 Command of the Water Lord** (Spell, 1/2 working)
+  - Stand a Demon Lord on your field.
+- **2383 Encouragement of the White Veil** (Spell, 0/1 working)
+  - Choose and use one of the following two.
+- **2536 Retainer of the Demonic Dragon, Geodora** (Monster, 0/1 working)
+  - When this card is put from the field into the drop zone or hand, put the top two cards of your deck into your drop zone and put the top card of your deck into your gauge.
+- **2545 Ozon-C** (Monster, 1/2 working)
+  - When a size 1 or less monster with "Ozon" in its card name on your field is put on the field from your drop zone, you may call this card from the drop zone.
+- **2546 Ozon-Z** (Monster, 0/1 working)
+  - When this card is from the field into your drop zone, if you do not have an "Ozon-Z" on your field, call this card from your drop zone without paying its [Call Cost].
+- **2553 Wind Scaled Spear, Eskamal** (Item, 0/2 working)
+  - If you have this card equipped, you may equip up to one "Thunder Beast Spear, Bestia".
+  - When this card link attacks with another «Knight». If you have "Thunder Beast Spear, Bestia" equipped, deal 1 damage to your opponent.
+- **2554 Thunder Beast Spear, Bestia** (Item, 0/1 working)
+  - When this card link attacks with another «Knight». If you have "Wind Scaled Spear, Eskamal" equipped, destroy a monster or item on your opponent's field.
+- **2598 Obstinacy Drink, Bunny Call** (Spell, 0/1 working)
+  - Choose a card on your field. For this turn, the next time that card would be destroyed by your opponent's card or returned to your hand, it remains on the field.
+- **2610 El Quixote "Golden Age!"** (Impact, 0/1 working)
+  - During your final phase, when this card enters the field, [Stand] up to two cards with «Weapon» in its attributes on your field and for this turn, those cards can attack during the final phase.
+- **3245 Demon Lord Gagnar, "Second Form: Ironhand"** (Monster, 0/1 working)
+  - Play Rock-Paper-Scissors with your opponent. If you win, for this turn, this card gets [Double Attack] "Demon Lord's Palm" may only be used
+- **3311 King Gummy Slime** (Monster, 1/2 working)
+  - All monsters on your opponent's field cannot [Move], or returned to hand, and cannot [Stand] during attack phase.
+- **3328 Growls Wand** (Item, 1/2 working)
+  - Reduce the damage dealt by the [Lifelink] of your «Demon Lord» by 1.
+- **3503 Summer Recollection 2017 "Welcome to the Sunflower Field"** (Spell, 2/3 working)
+  - You can only put a total of up to 4 "Summer Recollection 2017 "Welcome to the Sunflower Field"" and "Quiescence of Cassiade" in your deck.
+- **3819 CHAOS Zoruaga** (Monster, 0/1 working)
+  - When a monster on your center attacks, if this card is on your left or right, for this turn, that monster gets [Double Attack].
+- **3866 CHAOS Slime** (Monster, 0/2 working)
+  - Cards on your opponent's field cannot [Move] or be returned to hand.
+  - Your opponent cannot call cards from the drop zone.
+- **3869 Sword of Glory, Order Edge** (Item, 1/2 working)
+  - If you are equipped with this card, you may equip up to one "Shield of Glory, Order Guard"
+- **3871 Award Ceremony** (Spell, 1/2 working)
+  - When a Knight on your field attacks and deals damage to your opponent, or destroys your opponent's monster, put the top card of your deck into your gauge and you gain 1 life.
+- **4065 Deflection** (Spell, 1/2 working)
+  - Nullify the attack, and put cards from the top of your deck into your gauge equal to the number of items you have equipped.
+- **4066 Loving Knight, Philia** (Monster, 1/2 working)
+  - When this card enters the field, you gain 1 life equal to the number of items you have equipped.
+- **4088 CHAOS Radromal** (Monster, 0/1 working)
+  - When this card enters the field, put the top card of your deck into your gauge. Then, if this card enters the field by card effects, draw a card.
+- **4265 XL Pandora** (Monster, 0/1 working)
+  - When this card is destroyed, play "Rock-Paper-Scissors" with your opponent. The player who won draws two cards. Deal 3 damage to the player who lost. This damage cannot be reduced.
+- **4449 Illusions Folktale, Echt Biblio** (Item, 1/2 working)
+  - If a «Folktale» monster on your field would be destroyed, you may pay 1 life. If you do, put it into this card's soul.
+- **4506 Illusions Dragon, Thorns Dragon** (Monster, 1/2 working)
+  - When this card enters the field, choose a monster or item on your opponent's field, and that card cannot [Stand] during this turn and the next turn.
+- **4508 Blood Lance Doyenne, Lady Wallachia** (Monster, 1/2 working)
+  - All cards on your field get power+2000 and this card on the field gets size reduced by 1, for each item on your field.
+- **5161 Thunder Sky's Holy Knight, El Quixote** (Monster, 1/2 working)
+  - Equip up to two Knight items from your deck without paying their [Equip Cost], and shuffle your deck.
+- **5345 Tempest Shield, Draco Guard** (Item, 1/2 working)
+  - If you have a "Thunder Sword, Ktenos Edge" equipped, damage you take other than by your card effects are reduced by 2, and all items on your field get power+10000 and [Double Attack].
+- **5346 Thunder Knights Blade, Ktinos Edge** (Item, 1/2 working)
+  - If you have this card equipped, you may equip a "Tempest Shield, Draco Guard" .
+- **5555 Wonderland Walker, Alice** (Monster, 2/3 working)
+  - The size of all originally size 1 «Folktale» on your field is reduced by 1.
+- **5556 Corgi Cobalt** (Monster, 1/2 working)
+  - At the end of the battle that the «Adventurer» or «Dungeon Enemy» with this card in its soul attacked, destroy up to one card on your opponent's field.
+- **5558 Happiness Wonderland!** (Spell, 3/4 working)
+  - When a soul is put into this card, draw two cards.
+- **5687 Proxy of Judgment, Stein Blade Joker** (Monster, 2/3 working)
+  - At the start of your attack phase, if this card is in the drop zone and a card with "Miserea" in its card name is on your field, you may call this card from the drop zone.
+- **5688 Trump Soldier, Team Klyne** (Monster, 2/3 working)
+  - You may drop this card from the soul of a «Folktale» on your field. If you do, for this turn, the next damage you take is reduced to 0.
+- **5701 Mission Card "Quest Start!"** (Spell, 1/3 working)
+  - When your opponent takes damage, put up to one card from the top of your deck into this card's soul face down.
+  - At the end of your turn, if this card has three or more face down souls, put this card on the field to the drop zone. If you do, you gain 3 life, draw three cards, and deal 3 damage to your opponent.
+- **5702 Demise Lamenting Water Lord, Miserea** (Monster, 2/3 working)
+  - During your final phase, when you [Set] an impact, you get another attack phase.
+- **5710 Havoc Demon Lord, Wisdom** (Monster, 1/2 working)
+  - If your flag is "Dungeon World", the size of all other «Demon Lord» on your field is reduced by 3.
+- **5712 Zeeta Skeleton** (Monster, 1/2 working)
+  - During each player's attack phase, choose a size 1 «Adventurer» in your drop zone, and you may drop this card from the field. If you do, call the chosen card by paying its [Call Cost].
+- **6558 Demon Lord, Gagnar "Re:B"** (Monster, 1/2 working)
+  - When this card enters the field, return all cards from each player's gauge into their owner's decks, and shuffle them. Then, if two or more of your opponent's gauge were returned, put the top three cards of your deck into your gauge.
+
+## Dungeon World / Danger World — 1 cards, 1 missing
+
+- **2647 Dangerous Bed of Damage** (Spell, 1/2 working)
+  - Destroy a monster on your opponent's field. If you do, put cards from the top of your deck into your gauge equal to the size of that monster.
+
+## Dungeon World / Darkness Dragon World — 6 cards, 6 missing
+
+- **2571 Jet Black Grim Reaper, Gaito** (Monster, 0/1 working)
+  - When this card attacks, destroy a monster on your opponent's field. If you destroyed a monster, put cards from the top of your opponent's deck equal to the size of that card into their drop zone and put cards from the top of your deck into your gauge equal to the number of cards put into the drop zone this way.
+- **2783 Synthetic Enemy, Deathgaze** (Monster, 0/1 working)
+  - When this card's attack destroys a monster on your opponent's field, all fighters put the top card of your deck into your drop zone. If that card is a monster, that fighter is dealt 2 damage. Otherwise, they gain 2 life.
+- **3151 Demon Lord of Demise, Kyoya** (Monster, 1/2 working)
+  - If this card is on your center, the size of the «Disaster» on your left and right is reduced by 1.
+- **3218 Former Baron, Shido** (Monster, 1/2 working)
+  - Choose an Adventurer on your field, and you may pay 1 gauge. If you do, for this turn, that card can attack your opponent even if there is a monster in your opponent's center.
+- **3234 Death Dragon Knight, Davide** (Monster, 1/2 working)
+  - When a «Disaster» on your field attacks a monster, that attack cannot be nullified.
+- **3246 Death Dragon Demon Lord, Deathgaze** (Monster, 1/2 working)
+  - When a monster on your opponent's field is destroyed by an attack of your Black Dragon or Demon Lord, put a card from your opponent's gauge into the drop zone and deal one damage to your opponent.
+
+## Dungeon World / Dragon World — 1 cards, 1 missing
+
+- **3198 The Tempestuous Brave, Gao** (Monster, 1/2 working)
+  - When this card link attacks with another «Adventurer», choose an «Adventurer» on your field, and you may pay 1 gauge. If you do, [Stand] the chosen card and this card.
+
+## Dungeon World / Hero World — 1 cards, 1 missing
+
+- **3320 Gossip Burglar, Paruko** (Monster, 0/1 working)
+  - When this card link attacks, choose a card from your opponent's hand at random, and reveal the chosen card. If that card is a monster, deal 2 damage to your opponent, if it is a spell, you gain 2 life.
+
+## Dungeon World / Katana World — 2 cards, 2 missing
+
+- **3242 Jester Dark Fox** (Monster, 0/1 working)
+  - At the end of the battle where your Adventurer or Skull Warrior attacked, you may choose a monster on your opponent's field and destroy a monster on your field. If you do, put a soul from the chosen card into the drop zone and destroy that monster.
+- **5695 Weaver of Dream and Fate, Miko** (Monster, 1/2 working)
+  - If an item would leave your field, you put this card from the field into the drop zone. If you do, that card remains on the field.
+
+## Dungeon World / Legend World — 6 cards, 6 missing
+
+- **2648 Mission Complete, "Extreme Great Spell Apocalypse Day"** (Spell, 1/2 working)
+  - Search your hand or deck for up to one "Judgment of the Cold-blooded King, Miserea" and call it to the center. If you searched your deck, shuffle it.
+- **3205 Demon Lord Pet Cat, Cait Sith** (Monster, 1/2 working)
+  - If you have a total of 7 or more «Fairy» or «Demon Lord» in your drop zone, your monster in the Center gets critical+2.
+- **3235 Demon Lord's Puppet, Terumi** (Monster, 0/1 working)
+  - If another «Wydar Sarkal» or «Disaster» would leave your field, you may put this card into your drop zone. If you do, that card remains on your field.
+- **3299 Ice Dragon Demon Lord, Miserea** (Monster, 1/2 working)
+  - When this card enters the field by the effect of "Masked Swordsman, Kiri", for this turn, nullify all abilities of all cards on your opponent's field.
+- **3824 Overturn Ice Emperor, Miserea** (Monster, 0/1 working)
+  - Nullify all abilities of cards on the field, and return all other cards from each player's hand, gauge, drop zone, and field to their owner's deck, and shuffle the decks. Then, draw six cards, and your opponent draws six cards, and put the top two cards of their deck into their gauge.
+- **5690 Pure White Angel, Eden** (Monster, 2/3 working)
+  - If an originally size 3 monster is on your field, this card gets size reduced by 1.
+
+## Dungeon World / Magic World — 2 cards, 2 missing
+
+- **2780 Master Magician, Suzuha** (Monster, 0/1 working)
+  - When you cast a spell, put the top card of your deck into your drop zone. If that card is a spell, draw a card. "Pedigree of Heavensbell" activates only
+- **5707 Anonymous Darkness Doctor, Grimoire** (Monster, 2/3 working)
+  - If items on your field have souls, this card on the field gets size reduced by 2.
+
+## Dungeon World / Star Dragon World — 4 cards, 4 missing
+
+- **3186 Quintessence Crystal Demon Lord, Athora** (Monster, 1/2 working)
+  - Damage dealt to you by your opponent's card effects are reduced by 1.
+- **3208 Empress, Queen Ageha** (Monster, 1/2 working)
+  - When this card link attacks, you may put up to one card from your opponent's or your drop zone at the bottom of the owner's deck. If you do, you gain 1 life.
+- **3209 Fist Fighter of Blistering Kicks, Kanata** (Monster, 1/2 working)
+  - When a card on your field link attacks, you gain 1 life, and deal 1 damage to your opponent.
+- **3289 Interstellar Great Demon Lord, Jackknife** (Monster, 1/2 working)
+  - At the start of your attack phase, put up to one card from your drop zone into this card's soul or your gauge.
+
+## GeGeGe no Kitaro — 11 cards, 11 missing
+
+- **5831 Bad Luck, Sunekosuri** (Monster, 0/1 working)
+  - During your turn, you may pay up to 3 life. If you do, for this turn, this card gets critical+1 for each life you paid.
+- **5836 Emperor, Backbeard** (Monster, 1/2 working)
+  - All your «Western Yokai» other than [Backbeard] get size reduced by 1.
+- **5838 Spirit Hair, Chanchanko** (Item, 2/3 working)
+  - Damage you take other than from attacks is reduced by 1.
+- **5840 Kitaro's Home** (Spell, 2/3 working)
+  - When a «Yokai» character enters your field by card effects, put the top of your deck into your gauge, and draw a card.
+- **5842 Strongest Yokai, Gyuki** (Monster, 0/1 working)
+  - When this card is destroyed by an attack, and this card is in your drop zone, you may pay 2 life. If you do, put one of the attacking cards into the drop zone and call this card from your drop zone without paying its [Call Cost].
+- **5845 Owner of Serendipity, Mana Inuyama** (Monster, 1/2 working)
+  - When this card enters the field, you may drop a hand card. If you do, choose up to 2 «Yokai» characters from your deck, put up to one of them into your hand, drop the rest, and shuffle your deck.
+- **5846 Yokai Hunter, Rei Isurugi** (Monster, 1/2 working)
+  - Choose up to two size 2 or lower characters with "Yokai" in their attributes from this card's soul. For this turn, this card gets the abilities written on them.
+- **5848 Mysterious Being, Nanashi** (Monster, 1/2 working)
+  - When this card enters the field, drop up to five cards from the top of your deck. If you do, put any number of "Nanashi" from among them into your hand.
+- **5852 Trick or Treat, Carmilla** (Monster, 0/1 working)
+  - Destroy a character on your opponent's field. If you do, put up to one card from the top of your deck face down on the field as a "«Western Yokai»/size 0/6000 power/2000 defense/2 critical" character, and you gain 2 life.
+- **5894 Vampire Elite** (Monster, 1/2 working)
+  - Choose two characters on your opponent's field, and you may drop a hand card. If you do, swap the areas of the chosen cards.
+- **5913 Remote Control Geta** (Item, 1/2 working)
+  - This card can attack even if characters are on your center.
+
+## Generic — 52 cards, 60 missing
+
+- **694 Checkmate** (Impact, 1/2 working)
+  - Attack with a [Stand] «Chess» monster on your field. If you deal damage to your opponent with the attack, you win the game.
+- **695 Blade of Athame** (Item, 0/1 working)
+  - When you equip this card, look at the top card of your deck, and put it on the top or the bottom of your deck.
+- **699 Arcana Flash** (Spell, 0/1 working)
+  - reveal the top five cards of your deck. For each monster with "Actor Knights" in its card name from among them, deal 1 damage to your opponent. Then, put the revealed cards on the bottom of your deck in any order.
+- **719 Ultimate Buddy!** (Spell, 0/2 working)
+  - Put this card into your buddy monster's soul.
+  - If this card is on your buddy monster's soul, your buddy monster gets [Soulguard] and power+5000.
+- **725 Actor Knights High Priest** (Monster, 0/1 working)
+  - When you call a «Tarot» monster other than "Actor Knights High Priest", you gain 1 life.
+- **741 Actor Knights the World** (Monster, 0/1 working)
+  - You may pay 3 gauge, and choose an "Actor Knights the Fool" from your hand, and an "Actor Knights the Fool" from your drop zone, reveal them, and put them on the bottom of your deck. If you do, after this turn, you get another turn.
+- **1086 Damage Control** (Spell, 0/1 working)
+  - Discard a card from your hand during your opponent's turn. If you do, the next damage dealt to you this turn is reduced by 2. If the card discarded is a «Battle Deity Robo», the next damage dealt to you this turn is reduced by 4 instead.
+- **1886 Battle Deity Robo, Old Kite** (Monster, 0/1 working)
+  - When this card enters the field, you may discard a «Battle Deity Robo» from your hand or pay 2 life. If you do, put the top two cards of your deck into your gauge.
+- **1887 Escape** (Spell, 1/2 working)
+  - During an attack on a size 2 or less monster on your field, you may pay 1 gauge. If you do, return that monster being attacked into your hand.
+- **2681 Killer Order** (Spell, 0/1 working)
+  - Choose and use one of the following two.
+- **2789 Dragon Drei** (Flag, 1/3 working)
+  - You cannot choose this card as your flag during the start of the fight. You may put this card into your deck and use it if your initial flag is "Dragon Zwei".
+  - If your life would become 0, you may put this card on top of your "Dragon Zwei". If you do, put all cards on your field into your drop zone, and your life becomes 5.
+- **2790 Demonic Dragon Deity of the Black Sun, Gaen** (Monster, 3/5 working)
+  - When you [Transform] into this card, your opponent cannot draw cards during their next turn.
+  - You may discard two size 3 or greater monsters from your hand and pay 2 gauge. If you do, you gain 5 life.
+- **2953 Obstruct** (Spell, 1/2 working)
+  - During this turn and the following turn, neither player can draw cards due to their own card effects.
+- **2972 Burst Claw, Raijin** (Item, 1/2 working)
+  - Nullify [Penetrate] of all cards on your opponent's field.
+- **3345 Control Armament, Geargod VII** (Monster, 1/2 working)
+  - When this card attack destroys a monster or deals damage to your opponent, destroy a monster on their field.
+- **3590 Loyalty** (Spell, 0/1 working)
+  - Choose and use one of the following three.
+- **3650 Proto Chaos Machina, Geargod VIII** (Monster, 1/2 working)
+  - If this card enters the field during your opponent's turn, you may call a size 3 or less «Chaos» monster from your drop zone to your center without paying its [Call Cost].
+- **3825 CHAOS Transcendant, Geargod ver.099** (Monster, 1/2 working)
+  - Call up to three «Chaos» monsters from your drop zone without paying their [Call Cost]. Then, if your opponent's cards attack six times or more during this turn, end the turn.
+- **3940 Genome Upgrader, Geargod ver.1000** (Monster, 1/2 working)
+  - Equip up to one «Chaos» item without paying its [Equip Cost] and call up to one «Chaos» monster without paying its [Call Cost] from your deck, and shuffle your deck.
+- **3941 Infinity the Chaos** (Impact, 2/4 working)
+  - Before the game, put one "Infinity the Chaos" face down under "the Chaos".
+  - This card is treated as a card on your field. It cannot be destroyed, leave the flag area, and its abilities cannot be nullified, and it can attack even if you have monsters on your center.
+- **4071 Ultimate CHAOS, Geargod COMPLETE** (Monster, 1/2 working)
+  - If this card would leave the field, if you destroy a size 3 or less monster on your field, it remains on the field.
+- **4072 The Chaos Upgrade** (Spell, 1/2 working)
+  - If you have ten or more cards in your drop zone, put up to one face down card from under your flag face up on top of your flag, put up to one card with "Geargod" in its card name from your deck into your hand, and shuffle your deck.
+- **4116 Mini Geargod Rainbow** (Monster, 0/1 working)
+  - When a monster with "Mini Geargod" in its card name is put from your field into the drop zone, put the top card of your deck into your gauge, and draw a card.
+- **4145 Heavenly Specter, Yamigedo Mikazuchi** (Monster, 1/2 working)
+  - This card gets the "Thunder Mine" of the cards in its soul.
+- **4146 Heavenly Claws, Raikiri** (Item, 1/2 working)
+  - When your opponent takes damage by "Thunder Mine" effects, put the top card of your deck into your gauge, and draw a card.
+- **4148 Crabgantua Punisher!!** (Impact, 1/2 working)
+  - Deal 4 damage to the opponent. This card cannot be nullified and the damage cannot be reduced. In addition, everyone has to be silent while you keep eating crab.
+- **4315 Let's Eat Pizza-La! Yuga & Garga** (Monster, 1/2 working)
+  - When this card enters the field, you gain 1 life for every «Deity Dragon Tribe» monster on your field.
+- **4430 Summer With Ace of Games! Yuga & Garga "SD"** (Monster, 2/3 working)
+  - If this month is July or August, this card gets power+3000, defense+3000, and critical+3.
+- **5021 Silver Soul Release, Deity Gargantua Dragon** (Monster, 2/3 working)
+  - If the silver from this card is scraped out, this card gets power+10000.
+- **5341 CHAOS Vanguard, Geargod ver. ZERO** (Monster, 2/3 working)
+  - Nullify the attack. Then, if your opponent's cards attacked four times or more during this turn, end the turn.
+- **5349 Buddy Trust!** (Spell, 0/1 working)
+  - Choose and use one of the following two.
+- **5552 Promise of Rainbow** (Spell, 1/2 working)
+  - When this card is put into the drop zone from your deck by your opponent's card effects, you may put this card from the drop zone into your hand.
+- **5671 Hyakurai Vortex** (Spell, 2/3 working)
+  - The abilities of all «Hundred Demons» on your field cannot be nullified and their souls cannot dropped by your opponent's card effects.
+- **5672 Light Specter, Yamigedo Mikazuchi** (Monster, 1/2 working)
+  - When a card on your opponent's field attacks alone, deal 1 damage to your opponent.
+- **5673 The Convulsion** (Spell, 1/2 working)
+  - Return all cards from your hand, gauge and drop zone to your deck, and shuffle it. Then, draw six cards, put the top two cards of your deck into your gauge, and your life becomes 10.
+- **5766 Mediator of Prosperity & Vanities, ReAc: Empress** (Monster, 0/1 working)
+  - You may drop this hand card. If you do, for this turn, the next time your opponent would look at the entire deck, your opponent looks at the top four cards of the deck instead.
+- **5767 Gargantua Slash Wyvern** (Monster, 0/1 working)
+  - At the start of your attack phase, draw a card, and for this turn, all cards on your field get power+5000. Then, if another «Deity Dragon Tribe» is on your field, for this turn, at the end of the battles that cards on your field attack, you gain 1 life, and deal 1 damage to your opponent.
+- **5957 Godclock** (Flag, 1/3 working)
+  - Put one "Clock-I", "Clock-II" & "Clock-III" with this card, and start the fight with this side of the card.
+  - At the end of your opponent's turn, if three of your flags are in [Reversal], you may put a monster with "Time Ruler" in its card name from your field or hand into the drop zone. If you do, [Reversal] this card.
+- **5958 Clock-I** (Flag, 0/1 working)
+  - You may put a hand card on the bottom of your deck and [Reversal] this card. If you do, look at the top three cards of your deck, put one from among them into your hand, and put the rest into the drop zone.
+- **5959 Clock-II** (Flag, 0/1 working)
+  - You may put a hand card on the bottom of your deck and [Reversal] this card. If you do, draw a card, and if there are any cards in battle, end the battle.
+- **5960 Clock-III** (Flag, 0/1 working)
+  - Choose a «Time Dragon» monster in your drop zone, you may put a hand card on the bottom of your deck and [Reversal] this card. If you do, call the chosen card by paying its [Call Cost].
+- **6201 Grace of the Sun Deity** (Spell, 0/1 working)
+  - Choose and use one of the following two.
+- **6202 Overgod, "0"** (Flag, 1/4 working)
+  - You cannot choose this card as your flag during the start of the fight. You may put this card into your deck.
+  - You may [Reversal] your "Perfected Deity of Eon, The Endruler Dragon". If you do, put this card from your hand on top of all of your flags.
+  - You may drop six hand cards and pay 6 gauge, or drop an "Overgod, "0"" from your hand. If you do, for this turn, reduce the defense of all cards on your opponent's field to 0, and your opponent cannot use [Counter].
+- **6203 Gargantua Evolution** (Spell, 1/2 working)
+  - Reveal three monsters with [G.BOOST] and different card names from your deck, flip them face down, shuffle them, and your opponent chooses one from among them. Put the chosen card by your opponent into your hand, and put the rest into the drop zone. Then, shuffle your deck.
+- **6206 Kronos Syn Mobius** (Spell, 1/2 working)
+  - Return all cards from your hand, gauge and drop zone to your deck, and shuffle it. Then, draw six cards, put the top two cards of your deck into your gauge, and your life becomes 10.
+- **6207 Kronos Syn Finale** (Impact, 1/2 working)
+  - Deal 1 damage to your opponent for 12 times.
+- **6314 Demonic Karma Dragon Deity of the Black Luster, Gaen "IF"** (Monster, 3/5 working)
+  - When you [Transform] into this card, draw two cards, and your opponent cannot draw cards by card effects during their next turn.
+  - The size of all monsters with "Azi Dahaka" in their card names on your field are reduced by 3.
+- **6315 Ultimate Garga "SD"** (Monster, 2/3 working)
+  - Souls in the card with [G.BOOST] and this card in its soul cannot be dropped by your opponent's card effects.
+- **6373 Crevice of Dream & Reality, ReAc: Moon** (Monster, 0/1 working)
+  - You may drop this card from your hand. If you do, choose and use one of the following three.
+- **6441 Deity Gargantua Dragon "Re:B"** (Monster, 2/3 working)
+  - D-[G-EVO] During each player's attack phase, call up to one monster with both «Dragod» and «Deity Dragon Tribe» from your hand or drop zone on top of this card without paying its [Call Cost]. D-[G-EVO] is also treated as [G-EVO])
+- **6501 Future Palette** (Spell, 1/2 working)
+  - If this card is in the soul of your buddy, that card gets power+5000, defense+5000, [Soulguard], and it cannot be destroyed, leave the field or [Rest] by your opponent's card effects.
+- **6502 Great Fiend, Yamigedo "Re:B"** (Monster, 2/3 working)
+  - This card gets the "Thunder Mine" of the cards in its soul.
+
+## Hero World — 121 cards, 131 missing
+
+- **943 Card Burn** (Monster, 0/1 working)
+  - You may pay 4 gauge, put a "Card Serpent", "Card Rhino", and this card from your field into your drop zone. If you do, [Ride] "Ultimate Card Burn" from your hand or deck. If you searched your deck, shuffle it.
+- **1042 Martian UFO, Takosuke** (Monster, 0/1 working)
+  - If you are [Ride] on this card, pay 1 gauge. If you do, declare the name of a card, and look at all cards in your opponent's hand. If the declared card is among those cards, deal 2 damage to your opponent.
+- **1057 Reckless Bravery......** (Spell, 0/1 working)
+  - Choose a monster on your field, and for this turn, give it power+5000 and [Penetrate]. At the end of the turn, put that monster into your gauge.
+- **1069 Rescue Dragon, Metamorph Effect** (Monster, 0/1 working)
+  - Pay 1 gauge. If you do, choose up to one monster from your deck, put it into your drop zone, and shuffle your deck. For this turn, this card on the field is also regarded to have the same card name as the card you put into the drop zone.
+- **1144 Emergency Launch! Decker Drum** (Monster, 0/1 working)
+  - When this link attacks with another «Superhero», choose a card in the link attack, and [Stand] it. If the card that [Stand] is a card that you are [Transform] into, deal 1 damage to your opponent.
+- **1147 Prepped and OK to Launch!** (Spell, 1/2 working)
+  - When you [Ride], draw two cards. Then, put this card into your drop zone. For this turn, you cannot [Set] "Prepped and OK to Launch.".
+- **1331 Dead or Alive!** (Impact, 1/2 working)
+  - play "Rock-Paper-Scissors" with your opponent. Deal 3 damage to the player who loses. Then, you may pay 2 gauge. If you do, search your deck for up to one "Dead or Alive.", put it into your hand, and shuffle your deck.
+- **1351 Long-range Cannon** (Spell, 1/2 working)
+  - For this turn, a card you are [Ride] on can attack your opponent even if there is a monster in their center.
+- **1352 Super Headquarters, Brave Fort** (Spell, 2/3 working)
+  - When a «Brave Machine» on your field enters the field or [Ride], put the top card of your deck into your gauge.
+- **1357 I Won't Let that Happen!** (Spell, 1/2 working)
+  - Move a «Superhero» monster on your field to the center, and change the target of the attack to that monster.
+- **1360 Brave Energy Full Drive!** (Impact, 1/2 working)
+  - Deal 2 damage to your opponent. Then, deal damage to your opponent equal to number of cards in the soul of a card you are [Ride] on. The damage dealt by this card cannot be reduced.
+- **1379 Bird Deity, Sabird** (Monster, 1/2 working)
+  - If you have 6 life or less, and this card is in the soul of a card you are Ride into, you may pay 1 gauge. If you do, for this turn, that card gets [Double Attack].
+- **1381 Sneak Judgement** (Item, 1/2 working)
+  - When a monster leaves your field during your attack phase, draw a card.
+- **1387 Be Glad That You Can be of Use to Me** (Spell, 0/1 working)
+  - If the card put into your drop zone is «Darkhero», destroy an item on your opponent's field, and you gain 2 life. If it is not a «Darkhero», return this card to your hand.
+- **1420 Ruler of Terror** (Spell, 0/3 working)
+  - You cannot put cards into this card's soul other than by this card's ability.
+  - When your card destroys your opponent's monster, put the top card of your deck into this card's soul.
+  - When the total number of monsters with «Darkhero» or «Hundred Demons» in this card's soul becomes five or more, you win the game.
+- **1604 Respective Battles** (Spell, 0/1 working)
+  - Choose and use one of the following two.
+- **1628 Man Who Answers for Justice!** (Spell, 0/1 working)
+  - Put the top card of your deck into your gauge. Then, look at the top card of your deck, and either put it on the top of your deck, or into your drop zone.
+- **1985 Blue Valor, Lord Lancer** (Monster, 0/1 working)
+  - If you are not [Transform] into this card, you may pay the [Transform] cost, if you do you may [Transform] into this card from the field.
+- **1987 Noble of Darkness, Killnight** (Monster, 1/2 working)
+  - When this card is put into your drop zone from hand, either put the top card of your deck in your gauge, or put a card from your opponent's gauge into their drop zone.
+- **2001 Captain Answer, "Overlord"** (Monster, 0/1 working)
+  - Put the top card of your opponent's deck into their drop zone. If that card is a monster, for this turn, this card gets [Double Attack]. If that card is a spell and you pay 1 gauge, destroy a monster or item on your opponent's field.
+- **2016 Wakey Thump SHOOTER** (Spell, 0/1 working)
+  - Choose a monster on your opponent's field. For this turn, if that card is destroyed, put the top card of your deck into your gauge, and draw a card.
+- **2079 Great Rifle Deity, Tigarion "Kaizeru Sword Buster!"** (Impact, 1/2 working)
+  - This card gains the critical of all cards you are [Ride] on your field.
+- **2112 Gravity Battle-armor, G-Force** (Monster, 1/2 working)
+  - All monsters on your opponent's field cannot [Move] or return to hand.
+- **2113 Battle Poet, Thinking** (Monster, 0/1 working)
+  - You may discard a card with "Battle Poet" in its card name. If you do, for this turn, a card with "Battle Poet" in its card name on your field gets [Double Attack].
+- **2129 Masked Vantage, "Lavish Body, Gorgeous Mask!"** (Impact, 0/1 working)
+  - When this card is destroyed, you may [Transform] into, or [Ride] on a card with [Transform] or [Ride] from your hand without paying the cost.
+- **2148 Activate Barrier!** (Spell, 0/1 working)
+  - When an item would leave your field by your opponent's card effects, you may put this card from your field into the drop zone. If you do, that item remains on the field.
+- **2150 Shout Out Battle Poets! Lyric Over!** (Impact, 1/2 working)
+  - If this card is the soul of a card with "Battle Poet" in its card name on your field, that card cannot be destroyed by your opponent's card effects, and all cards with "Battle Poet" in its card name on your field get power+2000, defense+2000, and critical+1.
+- **2152 Card Wyvern** (Monster, 0/1 working)
+  - If you are [Ride] on "Ultimate Card Burn", you may pay 2 gauge and put "Ultimate Card Burn" and this card from your field into your drop zone. If you do, [Ride] "Ultimate Card Burn "D-Wing"" from your hand or deck. If you searched your deck, shuffle it.
+- **2160 Constructor, Buildian** (Monster, 1/2 working)
+  - When you [Transform] into a card with "Caardian" in its card name, put the top card of your deck into your gauge.
+- **2513 Revolutionary Zetta** (Impact, 0/1 working)
+  - If you are [Transform] into this card, this card cannot be destroyed, nor returned to hand. Then, you cannot call monsters other than impact monsters, and you may call impact monsters any number of times in one turn.
+- **2520 Fake Replica Weapon, Gemclone** (Impact, 1/2 working)
+  - If your flag is "Hero World" and this card is in your buddy zone, you can use impact monsters even from worlds other than "Hero World".
+- **2521 Gemclone "Variable Bit"** (Impact, 1/2 working)
+  - If this card is in the soul of an impact monster that would leave the field, you may put this card from the soul into the drop zone. If you do, that card remains on the field.
+- **2562 Gemclone, "Origin Breaker!"** (Impact, 1/2 working)
+  - This card gets all abilities of impact monsters without "Gemclone" in its card name in its soul.
+- **2565 Gigadroid Gigantes** (Monster, 1/2 working)
+  - Pay 1 gauge. If you do, reveal the top five cards of your deck, if there are three or more «Brave Machine» monsters revealed, deal two damage to your opponent. If there are five «Brave Machine» monsters revealed, deal five damage to your opponent instead. Then, put the revealed cards on the bottom of your deck in any order.
+- **2566 Gigadroid Biggest** (Monster, 1/2 working)
+  - When you are [Ride] on this card, put a card from your opponent's gauge into their drop zone.
+- **2599 Wind Demon, Caymon** (Impact, 0/1 working)
+  - If your buddy is an impact monster, you may discard this card from hand. If you do, put a soul from a monster on your opponent's field into their drop zone.
+- **2600 Armor Talisman: GAUGE & DRAW** (Spell, 0/1 working)
+  - Put the top card of your deck into your gauge and draw two cards. You may only cast "Armor Talisman: GAUGE & DRAW"
+- **2605 Rescue Dragon, Wave Slicer** (Monster, 0/1 working)
+  - When a «Superhero» on your field destroys a card on your opponent's field, deal 1 damage to your opponent.
+- **2608 Gemclone, "Fake Healer"** (Impact, 1/2 working)
+  - This card gets all abilities written on the impact monsters without "Gemclone" in its card name in its soul.
+- **2628 Gemclone, "Wall Replica"** (Impact, 1/2 working)
+  - During your final phase, if this card is in your drop zone. If you have an impact monster on your field, pay 1 life. If you do, put this card from your drop zone into your hand.
+- **2642 Gaigrander 03** (Monster, 0/1 working)
+  - When this card enters the field, and you are [Transform] into a card with "Gaigrander" in its card name, draw a card.
+- **2661 Caardian "Mode Lethal"** (Monster, 1/2 working)
+  - This card cannot [Transform] other than by the [Act] of "Transform Belt, Card Winder" and it cannot enter the field if you do not have three or more different cards with "Caardian" in their card names in your drop zone.
+- **2662 Battle Poet, Reporting** (Monster, 1/2 working)
+  - When this card is discarded from hand due to the effect of a card with "Battle Poet" in its card name, draw a card.
+- **2683 Wind Demon, Alra** (Impact, 0/1 working)
+  - When this card attacks, you may discard up to two cards from your hand. If you do, draw the number of cards equal to the number of cards discarded.
+- **2686 Successor of the Omni Lord, Mukuro** (Monster, 0/1 working)
+  - At the end of the battle that this card attacked, if you have 4 life or less, or no monsters on your field, you may pay 1 gauge. If you do, [Stand] this card and destroy a monster on your opponent's field.
+- **2762 Captain Answer, "THE Another Lesson!"** (Impact, 1/2 working)
+  - into, into the drop zone]
+- **2977 Brave Soul Fight!** (Spell, 0/1 working)
+  - Choose a monster on your field, for this turn, when that card attacks, destroy a size 1 or less monster on your opponent's field and put the top card of your deck into your gauge.
+- **3125 Koyomi-class Fifth Fleet, Satsuki** (Monster, 1/2 working)
+  - During a main phase or attack phase, pay 1 gauge. If you do, call a «Crew Trooper» from this card's soul by paying its [Call Cost].
+- **3126 Piercing Specialist Chassis, Stregia** (Monster, 1/2 working)
+  - The size of all originally size 1 «Crew Trooper» on your field is reduced by 1.
+- **3216 Maintenance Machine, Caar Dock** (Spell, 2/3 working)
+  - You may discard a card with "Caardian" in its card name, and pay 1 gauge. If you do, draw two cards.
+- **3219 Mud-Wind Demon, Geanemos** (Impact, 0/1 working)
+  - When this card enters the field, if you have «Earth» and «Wind» in your drop zone, return a card from your opponent's field to their hand, and you gain 1 life.
+- **3226 F5 Attack** (Spell, 1/2 working)
+  - Destroy a monster on your opponent's field. Then, your opponent may call a monster from hand by paying its [Call Cost]. If your opponent does, you may pay 1 gauge. If you do, return this card to hand.
+- **3229 Beast Deity, Elphasean** (Monster, 1/2 working)
+  - Choose a card you are [Ride] on your field, put this card from the field into the chosen card's soul, and you may pay 1 gauge. If you do, you may [Ride] a card with [Ride] and with "Kaizerion" in its card name from your hand on top of the chosen card without paying its [Ride] cost.
+- **3230 2nd Generation!? Captain Answer** (Monster, 0/1 working)
+  - Pay 1 gauge. If you do, declare monster or spell, and put the top card of each player's deck into the drop zone. If there is a card of the declared card type among them, for this turn, this card gets [Double Attack]. Then, if both were of the declared card type, destroy all cards on your opponent's field.
+- **3250 Battle Poet, Shouting** (Monster, 2/3 working)
+  - When this card is discarded from your hand by an effect of a card with "Battle Poet" in its card name, put the top card of your deck into your gauge, and you gain 1 life.
+- **3254 Super Sword Deity, King Kaizerion** (Monster, 1/2 working)
+  - If this card has three or more souls, it cannot be [Rest], and its attack cannot be nullified if it is attacking alone, by your opponent's card effects.
+- **3256 Wrath of a Maiden! Blazer Frill** (Monster, 1/2 working)
+  - At the end of the battle that a «Superheroine» on your field attacked, you may return that card from the field to hand.
+- **3257 Battle Demon of Revenge, Zetta** (Impact, 1/2 working)
+  - If you are [Transform] into this card, this card on the field cannot be destroyed, nor returned to hand. Then, you cannot call monsters other than impact monsters, and you may call impact monsters any number of times in one turn.
+- **3260 Mukuro's Shadow, Schwarz** (Monster, 1/2 working)
+  - When this card enters the field, choose a monster on your opponent's field. Destroy the chosen card. If this card entered the field during your opponent's turn, instead, nullify the chosen card's abilities, and destroy that card.
+- **3268 Quinq Lada Operated Work Pod** (Monster, 0/1 working)
+  - When this card enters the field, choose a «Battleship» on your field, and for this turn, the chosen card gets [Penetrate]. Then, if this card entered the field other than from your hand, for this turn, the chosen card gets critical+1.
+- **3278 Armor Talisman: ELEMENT CONTROL** (Spell, 1/2 working)
+  - If you have «Fire» in your drop zone, deal 1 damage to your opponent, if you have «Water», put the top card of your deck into your gauge, if you have «Wind», draw a card, if you have «Earth», you gain 1 life.
+- **3280 Water-Flame Demon, Hydropyro** (Impact, 0/1 working)
+  - When this card enters the field, if you have «Fire» and «Water» in your drop zone, put a soul from a monster on your opponent's field into the drop zone, and destroy that card.
+- **3282 Megadroid, Larger** (Monster, 1/2 working)
+  - When this card enters the field, put up to two monsters with "Droid" in their card names from your drop zone at the top of your deck in any order.
+- **3283 Mobile Specialist Chassis, Westeria** (Monster, 1/2 working)
+  - Souls in all cards on your field cannot be put to the drop zone, all «Crew Trooper» and «Battleship» on your field cannot be destroyed, or returned to hand, by your opponent's card effects.
+- **3287 Backspace** (Spell, 1/2 working)
+  - Nullify the attack. Then, for this turn, if a «Computer» monster on your field was destroyed, put a «Computer» monster from your drop zone into your hand.
+- **3964 Impartial Warrior, Justihope** (Monster, 0/1 working)
+  - When a card is returned from the drop zone into the deck, or put from the deck into the drop zone, by your card effects, destroy a monster with 3000 defense or less on your opponent's field.
+- **4104 Ruinous Beast Battle Robo, CHAOS Gaidenoh** (Monster, 1/2 working)
+  - If you have an item equipped, the gauge cost written in this card's [Call Cost] is reduced by 1.
+- **4159 Mobile Specialist Chassis , Casablanca** (Monster, 1/2 working)
+  - The size of all originally size 1 «Crew Trooper» on your field is reduced by 1.
+- **4185 Special Weapon, Virus Buster** (Spell, 2/3 working)
+  - If this card is in the soul of a «Computer», that card cannot be destroyed, and its souls cannot be put into the drop zone, by your opponent's card effects.
+- **4205 Uniform Warrior, China Frill** (Monster, 1/2 working)
+  - When a card with "Masked Vantage" in its card name on your field attacks and destroys an opponent's monster, [Stand] a «Superhero» on your field.
+- **4224 Explosive Takedown, Rampage Sonic "Turbo"** (Monster, 1/2 working)
+  - If you are [Transform] into this card, your opponent cannot [Counter] during the battle that a «Superhero» on your field is attacking their monsters.
+- **4267 Rampage Blaster Red Heat!** (Impact, 1/2 working)
+  - Deal damage to your opponent equal to 2 plus the number of monsters your cards destroyed during this turn. This card's damage cannot be reduced.
+- **4433 "First Style Tempest, Blue Skies" Ichijo Haruka** (Monster, 1/2 working)
+  - If this card has «Weaponry» in its soul, it gets power+3000, defense+3000, and critical+1.
+- **4436 Satsuki Operated Convertible Outframe, Hazakura** (Monster, 2/3 working)
+  - This card gets all abilities of size 5 «Battleship» in its soul.
+- **4465 MST, Mack Harry Messer** (Monster, 1/2 working)
+  - When this card enters the field, for this turn, the next damage you take by attacks is reduced to 0. Then, if this card entered the field by a «Battle Building» effect, draw a card.
+- **4471 Fluegel Shield** (Spell, 1/2 working)
+  - Nullify the attack. Then, if the «Mobile Aerial Team» you are [Ride] on has two or more souls, put the top two cards of your deck into your gauge, and you gain 2 life.
+- **4474 Type II Sniping Rifle, "Shooting Star"** (Item, 1/2 working)
+  - When a «Mobile Aerial Team» with this card in its soul attacks, and destroys your opponent's monster or deals damage to your opponent, drop one of your opponent's gauge.
+- **4481 "Zeroth Style Gale, Azure Skies" Mayuzumi Fubuki** (Monster, 1/2 working)
+  - When a soul is put into this card, you gain 1 life.
+- **4494 Omen Chronicles, Big Cy-Bird** (Monster, 1/2 working)
+  - When this card enters the field, draw a card. Then, if it entered the field by a «Battle Building» effect, choose a card on your opponent's field, and the chosen card cannot [Stand] during this turn and the next turn.
+- **4496 Galaxy Defense Team Alpha** (Monster, 2/3 working)
+  - The gauge cost written in the [Call Cost] and [Transform] cost of your «Galaxy Exalt» is reduced by 1.
+- **4499 Caardian Secret base** (Spell, 1/2 working)
+  - When you [Transform] into a card with "Caardian" in its card name, put the top card of your deck into this card's soul, and you gain 1 life.
+- **4500 White Cloth Rosen, Frill Rose** (Spell, 1/3 working)
+  - All «Superhero» and «Superheroine» on your field cannot be destroyed by your opponent's monster effects.
+  - When a «Superhero» or «Superheroine» on your field is returned to hand, you gain 2 life, and draw a card.
+- **4503 Friendship Combi, I-Borg** (Monster, 0/2 working)
+  - When this card enters the field or [Ride], you gain 2 life. Then, if it entered the field or was [Ride] by another «Battle Building» effect, you gain 3 life.
+  - If you are [Ride] on this card, the size of all «Battle Building» monsters on your field is reduced by 3.
+- **4523 Simul Lock-on, G-Gold Pav & S-Silver Pav** (Monster, 1/2 working)
+  - When this card enters the field, destroy a monster on your opponent's field. Then, if it entered the field by a «Battle Building» effect, destroy a card on your opponent's field.
+- **4525 Battle Building! Online!** (Spell, 0/1 working)
+  - Drop up to one «Battle Building» monster from your deck, put up to one «Battle Building» spell with [Set] into your hand, and shuffle your deck.
+- **4527 Galaxy Exalt, Cosmonine** (Monster, 3/4 working)
+  - The «Galaxy Exalt» you [Transform] into cannot be [Rest] by your opponent's card effects, and it gets [Penetrate].
+- **4528 Super T-Titan, Sky3** (Monster, 1/2 working)
+  - When this card enters the field, put up to one «Battle Building» spell other than "Super T Skytower" from your drop zone into your hand. Then, if it entered the field by a «Battle Building» effect, put the top two cards of your deck into your gauge.
+- **4663 Battle Poet, Twin Reading** (Monster, 2/3 working)
+  - You may drop a hand card with "Battle Poet" in its card name. If you do, [Stand] this card.
+- **4971 Meteor Galaxy Exalt, Ultra Cosmoman** (Monster, 2/3 working)
+  - If you would take damage, you may pay 1 gauge. If you do, that damage is reduced by 5.
+- **4972 Cosmo Change!** (Spell, 0/1 working)
+  - Put the top two cards of your deck into your gauge. Then, you may [Transform] as a «Galaxy Exalt» in your drop zone by paying its [Transform] cost.
+- **5942 Time Soldier, Spigar** (Monster, 1/2 working)
+  - When this card enters the field, look at the top three cards of your deck, and put one from among them into your hand. Then, drop the rest, and if your flags [Reversal] two times or more during this fight, put the rest into the gauge instead.
+- **6208 Mirror Hero, Rampage Sonic "Blaster Knuckle!!"** (Impact, 1/3 working)
+  - If no monsters are on your opponent's field, this card gets critical+3.
+  - If you are [Transform] into this card, or if a card with "Gemclone" in its card name is on your field, during the battle a «Superhero» or «Super Warrior» on your field attacks your opponent's monsters, your opponent cannot [Counter].
+- **6209 Mirror Hero, Captain Answer "Answer Question!!"** (Impact, 0/1 working)
+  - During your turn, declare a card type, and drop the top card of both player's deck. If one card from among them is a card of the declared card type, for this turn, this card gets [Quadruple Attack]. Then, if both cards from among them are cards of the declared card type, nullify all abilities of all cards on your opponent's field, and destroy them.
+- **6211 Mirror Hero, Masked Vantage & Blazer Frill "I'll Protect the Gorgeous Rose!!"** (Impact, 2/3 working)
+  - into your hand & Pay 2 gauge]
+- **6212 Mirror Hero, Netman "Burst Traffic Buster!!"** (Impact, 1/3 working)
+  - During your final phase, you may drop any number of souls from this card. If you dropped, deal damage to your opponent equal to the number of souls dropped.
+  - into & Put a card from your drop zone into its soul & Pay 2 gauge]
+- **6213 Mirror Hero, Einder "Eins Formula!!"** (Impact, 1/3 working)
+  - When this card enters the field or [Impact Transform], you may drop a «Quartet Five» or «Super Warrior» from your hand. If you dropped, put the top two cards of your deck into your gauge, and draw two cards.
+  - into & Pay 2 life]
+- **6214 Paal Battleship, Satsuki** (Monster, 3/4 working)
+  - If you are [Station] at this card, the size of all «Super Robot» on your field is reduced by 3.
+- **6215 Paal Academy Combi, I-Borg** (Monster, 1/2 working)
+  - When this card enters the field or [Ride], you gain 3 life. Then, if it entered the field or was [Ride] by another «Battle Building» or «Super Robot» effects, put up to one «Battle Building» or «Super Robot» monster from your deck into your drop zone, and shuffle your deck. If you do, draw a card.
+- **6216 Paal Combi, Ultimate Card Burn** (Monster, 1/2 working)
+  - into this card from your hand by paying its [Ride] cost.
+- **6217 Paal Great Sword Deity, Kaizerion** (Monster, 2/3 working)
+  - When you [Ride] on this card, put up to four «Brave Machine» with "Deity" in their card names into this card's soul from your deck, and shuffle your deck.
+- **6218 Paal Chassis, Stregia** (Monster, 1/2 working)
+  - The size of all originally size 1 «Crew Trooper» on your field is reduced by 1.
+- **6220 This is... Hyper Energy!!** (Spell, 0/1 working)
+  - Put up to one "Hyper Energy" from your deck or drop zone into your hand. If you looked at your deck, shuffle it. Then, if you are [Ride] or [Station] at a card, draw a card.
+- **6223 Mirror Hero, Gaigrander "Gaigrander Kick!!"** (Impact, 2/4 working)
+  - When this card enters the field or [Impact Transform], look at the top five cards of your deck, put up to one card with "Gaigrander" in its card name other than impact monster, or up to one size 3 impact monster, from among them into your hand, and put the rest on the bottom of your deck in any order.
+  - into your hand & Pay 1 gauge]
+- **6225 Aiming to be Buddy Monster for 100 years? Robota!** (Monster, 0/2 working)
+  - Choose a monster on the field, you may pay 1 life and put this card from your hand into your buddy zone at [Rest]. If you do, return the chosen card to its owner's hand.
+  - At the end of your turn, if this card is in your buddy zone, put up to one <Hero World> card from your drop zone on the bottom of your deck in any order for each card [Rest] in your buddy zone. If you put one or more, shuffle your deck.
+- **6226 Mirror Hero, J "Gemclone Origin Cloak"** (Impact, 1/3 working)
+  - If you are [Transform] into this card, you may [Impact Transform] twice per turn, and equip a «Super Warrior» without "Gemclone" in its card name.
+  - If you are [Transform] into this card, [Impact Transform] up to one size 2 or less «Super Warrior» from your hand without paying its cost. At the end of this turn, return that card from your field to your hand.
+- **6293 Mirror Hero, Blazer Frill "Blazer Shining!!"** (Impact, 2/3 working)
+  - into your hand & Pay 2 gauge]
+- **6294 Mirror Hero, Caardian "THE END OVER!!"** (Impact, 2/3 working)
+  - into & Pay 2 gauge]
+- **6295 It's a Mission Briefing!** (Spell, 1/2 working)
+  - Look at the top three cards of your deck, put one from among them into your gauge, and one from among them into your hand. Then, drop the rest, or put it into the soul of an item on your field.
+- **6299 Let's make a "Pal"!!** (Spell, 2/3 working)
+  - When a soul is put into your «Super Robot», put the top card of your deck into your gauge, and draw a card.
+- **6300 Mirror Effect: ASSIST GUARD** (Spell, 1/2 working)
+  - Nullify the attack. Then, if you are [Impact Transform] into a card, put the top card of your deck into your gauge, you gain 1 life, and draw a card.
+- **6302 Mirror Effect: MIRROR SHIELD** (Spell, 1/2 working)
+  - Nullify the attack. Then, if your opponent's cards attacked three times or more during this turn, and you are [Impact Transform] into a card, end this phase.
+- **6306 My Soul is Shouting!!** (Spell, 1/2 working)
+  - Nullify the attack. Then, if one or more souls are in the item on your field, put the top two cards of your deck into your gauge, you gain 2 life, and if three or more, draw a card, and this card cannot be nullified.
+- **6413 Dragod Hero, Gargantua Justice** (Monster, 1/2 working)
+  - When this card enters the field by [G.EVO], choose up to one card with [Transform] or [Ride] from your hand or drop zone, and you may [Transform] or [Ride] on it without paying its cost.
+- **6414 Finish Effect: MIRRORS SPACE** (Impact, 1/2 working)
+  - This card on the field cannot have its souls dropped by your opponent's card effects.
+- **6416 Martian Speedy UFO, Takokichi Double Omega** (Monster, 0/1 working)
+  - If you are [Ride] on a «Battle Building», return two or more spells with different card names from your drop zone to your deck, and shuffle your deck. If you do, put the top two cards of your deck into your gauge, then, if you returned four or more cards, you gain 2 life, and if six or more, draw two cards.
+- **6417 Twinsky Azurewing, Haruka & Fubuki** (Monster, 2/3 working)
+  - During each player's attack phase, put up to one «Weaponry» from your deck into your hand or this card's soul, and shuffle your deck.
+- **6418 Great General Kinko, Dynagoya** (Monster, 1/2 working)
+  - When this card enters the field, for this turn, all «Battle Building» on your field get power+5000 and critical+1. Then, if this card entered the field by the effect of «Battle Building» effect, for this turn, all «Battle Building» on your field get power+5000 and [Penetrate].
+- **6422 Seconders Accel** (Monster, 1/2 working)
+  - When a «Galaxy Exalt» on your field enters the field or [Transform] put the top two cards of your deck into your gauge, and draw a card.
+- **6477 Gemclone, "Origin Breaker!" "Re:B"** (Impact, 1/2 working)
+  - Abilities of this card on the field cannot be nullified and its soul cannot be dropped by your opponent's card effects, and this card gains all abilities written on impact monsters in this card's soul without "Gemclone" in their card names.
+- **6479 Martian UFO, Takosuke "Re:B"** (Monster, 0/1 working)
+  - During each player's attack phase, you may pay 1 life. If you do, you declare a card type, and look at your opponent's entire hand. If the declared card type is in your opponent's hand, deal 2 damage to your opponent. Then, if there are three or more of the declared card type, draw two cards.
+- **6561 Armored Battle Demon, Zetta "Re:B"** (Impact, 1/2 working)
+  - If you are [Transform] into this card, this card on the field cannot be destroyed, returned to hand or be [Rest] and its abilities cannot be nullified by your opponent's card effects. You cannot call monsters other than impact monsters, and you may call impact monsters multiple times in one turn.
+
+## Hero World / Darkness Dragon World — 1 cards, 1 missing
+
+- **3251 Dark Uniform Warrior, Garter Frill** (Monster, 1/2 working)
+  - When another card on your field returns to your hand, you may return this card to your hand.
+
+## Hero World / Legend World — 2 cards, 2 missing
+
+- **2494 Warrior Emperor, Red Arthur** (Monster, 0/1 working)
+  - When this card attacks, if there are a total of four or more different cards with «Hero» or «Superhero» in your drop zone, for this turn, this card gets [Double Attack].
+- **3267 Uniform Hero, Valkyrie Frill** (Monster, 1/2 working)
+  - When a card on your field is returned from your field to hand, for this turn, a card on your field gets power+1000 and defense+1000.
+
+## Hero World / Star Dragon World — 2 cards, 2 missing
+
+- **3264 Jackknife, "Kaizerion"** (Impact, 0/1 working)
+  - During your final phase, when this card enters the field, if it has a «Neodragon» or «Brave Machine» in its soul, [Stand] an item on your field, and for this turn, that card can attack even during the final phase, and that card gets critical+1.
+- **3286 Shiny Mobile Uniform Warrior, Jewelry Frill** (Monster, 1/2 working)
+  - During an attack phase, when this card leaves the field, put the top card of your deck into your gauge, and you gain 1 life.
+
+## Katana World — 93 cards, 100 missing
+
+- **260 Five Heavenly Swords, Onimaru** (Item, 1/2 working)
+  - At the end of your turn, if this card is [Rest], put a card from this card's soul into the drop zone. If you cannot, destroy this card.
+- **264 Art of Explosive Hades Fall** (Spell, 0/1 working)
+  - When a monster enters your opponent's field, you may look at this card's soul, and reveal it. If the revealed card has the same size as the monster that entered your opponent's field, destroy it, and deal 2 damage to your opponent. Then, destroy this card.
+- **272 Demon Way, Noroihikagami** (Spell, 1/2 working)
+  - Nullify the attack if it is not a link attack. If the attack was nullified, destroy a size 2 or less monster that attacked.
+- **276 Final Showdown on the Great Gojo Bridge** (Spell, 0/1 working)
+  - Monsters on the left and right cannot be attacked by both players or their monsters.
+- **285 Striking with the Back of My Sword!** (Spell, 1/2 working)
+  - Deal 2 damage to your opponent. If your opponent's life would become 0 due to this damage, your opponent's life becomes 1 instead.
+- **291 Secret Sword, Comet** (Impact, 1/2 working)
+  - When you are being attacked by a monster with power 5000 or more on your opponent's field, if this card is in the soul of a card with "Secret Sword" in its card name, you may cast it.
+- **292 Secret Sword, Glittering Star** (Impact, 1/2 working)
+  - When you are being link attacked, if this card is in the soul of a card with "Secret Sword" in its card name, you may cast it.
+- **296 Secret Sword, Shooting Star** (Impact, 1/2 working)
+  - When you are being attacked by an opponent's Weapon, if this card is in the soul of "Secret Sword, Lethal Formation", you may cast it.
+- **297 Super Lethal Formation** (Impact, 2/3 working)
+  - You may look at this card's soul, cast a Secret Sword from the soul by paying its [Cast Cost].
+- **304 Demon Prodigy, Hiunmaru** (Monster, 1/2 working)
+  - When this card is called from your drop zone, put the top card of your deck into your gauge.
+- **311 Runaway Female Ninja, Yukishiro** (Monster, 0/1 working)
+  - When your opponent cast a spell on their main phase, you may put this card into the drop zone, and pay 1 gauge. If you do, nullify the spell cast by your opponent.
+- **312 Hundred Face Ninja, Muraku** (Monster, 0/1 working)
+  - You may discard a card from your hand. If you do, for this turn, add to this card the power, defense and critical of the card discarded with this ability.
+- **320 Sky Ninja, Yamigarasu** (Monster, 0/1 working)
+  - When your opponent's monster in front of this card becomes [Rest], deal 1 damage to your opponent.
+- **321 Sniping Ninja, Yoichi** (Monster, 0/1 working)
+  - When the monster in front of this card [Rest], deal 1 damage to your opponent.
+- **329 Cat Shadow, Aoihime** (Monster, 0/1 working)
+  - When this card enters the field, you may discard one card. If you do, search your deck for a Demon Way spell card with Set, put into your hand, and shuffle your deck.
+- **330 Cyber Onmyoji, Seimei** (Monster, 0/1 working)
+  - You may pay 2 gauge. If you do, put a card from your hand face down onto the field as a monster with "size 1/power 6000/defense 6000/critical 2"
+- **335 Phantom Ninja, Kashinkoji** (Monster, 1/2 working)
+  - This card cannot be link attacked.
+- **338 Tempest, Garo-oh** (Monster, 0/1 working)
+  - You may pay 1 gauge. If you do, for this turn, this card gets Double Attack and power+3000. At end of turn, destroy this card.
+- **857 Wanderer, the Gold** (Monster, 1/2 working)
+  - Remote Punishment If this card attacks and destroys your opponent's monster, this card deals damage equal to the number of monsters destroyed to your opponent.
+- **1181 Demon Way, Ukishizumi Ikusabune** (Impact, 0/1 working)
+  - Put as many Skull Warrior monsters as you like from your field into your drop zone. If you do, draw cards equal to the same number of Skull Warrior monsters put into your drop zone.
+- **1257 Absolute Sword, Azure Cascade Formation** (Impact, 0/1 working)
+  - Use one of the following abilities.
+- **1266 One-Eyed Ninja, Refu** (Monster, 0/1 working)
+  - When this card enters the field, your opponent reveals their hand. Choose a card from among them, and put the card on the bottom of your opponent's deck. If you do, your opponent conceals their hand, and he or she draws two cards.
+- **1428 Hundred Demons Sorcery, Yamimonoimi** (Spell, 1/2 working)
+  - Move a Hundred Demons monster on your field to the center and change the target to that monster.
+- **1561 Scorpion Armor, Kenrosai** (Monster, 0/1 working)
+  - When this card attacks and deals damage to your opponent, your opponent's item cannot [Stand] during their next stand phase.
+- **1615 Hidden Secret Sword, "Cloud Billow"** (Spell, 0/1 working)
+  - Put the top two cards of your deck into your gauge. Then, you may return a Secret Sword or a card with "Lethal Formation" in its card name from your drop zone into your deck. If you do, shuffle your deck.
+- **1616 Secret Sword, Starlight** (Impact, 1/2 working)
+  - When a monster on your field is destroyed, and this card is in the soul of "Secret Sword, Lethal Formation", you may cast it.
+- **2066 Skull Warrior Four Bird Bones, "Akuten Haba"** (Impact, 0/1 working)
+  - When this card attacks, put the top four cards of your deck into the drop zone. If you do, for each Skull Warrior among them, deal 1 damage to your opponent.
+- **2117 Tsukikage, "Kuroyasha Mode"** (Monster, 0/1 working)
+  - Choose a Ninja on your field and pay 1 gauge. If you do, the next time that card would be destroyed, it remains on the field. This card can only be activated
+- **2118 Byakuya, "Shiroyasha mode"** (Monster, 1/2 working)
+  - If this card is in the soul of a monster, that monster can attack your opponent even if there is a monster in your opponent's center.
+- **2213 Elite Sword, Odenta** (Item, 0/1 working)
+  - This card cannot be destroyed by card effects of your opponent's cards.
+- **2218 Revelation Tactician, Keiganryu** (Monster, 0/1 working)
+  - Reduce the size of size 1 Skull Warrior on your field by 1.
+- **2256 Low-Rank Ninja, Mikazukimaru** (Monster, 0/1 working)
+  - When this card enters the field, if you have another size 1 Ninja on your field, draw a card. "Collective Training" may only be used
+- **2259 Patrol Ninja, Shokai** (Monster, 0/1 working)
+  - When this card enters the field, put up to one size 2 or less Ninja from your drop zone into your hand]
+- **2261 Blade Technique, Zanteisettetsuu** (Spell, 0/1 working)
+  - Choose a Japanese Blade on your field. For this turn, the next time it would be destroyed, it remains on the field. Then, if it is a Japanese Blade monster, for this turn, it gets [Counterattack].
+- **2535 Retainer of the Demonic Dragon, Resurrected Dragon Bones** (Monster, 1/2 working)
+  - Pay 1 gauge. If you do, return a size 3 monster from your drop zone to your hand. This ability can only be activated
+- **2615 Secret Sword, Dragon Annihilation Formation** (Impact, 1/2 working)
+  - If your opponent calls a monster with "Dragon" in its attributes, and if this card is in the soul of "Secret Sword, Lethal Formation", you may cast it.
+- **2804 Oni Boss, Kid Ibuki** (Monster, 0/1 working)
+  - When this card enters the field, destroy a monster on your opponent's field. Then, if this card enters the field by [Ambush], deal damage to your opponent equal to the size of the destroyed monster.
+- **2868 Lesser Fiend, Amanojaku** (Monster, 0/1 working)
+  - If this card enters the field by [Ambush], draw a card.
+- **2869 Dark Arms, Soaring Blade** (Item, 1/2 working)
+  - When your monsters enter the field by [Ambush], choose a monster on your opponent's field, and you may pay 1 gauge. If you do, destroy that card.
+- **2872 Red Lady Oni, Kureha** (Monster, 0/1 working)
+  - When this card enters the field, put up to one card with [Ambush] that is not "Red Lady Oni, Kureha" from your drop zone into your hand. Then, if this card enters the field by [Ambush], you may put a card from your hand face down into the soul of an «Oni Assassins» on your field.
+- **2875 Dusk Fiend, Yagyo** (Monster, 0/1 working)
+  - When this card enters the field, choose a monster on your opponent's field, and put a soul from the chosen card into their drop zone. Then, if this card enters the field by [Ambush], put a soul from the chosen card into your opponent's drop zone.
+- **2964 Fiend of Ailments, Affliction Oni** (Monster, 0/1 working)
+  - When this card enters the field, put up to one «Oni Assassins» item from your deck into your hand, and shuffle your deck. Then, if this card enters the field by [Ambush], you may equip an item from your hand by paying its [Call Cost].
+- **2966 Body of Dark Arms, Kid Ibuki** (Monster, 0/1 working)
+  - When this card enters the field, choose a monster or item on your opponent's field, and that card cannot [Stand] during this and the next turn. Then, if this card entered the field by [Ambush], [Rest] that card, and deal 1 damage to your opponent.
+- **3412 Electron Asthenia** (Spell, 0/1 working)
+  - You gain 1 life, and put cards from the top of your deck into the gauge equal to the number of monsters on your field.
+- **3491 Hairpin Blade, Hoozuki** (Item, 1/2 working)
+  - When a monster enters your field from the drop zone, draw a card.
+- **3504 Summer Recollection 2017 "Sandy Night Watermelon Split!"** (Spell, 1/2 working)
+  - You can only put a total of up to 4 "Summer Recollection 2017 "Sandy Night Watermelon Split."" and "Ninja Arts, Snake Gaze" in your deck.
+- **3530 Upheaval Omni Lord, Ziun** (Monster, 1/2 working)
+  - During the battle in which this card attacks alone, your opponent cannot use or cast [Counter].
+- **3604 Blue Fiend, Kid Kuma** (Monster, 0/1 working)
+  - When this card enters the field, choose a card on your opponent's field, and for this turn, the chosen card gets power-3000 and defense-3000. Then, if this card enters the field by [Ambush], for this turn, the chosen card gets critical-1.
+- **3605 Heavenly Web Vast, Gusoku Kannon** (Monster, 1/2 working)
+  - If this card is in the left or right, reduce the size of Skull Warrior or Water in your center by 2.
+- **3612 Deity-eye Military Deviser, Keiganryu** (Monster, 1/2 working)
+  - The size of all originally size 1 Skull Warrior on your field is reduced by 1.
+- **3656 Connect Ninja, Tomonoshin** (Monster, 0/1 working)
+  - When your other monster enters the field, look at the top three cards of your deck, put up to one Thunder Empire from among them into your hand, and put the rest at the bottom of your deck in any order.
+- **3676 Exquisite Sword, Crane Princess** (Item, 1/2 working)
+  - If you have this card equipped, you may equip another Japanese Blade other than "Exquisite Sword, Crane Princess".
+- **3700 Purple Lightning Flash, Hyojuro** (Monster, 1/2 working)
+  - When this card enters the field, if you have another Skull Warrior or Thunder Empire on your field, destroy a monster on your opponent's field. If you do, put cards from the top of your deck into the gauge equal to the size of the destroyed card.
+- **3796 Outside Control Formula Chaos Guided Missile** (Spell, 0/1 working)
+  - For this turn, all monster on your center can attack your opponent even if there is a monster in your opponent's center.
+- **3927 Grudge Fiend, Hannya** (Monster, 0/1 working)
+  - When this card enters the field, destroy a spell on your opponent's field. Then, if this card entered by [Ambush], destroy a size 1 or less monster on your opponent's field.
+- **3945 Magnetism Ninja, Magnetic Tojiro** (Monster, 1/2 working)
+  - If you have a monster on your left or right, and you do not have a monster on the center, all cards on your opponent's field cannot attack your left or right, and all cards on your opponent's field get critical-1.
+- **3958 Lady Oni, Uji Bridge Princess** (Monster, 0/1 working)
+  - When this card enters the field, put the top card of your deck into your gauge. Then, if this card entered by [Ambush], put the top card of your deck into your gauge.
+- **3960 Secret Sword, Slashing Wave Thunder Fang** (Impact, 1/2 working)
+  - Deal 2 damage to your opponent and [Stand] a card on your field. Then, if this card was cast from the soul of "Secret Sword, Lethal Formation", put the top three cards of your deck into your gauge.
+- **4022 Yatsuka Fiend, Tsuchigumo** (Monster, 0/1 working)
+  - When this card enters the field, for this turn, this card gets [Double Attack]. Then, if this card entered by [Ambush], for this turn, it gets critical+1.
+- **4026 Oni Horde, Underworld Legion** (Monster, 0/1 working)
+  - When an «Oni Assassin» monster enters your field by [Ambush], deal 1 damage to your opponent.
+- **4027 Dark Arms, Demonic Poison Fumes Cube** (Item, 1/2 working)
+  - When an «Oni Assassin» monster enters your field by [Ambush], put the top card of your deck into your gauge, and you gain 1 life.
+- **4178 Rampaging Evil Demon, Akuro-oh** (Monster, 0/1 working)
+  - When this card enters the field, destroy a card on your opponent's field. Then, if this card entered by [Ambush], destroy a card on your opponent's field, and deal 2 damage to your opponent.
+- **4234 Freak-Wrist Beast Lord, Ziun** (Monster, 0/1 working)
+  - This card's attack cannot be nullified if it is attacking alone, and for each other [Omni Lord] or originally size 1 monster on your field, this card's size on the field is reduced by 1 and it gets power+3000 and critical+1.
+- **4460 Guardian Electrobeast, Komaichi** (Monster, 0/1 working)
+  - When this card enters the field, if you have an «Electrodeity» item equipped, for this turn, all «Electrodeity» on your field get power+3000. Then, if that item has a soul, for this turn, all «Electrodeity» on your field get critical+1.
+- **4461 Kagura-bell of Worship** (Item, 1/4 working)
+  - At the start of each player's main phase, you may put a size 3 «Electrodeity» from your hand on top of this card. The card put on top is treated as an item until it leaves the field.
+  - At the end of each player's turn, equip this card from an item's soul, and return the previously equipped card to hand.
+  - If this card is in the soul of an item, it cannot be dropped by cards.
+- **4534 Wind Arc Deity, Uzu-ikazuchi** (Spell, 1/2 working)
+  - For this turn, all critical of «Electrodeity» on your field cannot be reduced by your opponent's card effects, when an «Electrodeity» item on your field attacks, destroy a card on your opponent's field and deal 1 damage to your opponent.
+- **4543 Guardian Electrobeast, Inamaro** (Monster, 1/2 working)
+  - At the end of the battle of that this card attacked, if an «Electrodeity» on your field has souls, for this turn, this card gets [Double Attack].
+- **4681 Radiant Electrodeity, Ameno-Wakahiko** (Monster, 1/2 working)
+  - If this card has an «Electrodeity» soul, this card cannot leave the field by your opponent's card effects.
+- **4682 Gargantua Wind Demon Dragon** (Monster, 0/1 working)
+  - Put the top card of your deck face down on the field as a "«Dragod»/size 0/6000 power/6000 defense/2 critical" monster. Then, if this card has a soul with [G.EVO], you may put another copy on the field.
+- **4690 Excelblade, Godslash KANESADA** (Item, 1/2 working)
+  - This card on the field cannot be destroyed or returned to hand, and all «Bladedancer» on your field cannot be [Rest], by your opponent's card effects.
+- **4693 Art of Getting Fish** (Spell, 1/2 working)
+  - If this hand card is dropped by card effects, put the top two cards of your deck into your gauge.
+- **4694 Pinnacle of Iai, "Godspeed"** (Impact, 1/2 working)
+  - Nullify the attack. Then, for this turn, nullify all abilities of all attacking cards and destroy them. If any are destroyed, deal 3 damage to your opponent.
+- **4766 Mountain Deity Oni Blade, Kid Ibuki** (Monster, 0/1 working)
+  - When this card enters the field, choose an «Oni Assassin» on your field. Look at the top five cards of your deck, put up to two from among them face down in the chosen card's soul, and put the rest on the bottom of your deck in any order. Then, if this card entered by [Ambush], your opponent chooses and drops a hand card.
+- **4770 Gargantua Jiraiya Dragon** (Monster, 1/2 working)
+  - When this card enters the field, you may pay 1 gauge. If you do, put up to two cards from the top of your deck face down on the field as "«Dragod»/size 0/6000 power/6000 defense/2 critical" monsters.
+- **4788 Magatsu Flames, Yamigitsune** (Monster, 0/1 working)
+  - If a «Skull Warrior» on your field attacks and deals damage to your opponent, you may destroy that card. If you do, drop 1 of your opponent's gauge, deal 1 damage to your opponent, and your opponent chooses and drops a hand card.
+- **4995 Sol Aurora** (Spell, 1/2 working)
+  - Nullify the attack. Then, if your «Electrodeity» item has a soul, put the top card of your deck into your gauge, you gain 1 life, choose an attacking card, and for this turn, the chosen card cannot [Stand].
+- **5023 Gargantua Thunder Deity Wind Demon Dragon** (Monster, 1/2 working)
+  - At the end of the battle that this card attacked, put up to one card from the top of your deck face down on the field as a "«Dragod»/size 0/6000 power/6000 defense/2 critical" monster.
+- **5035 Cherry Blossom Dance** (Spell, 0/2 working)
+  - Your opponent cannot call monsters from the drop zone.
+  - If an item would leave your field, you may put this card into your drop zone. If you do, that card remains on your field.
+- **5364 Oeyama's Monstrous Oni, Kid Ibuki** (Monster, 1/2 working)
+  - The size of all originally size 2 or less Oni Assassin on your field is reduced by 2.
+- **5950 Freed Flower of Yosen** (Spell, 1/2 working)
+  - Nullify the attack. Then, for this turn, if your opponent's cards attacked three times or more, and your «Electrodeity» item has souls, end this phase.
+- **5992 Great Electrodeity of Freedom, Izanami** (Monster, 0/1 working)
+  - Choose and use one of the following two.
+- **5994 Electrobeast Emissary, Shino** (Monster, 2/3 working)
+  - When this card enters the field, look at top seven cards of your deck, put up to one size 3 «Electrodeity» from among them into your hand, and put the rest on the bottom of your deck in any order. If you put a card into your hand, drop a hand card.
+- **5998 Time Scout, Herite** (Monster, 1/2 working)
+  - When this card enters the field, for this turn, the critical of a card on your opponent's field is reduced by 1 for each time your flags [Reversal] during this fight.
+- **6141 Time Scout, Omega** (Monster, 1/2 working)
+  - When your flag [Reversal], look at the top three cards of your deck, put one from among them into your gauge, and one from among them into your hand. Then, drop the rest, or put the rest into the soul of a monster on your field.
+- **6382 Bad Manners** (Spell, 1/2 working)
+  - Nullify the spell cast by your opponent, and for this turn, your opponent cannot cast spells with the same card name of the nullified spell.
+- **6383 Happiness Art of Pleasant Warmth** (Spell, 0/1 working)
+  - Choose and use one of the following two.
+- **6384 Steelframe Swordsman, KUROGANE "HAYABUSA"** (Monster, 1/2 working)
+  - At the start of each player's attack phase, if your equipped «Excelblade» is [Stand], you gain 2 life, deal 2 damage to your opponent, and for this turn, all cards on your opponent's field must attack if able.
+- **6445 Excelblade, Godslash KANESADA - SIN UCHI-** (Item, 2/3 working)
+  - This card [Counterattack] all attacking monsters.
+- **6446 Young Alloy Swordsman, SHAKUDO** (Monster, 0/2 working)
+  - Damage dealt by your «Excelblade» effects are increased by 1.
+  - When your opponent takes damage by your card effects, you may put the top card of your deck into your gauge.
+- **6447 Wind Deity Shuriken, Garcross Blade** (Item, 1/2 working)
+  - You may drop a «Ninja Arts» from your hand. If you do, put up to two cards from the top of your deck face down on the field as a "«Dragod»/size 0/6000 power/6000 defense/2 critical" monster.
+- **6494 Evil in Heart, Yamigitsune "Re:B"** (Monster, 0/3 working)
+  - All «Skull Warrior» on your field can attack your opponent even if they have monsters in their center.
+  - If a «Skull Warrior» on your field is attacking alone, its damage dealt to your opponent cannot be reduced.
+  - When «Skull Warrior» on your field deals damage to your opponent, you may destroy that card. If you destroyed, put the top card of your deck into your gauge, you gain 1 life and draw a card.
+- **6497 Oni Boss, Kid Ibuki "Re:B"** (Monster, 0/2 working)
+  - When this card enters the field, destroy a monster or an item on your opponent's field. Then, if this card entered the field by [Ambush], deal damage to your opponent equal to the critical of the destroyed card. This damage cannot be reduced.
+  - Choose an «Oni Assassin» monster on your field, and reveal this hand card. If you do, put this card into the chosen monster's soul face down. If put, draw a card.
+- **6499 White Dragon Hermit, Nanase "Re:B"** (Monster, 2/3 working)
+  - When a card is put into your opponent's gauge, if your opponent has three or more gauge, your opponent must drop gauge until they have two gauge.
+
+## Katana World / Hero World — 1 cards, 1 missing
+
+- **2967 Demons Assassin, Ziogre** (Monster, 1/2 working)
+  - Choose a monster on your field, and reveal this card from your hand. If you do, put this card face down into the chosen monster's soul.
+
+## Legend World — 92 cards, 101 missing
+
+- **343 Divine Protection, Prydwen** (Item, 1/2 working)
+  - If you would be dealt damage, you may pay 2 gauge. If you do, that damage is reduced by 2.
+- **348 Rune Staff** (Item, 1/2 working)
+  - You do not have to pay the life in [Cast Cost] of cards you use with Great Spell in its card name.
+- **349 Sword of the King, Excalibur** (Item, 0/1 working)
+  - If this is the only card attacking, the attack of this card cannot be nullified by a card with "Shield" in its card name.
+- **351 Berserk Gard** (Spell, 0/1 working)
+  - Choose a monster in battle, and for this battle, give it power+2000, defense+2000 and [Counterattack]. If there is a "Symbel Gard in your drop zone, you may discard a card from your hand, and pay 2 gauge. If you do, return this card into your hand.
+- **352 Breathen Gard** (Spell, 0/1 working)
+  - Nullify the spell cast by your opponent, or destroy a spell on the field. Then, if a "Berserk Gard" is in your drop zone, you may drop a hand card and pay 2 gauge. If you do, return this card to hand.
+- **356 Great Spell, Fimbulwinter** (Spell, 2/3 working)
+  - When this card is set on the field, put two cards from the top of your deck into this card's soul.
+- **357 Great Spell, Ragnarok** (Spell, 1/2 working)
+  - Discard all cards from your hand and your opponent's hand, nullify all abilities of monsters on the field, and destroy all cards on the field.
+- **359 Heroic Spirit** (Spell, 0/1 working)
+  - Choose a Hero monster in battle, and for this battle, give it power+3000, defense+3000 and Counterattack. [Counterattack]
+- **362 Power of Mythology** (Spell, 3/4 working)
+  - Use one of the three following.
+- **367 Frost Wall, Nevel Vans** (Monster, 0/1 working)
+  - If another Asgard monster is on your field and this card is in your center, this card cannot be destroyed by attack.
+- **402 Demon Wolf, Fenrir** (Monster, 0/1 working)
+  - If this card is on the field, it is unaffected by the effects of "Gleipnir" and can attack.
+- **403 Demonic Beast, Grendel** (Monster, 0/2 working)
+  - This card cannot be destroyed by the effect of spells.
+  - All monsters that attack this card is destroyed At the end of the turn.
+- **405 Moon Wolf, Managarmr** (Monster, 0/1 working)
+  - This card on the field is not affected by the effects of "Gleipnir" and can attack.
+- **988 Rigel Orion** (Monster, 0/1 working)
+  - You may discard up to two Star from your hand. If you do, draw cards equal to the number of cards discarded.
+- **989 Dekalfar Demon Swordsman, Heim** (Monster, 0/1 working)
+  - When this enters the field, you may call a size 2 <Legend World> monster from your drop zone by paying its [Call Cost].
+- **1003 Perseus Algol** (Monster, 0/1 working)
+  - When this card is put into your drop zone from your hand or field, put a card from your opponent's gauge into the drop zone.
+- **1004 Great Fate, Frozen Stars** (Spell, 1/3 working)
+  - If there are Star on your left and right, nullify all abilities of cards on your opponent's field and in the soul of your opponent's cards.
+  - You can only set one "Great Fate, Frozen Stars" on your field.
+- **1158 Fairy King, Oberon** (Monster, 0/1 working)
+  - If you have a total of seven or more Hero and Fairy in your drop zone, nullify all abilities of monsters on your opponent's field. This ability cannot be nullified.
+- **1236 Book of Illusions, Mabinogion** (Spell, 1/2 working)
+  - When a Hero on your field link attacks, draw a card.
+- **1258 Wolfman, Gutz** (Monster, 0/1 working)
+  - If you have a Wydar Sarkal on your right, this card on your center or left cannot be destroyed by an attack.
+- **1271 Night Witch, Clear** (Monster, 0/1 working)
+  - If you have another Wydar Sarkal on your right, this card on your center or left cannot be destroyed by an attack.
+- **1273 Annoying Ways of the Troll** (Spell, 1/2 working)
+  - If there are two or more Wydar Sarkal on your field, nullify the call or nullify the spell cast by your opponent.
+- **1436 Water Spirit, Rusalka** (Monster, 0/1 working)
+  - All monsters on your opponent's field cannot [Move], or return to hand.
+- **1438 Great Demonic Sword, Klarente** (Item, 0/1 working)
+  - When this card attacks and deals damage to your opponent, if there are a total of four or more different cards with Hero or Hundred Demons in your drop zone, destroy an item on your opponent's field.
+- **1795 Buddyfight World Deity, (Self-Proclaimed) God Khoushan** (Monster, 0/1 working)
+  - When this card enters the field, both players may say "Chori-chori-chori~s". The player who says it gains 1 life, and discards a card from their hand. The player who did not say it puts the top card of their deck into their gauge.
+- **1964 Flying Duchmon** (Monster, 0/1 working)
+  - When this card enters the field, place a monster from your deck into the drop zone then shuffle your deck.
+- **2068 Fenrir, "Curse of Vanargandr"** (Impact, 0/2 working)
+  - If this card is on the field, it is unaffected by the effects of "Gleipnir" and can attack.
+  - During the final phase, discard two <Legend World> cards from your hand. If you do, [Stand] this card.
+- **2089 Valkyrie, Skuld the Lamenter of the Future** (Monster, 0/1 working)
+  - You may discard a card from your hand. If you do, look at the top three cards of either player's deck, and put them back on the top of that deck in any order. Then, draw a card.
+- **2307 Scorpio Starsentinel, Eskorpia** (Monster, 0/1 working)
+  - If this card is in your center, all of your originally size 2 or less «Star» monsters on your left or right have their size become size 0.
+- **2314 Star Pole Sword, Estrela** (Item, 1/2 working)
+  - If you have a monster with "Zodiac" in its card name on your field, all of your originally size 2 or less «Star» monsters become size 0.
+- **2352 Treasure Jailer, Sonderdach** (Monster, 1/2 working)
+  - If this card is in your drop zone, you may pay 1 gauge. If you do, call this card to your field. "Landslide" can only be used
+- **2443 Leo Starsentinel, Leaon** (Monster, 1/2 working)
+  - If your buddy monster is «Star», this card's size on the field is reduced by 1.
+- **2451 Light of Guidance** (Spell, 0/1 working)
+  - Put the top card of your deck into your gauge, and the next time damage would be dealt to you this turn, it is reduced to 0.
+- **2453 Protecting the Secret Treasure, Grootslang** (Monster, 0/1 working)
+  - This card's link attack cannot be nullified if it is attacking alone.
+- **2456 Retainer of the Demonic Dragon, Fernyiges** (Monster, 2/3 working)
+  - When this card enters the field, you may pay 2 life. If you do, search for up to one "Great Demonic End Dragon, Azi Dahaka", put it into your hand and shuffle your deck.
+- **2740 Great Spell, Fall of Valhalla** (Spell, 1/2 working)
+  - If this card has two or more cards in its soul, pay 2 gauge and put this card into your drop zone. If you do, discard all cards from your hand and your opponent's hand, nullify all abilities of monsters on the field, and destroy all cards on the field.
+- **2745 Columba Fact** (Monster, 0/1 working)
+  - When a card is discarded from your hand, you gain 1 life, and for this turn, this card gets critical+1.
+- **2746 Hero Base, Camelot Castle** (Spell, 2/3 working)
+  - During your turn, when a «Hero» monster enters your field or you equip a «Hero» put the top card of your deck into your gauge and put the top card of your deck into your drop zone.
+- **2747 Astraeus, "Birthday of Wind and Stars"** (Impact, 1/2 working)
+  - At the start of your main phase, if you have «Star» on your left and right, draw a card and you gain 1 life.
+- **2788 Retainer of the Demonic Dragon, Horned Serpent** (Monster, 0/1 working)
+  - At the end of this card's battle, you may return this card from your hand. If you do, if there is a size 3 monster on your field, you gain 1 life.
+- **3192 CHAOS Aquario** (Monster, 0/1 working)
+  - When this card enters the field, put the number of cards from the top of your deck into your gauge equal to the number of monsters other than this card on your field.
+- **3339 Knight of the Round Table, Lancelot** (Monster, 1/2 working)
+  - Choose a monster on your opponent's field and discard a «Hero» from your hand. If you do, destroy the chosen monster and, for this turn, this card gets [Double Attack]. This ability can only be activated
+- **3340 Immortal Sword of the King, Durandal** (Item, 1/2 working)
+  - 'Hand of the King' If you are equipped with a card with 'Sword of the King' in its card name, equip this card from your hand by paying its [Equip Cost]. 'Hand of the King' only activates
+- **3379 Forced Global Shutdown** (Impact, 1/2 working)
+  - Deal damage to your opponent equal to the total critical of all monsters on your center.
+- **3388 Chaos Absorber** (Item, 1/2 working)
+  - Put this card from the field into the drop zone. If you do, for this turn, nullify [Penetrate] from all cards on your opponent's field.
+- **3392 CHAOS Aesculapius** (Monster, 0/1 working)
+  - When this card enters the field, you gain 1 life equal to number of monsters on your center.
+- **3393 CHAOS Jabberwock** (Monster, 0/1 working)
+  - Move this card from left or right to your center.
+- **3400 Fortitude Warrior, Rinaldo** (Monster, 0/1 working)
+  - This card gets critical equals to the critical of an item with "Sword of the King" in its card name that you equipped.
+- **3404 Knights of the Round Table, Ywain** (Monster, 0/1 working)
+  - If you have an item with 'Sword of the King' in its card name equipped, this card gets critical+2.
+- **3548 Shine Blade, Joker** (Monster, 1/2 working)
+  - During the turn when a card is discarded from your hand by card effects, you may call this card from your hand without paying its [Call Cost].
+- **3728 "Demonic Descent Sword of the King" Laevateinn** (Item, 0/3 working)
+  - This card on the field cannot be destroyed, you cannot put monsters on the field, and you may equip any number of items.
+  - All items in your hand get an additional "[Equip Cost] [Pay 1 gauge]".
+  - Put the top five cards of your deck into the drop zone, and equip up to three items from among them without paying their [Equip Cost].
+- **3734 Fabricated Sword of the King, Dainsleif Replica** (Item, 0/1 working)
+  - When this card attacks and destroys your opponent's monsters or deals damage to your opponent, put the top card of your deck into your gauge, and you gain 2 life. Then, if you have three or more «Hero» on your field, draw a card. "Bloodsucking False King" can only be activated
+- **3735 Watchsword of Autodeity, CHAOS Laevateinn** (Item, 2/3 working)
+  - The gauge cost of this card's [Equip Cost] is reduced by the number of cards on your field.
+- **3828 CHAOS Carbuncle** (Monster, 0/1 working)
+  - During an attack on your opponent's turn, you may pay 1 gauge, and 1 life. If you do, nullify the attack.
+- **3854 Powerful Fighting God, Magni** (Monster, 1/3 working)
+  - [Stand] this card.
+  - For this turn, the next time this card would be destroyed, it remains on the field.
+- **3874 Sword of the King Scabbard, Surtr Cross** (Item, 0/2 working)
+  - When you equip this card, you may discard a card from your hand. If you do, put up to one item
+  - with "Sword of the King" in its card name from your deck into your hand, and shuffle your deck.
+- **3890 Fairy of Soil, Nome** (Monster, 1/2 working)
+  - When this card is put from the field or hand into your drop zone, if you have a «Wydar Sarkal» on your field, destroy a spell on your opponent's field.
+- **3904 For The Chosen Ones** (Spell, 1/2 working)
+  - Equip up to two «Hero» items from your hand without paying their [Equip Cost].
+- **3946 Divine Demonic Sword of the King, Excalibur Replica** (Item, 0/1 working)
+  - During the battle that this card attacks alone, if you have four or more «Hero» on your field, your opponent cannot [Counter].
+- **4062 Fabricated Sword of the King, Zulfiqar Replica** (Item, 1/2 working)
+  - If a card with "Sword of the King" in its card name other than "Fabricated Sword of the King, Zulfiqar Replica" would leave your field, you may put this card into your drop zone. If you do, that card remains on your field.
+- **4105 Taboo Contract** (Spell, 1/2 working)
+  - When you equip an item, destroy a size 2 or greater monster on your opponent's field.
+- **4115 Eroded Beast Sword of the King, Laevateinn Savage** (Item, 1/2 working)
+  - Equip up to two items from your deck by paying their [Equip Cost], and shuffle your deck.
+- **4194 Freaky Strength Girl, Hikiko** (Monster, 1/2 working)
+  - If a «Toilet» would leave your field by your opponent's card effects, you may put this card into your drop zone. If you do, that card remains on your field.
+- **4195 One Who Leads** (Spell, 1/2 working)
+  - Equip up to two «Hero» items from your drop zone without paying their [Equip Cost].
+- **4196 Golden Apple Manager, Izun** (Monster, 0/1 working)
+  - You may discard a hand card. If you do, for this turn, increase this card's power, defense, and critical by those of the discarded card.
+- **4807 Dainty Wind, Sylph** (Monster, 1/2 working)
+  - At the start of your attack phase, if you have a total of three or more «Wydar Sarkal» and «Fairy» on your field, for this turn, all cards on your field get power+3000, critical+1 and [Penetrate].
+- **5049 Angel Troop, Lykris** (Monster, 1/2 working)
+  - When this card enters the field, you gain 1 life, then, if it entered by "Advent", you gain 3 life.
+- **5052 Angel Troop, Lyntis** (Monster, 1/2 working)
+  - When this card enters the field, put the top card of your deck into your gauge, then, if it entered by "Advent", put the top two cards of your deck into your gauge.
+- **5418 Flame Deity, Magma Horus** (Monster, 0/2 working)
+  - When this card enters the field by the effect of "Ice Deity, Freeza Horus", destroy up to two cards on your opponent's field, and draw two cards.
+  - At the start of your attack phase, if an "Ice Deity, Freeza Horus" on your field, for this turn, all size 1 Dragod on your field get [Triple Attack].
+- **5419 Ice Deity, Freeza Horus** (Monster, 1/2 working)
+  - When this card enters the field by a buddy call, you may buddy call "Flame Deity, Magma Horus" from your hand without paying its [Call Cost].
+- **5421 Retainer Shield** (Spell, 1/2 working)
+  - Nullify the attack. Then, if Dragod are on your left and right, you may drop a hand card. If you do, return this card to hand.
+- **5511 One Wing of the King, Freeza Horus** (Monster, 1/2 working)
+  - When this card enters the field by a buddy call, you may buddy call a "One Wing of the King, Magma Horus" from your hand.
+- **5513 One Wing of the King, Magma Horus** (Monster, 0/1 working)
+  - When this card is called by the effect of "One Wing of the King, Freeza Horus", destroy all spells and items on your opponent's field, and deal 1 damage to your opponent for each cards destroyed.
+- **5517 Legendary Ice Deity, Freeza Horus** (Monster, 1/2 working)
+  - When this card enters the field by a buddy call, you may buddy call a "Legendary Flame Deity, Magma Horus" from your hand without paying its [Call Cost].
+- **5519 Lightblaze Sword of the King, Claiomh Solais** (Item, 1/2 working)
+  - If your opponent's card attacks you alone, you may pay 1 life. If you do, nullify the attack.
+- **5523 Legendary Flame Deity, Magma Horus** (Monster, 0/1 working)
+  - When this card enters the field by the effect of "Legendary Ice Deity, Freeza Horus", destroy all monsters on your opponent's field, and deal 1 damage to your opponent for each card destroyed.
+- **5527 Warrior of Zeal, Terias** (Monster, 0/1 working)
+  - If this card is in the center, when a «Legend Dragon» monster on your left or right attacks, deal 1 damage to your opponent.
+- **5528 Fairy King, Alverich** (Monster, 1/2 working)
+  - If there are a total of three or more different cards with «Hero» and «Fairy» in your drop zone, this card gets critical+2, and [Penetrate]. Then, if six or more, all cards on your opponent's field get power-5000, and defense-5000, and if nine or more, nullify all abilities of all cards on your opponent's field.
+- **5533 Devoted Scholar of Hermetics, Kiamya** (Monster, 0/1 working)
+  - When this card enters the field on the center, put up to one «Legend Dragon» item from your deck into your hand, and shufflle your deck.
+- **5536 Junior Long-spear Warrior, Liim** (Monster, 0/1 working)
+  - At the start of the final phase of a turn that this card is dropped from your hand, if a «Legend Dragon» is on your field, you may put a "Junior Long-spear Warrior, Liim" from your drop zone into your hand. If you do, put the top card of your deck into your gauge, and you gain 1 life.
+- **5717 Thunder Deity, Voltic Ra** (Monster, 2/3 working)
+  - When this card enters the field by a buddy call, you may buddy call an "Ice Deity, Freeza Horus" from your hand without paying its [Call Cost].
+- **5722 Sword of Misaha** (Item, 2/3 working)
+  - The damage you take by card effects is reduced by 1 for each different «Dragod» on your field.
+- **5737 Magma Horus "SD" & Freeza Horus "SD"** (Monster, 1/2 working)
+  - When this card attacks, if you buddy called during this fight, for this turn, this card gets [Triple Attack].
+- **5741 Messiah Arms, Siegsabre** (Item, 1/2 working)
+  - When a card with "Dragon" in its attribute attacks you alone, nullify the attack.
+- **5749 Legendary Thunder Deity, Voltic Ra** (Monster, 1/2 working)
+  - When this card enters the field by a buddy call, you may buddy call a "Legendary Ice Deity, Freeza Horus" from your hand without paying its [Call Cost].
+- **5757 Waterside Shimmer, Karkade** (Monster, 1/2 working)
+  - When this card is put into the drop zone from your hand or the field, if a «Legend Dragon» is on your field, destroy a spell or item on your opponent's field.
+- **6026 Projection Shell, "Daniyyel"** (Monster, 1/2 working)
+  - Choose a card on your opponent's field and, and for this turn, the chosen card gets «Dragon».
+- **6134 Projection Shell, Ian** (Monster, 2/3 working)
+  - When a card with "Dragon" in its attribute leaves your opponent's field by your card effects, if this card is in the soul of a «Messiah Arms», deal 1 damage to your opponent.
+- **6139 Messiah Arms, Omega Siegsabre** (Item, 1/2 working)
+  - When this card attacks, choose up to two cards on your opponent's field with "Dragon" in their attributes, drop all souls of the chosen cards, and put the chosen cards into the drop zone.
+- **6140 Cremaza Sith Nokima** (Spell, 1/2 working)
+  - Put a «Legend Dragon» from your drop zone into your hand, return all cards from your drop zone into your deck and shuffle it.
+- **6509 Ice Blade, Joker "Re:B"** (Monster, 1/2 working)
+  - If you or your opponent has no card in hand, all monsters on your field cannot be destroyed, and this card gets critical+2. This ability cannot be nullified.
+- **6512 "Demonic Descent Sword of the King" Laevateinn "Re:B"** (Item, 0/2 working)
+  - This card can be your buddy, and if this card is in your buddy zone, you cannot put monsters on the field, and you may equip any number of items.
+  - Equip any number of «Hero» items from your drop zone without paying their [Equip Cost].
+
+## Legend World / Star Dragon World — 6 cards, 6 missing
+
+- **2302 Meteorarms, Nebulosa** (Monster, 0/1 working)
+  - At the end of the battle that a monster with "Zodiac" in its card name and this card in its soul attacked, for this turn, that card gets [Double Attack]
+- **2303 Meteorarms, Pisca Pisca** (Monster, 0/1 working)
+  - When you put this card from the field, deck, or drop zone into the soul of a size 3 «Neodragon», put the top card of your deck into your gauge.
+- **2331 Lua Nova** (Spell, 0/1 working)
+  - If the card discarded from your hand by this card's [Cast Cost] is <Legend World>, you gain 1 life and draw a card. If the card is <Star Dragon World>, put the top card of your deck into your gauge, and destroy a size 2 or less monster on your opponent's field.
+- **2778 Meteorarms, Dragsolar** (Monster, 1/2 working)
+  - When this card enters the field, call up to one size 3 «Neodragon» or «Star» monster from your drop zone by paying its Call Cost , and put this card into that monster's soul.
+- **4193 Deity Meteorarms, Azavoarl** (Monster, 1/2 working)
+  - When a card on your opponent's field is [Rest] by card effects, if this card is in the soul of a «Neodragon», put the top card of your deck into your gauge, and deal 1 damage to your opponent.
+- **6517 Legendary Kickoff** (Spell, 0/1 working)
+  - Choose and use one of the following two.
+
+## Lost World — 16 cards, 18 missing
+
+- **4569 Lost World** (Flag, 1/3 working)
+  - You cannot choose "Lost World" as your initial flag, and all flags may have up to two of this card in the deck.
+  - At the end of your opponent's turn, choose one of your flags, and you may pay 2 gauge. If you do, put this hand card on top of the chosen card, remove your deck from the fight, shuffle your Lost Deck and put it in the fight.
+- **4591 Dimension Jamming** (Spell, 0/1 working)
+  - Your opponent chooses and drops two hand cards.
+- **4600 Dimension Mirror** (Spell, 1/2 working)
+  - Nullify the attack, and deal damage to your opponent equal to the total critical of all attacking monsters.
+- **4660 Dimension Shadowgate** (Spell, 0/1 working)
+  - When you are attacked, your opponent may pay 1 life. If they do not, nullify the attack.
+- **4666 Vanity Destruct Vanish** (Impact, 0/1 working)
+  - [Stand] a «Lostvader» on your field, and for this turn, that card gets critical+5 and [Penetrate]. Then, attack with that card.
+- **4859 Episto Ira Gnitz** (Monster, 2/3 working)
+  - You cannot take damage by your opponent's monster effects.
+- **4860 Vile Vortex** (Spell, 0/1 working)
+  - For this turn, all [Call Cost], [Cast Cost] and [Equip Cost] of cards in your hand are lost.
+- **4941 Vile Demonic Deity Dragon, Vanity Epoch Destroyer** (Monster, 1/2 working)
+  - When this card enters the field, choose up to two cards on your opponent's field, drop the chosen cards' souls, and put the chosen cards into the drop zone.
+- **5012 Inummael Katarant** (Monster, 1/2 working)
+  - Your opponent cannot draw cards by monster effects.
+- **5031 Day of Devastation** (Spell, 0/1 working)
+  - Choose one of the following two.
+- **5760 Lost World (Vile Ranma)** (Flag, 1/3 working)
+  - You cannot choose "Lost World" as your initial flag, and all flags may have up to two of this card in the deck.
+  - At the end of your opponent's turn, choose one of your flags, and you may pay 2 gauge. If you do, put this hand card on top of the chosen card, remove your deck from the fight, shuffle your Lost Deck and put it in the fight.
+- **6374 Knight of Dawn, Lostknight: Gilt Lance** (Monster, 2/3 working)
+  - At the end of your turn, if this card is on an oppressed area, deal 3 damage to your opponent.
+- **6433 White Flame Bloodeye  Pasion Eyes** (Monster, 2/3 working)
+  - this card [Counterattack] destroys all attacking monsters with defense less than this card's power.
+- **6435 Dimension Slayer** (Spell, 0/1 working)
+  - [Stand] all cards on your field. Then, for this turn, all cards on your field can also attack during the final phase. If you [Stand] three or more cards, draw a card.
+- **6437 Rehabilitated Demonic Dragon, Vanity Revolve Destroyer** (Monster, 2/3 working)
+  - When this card attacks, choose up to two cards on your opponent's field, drop all souls of the chosen cards, and put the chosen cards into the drop zone.
+- **6440 Vile Demonic Deity Dragon, Vanity Epoch Destroyer "Re:B"** (Monster, 1/2 working)
+  - When this card enters the field, choose up to one card on your opponent's field, for this turn, the chosen card cannot remain on the field by card effects, and put that card into the drop zone.
+
+## Magic World — 75 cards, 78 missing
+
+- **3 Gunrod, Del Gesu** (Item, 1/2 working)
+  - When this card attacks your opponent, you may put one of your monster from the field into the drop zone. If you do, for this turn, add to this card the critical of the monster put into drop zone with this ability.
+- **9 Begone!!** (Spell, 1/2 working)
+  - You may only cast this card when an opponent calls a size 2 or less monster.
+- **10 Bestie!** (Spell, 0/1 working)
+  - You may reveal a 72 Pillars from your hand. If you do, choose a 72 Pillars on your field in battle, and for this battle, add to that card the power and defense of the revealed card, and [Counterattack].
+- **12 Check It Out!** (Spell, 0/1 working)
+  - Return all monsters on your field to your hand. Then, you may call a monster from your hand to your center by paying its [Call Cost]. You may only cast Chech It Out.
+- **15 Epic Fail!** (Spell, 1/2 working)
+  - If there is a monster with "Dragowizard" in its card name on your field, put that attacking monster into your opponent's gauge. If you do not have a "Dragowizard" in its card name on your field, return that attacking monster to your opponent's hand.
+- **16 Gotcha!** (Spell, 1/2 working)
+  - For this turn, the next time you would pay gauge for a monster's [Act] on your field, you may pay from both your gauge and your opponent's gauge.
+- **21 Holy Moly!** (Spell, 0/1 working)
+  - Move a size 2 or less monster in your opponent's center to the open left or right.
+- **23 Key of Solomon, Second Volume** (Spell, 0/1 working)
+  - You gain 1 life. If you have "Key of Solomon, First Volume" in your drop zone, draw a card.
+- **32 Quick Summon** (Spell, 1/2 working)
+  - Call a monster from your hand by paying its [Call Cost], and for this battle, give it [Counterattack], and change the target of the attack to that monster. [Counterattack]
+- **36 The Ark** (Spell, 0/1 working)
+  - If your life would become 0, reveal all cards in this card's soul. If there is a spell among those cards, your life becomes 2, and draw a card. Destroy this card.
+- **39 Asmodai Eternal Rolling Back-drop!** (Impact, 0/1 working)
+  - reveal the top five cards of your deck. Deal damage to your opponent equal to 1 plus the number of cards revealed with "Asmodai" in its card name. Then, put the revealed cards on the bottom of your deck in any order.
+- **73 Todo of the Unseen Hands** (Monster, 0/1 working)
+  - During an attack on your opponent's turn, you may pay 2 gauge. If you do, nullify that attack if it is not a link attack.
+- **80 Dandy Guy, Sitri** (Monster, 1/2 working)
+  - If the revealed card is a spell card, you may cast it without paying its [Cast Cost]. If you do not or if the revealed card is not a spell, put that card on the bottom of your deck.
+- **91 Liar, Fullfool** (Monster, 1/2 working)
+  - When this card enters the field, you may cast a <Magic World> spell with Set from your hand without paying the [Cast Cost].
+- **99 Champion Wrestler Asmodai** (Monster, 0/1 working)
+  - When this card enters the field, you may discard as many cards as you like from your hand. If you do, destroy cards on your opponent's field equal to the number of cards you discarded from your hand.
+- **846 Shiny! Asmodai** (Monster, 0/1 working)
+  - When this card enters the field, you may choose as many cards with "Asmodai" in its card name as you like from your drop zone and return them to your deck. If you do, shuffle your deck.
+- **898 Demon Realm Fisherman, Forneus** (Monster, 0/1 working)
+  - When this card enters the field, you may return a size 1 72 Pillars from your field to your hand. "Caught." may only be used
+- **1119 Judge Asmodai's Super Impartial 3 Rounds, Rock! Paper! Scissors!** (Impact, 0/1 working)
+  - play "Rock-Paper-Scissors" with your opponent. Draw cards equal to the number of times you win. If you lose three times, your opponent draws three cards.
+- **1152 New-Era Great Spell, The Creation** (Impact, 1/2 working)
+  - When you draw by the effect of a card, put the top card of your deck into your gauge, and you gain 1 life.
+- **1321 Mysterious Decarabia** (Monster, 0/2 working)
+  - When this card enters the field, play "Rock-Paper-Scissors" with your opponent. The fighter won wins destroys a card on the field.
+  - By paying 2 gauge, you may replay "Rock-Paper-Scissors".
+- **1426 Hundred Demons Sorcery, No-Brainer** (Spell, 0/1 working)
+  - Choose a monster on your field. for this turn, when that monster attacks your opponent's monster, put a card from the attacked monster's soul into the drop zone, then destroy one of the attacked monsters.
+- **1504 Mediator, Botis** (Monster, 0/1 working)
+  - When this card enters the field, you and your opponent may discard a card from hand. Deal 2 damage to the fighter who does not discard a card.
+- **1613 Make Some Noise!** (Spell, 1/2 working)
+  - Return up to 2 monsters from the field to its owners' hands.
+- **1827 Betrayal Expert, Aunas** (Monster, 0/1 working)
+  - When this card is destroyed, you may pay 1 gauge. If you do, return this card to your hand, or put this card into the soul of a monster other than "Betrayal Expert, Aunas" on your field.
+- **1858 Gunrod, Boesendorfer** (Item, 0/1 working)
+  - You may [Rest] this card. If you do, deal 1 damage to your opponent. If both you and your opponent have one monster each on the field, deal 1 damage to your opponent.
+- **1871 Witch of Variance, Alice the Adjuster** (Monster, 1/2 working)
+  - Pay 1 life. If you do, until this card leaves the field, change the size of this card to the size of your choice between 0 and 3.
+- **1872 Messenger of Sunlight, Sol** (Monster, 0/1 working)
+  - When your opponent casts a spell and you have a "Messenger of Moonlight, Luna" on your field, you may discard a Wizard from your hand, and pay 1 gauge. If you do, nullify the spell cast by your opponent.
+- **1874 Whazzap?** (Spell, 0/1 working)
+  - Call up to 3 size 2 or lower 72 Pillars monsters from your drop zone by paying their [Call Cost]. For this turn, you cannot call monsters other than impact monsters.
+- **1889 Demon Realm Prosecutor, Nebiros** (Monster, 0/1 working)
+  - When another card returns to the hand from the field, put the top card of your deck into your gauge.
+- **1892 Tiny Professor, Crocell** (Monster, 0/1 working)
+  - When another card returns to the hand from the field, you gain 1 life.
+- **1916 Emergency Ward, Neverland** (Spell, 1/2 working)
+  - Whenever a card returns to the hand from the field, you gain 1 life.
+- **1959 BAR King Solomon** (Spell, 1/2 working)
+  - Other than during your opponent's start phase, when the number of cards in your opponent's hand increases, your opponent chooses a card in their hand and discards it.
+- **1961 Great Spell, Demons Concert** (Spell, 1/2 working)
+  - The amount of gauge written on the [Call Cost] is reduced by the number of 72 Pillars on your field.
+- **1962 Demon Dealer, Haagenti** (Monster, 0/1 working)
+  - When this card enters the field due to an effect, put the top card of your deck into the gauge and gain 1 life.
+- **2064 Hearty, "ABSC: Annihilate Buster Staff Custom** (Impact, 0/1 working)
+  - Pay 4 gauge & Discard a Wizard from your hand. If you do, destroy all monsters on your opponent's field, and deal 3 damage to your opponent.
+- **2393 Little Light** (Spell, 0/1 working)
+  - Put up to one monster from your deck into your gauge or drop zone, shuffle your deck, and you gain 1 life.
+- **2531 Retainer of the Demonic Dragon, Arhat Narhat** (Monster, 2/3 working)
+  - During your turn, when this card if put into the drop zone from your field, you may pay 1 life. If you do, destroy a size 2 or less monster on your opponent's field.
+- **2719 Ruficfiel, "Rewind Clock"** (Impact, 0/1 working)
+  - Discard two «72 Pillars» from your hand. If you do, return all cards on your opponent's field to their hand.
+- **2929 Buddyfight Triple T "Suzuha Amanosuzu"** (Spell, 1/2 working)
+  - You can only put a total of up to 4 "Buddyfight Triple T "Suzuha Amanosuzu" and "Magical Goodbye" combined in your deck.
+- **3487 Charismatic Demon Lord Teacher, Asmodai** (Monster, 0/1 working)
+  - When this card enters the field, choose two monsters with different name from your drop zone face down, shuffle them, your opponent picks a card at random from among them, and you call a monster that your opponent choose by paying its [Call Cost].
+- **3899 Overturn Demon Lord, Asmodai** (Monster, 1/2 working)
+  - When "72 Pillars" or "Thunder Empire" monster enters your field, choose a card on your opponent's field and you may discard a card from your hand. If you do, destroy the chosen card.
+- **3920 Narcolepsy** (Spell, 1/2 working)
+  - If an item on your field has six or more «Plague» spells in its soul, the gauge cost written in this card's [Cast Cost] is reduced by 3.
+- **3921 Asmodai Onstage!** (Spell, 2/3 working)
+  - All 72 Pillars on your field cannot be destroyed by monster effects.
+- **3923 Ultimate Great Spell, World Pandemic!** (Spell, 1/2 working)
+  - Flip your opponent's flag face down.
+- **3925 "Ashen Death Sorcery" Yersinieas** (Monster, 1/2 working)
+  - You may cast a «Plague» spell in this card's soul by paying their [Cast Cost].
+- **3942 Fallen Angel of Rebellion, Rucifiel** (Monster, 1/2 working)
+  - When a card is discarded from your hand, return up to two cards on your opponent's field to hand.
+- **4050 CHAOS Beleth** (Monster, 1/2 working)
+  - The damage dealt to your opponent by this card with 3 or more critical cannot be reduced if it is attacking alone.
+- **4058 Mycotoxin** (Spell, 2/3 working)
+  - If this card is in the soul of a «Plague», this card cannot be put into the drop zone, and abilities of that card and this card cannot be nullified, by your opponent's card effects.
+- **4078 Enigma Virus** (Spell, 2/3 working)
+  - When a soul is put from a «Plague» on your field into the drop zone by your opponent's card effects, if this card is in the soul of a «Plague», deal 1 damage to your opponent.
+- **4100 Contagious Weakening Gas** (Spell, 2/3 working)
+  - Choose a card on your opponent's field. For this turn, when the chosen card attacks, put a card from your opponent's gauge into their drop zone, and deal 1 damage to your opponent.
+- **4102 CHAOS Teo Lao** (Monster, 1/2 working)
+  - Choose a monster on your opponent's field, and you may discard a card from your hand. If you do, return the chosen card to your opponent's hand.
+- **4132 Sorcery Book, Armadel** (Item, 1/2 working)
+  - When a 72 Pillars would leave your field, you may put this card from your field into the drop zone. If you do, that card remains on the field.
+- **4143 Mikazuchi Follower, Glasya Labolas** (Monster, 0/1 working)
+  - When your card effects deal damage to your opponent, if you have a monster with "Yamigedo" in its card name on your field, deal 1 damage to your opponent, and draw a card.
+- **4187 Witch of Destruction, Kathy the Devastator** (Monster, 1/2 working)
+  - You may discard two Wizard from your hand. If you do, destroy all cards on your opponent's field.
+- **4188 Artist of Shadowform, Silhouette Olivar** (Monster, 2/3 working)
+  - During your opponent's turn, when this card is put into the drop zone from the soul, put the top card of your deck into your gauge, you gain 1 life, and draw a card.
+- **4268 Gotcha!** (Spell, 1/2 working)
+  - For this turn, the next time you would pay gauge for the [Cast Cost] of your spell or [Act] of a monster on your field, you may pay it from your opponent's and your gauge.
+- **4747 Examinate** (Spell, 1/2 working)
+  - Look at the top three cards of your deck, put one card from among them into your gauge, one card from among them into your hand, and put the rest into the drop zone. Then, you gain 1 life.
+- **4752 Demon Lord Again! Asmodai** (Monster, 1/2 working)
+  - When cards on your opponent's field are returned to hand by your card effects, your opponent chooses and drops a hand card.
+- **4846 -Flame Quartet-** (Spell, 1/2 working)
+  - At the start of your main phase, if this card is in your drop zone, your may drop a hand card. If you do, put this card from the drop zone into your hand.
+- **4934 Holy Magic** (Spell, 0/1 working)
+  - Return three or more different spells from your drop zone to your deck, and shuffle it. If you do, put the top two cards of your deck into your gauge, and you gain 2 life. Then, if you returned six or more, draw two cards, if nine or more, deal 3 damage to your opponent.
+- **4953 Sorcery Deity Dragon, Animasel** (Monster, 0/1 working)
+  - When this card enters the field, you may put three spells from your drop zone on the bottom of your deck in any order. If you do, put all size 3 or less monsters on your opponent's field to separate areas on your opponent's field.
+- **5018 Gargantua Blade Mage Neo** (Monster, 1/2 working)
+  - When this card enters the field, return a card from your opponent's field to hand. if this card entered by [G EVO], return all cards on your opponent's field and you gain 1 life for each card returned instead.
+- **5362 Delightful Enjoyment, CHAOS Yersinieas** (Monster, 1/2 working)
+  - You may cast a Plague spell from this card's soul by paying its [Cast Cost].
+- **5966 Shadow Painting Musician, Silhouette Hugo** (Monster, 1/3 working)
+  - When your opponent is dealt damage by the effect of a «Shadow Shade» with this card in its soul, drop 1 of your opponent's gauge.
+  - When this card is put from the soul of a «Shadow Shade» on your field to the drop zone, destroy up to one card on your opponent's field, or return it to hand.
+- **5968 Grand Phantom Thief, Winds Harry** (Monster, 0/1 working)
+  - During each player's attack phase, you may pay 1 gauge. If you do, draw a card, look at up to four cards from the top of your opponent's deck, put up to two cards from among them into your opponent's spell area face down as "Magic Treasure", and put the rest on the bottom of your opponent's deck in any order.
+- **5969 Sky Castle of Drago Phantom Thief, "Lebla Maurice"** (Spell, 1/2 working)
+  - If your buddy is a spell, put up to four cards from the top of your opponent's deck into your opponent's spell area face down as "Magic Treasure".
+- **5970 My Funny Venus** (Spell, 2/3 working)
+  - When a "Magic Treasure" is put on your opponent's field, put the top card of your deck into your gauge, and draw a card.
+- **5972 Steal Time, "We say good bye!"** (Spell, 1/2 working)
+  - If two or more "Magic Magic Treasure" are on your opponent's field, put the top two cards of your deck into your gauge. Then, if four or more, draw two cards, if six or more, you gain 2 life, and if 8 or more, deal 2 damage to your opponent. You may only cast "Steal Time, "We say good bye.""
+- **5973 Chaser Beetle** (Item, 1/2 working)
+  - If six or more "Magic Treasure" are on your opponent's field, all «Drago Phantom Thief» on your field can attack your opponent even if they have monsters on the center.
+- **5987 Time Scout, Khan** (Monster, 0/1 working)
+  - When a card on your opponent's field is returned to hand or deck by your card effects, if your flag [Reversal] during this fight, your opponent chooses and puts a hand card on the bottom of their deck.
+- **5989 Adorable Phantom Thief, Sophie Parker** (Monster, 0/2 working)
+  - During each player's attack phase, when a "Magic Treasure" is put on your opponent's field, you gain 1 life, and deal 1 damage to your opponent.
+  - Choose up to two cards in your opponent's drop zone, and pay 1 gauge. If you do, put the chosen cards into your opponent's spell area face down as "Magic Treasure". Then, if four or more "Magic Treasure" are on your opponent's field, draw a card.
+- **6169 Dignified Phantom Thief, Bellamy Heart** (Monster, 2/3 working)
+  - When a "Magic Treasure" is put on your opponent's field, destroy up to one monster on your opponent's field.
+- **6171 Flaming Red Prison of Love. Sync** (Monster, 2/3 working)
+  - Call this card on top of a «Mystic Knight» monster with power 9000 or greater on your field without paying its [Call Cost].
+- **6487 Illusionist of Shadowform, Silhouette Joe "Re:B"** (Monster, 1/2 working)
+  - During each player's attack phase, you may drop any number of souls from this card. If dropped, deal 1 damage to your opponent for each soul dropped.
+- **6489 "Ashen Death Sorcery" Yersinieas "Re:B"** (Monster, 2/3 working)
+  - You may cast a «Plague» spell from this card's soul by paying its [Cast Cost].
+
+## Medabots — 19 cards, 20 missing
+
+- **6230 Monjiro** (Monster, 0/1 working)
+  - During the battle that this card is attacking alone, its damage cannot be reduced, and all cards on your opponent's field cannot gain defense by card effects.
+- **6231 Titanbeetle** (Monster, 0/1 working)
+  - When this card attacks, choose up to one card on your opponent's field. For this turn, the chosen card cannot remain on the field or have its destruction nullified by card effects.
+- **6237 Robo-Emperor** (Monster, 2/3 working)
+  - During the battle that this card is attacking, your opponent cannot call characters.
+- **6243 Gryphon (Medachange)** (Monster, 2/3 working)
+  - If your deck has 10 cards or less, this card gets critical+2.
+- **6245 Blackmail** (Monster, 0/2 working)
+  - This card can only attack
+  - During the battle that this card is attacking alone, this card's attack cannot be nullified, its damage cannot be reduced and your opponent cannot call characters.
+- **6251 Blackbeetle (Medachange)** (Monster, 1/2 working)
+  - During your turn, when a card is put from your opponent's field into the drop zone, deal 2 damage to your opponent.
+- **6252 Sailor-Multi** (Monster, 1/2 working)
+  - If this card is link attacking with one other «Medabot», this attack cannot be nullified.
+- **6255 First Ace (Medachange)** (Monster, 1/2 working)
+  - Choose and use one of the following three.
+- **6259 Horned Froggy** (Monster, 1/2 working)
+  - When this card enters the field, look at the top six cards of your deck, put up to one [Hardness Ten] or [Hit Seller] from among them into your hand, and put the rest to the bottom of your deck in any order.
+- **6260 Babbyblu** (Monster, 2/3 working)
+  - Each player cannot cast impacts from the hand.
+- **6265 Hit Seller** (Monster, 1/2 working)
+  - When this card attacks, if a [Hardness Ten] and a [Horned Froggy] are on your field, choose up to two cards on your opponent's field, and the chosen cards cannot [Stand] during the next turn.
+- **6268 Referee appears! Mr. Referee** (Spell, 2/3 working)
+  - Return up to five cards with different card names from your drop zone to your deck, and shuffle your deck. If you returned five cards, draw a card.
+- **6270 Jackal** (Monster, 1/2 working)
+  - When this card or a [Gun-King], [First Ace] or [Mayqueen] on your field attacks, deal 1 damage to your opponent.
+- **6272 First Ace** (Monster, 0/1 working)
+  - During your attack phase, choose and use one of the following three.
+- **6273 Gun-King** (Monster, 1/2 working)
+  - When this card attacks a character, if that character was attacked by this card two times or more during this turn, nullify all abilities of that character, and put it into the drop zone.
+- **6274 Sonic Stag** (Monster, 0/1 working)
+  - All «Kuwagata» on your field cannot be destroyed or returned to hand by your opponent's event effects.
+- **6282 Arcbeetle** (Monster, 1/2 working)
+  - When this card attacks a character alone, it attacks all characters on your opponent's field instead.
+- **6283 Rokusho** (Monster, 0/1 working)
+  - When this card attacks, draw a card, and choose and use one of the following three.
+- **6287 Black-Stag (Medachange)** (Monster, 1/2 working)
+  - During the battle that this card is attacking, nullify all abilities of all cards on your opponent's field.
+
+## SSSS.GRIDMAN — 21 cards, 24 missing
+
+- **5856 Memories of Only Us Two** (Spell, 2/3 working)
+  - All cards on your opponent's field cannot attack characters on your left and right.
+- **5859 Akane's Declaration of War** (Spell, 0/1 working)
+  - For this turn, all [Alexis] and «Kaiju» on your field cannot be destroyed, returned to hand or [Rest] by your opponent's card effects. Then, if an [Akane Shinjo] is on your field, draw a card.
+- **5862 Anti (Kaiju Form), the Perseverance Kaiju** (Monster, 1/2 working)
+  - During each player's attack phase, choose an originally character on your opponent's field, and for this turn, this card gets all abilities originally written on the chosen card.
+- **5863 Zegga, the Self Constraining Kaiju** (Monster, 1/3 working)
+  - When this card attacks, if this card is attacking alone, it attacks all of your opponent's characters and your opponent instead.
+  - At the end of the battle that this card attacked, if no characters are on your opponent's field, your opponent chooses and drops a hand card, and deal 2 damage to your opponent.
+- **5865 Devadadan, the Karma Kaiju** (Monster, 0/1 working)
+  - For this turn, the next time you would take damage by card effects and this card is on your field, it is reduced to 0, and deal 1 damage to your opponent for each damage reduced.
+- **5867 Anonymous A, the **** Kaiju** (Monster, 2/3 working)
+  - At the end of the turn that this card is destroyed, call up to one "Anonymous B, the **** Kaiju" from your hand or deck. If you looked in your deck, shuffle it.
+- **5870 Full Powered Gridman** (Monster, 2/4 working)
+  - If four or more different «Assist Weapon» are in this card's soul, this card gets [Penetrate] and [Quadruple Attack], and during the battle that this card is attacking your opponent's character, they cannot use [Counter].
+  - you are [Transform] into & Pay 3 gauge. Then, put up to a total of fou «Assist Weapon» with different card names from your hand or drop zone into its soul]
+- **5872 Max Gridman** (Monster, 2/3 working)
+  - from your field or drop zone into its soul & Put this on top of a [Gridman] you are [Transform] into & Pay 2 gauge]
+- **5873 Sky Gridman** (Monster, 2/3 working)
+  - from your field or drop zone into its soul & Put this on top of a [Gridman] you are [Transform] into & Pay 2 gauge]
+- **5875 Gridman** (Monster, 2/4 working)
+  - Damage your opponent takes by your cards cannot be reduced.
+  - , [Samurai Calibur], [Max], [Borr] and [Vit] each from your [Gridman] soul or drop zone into its soul, and put this on top of a [Gridman] you are [Transform] into]
+- **5876 Buster Gridman** (Monster, 2/3 working)
+  - from your field or drop zone into its soul & Put this on top of a [Gridman] you are [Transform] into & Pay 2 gauge]
+- **5877 Buster Borr** (Monster, 1/2 working)
+  - During the battle that this card in the soul of a [Gridman] or [Powered Zenon] is attacking alone, damage dealt to your opponent by that card cannot be reduced.
+- **5879 Alexis Kerib** (Monster, 2/3 working)
+  - If you do not have an item equipped, all «Kaiju» characters' size on your field is reduced by 4.
+- **5914 Making Kaiju** (Spell, 3/4 working)
+  - If you would call a «Kaiju» by card effects, the gauge cost written in its [Call Cost] is reduced by 1.
+- **5916 Transform! Gridman!** (Spell, 1/2 working)
+  - When you [Transform], draw two cards. Then, put this card into your drop zone. For this turn, you cannot [Set] "Transform. Gridman.".
+- **5923 JUNK SHOP Aya** (Spell, 2/3 working)
+  - During your main phase, this card and all «Gridman Alliance» on your field cannot be destroyed, returned to hand or be [Rest] by your opponent's card effects.
+- **5924 Diriver, the Malice Kaiju** (Monster, 1/2 working)
+  - If «Diriver UFO» is not on your field, put the top card of your deck face down on the field as a "«Diriver UFO» «Kaiju»/size 4/7000 power/7000 defense/2 critical" character.
+- **5925 Special Signature to Save a Soul** (Spell, 1/2 working)
+  - Choose and use one of the following two.
+- **5928 Sky Vitter** (Monster, 1/2 working)
+  - When this card in the soul of a [Gridman] or [Powered Zenon] is attacking a character alone, it attacks all of your opponent's characters instead.
+- **5933 Inherited Glass Bead** (Spell, 1/2 working)
+  - Nullify the attack. Then, if two more more different characters are on your field, put the top card of your deck into your gauge, you gain 1 life and draw a card.
+- **6034 Grid Fixer Beam** (Impact, 1/2 working)
+  - Nullify all abilities of cards on your opponent's field, drop all their souls, and put them into the drop zone. Then, you gain 10 life, and draw cards until you have six cards in your hand.
+
+## Star Dragon World — 102 cards, 108 missing
+
+- **1242 Dragonarms, Winchisker** (Monster, 0/1 working)
+  - If this card is in the soul of your «Neodragon», when that «Neodragon» deals damage to your opponent, destroy an item on your opponent's field.
+- **1308 Dragonarms, Labyrinthus** (Monster, 0/1 working)
+  - When your «Neodragon» with this card in its soul attacks and destroys your opponent's monster, deal 1 damage to your opponent.
+- **1312 Core Recycle** (Spell, 0/1 working)
+  - Put up to one «Dragonarms» from your deck into your gauge or drop zone, and shuffle your deck.
+- **1573 Scramble Crossnize** (Spell, 1/2 working)
+  - Put a «Dragonarms» from your drop zone into the soul of a «Neodragon» on your field. You can only cast "Scramble Crossnize"
+- **1641 Cosmo Saber, Gold Ritter** (Item, 1/2 working)
+  - If three or more cards are in the souls of cards on your field, this card gets critical+2.
+- **1672 The Radiant Guardians!** (Impact, 1/2 working)
+  - Deal 2 damage to your opponent. Then, you may put up to three cards from the soul of a card on your field into your drop zone. If you do, deal damage to your opponent equal to the number of cards you put into your drop zone.
+- **1676 Radiant Guardian, Jackknife "Aster"** (Monster, 1/2 working)
+  - You cannot be dealt damage, and items on your field cannot be destroyed, by your opponent's card effects.
+- **1677 Radiant Stream!** (Impact, 0/1 working)
+  - [Stand] a monster and a «Weapon» on your field, and you get another attack phase. During that attack phase, your opponent cannot use or cast [Counter].
+- **1687 Dragonarms, Radiant Scudo** (Monster, 1/2 working)
+  - If this card is in the soul of a card with "Jackknife" in its card name, the cost for "Devotion Wall" is reduced by 1 gauge.
+- **1734 Jupiter Two, Eumercular** (Monster, 0/1 working)
+  - When this card enters on your left, put up to one «Dragonarms» from your drop zone into this card's soul.
+- **1774 Dragonarms, Reconnaissance** (Monster, 0/1 working)
+  - When your «Neodragon» with this card in its soul attacks and deals damage to your opponent, put the top card of your deck into your gauge, or you gain 1 life.
+- **1802 Great Dragonarms, the Main Force** (Monster, 0/1 working)
+  - If this card is in the soul of a «Neodragon», you may pay 1 gauge. If you do, for this turn, the next time that «Neodragon» would be destroyed, that «Neodragon» remains on the field.
+- **2029 Four Quasar, Stein Cross** (Monster, 0/1 working)
+  - When this card enters the field on your left or right, put up to one card from your drop zone into this card's soul]
+- **2040 Single Star, Neo Medea** (Item, 0/1 working)
+  - If you have a «Neodragon» with one soul or more on your field, this card gets power+3000.
+- **2072 Dragonarms, Radiant Kanone** (Monster, 1/2 working)
+  - If this card is in the soul of a monster with "Jackknife" in its card name, put a soul from that monster into your drop zone. If you do, put a card from your drop zone into that card's soul. "Wuft Wulff" can only be used
+- **2381 Aeon Envoy, Soma** (Monster, 0/1 working)
+  - When this card enters the field, put up to two cards from your drop zone on the bottom of your deck in any order,. If you have three or less cards in your drop zone, put the top card of your deck into your gauge, or you gain 1 life.
+- **2382 Infinitude Envoy, Amrita** (Monster, 1/2 working)
+  - If there is a monster with soul on your field or there are no cards in your drop zone, this card gets critical+1.
+- **2384 Deity of Law** (Spell, 1/2 working)
+  - Move a «Neodragon» or «Guardians» on your field to your center, and change the target of the attack to that monster.
+- **2459 All Alive, Gordirocs Z** (Monster, 1/2 working)
+  - All «Dragonarms» monsters on your field become size 0.
+- **2462 Jackarms J Galaxion** (Monster, 1/2 working)
+  - When your impact monster with "Jackknife" in its card name and this card in its soul attacks alone, that attack cannot be nullified.
+- **2465 Dragoneraser, Hind Lance** (Monster, 0/1 working)
+  - If this card is in the soul of a monster with "Zodiac" in its card name, during your opponent's final phase, your opponent cannot use or cast a card from their hand, nor use an [Act].
+- **2468 Zenislator, "Rain the Vertex!"** (Impact, 0/1 working)
+  - When this card attacks, if there are a total of six or more monsters with "Dragon" in its attribute in your drop zone, destroy a monster on your opponent's field.
+- **2470 Dragonarms, Debrisweeper** (Monster, 1/2 working)
+  - If this card is in the soul of your «Neodragon», your opponent cannot call monsters from their drop zone.
+- **2473 Jackknife Linker** (Spell, 1/2 working)
+  - During that attack phase, if your life would become 0, it becomes 1 instead.
+- **2478 Single Star, Barrier Barret** (Item, 1/2 working)
+  - Put this card from your field into your drop zone. If you do, for this turn, nullify the [Penetrate] of all cards on the field.
+- **2573 Dragonarms, Castnetter** (Monster, 0/1 working)
+  - When this card is put into the soul of a «Neodragon» on your field, you may pay 1 gauge. If you do, choose a monster on your opponent's field, and that card does not [stand] during your opponent's next stand phase.
+- **2695 Dragoneraser, Octojammer** (Monster, 0/1 working)
+  - When this card is put into the soul of a monster with "Zodiac" in its card name, you may pay 1 gauge and discard two cards from your hand. If you do, put any number of "Dragoneraser, Hind Lance" from your deck and drop zone into that monster's soul, and shuffle your deck.
+- **2772 Aettir "SD"** (Monster, 1/2 working)
+  - When this card enters the field, put up to one card from you or your opponent's drop zone on the bottom of the deck.
+- **2773 Dragoneraser, Spare** (Monster, 0/1 working)
+  - When a card on your opponent's field is [Rest] by the effects of your cards, if this card is in the soul of a monster with "Zodiac" in its card name, draw a card.
+- **2775 Eliminator, Sugar** (Monster, 0/1 working)
+  - When a card on your opponent's field is [Rest] by an effect from your card, you may pay 1 life. If you do, destroy an item or spell on your opponent's field.
+- **2808 Radiant Crystal Dragon, Athora** (Monster, 0/1 working)
+  - If this card is on your center, this card cannot be destroyed by card effects during your opponent's turn.
+- **2888 Crush and Replenish** (Spell, 1/2 working)
+  - Destroy a monster on your opponent's field. If you do, put the number of cards from the top of your deck into your gauge equal to the size of that destroyed monster.
+- **2889 Mystery Setting** (Spell, 1/3 working)
+  - The card in the soul of a «Prism Dragon» monster cannot be put into your drop zone by your opponent's card effects.
+  - When the «Prism Dragon» with this card in its soul is attacked, put the top card of your deck into your gauge.
+- **2920 Shiny Crystal Dragon, Vermolt** (Monster, 0/1 working)
+  - When this card enters your center, destroy a monster on your opponent's field.
+- **2951 Red Crystal Dragon, Idared** (Monster, 0/1 working)
+  - During your opponent's turn, when a «Prism Dragon» on your field is destroyed , you gain 1 life.
+- **3018 Galaxy Dragoner, Jackknife** (Monster, 0/1 working)
+  - During your turn, call a monster with "Jackknife" in its card name from your drop zone on top of this card by paying its [Call Cost]. "Galaxy Wing" can only be activated
+- **3019 Hero Dragon, Jackknife** (Monster, 0/1 working)
+  - When this card enters the field, look at the top card of your deck. Then, put that card into this card's soul or your hand.
+- **3046 Radiant Dragoner, Jackknife "Sol Aster"** (Monster, 1/2 working)
+  - Souls in this card cannot be put to the drop zone, and abilities of all cards and souls on your field cannot be nullified, by your opponent's card effects.
+- **3065 Dragonarms, Bigger Brave** (Monster, 0/2 working)
+  - If the «Neodragon» with this card in its soul is attacking alone, the attack cannot be nullified.
+  - At the end of the battle that the «Neodragon» with this card in its soul attacked, put this card from the soul into your drop zone.
+- **3103 Vivid Move** (Spell, 0/1 working)
+  - Return a «Cosmo Dragoon» from your field into your hand or put it on the top of your deck.
+- **3104 Eternal Guardian Dragon, Aettir** (Monster, 0/1 working)
+  - When this card is attacked, you may return this card from your field, and one of the attacking monsters to their owners' hand.
+- **3110 Lost Dragonarms, Giant Fragment** (Monster, 1/2 working)
+  - If this card is in the soul of a «Neodragon», pay 1 gauge. If you do, for this turn, that card gets [Penetrate]. Then, if that card has four "Lost Dragonarms, Giant Fragment" in its soul, for this turn, that card gets [Quadruple Attack].
+- **3159 Colloid Armor** (Spell, 0/1 working)
+  - For this turn, a «Prism Dragon» monster on your field can attack your opponent even if there is a monster on their center.
+- **3334 Miraculous Water Envoy, Ochimizu** (Monster, 0/1 working)
+  - When you gain life, put the top card of your deck into your gauge. Then, if you have a "Gate of Pardon, -Forgiven-" on your field or three or less cards in your drop zone, draw a card.
+- **3446 Prism Guardian** (Spell, 0/1 working)
+  - For this turn, if you have a monster on your center, you will not take any damage.
+- **3648 Thunderstar, Leitning** (Monster, 0/1 working)
+  - When this card attacks, put the number of cards from the top of your deck into your gauge equal to the number of different world names of cards on your field.
+- **3747 Heavenly Crystal Dragon, Aldo Athora** (Monster, 0/2 working)
+  - This card on the field cannot be destroyed, and you cannot be dealt damage, by card effects.
+  - For this turn, this card cannot be destroyed, all cards on your opponent's field must keep attacking alone if able, and when they do, change the target of the attacks to this card and deal 1 damage to your opponent.
+- **3749 Direct Dynamic Diamond Overhead!!** (Impact, 1/2 working)
+  - Deal damage to your opponent equal to 2 plus the number of times your opponent's cards attacked during this turn. This card cannot be nullified, and its damage cannot be reduced. Your opponent's life cannot be saved by your opponent's cards.
+- **3787 CHAOS Kalvados** (Monster, 0/1 working)
+  - When a monster on your center is attacked, for this turn, nullify the [Penetrate] of the attacking card.
+- **3831 Arc Crystal Dragon, Denki Bran** (Monster, 1/2 working)
+  - If you have monsters on your center, this card's size on the field is reduced by 1.
+- **3839 Aldo Ground** (Spell, 2/3 working)
+  - When your opponent is dealt damage during their turn, put the top card of your deck into your gauge, and draw a card.
+- **3841 Mirrors Valley** (Spell, 0/2 working)
+  - All «Prism Dragon» monsters on your field cannot be destroyed, returned to hand, or put to other areas, by your opponent's card effects.
+  - When your opponent's cards attack, change the target of the attacks to a «Prism Dragon» on your center.
+- **3857 Prismatic Bless** (Spell, 1/2 working)
+  - Look at cards from the top of your deck equal to the number of times your opponent's cards attacked during this turn, and put a card from among them into your gauge, put up to two into your hand, put the rest on the bottom of your deck in any order, and you gain 1 life. You may only cast "Prismatic Bless"
+- **3902 Shining Dragoner, Jackknife** (Monster, 1/2 working)
+  - Nullify the card your opponent used.
+- **3913 Prism Pillar** (Spell, 1/2 working)
+  - Nullify the attack. Then, if a card on your opponent's field was [Stand] by card effects during this turn, put the top card of your deck into your gauge, and you gain 1 life.
+- **3996 Star Dragoner, Dimenzion E** (Monster, 1/2 working)
+  - When a soul goes into your «Neodragon», draw a card.
+- **3997 Jackarms, J. Arsenal** (Monster, 1/2 working)
+  - When the attack of a monster with "Jackknife" in its card name and with this card in its soul is nullified, for this turn, that card gets [Double Attack].
+- **4037 Star Ocean Envoy, K22: Vonnegut** (Monster, 0/1 working)
+  - During your attack phase, choose a «Cosmo Dragoon» or «Guardians» on your field other than this card, and you may put this card from the field on the top or the bottom of your deck. If you do, [Stand] the chosen card, and you gain 1 life.
+- **4154 Jackknife "Genesic Batterizer!"** (Impact, 1/2 working)
+  - The gauge cost of this card's [Call Cost] is reduced by 3 if you used [Overturn] during this game.
+- **4156 Ardent Heavenly Crystal Dragon, Athora Alexand** (Monster, 1/2 working)
+  - This card on the field cannot be destroyed, and you cannot be dealt damage, by card effects.
+- **4236 Jewelry Chest** (Spell, 1/2 working)
+  - Return all size 1 or less monsters on the field to their owners' hand.
+- **4324 Tri-Star Decision** (Impact, 1/2 working)
+  - Deal 5 Damage to your oppenent.
+- **4377 Guardseer Dragon, Gules Bend** (Monster, 1/2 working)
+  - When this card is attacked, if you have an «Astrodragon» item equipped, for this turn, nullify the [Penetrate] of the attacking cards.
+- **4677 Lostknight: Nero Lance** (Monster, 1/2 working)
+  - At the end of your turn, if this card is on an oppressed area, deal 2 damage to your opponent.
+- **4697 Knight: Argento Lance** (Monster, 1/2 working)
+  - At the end of your turn, if this card is on an oppressed area, put the top card of your deck into your gauge, you gain 1 life, and draw a card.
+- **4699 Bishop: Giallo Mace** (Monster, 1/2 working)
+  - If you have an oppressed area on your field, all monsters on your field get power+3000 and defense+3000.
+- **4702 Grandmaster Cane** (Item, 0/1 working)
+  - Choose a «Drametal» monster on your field, and you may [Rest] this card. If you do, [Stand] the chosen card. Then, if the card [Stand] is on an oppressed area, deal 1 damage to your opponent.
+- **4764 Mauve Heavenly Crystal Dragon, Athora Tanzanite** (Monster, 2/3 working)
+  - This card's [Call Cost] is reduced by 4 gauge if you have used [Overturn] during this fight.
+- **4784 Gate of Absolution - Sanctuary -** (Spell, 2/3 working)
+  - Put up to three «Guardians» from your drop zone on the bottom of the deck in any order. If you put one or more, and your drop zone has three or less cards, draw two cards.
+- **4861 Suppression Advantage** (Spell, 1/2 working)
+  - Put the top three cards of your deck into your gauge. Then, if you have an oppressed area, destroy a spell or item on your opponent's field.
+- **4867 Skyseer Bow, Kaus Alnasl** (Item, 2/3 working)
+  - his card can attack even if you have an «Astrodragon» on your center.
+- **4868 Victory Equation** (Spell, 0/1 working)
+  - [Stand] all «Astrodragon» on your field. on your field. If you [Stand] three or more, draw a card.
+- **4870 Skyseer Ardent Dragon, Cross Farnese Astrologia** (Monster, 3/4 working)
+  - If this card is on your center, all of the following abilities activate.
+- **4889 Tesla-line Field** (Spell, 0/1 working)
+  - For this turn, all critical of «Astrodragon» on your field cannot be reduced by your opponent's card effects, and when an «Astrodragon» on your field attacks, you gain 1 life.
+- **4911 Govern Star Dragon, Dexter Albus** (Monster, 1/2 working)
+  - Put this card on the field to an open area on your field. If you do, you gain 2 life.
+- **4965 Knowledge Wave** (Spell, 1/2 working)
+  - Look at the top three cards of your deck, put one from among them into your hand, and put the rest into your gauge. Then, if you have an oppressed area, you gain 2 life.
+- **5004 Declaration Check** (Spell, 1/2 working)
+  - Nullify the attack. Then, if you have an oppressed area, put the top card of your deck into your gauge, and draw a card.
+- **5043 Rook: Viola Sword** (Monster, 1/2 working)
+  - At the end of your turn, if this card is on an oppressed area, destroy a card on your opponent's field. If you do, deal 1 damage to your opponent.
+- **5132 Skyseer Ardent Dragon, Cross Irisnese Astrologia** (Monster, 3/4 working)
+  - If this card is on your center, all of the following abilities activate.
+- **5167 Menthreit Shine** (Spell, 2/3 working)
+  - Souls in the «Prism Dragon» with this card in its soul cannot be dropped by your opponent's card effects.
+- **5368 Formation Clear** (Spell, 1/2 working)
+  - At the start of each player's attack phase, put all «Astrodragon» monsters from your field to separate areas on your field.
+- **5412 Twinseer Dragon, Vee Starunner** (Monster, 1/2 working)
+  - When this card on the right attacks, if an «Astrodragon» is on your center, for this turn, this card gets [Triple Attack].
+- **5605 Hyper Rainbow Vision, Shadowscare** (Monster, 1/2 working)
+  - When a soul is put into your «Neodragon», look at the top three cards of your deck, put one from among them into your gauge, one from among them into your hand. Then, drop the rest or put it into the soul of a monster on your field.
+- **5683 Jackarms, J. Penero Theus** (Monster, 1/2 working)
+  - Choose a card on your opponent's field, and you may drop this card from the soul of a «Neodragon» on your field. If you do, [Rest] the chosen card.
+- **5954 Time Scout, Gari** (Monster, 1/2 working)
+  - When an originally size 3 «Time Dragon» would leave your field, you may put this card from the field to the drop zone. If you do, that card remains on the field.
+- **6050 Time General, Condrol** (Monster, 1/2 working)
+  - When your flag [Reversal], return up to one card from your opponent's field to hand. If you do, you gain 2 life.
+- **6053 Time General, Muller** (Monster, 1/2 working)
+  - When a card on your opponent's field is returned to hand or deck by your card effects, drop 1 of your opponent's gauge, and deal 2 damage to your opponent. Then, if your flag [Reversal] two times or more during this fight, your opponent chooses and puts a hand card on the bottom of their deck.
+- **6058 Deity of Knowledge and Hope, Godcross Astrologia** (Monster, 3/4 working)
+  - If this card is on your center, all of the following abilities activate.
+- **6063 Time General, Radra Pando** (Monster, 1/2 working)
+  - When your flag [Reversal], destroy up to one card on your opponent's field. If you do, deal 2 damage to your opponent.
+- **6154 Zug Zwang** (Spell, 1/2 working)
+  - Choose and use one of the following two.
+- **6155 Kronos Syn Endday** (Spell, 1/2 working)
+  - Nullify the attack. Then, if your flag [Reversal] four times or more during this fight, for this turn, nullify all abilities of all attacking cards and put them on the bottom of your opponent's deck. If one or more cards were put, draw a card.
+- **6156 Formation Selector** (Spell, 0/1 working)
+  - Choose a monster with "Cross" in its card name on your center, and for this turn, that card gets a [Galaxy F] or [Galaxy F.DG] in this card's soul.
+- **6157 -ES-** (Spell, 0/1 working)
+  - Choose up to one card on your field for each time your flags [Reversal] during this fight, and for this turn, the chosen cards cannot be destroyed or [Rest] by your opponent's card effects, and their abilities cannot be nullified and their souls cannot be dropped by your opponent's card effects. If two or more cards were chosen, draw a card.
+- **6342 Space Bridge** (Spell, 0/2 working)
+  - All cards revealed by your card effects get «Cosmo Dragoon».
+  - Choose up to one card on your opponent's field, and put a «Cosmo Dragoon» from your drop zone on the top or bottom of your deck. If you do, for this turn, the chosen card get power-5000, defense-5000 and critical-2.
+- **6402 Fantastic Final Counter Shoot!!** (Impact, 1/2 working)
+  - After this turn, you get another turn. During your next turn, you do not proceed to main phase.
+- **6410 Dragonarms Pit** (Spell, 1/2 working)
+  - All «Neodragon» on your field cannot be destroyed and their souls cannot be dropped by your opponent's card effects.
+- **6448 Over Thousands of Boards** (Spell, 1/2 working)
+  - During your turn, if a monster with "Oppress" is on your field, and your opponent has no monsters on their center, choose a monster on your opponent's left or right, and move that monster to your opponent's center.
+- **6449 Archbishop: Giallo Mace** (Monster, 1/3 working)
+  - If you have an oppressed area, this card's size on the field is reduced by 1.
+  - All monsters on your oppressed areas get power+3000, defense+3000, critical+1 and [Penetrate].
+- **6450 Proclaim: Tactics Divination** (Spell, 0/1 working)
+  - Choose and use one of the following two.
+- **6529 Eternal Envoy, Aettir "Re:B"** (Monster, 1/2 working)
+  - If five cards or less are in your drop zone, return up to two «Guardians» monsters from your field to hand. Then, call up to two «Guardians» monsters with different card names from your hand without paying their [Call Cost].
+- **6532 Quintessence Crystal Dragon, Athora "Re:B"** (Monster, 1/2 working)
+  - If this card is on your center or in the soul of a «Prism Dragon», all cards on your field cannot be destroyed by your opponent's card effects, they get power+5000, defense+5000 and you cannot take damage by your opponent's card effects.
+- **6564 Retainer of the Demonic Dragon, Destructor "Re:B"** (Monster, 0/1 working)
+  - When this card enters the field, of your flag is "Dragon Zwei" or "Dragon Drei", you may pay 1 life. If you do, put the top two cards of your deck into your gauge, and draw a card.
+
+## Star Dragon World / Darkness Dragon World — 3 cards, 4 missing
+
+- **3480 Dark Black Crystal Dragon, Athora** (Monster, 0/2 working)
+  - If this card is on the center, you cannot be dealt damage by effects.
+  - When this card is destroyed, deal 1 damage to your opponent, your opponent chooses a card from their hand, and discards it.
+- **3508 Darkness Dragoner, Jackknife** (Monster, 0/1 working)
+  - When this card deals damage to your opponent, put the top three cards of your deck into the drop zone. Then, put a card from among them into this card's soul or your hand.
+- **6345 For the Future** (Spell, 0/1 working)
+  - Put the top two cards of your deck into your gauge. Then, look at all of your gauge, reveal up to one monster from among them, and put it into your hand. If a monster with "Jackknife" or "Abygale" in its card name is on your field, look at all of your gauge, reveal up to one card from among them instead, and put it into your hand.
+
+## Star Dragon World / Dungeon World — 1 cards, 1 missing
+
+- **2588 Neo Braver, Ars Grande** (Monster, 0/1 working)
+  - When this card enters the field, reveal the top card of your deck. If the card revealed is a monster, you may call that card by paying for its [call cost]. If you do not, or if the revealed card is not a monster, put the revealed card on the top or the bottom of your deck.
+
+## Star Dragon World / Hero World — 1 cards, 2 missing
+
+- **6398 Buddy Police Agent Twin Star Gun, "Star & Brave"** (Item, 1/3 working)
+  - If a monster with "Buddy Police Agent" in its card name is on your field, your flag is treated as "Hero World" and "Star Dragon World".
+  - This card can attack even if monsters are on your center.
+
+## Sword Art Online — 15 cards, 16 missing
+
+- **6068 Prejudice Against Testers, Kibaou** (Monster, 0/1 working)
+  - When this card is put on the field, you can say "Why.". If you say it, you gain 2 life. If you do not, you take 2 damage.
+- **6079 The End Of The World** (Spell, 1/2 working)
+  - nullify all abilities of all cards on your opponent's field, drop all of their souls and put them into the drop zone. Then, return all cards from each player's drop zone to their decks, shuffle them, and each player's life becomes 10.
+- **6080 Moonlit Black Cats, Ducker** (Monster, 2/3 working)
+  - When this card link attacks with another «Moonlit Black Cats», drop up to one soul from a card on your opponent's field, and your opponent chooses a hand card and drops it.
+- **6083 DUEL** (Spell, 1/2 working)
+  - play "Rock-Paper-Scissors" with your opponent. The fighter who wins draws two cards. Deal 3 damage to the fighter who does not win.
+- **6085 After Happening, Silica** (Monster, 1/2 working)
+  - When this card is put on the field, put up to one [Pina] from your deck or drop zone into your hand. If you searched your deck, shuffle your deck.
+- **6088 Black Cats' Celebrating Drink** (Spell, 2/3 working)
+  - Your «Moonlit Black Cats» items can attack even if you have characters in the center.
+- **6095 Knights of the Blood, Kirito** (Monster, 1/2 working)
+  - When this card enters the field by card effects, for this turn, this card gets critical+1, and your opponent cannot [Counter] if it is attacking alone.
+- **6098 Starburst Stream** (Impact, 1/2 working)
+  - Deal 1 damage to your opponent 16 times. This card cannot be nullified, and its damage cannot be reduced.
+- **6105 Girl of Morning Dew, Yui** (Monster, 1/2 working)
+  - When you are being attacked, you may put this card from your drop zone on the bottom of your deck, and pay 1 gauge. If you do, nullify the attack, and you gain 2 life.
+- **6107 SAO's Developer, Akihiko Kayaba** (Monster, 1/2 working)
+  - If this card is in the soul of a [Heathcliff], that card cannot be destroyed or returned to hand and its souls cannot be dropped by your opponent's card effects.
+- **6110 I'll Let you Know, I'm a Solo Player.** (Spell, 1/2 working)
+  - Choose an item on your field, and for this turn, its power becomes infinite. Then, for this turn, its critical cannot be reduced by your opponent's card effects and its damage cannot be reduced if it is attacking alone.
+- **6112 Huge Floating Castle, Aincrad** (Spell, 2/3 working)
+  - When your cards destroy your opponent's characters, you may drop a soul from this card.
+- **6114 Welcome to "My World".** (Spell, 0/1 working)
+  - Call an «Avatar» character from your hand or drop zone by paying its [Call Cost]. You may only cast "Welcome to "My World"."
+- **6120 Star Splash** (Impact, 1/2 working)
+  - Deal 1 damage to your opponent eight times.
+- **6125 NerveGear** (Item, 1/3 working)
+  - Put up to one «Avatar» character from your hand on top of this card. The card put on top is treated as an item until it leaves the field.
+  - If this card is in the soul of an item, it cannot be dropped by cards.
+
+## THE IDOLM@STER Cinderella Girls Theater — 27 cards, 31 missing
+
+- **5445 Try New Things** (Spell, 0/1 working)
+  - Put the top card of your deck into your gauge, you gain 1 life, and draw a card. Then, put this card face down into your buddy zone.
+- **5446 Flower Fairies Mage, Floral Yumi** (Spell, 0/1 working)
+  - Look at the top three cards of your deck, put a card from among them into your hand, and put the rest into your gauge. Then, put this card face down into your buddy zone.
+- **5461 Chill Type Idol, Anzu Futaba** (Monster, 1/3 working)
+  - If [Kirari Moroboshi] is not on your field, this card cannot attack.
+  - When this card [Rest], deal 1 damage to your opponent, and your opponent chooses and drops a hand card.
+- **5465 Idol Calm As an Adult, Miyu Mifune** (Monster, 0/1 working)
+  - Choose a card on your opponent's field, and you may drop a hand card. If you do, [Rest] the chosen card. Then, if two or more face down cards are in your buddy zone, for this turn, the chosen card cannot [Stand].
+- **5468 Donuts Idol, Noriko Shiina** (Monster, 1/2 working)
+  - During the battle that your [Yuka Nakano] is attacking a character on the center, your opponent cannot use [Counter].
+- **5470 Biker Idol, Takumi Mukai** (Monster, 2/3 working)
+  - If only one character is on your field, this card gets power+8000 and critical+3.
+- **5471 Idol Who Really Loves Books, Fumika Sagisawa** (Monster, 1/2 working)
+  - When a character or item on your opponent's field is [Rest] by your card effects, deal 1 damage to your opponent.
+- **5474 Idol With Glasses, Haruna Kamijo** (Monster, 2/3 working)
+  - All characters on the field get «Glasses».
+- **5481 Charisma Junior-High Girl Idol, Rika Jougasaki** (Monster, 1/2 working)
+  - Choose a «Passion» on your field, and you may pay 1 gauge. If you do. [Stand] the chosen card.
+- **5483 Gifted Idol, Shiki Ichinose** (Monster, 1/2 working)
+  - If a face down card is in your buddy zone, nullify [Soulguard] of all cards on your opponent's field.
+- **5507 One-track Mind Idol, Mayu Sakuma** (Monster, 1/2 working)
+  - If three or more face down cards are in your buddy zone, this card gets power+5000, defense+5000, critical+1 and [Triple Attack].
+- **5508 (Still Hasn't Changed)** (Spell, 1/2 working)
+  - Put up to one character from your drop zone into your hand, and for this turn, all buddy's power on your field becomes infinite. Then, return all cards from your drop zone to your deck, and shuffle your deck.
+- **5612 Negative Idol, Nono Morikubo** (Monster, 1/2 working)
+  - If a [Syoko Hoshi] is on your field, all «Idol» on your field can attack your opponent even if they have characters on the center.
+- **5616 Psychic Idol, Yuko Hori** (Monster, 0/2 working)
+  - The size of all originally size 2 «Passion» on your field is reduced by 1.
+  - Choose two characters on your opponent's field, and you may drop a hand card. If you do, swap the chosen cards.
+- **5625 Idol Who Admires Smiles, Hiromi Seki** (Monster, 1/2 working)
+  - When your opponent's character is destroyed, draw a card.
+- **5628 Anti-Aging Idol, Mizuki Kawashima** (Monster, 1/2 working)
+  - If a face down card is in your buddy zone, the size of all originally size 2 «Cool» on your field is reduced by 1.
+- **5634 Floral Idol, Yumi Aiba** (Monster, 1/2 working)
+  - When an «Idol» on your field deals damage to your opponent, you gain 1 life.
+- **5640 My Pace Idol, Airi Totoki** (Monster, 1/2 working)
+  - You may drop a soul from this card. If your do, [Stand] this card.
+- **5643 Flower-Viewing in the Off Season** (Spell, 0/1 working)
+  - Draw two cards. Then, if two or more face down cards are in your buddy zone, draw a card.
+- **5646 Rock'n Roll Idol, Riina Tada** (Monster, 2/3 working)
+  - If this card is attacking alone, and a [Natsuki Kimura] is on your field, this attack cannot be nullified, and damage dealt by this card cannot be reduced.
+- **5649 Spirit Sense Idol, Koume Shirasaka** (Monster, 0/2 working)
+  - Put the top card of your deck face down on the field as a "«That Girl»/size 0/10000 power/1000 defense/3 critical" character.
+  - «That Girl» on your field can attack your opponent even if they have characters on the center.
+- **5652 Friendly Twin Idol, Hayate Hisakawa** (Monster, 1/2 working)
+  - When [Nagi Hisakawa] on your field deals damage to your opponent, deal damage to your opponent equal to this character's critical.
+- **5653 Friendly Twin Idol, Nagi Hisakawa** (Monster, 1/2 working)
+  - When [Hayate Hisakawa] on your field stands, stand this card.
+- **5655 Returnee Lady Idol, Chitose Kurosaki** (Monster, 0/1 working)
+  - When this card attacks, deal one damage to your opponent, and you gain 1 life. After that, if there is [Chiyo Shirayuki] on your field, drop one of your opponent's gauge, and put the top card of your deck onto the gauge.
+- **5656 Catching Little Happiness Idol, Hotaru Shiragiku** (Monster, 0/1 working)
+  - When your opponent draws cards from their card effects, if there are three or more different «Idol» on your field, your opponent choose and drop a hand card.
+- **5657 Fortune Idol, Kako Takafuji** (Monster, 1/2 working)
+  - When you draw cards from your effects, draw a card.
+- **5658 Dreaming Delusion Idol, Hinako Kita** (Monster, 0/2 working)
+  - During any player's attack phase, you may drop a hand card. If you do, put the top four cards of your deck to the gauge.
+  - When this card attacks, choose one character on your opponent's field, that card cannot stand on your opponent's next stand phase.
+

@@ -5,10 +5,21 @@ Grouped by mechanism: each group is built by one handler. One line per ability: 
 "You choose" = the owner picks (the bot picks for itself). **JC** = judgment call (the text leaves it open).
 Not tested yet (by request); debug later.
 
-**Progress:** 224 → 179 missing. Built in `abilities_r24.js`: the new trigger events for groups A ([Move]), B (returned
-to hand), C (opponent's monster destroyed), D (attacks alone / link / "this card or a «Weapon»"), E ([Rest] / [Stand] by
-effects), F (damage other than by attacks), and "If <event>, <effect>" lines re-read as triggers. Still to build: the
-effect wordings in groups D–K.
+**Progress:** 224 → 108 missing.
+- `abilities_r26.js`: rewrites (once per main/final phase, drop two souls, equip "Fist" from the drop zone, [Stand]
+  chosen card and this card, "if this is the attack phase", "no other monsters", Rock-Paper-Scissors wording, "When you
+  use a …"), "… five times", "N+ world names of «X»", "you lose at the end of your next turn", size 0 for every card a
+  call put on the field, Round 20 protections on [Set] spells and with "During your turn,".
+- `abilities_r24.js`: new trigger events for groups A ([Move]), B (returned to hand), C (opponent's monster destroyed),
+  D (attacks alone / link / "this card or a «Weapon»"), E ([Rest] / [Stand] by effects), F (damage other than by
+  attacks); "If <event>, <effect>" lines re-read as triggers.
+- `abilities_r25.js`: effect wordings (rewrites + rules for damage/gauge equal to a card's stat or the number
+  destroyed, shields, both players charge, draw from the bottom, discard-and-draw, world-name counts, "opponent cannot
+  draw by card effects", [G EVO] / weekday conditions) and the no-effect / deck-rule lines of group K.
+- `abilities_r9.js`: "would be destroyed / would leave" saves (#1702, #3910, #3987, …) were being overwritten by
+  Round 22's trigger guesser; they're listed as supported triggers again.
+Still to build: the rest of groups D–J (must-attack-this-card, Rock-Paper-Scissors, world-name aliasing, size-0 calls,
+"change the target", [Overturn] [Stand], …).
 
 ## A. "When … [Move]" triggers (new event: a monster changes area by [Move])
 
