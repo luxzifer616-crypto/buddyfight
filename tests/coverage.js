@@ -16,8 +16,12 @@ const res = JSON.parse(env.run(`(function(){
     const p = ABX.get(c); if (!p) return;
     const abs = p.abilities.filter(a => !SKIP.has(a.kind));
     if (!abs.length) return;
+    // abilities_r22.js turns every unread ability into a keyword-guessing step that always reports success
+    // (r22exec / r22static); those are not built, so they don't count
+    const FB = (s) => s && (s.op === "r22exec" || (s.op === "static" && s.kind === "r22static"));
+    const fallback = (a) => (a.steps || []).some(FB) || (a.options || []).some(o => (o.steps || []).some(FB));
     // rule lines ("You may only cast this card if ...") are checked by game.js when they aren't run by ABX
-    const isOK = (a) => ABX.isExecutable(a) || (a.kind === "rule" && (!a.unparsed || !a.unparsed.length) && a.parsed !== false) || (ABX.ownsStaticLine && ABX.ownsStaticLine(c, a.raw || ""));
+    const isOK = (a) => !fallback(a) && (ABX.isExecutable(a) || (a.kind === "rule" && (!a.unparsed || !a.unparsed.length) && a.parsed !== false) || (ABX.ownsStaticLine && ABX.ownsStaticLine(c, a.raw || "")));
     const bad = abs.filter(a => !isOK(a));
     const unread = [];
     bad.forEach(a => { (a.unparsed && a.unparsed.length ? a.unparsed : [a.cleaned || a.raw || ""]).forEach(u => unread.push(String(u && (u.text || u.raw) || u))); });

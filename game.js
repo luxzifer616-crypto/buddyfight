@@ -1308,6 +1308,26 @@ function abxOwnsOptionalLines(card) {
   return lines.length > 0 && lines.every(l => ABX.ownsTriggerLine(card, l) || (ABX.ownsStaticLine && ABX.ownsStaticLine(card, l)));
 }
 
+// Can this monster use [Move] now? It needs [Move] (printed, for this turn, or from an ability), and no card may forbid it
+// ("All monsters on your opponent's field cannot [Move]", read by abilities_r21.js as the static "oppNoMove").
+function canUseMove(side, unit) {
+  if (!unit || !unit.card) return false;
+  const f = battle.getFighter(side);
+  const has = unit.card.move || unit.tempMove || !!(window.ABX && ABX.staticBonus && ABX.staticBonus(f, unit).move);
+  if (!has) return false;
+  if (!(window.ABX && ABX.core && ABX.core.evalCond)) return true;
+  const core = ABX.core;
+  return !["plr", "opp"].some(srcSide => {
+    const sf = battle.getFighter(srcSide);
+    return getAllFieldUnits(sf).some(u => {
+      if (!u || !u.card || u.abxNullified === battle.turnCount) return false;
+      return (ABX.get(u.card).abilities || []).some(ab => ab.kind === "static" && !(ab.unparsed && ab.unparsed.length) &&
+        (ab.steps || []).some(st => st.op === "static" && st.kind === "oppNoMove" && (st.bothSides || srcSide !== side)) &&
+        (ab.conds || []).every(c => core.evalCond(c, { side: srcSide, f: sf, e: battle.getFighter(srcSide === "plr" ? "opp" : "plr"), card: u.card, unit: u, bind: { chosen: [] } })));
+    });
+  });
+}
+
 /* ==================== UNIVERSAL DECK SEARCH & TOP-DECK LOOK PARSER ==================== */
 function parseDeckSearchCriteria(card) {
   if (!card || !card.skill) return null;
@@ -4952,6 +4972,9 @@ const battle = {
     } else if (typeof msg.chosenHandIdx === "object" && typeof msg.chosenHandIdx.fieldKey === "string") {
       // the friend used a field [Counter] [Act]: re-checked here against the real board (ABX.useFieldCounter)
       this.applyFieldCounterAbility("opp", msg.chosenHandIdx.fieldKey, ctx.attSide, ctx.attackerZones, ctx.targetPos);
+    } else if (typeof msg.chosenHandIdx === "object" && ["left", "right"].includes(msg.chosenHandIdx.moveFrom)) {
+      // the friend blocked with [Move]: re-checked against the real board in applyMoveBlock
+      this.applyMoveBlock("opp", msg.chosenHandIdx.moveFrom, ctx.attSide, ctx.attackerZones, ctx.targetPos);
     } else {
       this.applyDefensiveCounterCard("opp", msg.chosenHandIdx, ctx.attSide, ctx.attackerZones, ctx.targetPos);
     }
@@ -5537,8 +5560,7 @@ const battle = {
         actionsEl.appendChild(bBoard);
       }
 
-      const abxMove = !!(window.ABX && ABX.staticBonus && ABX.staticBonus(this.getFighter(side), unit).move);
-      if ((card.move || unit.tempMove || abxMove) && zonePos !== "item") {
+      if (canUseMove(side, unit) && zonePos !== "item") {
         const openZones = ["left", "center", "right"].filter(p => !f.monsters[p]);
         if (openZones.length > 0) {
           const bMove = document.createElement("button");
@@ -7064,6 +7086,15 @@ const battle = {
       });
     }
 
+    // [Move]: when you are attacked directly and your center is open, a monster with [Move] on your left or right can
+    // move into the center and take the attack instead of you (like a [Counter] spell)
+    if (targetPos === "fighter" && !defFighter.monsters.center) {
+      ["left", "right"].forEach(pos => {
+        const u = defFighter.monsters[pos];
+        if (u && canUseMove(defSide, u)) valid.push({ card: u.card, handIdx: null, moveFrom: pos, info: { category: "move_block" } });
+      });
+    }
+
     return valid;
   },
 
@@ -7071,6 +7102,17 @@ const battle = {
   buildDefenseOptionTile(opt, fighter) {
     const div = document.createElement("div");
     div.className = "def-option-card";
+    if (opt.moveFrom) {
+      div.style.borderColor = "#34d399";
+      div.title = `[Move] "${opt.card.name}" from your ${opt.moveFrom} to your center — it is attacked instead of you`;
+      div.onclick = () => this.resolveDefenseChoice({ moveFrom: opt.moveFrom });
+      div.innerHTML = `
+        <img src="${opt.card.img}" alt="${escapeHtml(opt.card.name)}" />
+        <div class="def-option-title">${escapeHtml(opt.card.name)}</div>
+        <div class="tile-sub">💨 [Move] ${opt.moveFrom.toUpperCase()} → CENTER: block the attack</div>
+      `;
+      return div;
+    }
     if (opt.fieldKey) {
       div.style.borderColor = "#38bdf8";
       div.title = opt.fieldSub || "";
@@ -7090,6 +7132,24 @@ const battle = {
       <div class="tile-sub">${cost.gauge ? cost.gauge + " Gauge" : "0 Gauge"}</div>
     `;
     return div;
+  },
+
+  // [Move] picked in the defense window: the monster moves into the open center and the attack hits it instead.
+  applyMoveBlock(defSide, fromPos, attSide, attackerZones, targetPos) {
+    const f = this.getFighter(defSide);
+    const unit = f.monsters[fromPos];
+    if (targetPos !== "fighter" || f.monsters.center || !canUseMove(defSide, unit)) {
+      this.executeAttackResolution(attSide, attackerZones, targetPos, false);
+      return;
+    }
+    f.monsters[fromPos] = null;
+    f.monsters.center = unit;
+    this.setPrompt(`💨 [Move] "${unit.card.name}" moved from ${fromPos.toUpperCase()} to CENTER and blocks the attack!`);
+    this.renderBattle();
+    this.animateCardFlight(`z-${defSide}-${fromPos}`, `z-${defSide}-center`, unit.card.img, "💨 [MOVE] BLOCK!", 0, () => {
+      if (this.matchOver) return;
+      this.executeAttackResolution(attSide, attackerZones, "center", false);
+    });
   },
 
   // Use a field [Counter] [Act] picked in the defense window, then resolve the attack.
@@ -7229,6 +7289,16 @@ const battle = {
         const pick = ABX.botFieldCounterPick(defSide, { attUnits: units, targetPos }, fieldOpts.map(o => ({ key: o.fieldKey, nullifies: o.info.nullifies })));
         if (pick) { this.applyFieldCounterAbility(defSide, pick.key, attSide, attackerZones, targetPos); return; }
       }
+      // [Move] block: when it survives the attack, or when the bot's life is low
+      const moveOpt = targetPos === "fighter" && defOptions.find(o => o.moveFrom);
+      if (moveOpt) {
+        const blocker = defFighter.monsters[moveOpt.moveFrom];
+        const atkPow = units.reduce((sum, u) => sum + getUnitEffectiveCombatStats(attFighter, u).power, 0);
+        if (defFighter.life <= 6 || getUnitEffectiveCombatStats(defFighter, blocker).defense > atkPow) {
+          this.applyMoveBlock(defSide, moveOpt.moveFrom, attSide, attackerZones, targetPos);
+          return;
+        }
+      }
       if (targetPos === "fighter" && defFighter.life <= 6) {
         // When fighter is attacked directly, bot can only use nullify_attack or damage_reduce spells!
         const fighterDefOpt = defOptions.find(o => !o.fieldKey && o.info && (o.info.category === "nullify_attack" || o.info.category === "damage_reduce"));
@@ -7280,6 +7350,8 @@ const battle = {
       this.executeAttackResolution(ctx.attSide, ctx.attackerZones, ctx.targetPos, false);
     } else if (typeof chosenHandIdx === "object" && chosenHandIdx.fieldKey) {
       this.applyFieldCounterAbility(ctx.defSide, chosenHandIdx.fieldKey, ctx.attSide, ctx.attackerZones, ctx.targetPos);
+    } else if (typeof chosenHandIdx === "object" && chosenHandIdx.moveFrom) {
+      this.applyMoveBlock(ctx.defSide, chosenHandIdx.moveFrom, ctx.attSide, ctx.attackerZones, ctx.targetPos);
     } else {
       this.applyDefensiveCounterCard(ctx.defSide, chosenHandIdx, ctx.attSide, ctx.attackerZones, ctx.targetPos);
     }
