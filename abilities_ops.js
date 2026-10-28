@@ -29,6 +29,7 @@
       return r && r.card ? (r.card.size || 0) : 0;
     }
     if (n.fromSelf) return ctx.card ? (ctx.card[n.fromSelf === "critical" ? "crit" : n.fromSelf] || 0) : 0;
+    if (n.fromItem) { const it = ctx.f.item; return it && it.card ? (it.card[n.fromItem === "critical" ? "crit" : n.fromItem] || 0) + (n.fromItem === "critical" ? (it.tempCrit || 0) : 0) : 0; }
     if (n.refStat) {   // "equal to that card's critical / power / size"
       const r = [].concat(ctx.bind.lastMoved || [], ctx.bind.chosen || [], ctx.bind.revealed || []).filter(x => x && x.card).shift() || (ctx.event && ctx.event.card ? { card: ctx.event.card } : null);
       return r && r.card ? (r.card[n.refStat === "critical" ? "crit" : n.refStat] || 0) : 0;
@@ -49,7 +50,7 @@
       afterChange();
       return got > 0;
     },
-    check: (s) => typeof s.n === "number" || (s.n && (s.n.each || s.n.fromRef || s.n.lastCount || s.n.refStat)),
+    check: (s) => typeof s.n === "number" || (s.n && (s.n.each || s.n.fromRef || s.n.lastCount || s.n.refStat || s.n.fromItem)),
     canDo: (s, ctx) => F(sideOf(ctx, s.who)).deck.length > 0
   };
   OPS.drawUntil = {
@@ -69,7 +70,7 @@
       afterChange();
       return dealt > 0 || n === 0;
     },
-    check: (s) => typeof s.n === "number" || (s.n && (s.n.each || s.n.fromRef || s.n.fromSelf || s.n.lastCount || s.n.refStat))
+    check: (s) => typeof s.n === "number" || (s.n && (s.n.each || s.n.fromRef || s.n.fromSelf || s.n.lastCount || s.n.refStat || s.n.fromItem))
   };
   OPS.shield = {
     run(s, ctx) {

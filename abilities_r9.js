@@ -131,12 +131,12 @@
   // --- items / transform / ride ---
   cr(/^you are equipped with (?:an? )?item$/i, () => ({ t: "itemEquipped", any: true }));
   cr(/^you are equipped with (?:an? )?(.+)$/i, (m) => { const np = ABX.parseNP(m[1]); return np && !np.junk ? { t: "itemEquipped", np } : null; });
-  cr(/^your equipped («[^»]+»|"[^"]+"|item) is \[?(stand|rest)\]?$/i, (m) => ({ t: "xItemState", np: /^item$/i.test(m[1]) ? null : ABX.parseNP(m[1]), rested: /rest/i.test(m[2]) }));
+  cr(/^your equipped («[^»]+»|"[^"]+"|item) is \[?(stand|rest)\]?$/i, (m) => ({ t: "xItemState", np: /^item$/i.test(m[1]) ? undefined : ABX.parseNP(m[1]), rested: /rest/i.test(m[2]) }));
   cr(/^you are \[transform\] into this card$|^you are \[transform\]ed into this card$/i, () => ({ t: "xSelfItemMode", mode: "tr" }));
   cr(/^you are \[ride\] on this card$/i, () => ({ t: "xSelfItemMode", mode: "ride" }));
-  cr(/^you are \[transform\](?: into (?:a |an )?(.+))?$/i, (m) => ({ t: "xItemMode", mode: "tr", np: m[1] && !/^card$/i.test(m[1]) ? ABX.parseNP(m[1]) : null }));
-  cr(/^you are \[ride\](?: on (?:a |an )?(.+))?$/i, (m) => ({ t: "xItemMode", mode: "ride", np: m[1] && !/^card$/i.test(m[1]) ? ABX.parseNP(m[1]) : null }));
-  cr(/^you are \[station\](?: at (?:a |an )?(.+))?$/i, (m) => ({ t: "xItemMode", mode: "st", np: m[1] && !/^card$/i.test(m[1]) ? ABX.parseNP(m[1]) : null }));
+  cr(/^you are \[transform\](?: into (?:a |an )?(.+))?$/i, (m) => ({ t: "xItemMode", mode: "tr", np: m[1] && !/^card$/i.test(m[1]) ? ABX.parseNP(m[1]) : undefined }));
+  cr(/^you are \[ride\](?: on (?:a |an )?(.+))?$/i, (m) => ({ t: "xItemMode", mode: "ride", np: m[1] && !/^card$/i.test(m[1]) ? ABX.parseNP(m[1]) : undefined }));
+  cr(/^you are \[station\](?: at (?:a |an )?(.+))?$/i, (m) => ({ t: "xItemMode", mode: "st", np: m[1] && !/^card$/i.test(m[1]) ? ABX.parseNP(m[1]) : undefined }));
   cr(/^you are \[ride\] or \[station\](?: (?:at|on) (?:a |an )?card)?$/i, () => ({ t: "or", list: [{ t: "xItemMode", mode: "ride" }, { t: "xItemMode", mode: "st" }] }));
   cr(/^this card is in the soul of (?:a|the) card you are \[ride\] (?:on|into)$/i, () => ({ t: "xInSoulOfItemMode", mode: "ride" }));
   cr(/^this card is in the soul of (?:a|the) card you are \[transform\] into$/i, () => ({ t: "xInSoulOfItemMode", mode: "tr" }));
@@ -1219,6 +1219,264 @@
   };
   // "cannot use [Counter]" also closes the spell / call response window
   if (ABX.castWindow) { const ocw2 = ABX.castWindow; ABX.castWindow = function (casterSide, card, kind) { const r = F(otherSide(casterSide)); if (r && (r.timeStoppedThisTurn || r.timeStoppedThisBattle)) return Promise.resolve(false); return ocw2.apply(this, arguments); }; }
+
+
+  /* ============================================================
+   * 8. REPLACEMENT EFFECTS: "If this card would be destroyed / leave the field, you may …
+   *    If you do, this card remains on the field" and "If your life would become 0, …"
+   *    These run in the middle of a destroy / a loss check, so they run synchronously:
+   *    the owner answers yes / no (bots and the online friend's cards decide by themselves),
+   *    and cards to pay with are picked automatically (the least valuable ones).
+   * ============================================================ */
+  const T5 = [];
+  T5.push([/^if (?:another|a|an) (.+?) on your field would (?:be destroyed|leave the field)(?: and be put into the drop zone)?(?: by your opponent's (?:card effects|cards|card|effects?))?$/i, (m) => { const np = NP(m[1] + " on your field"); return np ? { event: "wouldLeaveOther", np, byOpp: /opponent/i.test(m[0]) } : null; }]);
+  T5.push([/^if this card would (?:leave the field|be destroyed)(?: by your opponent's (?:card effects|cards|card|effects?))$/i, (m) => ({ event: "wouldLeave", self: true, byOppOnly: true })]);
+  ABX.TRIGGER_RULES.unshift(...T5);
+  const A5 = [];
+  A5.push([/^nullify its destruction$|^(?:it|this card|that card) remains on (?:the|your) field$/i, () => ({ op: "preventLeave" }), false]);
+  A5.push([/^put the top (\w+) cards? of your deck into (?:your|the) drop zone$/i, (m) => ({ op: "mill", who: "you", n: toNum(m[1]), to: "drop zone" }), false]);
+  A5.push([/^(?:for this turn,? )?if your life would become 0(?: with that impact| by (?:an|that) (?:attack|impact))?,? (?:it|your life) becomes 1(?: instead)?$/i, () => ({ op: "lifeFloor", persist: true }), true]);
+  A5.push([/^if your life would become 0(?: with that impact)?,? (?:it|your life) becomes 1(?: instead)?$/i, () => ({ op: "lifeFloor", persist: true }), false]);
+  ABX.ACTION_RULES.unshift(...A5);
+  OPS.lifeFloor.run = function (s, ctx) { const S = core.st(ctx.f); S.lifeFloor = B.turnCount; S.lifeFloorPersist = !!s.persist; return true; };
+  // keep a turn-long floor ("for this turn, if your life would become 0, it becomes 1 instead")
+  const apFloor = core.applyDamage;
+  core.applyDamage = function (side, n, src) {
+    const f = F(side), S = core.st(f), keep = S.lifeFloorPersist && S.lifeFloor === B.turnCount;
+    const r = apFloor.apply(this, arguments);
+    if (keep && S.lifeFloor == null) S.lifeFloor = B.turnCount;
+    return r;
+  };
+
+  const REPL = new Set(["wouldLeave", "wouldDie", "wouldLeaveOther"]);
+  // "If this card would ..., <effect>" starts with "if", so the normal parser never looks for a trigger there
+  const palRepl = ABX.parseAbilityLine;
+  ABX.parseAbilityLine = function (rawLine, card) {
+    const ab = palRepl.apply(this, arguments);
+    try {
+      const txt = ABX.norm(ABX.clean(rawLine));
+      const pm = txt.match(/^((?:\[[^\]]+\]\s*)*(?:"[^"]+"\s*)?)(if (?:this card|your life|another|a|an) .+)$/i);
+      if (!pm || !/\bwould\b/i.test(pm[2])) return ab;
+      const body = pm[2];
+      const commas = [...body.matchAll(/,\s*/g)];
+      for (const cm of commas) {
+        const head = body.slice(0, cm.index);
+        let trig = null;
+        for (const [re, fn] of ABX.TRIGGER_RULES) { const mm = head.match(re); if (mm) { const t = fn(mm); if (t && REPL.has(t.event)) { trig = t; break; } } }
+        if (!trig) continue;
+        const rest = body.slice(cm.index + cm[0].length);
+        const ab2 = palRepl.call(this, pm[1] + "When this card enters the field, " + rest, card);
+        if (ab2.unparsed && ab2.unparsed.length) return ab;
+        ab2.trigger = Object.assign(trig, { src: head });
+        ab2.kind = "triggered"; ab2.raw = ab.raw; ab2.cleaned = ab.cleaned;
+        return ab2;
+      }
+    } catch (e) { if (ABX.debug) console.error(e); }
+    return ab;
+  };
+  const valueOf = (c) => !c ? 0 : (c.power || 0) / 1000 + (c.defense || 0) / 2000 + (c.crit || 0) * 2 + (c.size || 0) + (c.type === "Monster" ? 1 : 0);
+  const remoteSide = (side) => B.mode === "online_p2p" && side === "opp";
+  const autoSide = (side) => F(side).isBot || ABX.autoPlay === true || remoteSide(side);
+  function askYes(side, card, text) {
+    if (autoSide(side)) return true;
+    try { return typeof root.confirm === "function" ? !!root.confirm(`${card.name}: ${text}`) : true; } catch (e) { return true; }
+  }
+  const leastValuable = (ids, n) => ids.map((id, i) => ({ id, i, v: valueOf(cardOf(id)) })).sort((a, b) => a.v - b.v).slice(0, n);
+  const SYNC = {
+    pay(s, ctx) { const f = ctx.f; if ((s.gauge || 0) > f.gauge.length || (s.life && f.life <= s.life)) return false; for (let i = 0; i < (s.gauge || 0); i++) f.drop.push(f.gauge.pop()); if (s.life) f.life -= s.life; return true; },
+    discard(s, ctx) {
+      const f = ctx.f, n = s.all ? f.hand.length : (s.n || 1);
+      const ok = f.hand.map((id, i) => ({ id, i })).filter(x => !s.np || !s.np.filter || matchFilter(cardOf(x.id), s.np.filter, null, ctx));
+      if (ok.length < n) return false;
+      const pick = leastValuable(ok.map(x => x.id), n).map(x => x.id);
+      pick.forEach(id => { const i = f.hand.indexOf(id); if (i >= 0) { f.hand.splice(i, 1); f.drop.push(id); } });
+      ctx.lastCount = pick.length; return true;
+    },
+    dropSoul(s, ctx) { const u = ctx.unit; if (!u || !(u.soul || []).length) return false; const n = Math.min(s.n || 1, u.soul.length); if ((s.n || 1) > u.soul.length) return false; for (let i = 0; i < n; i++) ctx.f.drop.push(u.soul.pop()); ctx.lastCount = n; return true; },
+    mill(s, ctx) { const f = F(s.who === "opp" ? otherSide(ctx.side) : ctx.side); const n = typeof s.n === "number" ? s.n : 1; const ids = f.deck.splice(0, n); if (s.to === "gauge") f.gauge.push(...ids); else f.drop.push(...ids); ctx.bind.revealed = ids.map(id => ({ k: "zone", side: ctx.side, area: "drop", id, card: cardOf(id) })); ctx.bind.chosen = ctx.bind.revealed.slice(); ctx.lastCount = ids.length; return ids.length > 0; },
+    moveSelf(s, ctx) { return removeSelf(ctx); },
+    move(s, ctx) { if (s.np && s.np.self && s.to && s.to.area === "drop zone") return removeSelf(ctx); return false; },
+    destroy(s, ctx) {
+      if (!s.np) return false;
+      if (s.np.self) return removeSelf(ctx);
+      const cands = refsFor(s.np, ctx, { owner: "you", area: "field" }).filter(r => r.unit && r.unit !== ctx.protect && r.side === ctx.side);
+      if (!cands.length) return false;
+      const r = cands.sort((a, b) => valueOf(a.card) - valueOf(b.card))[0];
+      const pos = posOfUnit(F(r.side), r.unit); if (!pos || pos === "item") return false;
+      const ok = B.destroyMonster(r.side, pos) !== false; ctx.lastCount = ok ? 1 : 0; return ok;
+    },
+    preventLeave(s, ctx) { ctx.saved = true; return true; },
+    saveOnce(s, ctx) { ctx.saved = true; return true; },
+    setLife(s, ctx) { F(s.who === "opp" ? otherSide(ctx.side) : ctx.side).life = s.n; ctx.lifeSet = true; return true; },
+    draw(s, ctx) { const f = ctx.f; let k = 0; for (let i = 0; i < (typeof s.n === "number" ? s.n : 1) && f.deck.length; i++) { f.hand.push(f.deck.shift()); k++; } return k > 0; },
+    damage(s, ctx) { const n = typeof s.n === "number" ? s.n : 0; core.applyDamage(s.who === "opp" ? otherSide(ctx.side) : ctx.side, n, { kind: "effect" }); return true; },
+    life(s, ctx) { F(s.who === "opp" ? otherSide(ctx.side) : ctx.side).life += (typeof s.n === "number" ? s.n : 0); return true; },
+    noop() { return true; }
+  };
+  // the saver card itself goes to the drop zone (from the field or from a soul)
+  function removeSelf(ctx) {
+    const f = ctx.f;
+    if (ctx.unit) { const pos = posOfUnit(f, ctx.unit); if (!pos) return false; if (pos === "item") f.item = null; else f.monsters[pos] = null; f.drop.push(ctx.unit.card.id, ...(ctx.unit.soul || [])); ctx.unit.soul = []; ctx.selfGone = true; return true; }
+    return false;
+  }
+  const syncStepOK = (x) => !!SYNC[x.op] && !(x.np && x.np.junk) && (!x.cond || ABX.condExecutable(x.cond)) && (x.op !== "move" || (x.np && x.np.self)) && (x.op !== "destroy" || (x.np && (x.np.self || !x.np.ref)));
+  const syncOK = (ab) => !!ab && !(ab.unparsed && ab.unparsed.length) && (ab.steps || []).length > 0 && ab.steps.every(syncStepOK) && (ab.conds || []).every(ABX.condExecutable) &&
+    (ab.trigger.event === "wouldDie" ? ab.steps.some(x => x.op === "setLife") : ab.steps.some(x => x.op === "preventLeave" || x.op === "saveOnce"));
+  const ie3 = ABX.isExecutable;
+  ABX.isExecutable = function (ab) {
+    if (ab && ab.trigger && REPL.has(ab.trigger.event)) return syncOK(ab);
+    return ie3.call(this, ab);
+  };
+  function describe(x) { return x.op === "pay" ? `pay ${[x.gauge ? x.gauge + " gauge" : "", x.life ? x.life + " life" : ""].filter(Boolean).join(" and ")}` : x.op === "discard" ? `discard ${x.n || 1} card(s) from your hand` : x.op === "dropSoul" ? `drop ${x.n || 1} soul(s)` : x.op === "destroy" ? `destroy ${ABX.clean(x.np.raw || "a monster")}` : x.op === "mill" ? `put the top ${x.n} card(s) of your deck into the drop zone` : ABX.clean(x.src || x.op); }
+  function runSync(side, card, unit, ab, extra) {
+    const f = F(side);
+    const ctx = Object.assign({ side, f, e: F(otherSide(side)), card, unit, ab, bind: { chosen: [], revealed: [], looked: [] }, lastDone: true, log: [], hostArea: "field" }, extra || {});
+    if (!(ab.conds || []).every(c => evalCond(c, ctx))) return ctx;
+    // the whole "you may ..." part is one question
+    const opt = ab.steps.filter(x => x.optional);
+    if (opt.length) {
+      if (!opt.every(x => x.op !== "pay" || ((x.gauge || 0) <= f.gauge.length && !(x.life && f.life <= x.life)))) return ctx;
+      if (!askYes(side, card, `${extra && extra.question || "Use this ability"}? (${opt.map(describe).join(", ")})`)) return ctx;
+    }
+    for (const x of ab.steps) {
+      if (x.gate === "ifYouDo" && !ctx.lastDone) continue;
+      if (x.gate === "ifNotDone" && ctx.lastDone) continue;
+      if (x.cond && !evalCond(x.cond, ctx)) { ctx.lastDone = false; continue; }
+      let ok = false;
+      try { ok = SYNC[x.op](x, ctx) !== false; } catch (e) { if (ABX.debug) console.error(e); ok = false; }
+      ctx.lastDone = ok;
+    }
+    return ctx;
+  }
+  let replDepth = 0;
+  // called by battle.destroyMonster; true = the monster stays
+  ABX.wouldLeaveSave = function (side, pos, unit, byAttack) {
+    if (replDepth > 2 || !unit || !unit.card || B.matchOver) return false;
+    replDepth++;
+    try {
+      const f = F(side);
+      if (unit.abxNullified !== B.turnCount) {
+        for (const ab of core.abilitiesOf(unit.card, a => a.trigger && a.trigger.event === "wouldLeave" && a.trigger.self && ABX.isExecutable(a))) {
+          if (ab.trigger.byOppOnly && !(B.activeSide !== side || byAttack)) continue;
+          if (core.onceUsed(f, unit.card, ab, unit)) continue;
+          const ctx = runSync(side, unit.card, unit, ab, { protect: unit, question: `"${unit.card.name}" would be destroyed — keep it` });
+          if (ctx.saved) { core.markOnce(f, unit.card, ab, unit); say(`🛡️ "${unit.card.name}" remained on the field!`); return true; }
+        }
+      }
+      // "If another «X» on your field would be destroyed, you may put this card into the drop zone. If you do, that card remains"
+      for (const x of fieldUnits(f, true)) {
+        const sv = x.unit; if (sv === unit || sv.abxNullified === B.turnCount) continue;
+        for (const ab of core.abilitiesOf(sv.card, a => a.trigger && a.trigger.event === "wouldLeaveOther" && ABX.isExecutable(a))) {
+          if (!matchFilter(unit.card, ab.trigger.np.filter || {}, { unit, side }, { f })) continue;
+          if (ab.trigger.byOpp && !(B.activeSide !== side || byAttack)) continue;
+          if (core.onceUsed(f, sv.card, ab, sv)) continue;
+          const ctx = runSync(side, sv.card, sv, ab, { protect: unit, question: `"${unit.card.name}" would be destroyed — save it with "${sv.card.name}"` });
+          if (ctx.saved) { core.markOnce(f, sv.card, ab, sv); say(`🛡️ "${sv.card.name}" kept "${unit.card.name}" on the field!`); return true; }
+        }
+      }
+      return false;
+    } finally { replDepth--; }
+  };
+  // "If your life would become 0, ..." (cards on your field and in souls)
+  ABX.lifeZeroSave = function (side) {
+    const f = F(side);
+    if (f.life > 0 || replDepth > 2) return false;
+    replDepth++;
+    try {
+      for (const x of fieldUnits(f, true)) {
+        const u = x.unit; if (u.abxNullified === B.turnCount) continue;
+        for (const ab of core.abilitiesOf(u.card, a => a.trigger && a.trigger.event === "wouldDie" && ABX.isExecutable(a))) {
+          if (core.onceUsed(f, u.card, ab, u)) continue;
+          const ctx = runSync(side, u.card, u, ab, { question: "Your life would become 0 — use it" });
+          if (ctx.lifeSet && f.life > 0) { core.markOnce(f, u.card, ab, u); say(`💫 "${u.card.name}": ${f.name || "You"} stayed in the fight!`); return true; }
+        }
+      }
+      return false;
+    } finally { replDepth--; }
+  };
+  if (typeof B.checkWinCondition === "function") {
+    const ocw3 = B.checkWinCondition;
+    B.checkWinCondition = function () {
+      try { if (!B.matchOver) [B.plr, B.opp].forEach((f, i) => { if (f && f.life <= 0 && !f.abxNoLose) ABX.lifeZeroSave(i === 0 ? "plr" : "opp"); }); } catch (e) { if (ABX.debug) console.error(e); }
+      return ocw3.apply(this, arguments);
+    };
+  }
+
+
+  /* ============================================================
+   * 9. UNREAD TEXT, PART 3
+   * ============================================================ */
+  const C6 = [];
+  const cr6 = (re, fn) => C6.push([re, fn]);
+  cr6(new RegExp("^you (?:dropped|put|returned|called|destroyed)(?: (" + "\\d+|a|an|one|two|three|four|five" + ")[^,]*| it| them| any)?$", "i"), (m) => ({ t: "xLastCount", n: m[1] ? (N(m[1]) || 1) : 1 }));
+  cr6(new RegExp("^(?:there (?:is|are)|you have) " + NUM + " or more$", "i"), (m) => ({ t: "xChainMore", n: N(m[1]) }));
+  cr6(/^this card entered(?: the field)? by (?:a )?card effects?$|^(?:it|this card) (?:was )?called by (?:a )?card effects?$/i, () => ({ t: "xByEffect" }));
+  cr6(new RegExp("^(?:an|a|your) (.+?) (?:on your field )?(?:has|have) " + NUM + " or more (.+?) in (?:its|their) souls?$", "i"), (m) => { const host = NP(m[1].replace(/ on your field$/i, "")); const what = /^souls?$|^cards?$/i.test(m[3]) ? null : NP(m[3]); return host ? { t: "xItemSoul", host, what, n: N(m[2]) } : null; });
+  cr6(/^(?:an|a|your) (.+?) (?:on your field )?(?:has|have) (?:an? )?(.+?) in (?:its|their) souls?$/i, (m) => { const host = NP(m[1].replace(/ on your field$/i, "")); const what = NP(m[2]); return host && what ? { t: "xItemSoul", host, what, n: 1 } : null; });
+  cr6(/^(?:your|the) (.+?) (?:items?|monsters?)?(?: on your field)? (?:has|have) souls?$|^you have an? (.+?) with souls?(?: on (?:the|your) field)?$/i, (m) => { const t = m[1] || m[2]; const host = NP(t); return host ? { t: "xItemSoul", host, what: null, n: 1 } : null; });
+  cr6(new RegExp("^(?:it|this card) has " + NUM + " or more souls?$", "i"), (m) => ({ t: "selfSoul", n: N(m[1]), cmp: "ge" }));
+  cr6(/^(?:a|an|one or more) (.+?) on your field (?:is|are) being attacked$/i, (m) => { const np = NP(m[1] + " on your field"); return np ? { t: "xAllyAttacked", np } : null; });
+  cr6(/^(?:a|an) (.+?) on your opponent's field is attacking(?: you)? alone$|^an opponent's (card|monster) is attacking alone$/i, (m) => { const np = NP((m[1] || m[2]) + " on your opponent's field"); return np ? { t: "xOppAlone", np, fighter: /you alone/i.test(m[0]) } : null; });
+  cr6(/^your opponent's (?:card|monster) attacks you alone$/i, () => ({ t: "xOppAlone", np: null, fighter: true }));
+  cr6(/^no cards? (?:is|are) in battle$/i, () => ({ t: "noBattle" }));
+  cr6(/^(?:the|that) (?:card|monster) (?:revealed|dropped|put into (?:the|your) drop zone|chosen) is (not )?(?:a|an) (.+?)(?: card)?$|^the (?:revealed|dropped) card is (not )?(?:a|an) (.+?)(?: card)?$/i, (m) => {
+    const not = !!(m[1] || m[3]); const w = (m[2] || m[4] || "").trim();
+    const tp = w.match(/^(monster|spell|item|impact)$/i);
+    const c = tp ? { t: "refType", type: lc(tp[1]) } : (() => { const np = NP(w); return np ? { t: "xRefIs", np } : null; })();
+    return c ? (not ? { t: "not", c } : c) : null;
+  });
+  cr6(/^(?:a|an) (card|impact|spell) is \[set\] on your field$/i, (m) => ({ t: "xSetHas", np: /card/i.test(m[1]) ? undefined : NP("a " + m[1]) }));
+  cr6(/^you have no items? equipped$/i, () => ({ t: "not", c: { t: "itemEquipped", any: true } }));
+  cr6(new RegExp("^your opponent has " + NUM + " or (less|more) cards in (?:their |his or her )?hand$", "i"), (m) => ({ t: "hand", who: "opp", n: N(m[1]), cmp: CMP(m[2]) }));
+  cr6(new RegExp("^the total (size|power|critical|defense) of (.+?) on your field is ([\\d,]+) or (greater|more|less)$", "i"), (m) => { const np = NP(m[2] + " on your field"); return np ? { t: "xTotal", stat: lc(m[1]), np, n: +m[3].replace(/,/g, ""), cmp: CMP(m[4]) } : null; });
+  cr6(/^you have («[^»]+»|"[^"]+")(?: monsters?| items?| cards?)? on (?:your|the) field$/i, (m) => { const np = NP(m[1] + " on your field"); return np ? { t: "has", owner: "you", np, n: 1 } : null; });
+  cr6(/^\[([^\]]+)\] is on your field$/i, (m) => { const np = NP('"' + m[1] + '" on your field'); return np ? { t: "has", owner: "you", np, n: 1 } : null; });
+  cr6(/^your flag is "overgod, "0""$/i, () => ({ t: "flagIs", names: ["overgod"] }));
+  ABX.COND_RULES.unshift(...C6);
+  XC.xByEffect = (c, ctx) => !!(ctx.unit && ctx.unit.abxByEffect);
+  XC.xItemSoul = (c, ctx) => fieldUnits(ctx.f, true).some(x => matchFilter(x.unit.card, c.host.filter || {}, { unit: x.unit, side: ctx.side }, ctx) &&
+    (x.unit.soul || []).filter(id => !c.what || matchFilter(cardOf(id), c.what.filter || {}, null, ctx)).length >= (c.n || 1));
+  XC.xAllyAttacked = (c, ctx) => { const b = battleNow(); const pd = B.pendingDefenseContext; const u = (b && b.defSide === ctx.side && b.defUnit) || (pd && pd.defSide === ctx.side && ctx.f.monsters[pd.targetPos]); return !!u && matchFilter(u.card, c.np.filter || {}, { unit: u, side: ctx.side }, ctx); };
+  XC.xOppAlone = (c, ctx) => { const b = battleNow(); if (!b || b.attSide === ctx.side || (b.attUnits || []).length !== 1) return false; if (c.fighter && b.defUnit) return false; const u = b.attUnits[0]; return !c.np || matchFilter(u.card, c.np.filter || {}, { unit: u, side: b.attSide }, ctx); };
+  XC.xRefIs = (c, ctx) => { const r = [].concat(ctx.bind.lastMoved || [], ctx.bind.revealed || [], ctx.bind.chosen || []).filter(x => x && x.card).pop(); return !!r && matchFilter(r.card, c.np.filter || {}, r, ctx); };
+  XC.xTotal = (c, ctx) => {
+    const us = refsFor(c.np, ctx, { owner: "you", area: "field" }).filter(r => r.unit);
+    const sum = us.reduce((a, r) => { const e = typeof getUnitEffectiveCombatStats === "function" ? getUnitEffectiveCombatStats(ctx.f, r.unit) : {}; return a + (c.stat === "size" ? (typeof getEffectiveCardSize === "function" ? getEffectiveCardSize(ctx.f, r.card, r.unit) : (r.card.size || 0)) : c.stat === "power" ? e.power : c.stat === "defense" ? e.defense : e.crit) || 0; }, 0);
+    return cmpN(sum, c);
+  };
+  addOk("xByEffect", "xItemSoul", "xAllyAttacked", "xOppAlone", "xRefIs", "xTotal");
+  // remember monsters called by an effect ("If this card entered the field by card effects")
+  if (OPS.call) { const oc = OPS.call.run; OPS.call.run = async function () { ABX.callingByEffect = (ABX.callingByEffect || 0) + 1; try { return await oc.apply(this, arguments); } finally { ABX.callingByEffect--; } }; }
+  if (typeof B.completeMonsterCall === "function") {
+    const ocm = B.completeMonsterCall;
+    B.completeMonsterCall = function (side, pos) { const r = ocm.apply(this, arguments); try { const u = this.getFighter(side).monsters[pos]; if (u && ABX.callingByEffect) u.abxByEffect = true; } catch (e) { /* ignore */ } return r; };
+  }
+
+  const A6 = [];
+  const ar6 = (re, fn) => A6.push([re, fn, false]);
+  ar6(/^your opponent puts (?:the top )?(\w+) cards? from the top of their deck into (?:the|their) gauge$|^your opponent puts the top (\w+) cards? of their deck into (?:the|their) gauge$/i, (m) => ({ op: "mill", who: "opp", n: toNum(m[1] || m[2]), to: "gauge" }));
+  ar6(/^deal damage to (?:your|the) opponent equal to the critical of (?:one of )?your (.+)$/i, (m) => ({ op: "damage", who: "opp", n: { fromItem: "critical" } }));
+  ar6(/^change the target of the attack to (?:a|an) (.+?) on your field$/i, (m) => { const np = NP("a " + m[1] + " on your field"); return np ? { op: "seq", steps: [{ op: "choose", np }, { op: "redirectAttack", toChosen: true }] } : null; });
+  ar6(/^return all cards (?:from|in) your gauge (?:in)?to your deck$/i, () => ({ op: "moveZone", from: { owner: "you", area: "gauge" }, to: { owner: "you", area: "deck" }, n: 99 }));
+  ar6(/^look at this card's soul$|^look at (?:the|your) opponent's hand$|^look at your opponent's hand$/i, () => ({ op: "noop", note: "look" }));
+  ABX.ACTION_RULES.unshift(...A6);
+  function rewrite6(s) {
+    s = s.replace(/\bthis monster's soul\b/ig, "this card's soul");
+    s = s.replace(/\bthe top (\w+) cards? from your deck\b/ig, "the top $1 cards of your deck").replace(/\bthe top card from your deck\b/ig, "the top card of your deck");
+    s = s.replace(/\bput the top card of your deck to\b/ig, "put the top card of your deck into");
+    s = s.replace(/\s*\(link attacks count as one attack\.?\)/ig, "");
+    s = s.replace(/\b(\w+) of more\b/ig, "$1 or more").replace(/\batack\b/ig, "attack").replace(/\bguage\b/ig, "gauge");
+    return s;
+  }
+  const prevRw6 = ABX.rewriteLine;
+  ABX.rewriteLine = (t) => rewrite6(prevRw6(t));
+  const pal6 = ABX.parseAbilityLine;
+  ABX.parseAbilityLine = function (rawLine, card) {
+    const fixed = rewrite6(rawLine);
+    const ab = pal6.call(this, fixed, card);
+    if (fixed !== rawLine) ab.raw = ABX.clean(rawLine);
+    return ab;
+  };
 
   if (ABX.resetCaches) ABX.resetCaches();
 })(typeof window !== "undefined" ? window : globalThis);

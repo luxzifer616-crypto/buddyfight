@@ -7123,6 +7123,9 @@ const battle = {
       return false;
     }
 
+    // "If this card would be destroyed, you may pay 1 gauge. If you do, this card remains on the field." (ABX replacement effects)
+    if (window.ABX && ABX.wouldLeaveSave && ABX.wouldLeaveSave(side, pos, m, !!this._destroyByAttack)) { this.renderBattle(); return false; }
+
     if ((m.isYamigedoConnected || isYamigedoHalfId(m.card.id)) && f.deck.length >= 5) {
       const canPrevent = f.isBot || confirm(`[Evil Deity] "${getBuddyDisplayName(m.card)}" would leave the field! Put the top 5 cards of your deck into your Drop Zone so it remains on the field?`);
       if (canPrevent) {
