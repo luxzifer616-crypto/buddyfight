@@ -1,5 +1,7 @@
 // Big 2x2 connected art shown when Overgod, "0" becomes the flag
 const OVERGOD_FLAG_ART = "Sprite/OvergodZeroFlag.png";
+// Godclock's 4 connected flag cards in grid order: Clock-I, Clock-II / Godclock, Clock-III
+const GODCLOCK_FRONT_IDS = [5958, 5959, 5957, 5960];
 /* ==================== FUTURE CARD BUDDYFIGHT — COMPLETE GAME ENGINE (V5) ==================== */
 
 const ALL_CARDS = window.BUDDYFIGHT_CARDS || [];
@@ -2763,9 +2765,16 @@ const app = {
       const buddyThumbHtml = isYamigedoHalfId(buddy.id)
         ? renderYamigedoDualStackHtml()
         : `<img src="${buddy.img}" alt="${escapeHtml(buddy.name)}" title="Buddy: ${escapeHtml(buddy.name)}" />`;
+      // Godclock: the whole connected 2x2 flag instead of one of its four cards
+      const flagThumbHtml = cfg.key === "godclock"
+        ? `<div class="deck-gc-grid" title="Flag: ${escapeHtml(flag.name)} (2x2 connected)">${GODCLOCK_FRONT_IDS.map(id => {
+            const c = CARD_MAP.get(id);
+            return `<img src="${c ? c.img : flag.img}" alt="${escapeHtml(c ? c.name : flag.name)}" />`;
+          }).join("")}</div>`
+        : `<img src="${flag.img}" alt="${escapeHtml(flag.name)}" title="Flag: ${escapeHtml(flag.name)}" />`;
       card.innerHTML = `
         <div class="deck-banner-art-pair">
-          <img src="${flag.img}" alt="${escapeHtml(flag.name)}" title="Flag: ${escapeHtml(flag.name)}" />
+          ${flagThumbHtml}
           ${buddyThumbHtml}
         </div>
         <div class="deck-banner-info">
@@ -2899,7 +2908,16 @@ const app = {
     const buddy = CARD_MAP.get(deck.buddyId) || ALL_CARDS[45];
     const cfg = getFlagConfig(flag);
 
-    document.getElementById("dk-flag-img").src = flag.img;
+    // Godclock is one flag made of 4 connected cards: show all four, full size, like on the field
+    const dkFlagVis = document.getElementById("dk-flag-visual");
+    if (dkFlagVis) {
+      dkFlagVis.innerHTML = cfg.key === "godclock"
+        ? `<div class="dk-gc-grid" title="Godclock — 2x2 connected flag">${GODCLOCK_FRONT_IDS.map(id => {
+            const c = CARD_MAP.get(id);
+            return `<img src="${c ? c.img : flag.img}" alt="${escapeHtml(c ? c.name : flag.name)}" />`;
+          }).join("")}</div>`
+        : `<img id="dk-flag-img" src="${flag.img}" alt="Flag" />`;
+    }
     document.getElementById("dk-flag-name").textContent = flag.name;
     document.getElementById("dk-flag-rule-tag").textContent = cfg.ruleSummary;
     const dkBuddyVis = document.getElementById("dk-buddy-visual");
@@ -3830,7 +3848,7 @@ const battle = {
     this.opp = this.createFighterState(oppName, oppDeck, mode !== "hotseat" && mode !== "online_p2p");
 
     const flagCard = CARD_MAP.get(this.plr.flagId) || ALL_CARDS[0];
-    this.showCutin("RAISE THE FLAG!", `${flagCard.name} — Luminize!`, flagCard.img);
+    this.showCutin("RAISE THE FLAG!", `${flagCard.name} — Luminize!`, flagCard.img, this.connectedFlagArt(this.plr));
 
     this.startTurn("plr");
   },
@@ -3840,13 +3858,23 @@ const battle = {
     if (el) el.textContent = msg;
   },
 
-  showCutin(title, sub, imgSrc) {
+  // grid: optional 4 image paths (top-left, top-right, bottom-left, bottom-right) for a connected 2x2 flag (Godclock)
+  showCutin(title, sub, imgSrc, grid = null) {
     // Online match: the friend sees the same cut-in (spell, flag, ability...) on their screen.
-    if (this.mode === "online_p2p" && !this._cutinFromPeer) this.sendCutinToPeer(title, sub, imgSrc);
+    if (this.mode === "online_p2p" && !this._cutinFromPeer) this.sendCutinToPeer(title, sub, imgSrc, grid);
     const el = document.getElementById("anime-cutin");
     document.getElementById("cutin-title").textContent = title;
     document.getElementById("cutin-sub").textContent = sub;
-    document.getElementById("cutin-card-img").src = imgSrc || "Sprite/Sleeves/s0.png";
+    const imgEl = document.getElementById("cutin-card-img");
+    const gridEl = document.getElementById("cutin-card-grid");
+    const useGrid = Array.isArray(grid) && grid.length === 4 && gridEl;
+    imgEl.src = imgSrc || "Sprite/Sleeves/s0.png";
+    imgEl.classList.toggle("hidden", !!useGrid);
+    if (gridEl) {
+      gridEl.classList.toggle("hidden", !useGrid);
+      gridEl.innerHTML = "";
+      if (useGrid) grid.forEach(src => { const im = document.createElement("img"); im.src = src; im.alt = ""; gridEl.appendChild(im); });
+    }
     el.classList.remove("hidden");
     el.style.animation = "none";
     void el.offsetWidth;
@@ -4726,7 +4754,7 @@ const battle = {
   },
 
   // Tell the online friend to show the same cut-in banner. Names are flipped to the friend's point of view.
-  sendCutinToPeer(title, sub, imgSrc) {
+  sendCutinToPeer(title, sub, imgSrc, grid = null) {
     if (!app.peerConn || !app.peerConn.open) return;
     try {
       const friend = (this.opp && this.opp.name) || "🌐 Online Friend";
@@ -4734,7 +4762,7 @@ const battle = {
         .replace(/\bYou\b/g, "\u0001")
         .split(friend).join("You")
         .replace(/\u0001/g, "🌐 Online Friend");
-      app.peerConn.send({ type: "P2P_CUTIN", title: flip(title), sub: flip(sub), imgSrc: imgSrc || "" });
+      app.peerConn.send({ type: "P2P_CUTIN", title: flip(title), sub: flip(sub), imgSrc: imgSrc || "", grid: Array.isArray(grid) ? grid : null });
     } catch (e) {
       console.warn("P2P cut-in error:", e);
     }
@@ -4746,10 +4774,12 @@ const battle = {
     const scr = document.getElementById("screen-battle");
     if (!scr || !scr.classList.contains("active")) return;
     const clean = (t, n) => String(t == null ? "" : t).slice(0, n);
-    const img = (typeof msg.imgSrc === "string" && /^(CardSprite|Sprite)\/[A-Za-z0-9_\-\/.]+$/.test(msg.imgSrc) && !msg.imgSrc.includes("..")) ? msg.imgSrc : "";
+    const safe = (src) => (typeof src === "string" && /^(CardSprite|Sprite)\/[A-Za-z0-9_\-\/.]+$/.test(src) && !src.includes("..")) ? src : "";
+    const img = safe(msg.imgSrc);
+    const grid = Array.isArray(msg.grid) && msg.grid.length === 4 && msg.grid.every(safe) ? msg.grid.slice(0, 4) : null;
     this._cutinFromPeer = true;
     try {
-      this.showCutin(clean(msg.title, 80), clean(msg.sub, 200), img);
+      this.showCutin(clean(msg.title, 80), clean(msg.sub, 200), img, grid);
     } finally {
       this._cutinFromPeer = false;
     }
@@ -7835,6 +7865,16 @@ const battle = {
         <div class="field-stat-overlay">${statLabel}</div>
       </div>
     `;
+  },
+
+  // the 4 images of a connected 2x2 flag (Godclock), in grid order; null for a normal one-card flag
+  connectedFlagArt(fighter) {
+    const gc = fighter && fighter.godclock;
+    if (!gc || !Array.isArray(gc.quadrants) || gc.quadrants.length !== 4) return null;
+    return gc.quadrants.map(q => {
+      const c = CARD_MAP.get((gc.awakened || q.reversed) ? q.backId : q.frontId) || CARD_MAP.get(5957);
+      return c ? c.img : "Sprite/Sleeves/s0.png";
+    });
   },
 
   renderFlagZoneHtml(fighter) {

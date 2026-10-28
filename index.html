@@ -51,8 +51,8 @@
     })();
   </script>
   <title>Future Card Buddyfight — Complete Anime Simulator</title>
-  <link rel="stylesheet" href="styles.css?v=20261029a" />
-  <link rel="stylesheet" href="battle_fx.css?v=20261029c" />
+  <link rel="stylesheet" href="styles.css?v=20261029h" />
+  <link rel="stylesheet" href="battle_fx.css?v=20261029f" />
 </head>
 <body>
   <!-- TOP NAVIGATION BAR (Hidden during active battle) -->
@@ -388,7 +388,9 @@
           <div class="deck-core-slots">
             <div class="core-slot" id="dk-flag-slot" onclick="app.previewDeckFlag()" title="Click to Preview Flag Banner or Change Flag">
               <div class="slot-label">🏳️ FLAG (CLICK TO PREVIEW)</div>
-              <img id="dk-flag-img" src="CardSprite/n1.png" alt="Flag" />
+              <div id="dk-flag-visual" class="dk-flag-visual-wrap">
+                <img id="dk-flag-img" src="CardSprite/n1.png" alt="Flag" />
+              </div>
               <div id="dk-flag-name" class="slot-name">Magic World</div>
               <div id="dk-flag-rule-tag" class="slot-rule-sub">Life: 10 • Hand: 6 • Gauge: 2</div>
             </div>
@@ -732,6 +734,7 @@
       <div id="anime-cutin" class="anime-cutin hidden">
         <div class="cutin-stripe">
           <img id="cutin-card-img" src="CardSprite/n46.png" alt="Cutin" />
+          <div id="cutin-card-grid" class="cutin-gc-grid hidden" aria-label="Connected flag"></div>
           <div class="cutin-text-block">
             <div id="cutin-title" class="cutin-title">RAISE THE FLAG!</div>
             <div id="cutin-sub" class="cutin-sub">Magic World!</div>
@@ -846,7 +849,7 @@
   <!-- PeerJS WebRTC for Real Online Multiplayer on GitHub Pages -->
   <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
   <script src="cards_data.js"></script>
-  <script src="game.js?v=20261029e"></script>
+  <script src="game.js?v=20261029h"></script>
   <script src="impact_monsters.js?v=20261029a"></script>
   <script src="abilities_parser.js?v=20261029a"></script>
   <script src="abilities_ui.js?v=20261029a"></script>
@@ -858,6 +861,7 @@
   <script src="abilities_gkw.js?v=20261029a"></script>
   <script src="abilities_r13.js?v=20261029a"></script>
   <script src="abilities_r14.js?v=20261029e"></script>
+  <script src="abilities_r15.js?v=20261029e"></script>
   <script src="battle_fx.js?v=20261029a"></script>
   <audio id="battle-bgm" src="audio/battle_bgm.m4a" loop preload="auto"></audio>
 </body>
