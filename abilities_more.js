@@ -212,7 +212,7 @@
     for (const ab of abilitiesOf(c, a => (ABX.isSpellBody ? ABX.isSpellBody(a) : a.kind === "spell"))) {
       const probe = { side, f, e: F(otherSide(side)), card: c, unit: null, ab, bind: { chosen: [] }, lastDone: true, auto: true, log: [] };
       if (!(ab.conds || []).every(x => evalCond(x, probe))) continue;
-      await runAbility(side, c, ab, null, { event: { name: "counter" } });
+      await runAbility(side, c, ab, null, { event: { name: "counter" }, selfRef: ABX.castSelfRef ? ABX.castSelfRef(side, c) : null });
     }
     if (ABX.fireCast) ABX.fireCast(side, c);
   }

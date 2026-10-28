@@ -1055,6 +1055,13 @@
   // and no [Act]). Choice spells used to be left out, so the engine never ran them and the old generic code guessed.
   const isSpellBody = (a) => a.kind === "spell" || (a.kind === "modal" && !a.trigger && !(a.tags || []).includes("act"));
   ABX.isSpellBody = isSpellBody;
+  // where a resolving spell is ("this card"): the drop zone, where the game puts it before its text runs.
+  // Without it, "Put this card into the soul of ..." found no card and did nothing.
+  function castSelfRef(side, card) {
+    const f = F(side), idx = f.drop.lastIndexOf(card.id);
+    return idx >= 0 ? { k: "zone", side, area: "drop", idx, id: card.id, card } : null;
+  }
+  ABX.castSelfRef = castSelfRef;
   ABX.ownsSpell = function (card) {
     const p = ABX.get(card);
     const sp = p.abilities.filter(isSpellBody);
@@ -1067,7 +1074,7 @@
         const f = F(side);
         const probe = { side, f, e: F(otherSide(side)), card, unit: null, ab, bind: { chosen: [], revealed: [], looked: [] }, lastDone: true, auto: true, log: [], event: { name: "cast" } };
         if (!(ab.conds || []).every(c => evalCond(c, probe))) continue;
-        await runAbility(side, card, ab, null, { event: { name: "cast" } });
+        await runAbility(side, card, ab, null, { event: { name: "cast" }, selfRef: castSelfRef(side, card) });
       }
     } finally { busy--; }
     done(onAfter);
@@ -1087,7 +1094,7 @@
       for (const ab of abilitiesOf(card, isSpellBody)) {
         const probe = { side: defSide, f: defF, e: attF, card, unit: null, ab, bind: { chosen: [], revealed: [], looked: [] }, lastDone: true, auto: true, log: [], event: { name: "counter" } };
         if (!(ab.conds || []).every(c => evalCond(c, probe))) continue;
-        await runAbility(defSide, card, ab, null, { event: { name: "counter" } });
+        await runAbility(defSide, card, ab, null, { event: { name: "counter" }, selfRef: castSelfRef(defSide, card) });
       }
     } catch (e) { if (ABX.debug) console.error(e); }
     ABX.battleCtx = null;

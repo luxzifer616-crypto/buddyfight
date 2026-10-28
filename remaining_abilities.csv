@@ -391,7 +391,6 @@ id,name,type,world,status,abilities,working,first_unread_sentence
 1952,Deadly Boost,Spell,Darkness Dragon World,NOT BUILT,1,0,"At the end of the turn, put all cards from your gauge into your drop zone."
 1953,Ability Shift,Spell,Darkness Dragon World,NOT BUILT,1,0,"Choose a monster on your field in battle, and for this battle, the defense of that card is increased by its power."
 1959,BAR King Solomon,Spell,Magic World,PARTLY BUILT,2,1,"Other than during your opponent's start phase, when the number of cards in your opponent's hand increases, your opponent chooses a card in their hand and discards it."
-1960,On Fleek!,Spell,Magic World,PARTLY BUILT,2,1,"When this card is in the soul of a 72 Pillars monster, that monster gets power+1000, defense+1000 and [Soulguard]."
 1961,"Great Spell, Demons Concert",Spell,Magic World,PARTLY BUILT,2,1,The amount of gauge written on the [Call Cost] is reduced by the number of 72 Pillars on your field.
 1962,"Demon Dealer, Haagenti",Monster,Magic World,NOT BUILT,1,0,"When this card enters the field due to an effect, put the top card of your deck into the gauge and gain 1 life."
 1964,Flying Duchmon,Monster,Legend World,NOT BUILT,1,0,place a monster from your deck into the drop zone then shuffle your deck.
