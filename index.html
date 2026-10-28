@@ -52,7 +52,7 @@
   </script>
   <title>Future Card Buddyfight — Complete Anime Simulator</title>
   <link rel="stylesheet" href="styles.css?v=20261029a" />
-  <link rel="stylesheet" href="battle_fx.css?v=20261029a" />
+  <link rel="stylesheet" href="battle_fx.css?v=20261029b" />
 </head>
 <body>
   <!-- TOP NAVIGATION BAR (Hidden during active battle) -->
@@ -741,6 +741,12 @@
 
       <!-- FLYING CARD & COMBAT SLASH ANIMATION LAYER -->
       <div id="fx-layer" class="fx-layer"></div>
+
+      <!-- BATTLE MUSIC VOLUME -->
+      <div class="bgm-volume" title="Music volume">
+        <button type="button" id="bgm-mute-btn" class="bgm-mute-btn" onclick="app.toggleBgmMute()" aria-label="Mute music">🔊</button>
+        <input type="range" id="bgm-volume-slider" min="0" max="100" step="1" value="50" oninput="app.setBgmVolume(this.value / 100)" aria-label="Music volume" />
+      </div>
     </section>
   </main>
 
@@ -840,7 +846,7 @@
   <!-- PeerJS WebRTC for Real Online Multiplayer on GitHub Pages -->
   <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
   <script src="cards_data.js"></script>
-  <script src="game.js?v=20261029a"></script>
+  <script src="game.js?v=20261029b"></script>
   <script src="impact_monsters.js?v=20261029a"></script>
   <script src="abilities_parser.js?v=20261029a"></script>
   <script src="abilities_ui.js?v=20261029a"></script>
@@ -852,5 +858,6 @@
   <script src="abilities_gkw.js?v=20261029a"></script>
   <script src="abilities_r13.js?v=20261029a"></script>
   <script src="battle_fx.js?v=20261029a"></script>
+  <audio id="battle-bgm" src="audio/battle_bgm.m4a" loop preload="auto"></audio>
 </body>
 </html>

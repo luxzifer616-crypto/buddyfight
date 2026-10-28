@@ -2112,8 +2112,10 @@ const app = {
     const topNav = document.getElementById("top-nav");
     if (screenId === "battle") {
       topNav.classList.add("hidden");
+      this.playBgm();
     } else {
       topNav.classList.remove("hidden");
+      this.stopBgm();
     }
 
     if (screenId === "hub") this.renderHub();
@@ -2262,6 +2264,75 @@ const app = {
     { id: "heroes",   name: "Buddyfight Heroes",             img: "Sprite/Mats/mat-heroes.jpg" },
     { id: "endruler", name: "Endruler Twin Dragons",         img: "Sprite/Mats/mat-endruler.jpg" }
   ],
+
+  // Battle music: plays while the battle screen is up, volume remembered per browser.
+  getBgmVolume() {
+    let v = 0.5;
+    try {
+      const saved = localStorage.getItem("bf_bgm_volume");
+      if (saved !== null && !isNaN(parseFloat(saved))) v = parseFloat(saved);
+    } catch (e) {}
+    return Math.min(1, Math.max(0, v));
+  },
+
+  isBgmMuted() {
+    try { return localStorage.getItem("bf_bgm_muted") === "1"; } catch (e) { return false; }
+  },
+
+  syncBgmControls() {
+    const audio = document.getElementById("battle-bgm");
+    const vol = this.getBgmVolume();
+    const muted = this.isBgmMuted();
+    if (audio) {
+      audio.volume = vol;
+      audio.muted = muted;
+    }
+    const slider = document.getElementById("bgm-volume-slider");
+    if (slider) slider.value = Math.round(vol * 100);
+    const btn = document.getElementById("bgm-mute-btn");
+    if (btn) {
+      btn.textContent = muted || vol === 0 ? "🔇" : vol < 0.5 ? "🔉" : "🔊";
+      btn.setAttribute("aria-label", muted ? "Unmute music" : "Mute music");
+    }
+  },
+
+  setBgmVolume(v) {
+    try {
+      localStorage.setItem("bf_bgm_volume", String(v));
+      // Dragging the slider up un-mutes, like most players expect.
+      if (v > 0) localStorage.setItem("bf_bgm_muted", "0");
+    } catch (e) {}
+    this.syncBgmControls();
+  },
+
+  toggleBgmMute() {
+    try { localStorage.setItem("bf_bgm_muted", this.isBgmMuted() ? "0" : "1"); } catch (e) {}
+    this.syncBgmControls();
+  },
+
+  playBgm() {
+    const audio = document.getElementById("battle-bgm");
+    if (!audio) return;
+    this.syncBgmControls();
+    if (!audio.paused) return;
+    const p = audio.play();
+    // Browsers block autoplay until the page has been clicked; retry on the next click.
+    if (p && p.catch) {
+      p.catch(() => {
+        const retry = () => {
+          if (document.getElementById("screen-battle").classList.contains("active")) audio.play().catch(() => {});
+        };
+        document.addEventListener("pointerdown", retry, { once: true });
+      });
+    }
+  },
+
+  stopBgm() {
+    const audio = document.getElementById("battle-bgm");
+    if (!audio || audio.paused) return;
+    audio.pause();
+    audio.currentTime = 0;
+  },
 
   getMatId() {
     let id = "neon";

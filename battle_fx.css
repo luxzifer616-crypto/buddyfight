@@ -457,3 +457,41 @@
   .fx-divider::after, .fx-sparks i, .fx-board-glow, .hex-zone::before, .phase-pill.active,
   .fighter-hud, .fighter-hud::after, .hand-dock-wrap::before, .battle-ctrl-btn { animation: none !important; }
 }
+
+/* ===== Battle music volume (bottom-left of the player's screen) ===== */
+.bgm-volume {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px 4px 4px;
+  border-radius: 999px;
+  background: rgba(8, 12, 28, 0.72);
+  border: 1px solid rgba(120, 180, 255, 0.35);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(4px);
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+.bgm-volume:hover, .bgm-volume:focus-within { opacity: 1; }
+.bgm-mute-btn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+}
+.bgm-mute-btn:hover { background: rgba(255, 255, 255, 0.18); }
+.bgm-volume input[type="range"] {
+  width: 90px;
+  accent-color: #4fa8ff;
+  cursor: pointer;
+}
