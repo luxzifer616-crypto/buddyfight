@@ -1278,6 +1278,17 @@ function evaluateCardConditions(card, fighter, enemy, isAbilityCall = false) {
   };
 }
 
+// True when the new engine (ABX) runs every optional ("you may") / search line of this card itself, so the old
+// "Use Card Ability" fallback must not run them again. (Before, "Wind Kronos" — run by ABX at the start of the turn —
+// could also be used from that button once per turn, putting a card into the soul each time with no limit.)
+function abxOwnsOptionalLines(card) {
+  if (!card || !window.ABX || !ABX.ownsTriggerLine) return false;
+  const crit = parseDeckSearchCriteria(card);
+  // "you may" inside a reminder ("[Dragod] (You may use this card with all flags)") is not an ability
+  const lines = (card.skill || "").split(/\n+/).map(l => l.trim()).filter(l => /\byou may\b/i.test(l.replace(/\([^)]*\)/g, "")) || (crit && crit.rawText && l.includes(crit.rawText)));
+  return lines.length > 0 && lines.every(l => ABX.ownsTriggerLine(card, l) || (ABX.ownsStaticLine && ABX.ownsStaticLine(card, l)));
+}
+
 /* ==================== UNIVERSAL DECK SEARCH & TOP-DECK LOOK PARSER ==================== */
 function parseDeckSearchCriteria(card) {
   if (!card || !card.skill) return null;
@@ -4955,7 +4966,9 @@ const battle = {
         m.actUsed = false;
 
         // "Wind Kronos" start-of-turn soul charge for Time Ruler Dragon (#5955, #5956, #6065)
-        if ((m.card.skill || "").includes("Wind Kronos") && f.drop.length > 0) {
+        // (ABX runs it itself — optional, you pick the cards — so this only fills in when ABX doesn't own the line)
+        const kronosLine = (m.card.skill || "").split(/\n+/).find(l => l.includes("Wind Kronos"));
+        if (kronosLine && f.drop.length > 0 && !(window.ABX && ABX.ownsTriggerLine && ABX.ownsTriggerLine(m.card, kronosLine))) {
           const targetSoul = m.card.id === 5955 ? 1 : 2;
           while ((m.soul || []).length < targetSoul && f.drop.length > 0) {
             m.soul.push(f.drop.pop());
@@ -5513,7 +5526,7 @@ const battle = {
       }
 
       const abxActs = (window.ABX && ABX.actAbilities) ? ABX.actAbilities(card) : [];
-      if (!unit.isEndrulerFlag && (card.act || abxActs.length || parseDeckSearchCriteria(card) || (card.skill || "").toLowerCase().includes("you may")) && !unit.actUsed) {
+      if (!unit.isEndrulerFlag && (card.act || abxActs.length || ((parseDeckSearchCriteria(card) || (card.skill || "").toLowerCase().includes("you may")) && !abxOwnsOptionalLines(card))) && !unit.actUsed) {
         const bAct = document.createElement("button");
         bAct.className = "action-btn";
         bAct.textContent = `✨ Use Card Ability / [Act]`;
