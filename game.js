@@ -7047,7 +7047,9 @@ const battle = {
         defenderSurvived = true;
         this.setPrompt(`🛡️ "${defender.card.name}" prevented destruction by card effect and remained on the field!`);
       } else {
-        const destroyed = this.destroyMonster(defSide, targetPos);
+        this._destroyByAttack = true;
+        let destroyed;
+        try { destroyed = this.destroyMonster(defSide, targetPos); } finally { this._destroyByAttack = false; }
         destroyedFlag = !!destroyed;
         defenderSurvived = !destroyed;
         if (targetPos === "center" && anyPenetrate && destroyed) {
@@ -7078,7 +7080,8 @@ const battle = {
           const attEff = getUnitEffectiveCombatStats(attFighter, unit);
           if (defPower >= attEff.defense) {
             this.showCutin("COUNTERATTACK!", `"${defender.card.name}" (Pow ${defPower}) destroys "${unit.card.name}" (Def ${attEff.defense})!`, defender.card.img);
-            this.destroyMonster(attSide, zone);
+            this._destroyByAttack = true;
+            try { this.destroyMonster(attSide, zone); } finally { this._destroyByAttack = false; }
             this.setPrompt(`⚡ [COUNTERATTACK!] "${defender.card.name}" (Pow ${defPower}) survived with Def ${defStat} and counter-destroyed "${unit.card.name}" (Def ${attEff.defense})!`);
           }
         }
@@ -7134,7 +7137,7 @@ const battle = {
 
     if (this.imOnDestroyedUnit && window.IMX && IMX.isUnit(m)) this.imOnDestroyedUnit(side, m);
     this.sendMonsterToDropWithAnimation(side, pos, false);
-    if (window.ABX && ABX.fireLeave) ABX.fireLeave(side, m.card);
+    if (window.ABX && ABX.fireLeave) ABX.fireLeave(side, m.card, !!this._destroyByAttack);
     if (window.ABX && ABX.fireOtherDestroyed) ABX.fireOtherDestroyed(side, m.card, m);
     return true;
   },

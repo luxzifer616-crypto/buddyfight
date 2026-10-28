@@ -880,5 +880,345 @@
     if (ABX.canPayExtras) { const ocp = ABX.canPayExtras; ABX.canPayExtras = function (side, card) { if (card && card.type === "Monster" && freeCostActive(card, F(side), "call")) return true; return ocp.apply(this, arguments); }; }
   }
 
+
+  /* ============================================================
+   * 6. UNREAD TEXT, PART 1: triggers and common clauses
+   * ============================================================ */
+  // --- trigger wordings ---
+  const NEW_TRIG = [];
+  const tr = (re, fn) => NEW_TRIG.push([re, fn]);
+  const withOf = (w) => {
+    if (!w) return {};
+    if (/^you$/i.test(w)) return { withYou: true };
+    const t = w.replace(/^(?:another|an|a)\s+/i, "");
+    const np = NP(t); return np ? { with: np } : { withBad: true };
+  };
+  tr(/^(?:when|whenever) this card link attacks(?: with (.+))?$/i, (m) => Object.assign({ event: "link", self: true }, withOf(m[1])));
+  tr(/^at the end of the battle (?:that|in which) this card link attacked(?: with (.+))?$/i, (m) => Object.assign({ event: "battleEnd", self: true, link: true }, withOf(m[1])));
+  tr(/^at the end of this card's battle$/i, () => ({ event: "battleEnd", self: true }));
+  tr(/^when this card is dropped from (?:your )?hand(?: by (?:a )?card effects?)?$/i, () => ({ event: "discardedFromHand", self: true }));
+  tr(/^when this card (?:enters your field|is put on(?:to)? (?:the|your) field)$/i, () => ({ event: "enter", self: true }));
+  tr(/^when this card enters the field on (?:your |the )?(left|right|center)(?: or (?:your |the )?(left|right|center))?$/i, (m) => ({ event: "enter", self: true, pos: [m[1], m[2]].filter(Boolean).map(lc) }));
+  tr(/^when this card is destroyed by (?:a |your |your opponent's |an opponent's )?(?:card|monster|spell)(?: card)? effects?$/i, () => ({ event: "leave", self: true, destroyedOnly: true, byEffect: true }));
+  tr(/^when you \[(?:transform|ride)\] (?:into|on) this card$/i, () => ({ event: "equipped", self: true }));
+  tr(/^(?:when|whenever) (?:your |the |a |an )(.+?) with this card in its soul attacks$/i, (m) => { const np = NP(m[1]); return np ? { event: "hostAttack", np } : null; });
+  tr(/^when you are attacked$/i, () => ({ event: "oppAttack", fighterTarget: true }));
+  tr(/^when (?:a|an) (?:card|monster) on your opponent's field attacks$/i, () => ({ event: "oppAttack" }));
+  ABX.TRIGGER_RULES.unshift(...NEW_TRIG);
+  ABX.linkWithOK = function (t, unit, units, attSide) {
+    if (t.withBad) return false;
+    const others = (units || []).map(x => (x && x.unit) || x).filter(u => u && u !== unit);
+    const f = F(attSide);
+    if (t.withYou) return others.some(u => u === f.item);
+    if (t.with) return others.some(u => matchFilter(u.card, t.with.filter || {}, { unit: u, side: attSide }, { f }));
+    return true;
+  };
+  // trigger rewrites (text)
+  function rewrite3(s) {
+    s = s.replace(/\bwhen this card enters the field during (your|the) (final|main|attack) phase,\s*/ig, "During $1 $2 phase, when this card enters the field, ");
+    s = s.replace(/\bwhen this card is put (?:into (?:your|the) drop zone from (?:your|the) field|from (?:your|the) field (?:into|to) (?:your|the) drop zone)\b/ig, "When this card is put from the field into the drop zone");
+    s = s.replace(/\bwhen another (.+?) enters your field\b/ig, "When a $1 enters your field");
+    s = s.replace(/\bwhen your opponent's monster is destroyed by an attack\b/ig, "When a monster on your opponent's field is destroyed by an attack");
+    // clauses
+    s = s.replace(/\bput the rest on the bottom of the deck\b/ig, "put the rest on the bottom of your deck");
+    s = s.replace(/\bfrom your drop zone to deck\b/ig, "from your drop zone to your deck");
+    s = s.replace(/(^|[,.]\s*|\band\s+)you draw\b/ig, "$1draw");
+    s = s.replace(/\bthis card's attacks cannot be nullified\b/ig, "this card's attack cannot be nullified");
+    s = s.replace(/\bnullify abilities of\b/ig, "nullify all abilities of");
+    s = s.replace(/\bplay "rock-paper-scissors?" with your opponent(?: once| only once)?\b/ig, 'play "Rock-Paper-Scissors" with your opponent');
+    return s;
+  }
+  const prevRw2 = ABX.rewriteLine;
+  ABX.rewriteLine = (t) => rewrite3(prevRw2(t));
+  const palNow2 = ABX.parseAbilityLine;
+  ABX.parseAbilityLine = function (rawLine, card) {
+    const fixed = rewrite3(rawLine);
+    const ab = palNow2.call(this, fixed, card);
+    if (fixed !== rawLine) ab.raw = ABX.clean(rawLine);
+    fixElse(ab.steps);
+    return ab;
+  };
+  // "If it is a monster, A. If it is not, B." -> B when the previous condition is false
+  function fixElse(steps) {
+    let last = null;
+    (steps || []).forEach(x => {
+      if (!x.cond) return;
+      if (x.cond.t === "xElse") { if (last) { const c = last; Object.keys(x.cond).forEach(k => delete x.cond[k]); Object.assign(x.cond, { t: "not", c }); } return; }
+      if (x.cond.t !== "not" || !x.cond.__else) last = x.cond;
+    });
+  }
+  // --- "When this card A or B": two abilities with the same effect ---
+  const origParseCard = ABX.parseCard;
+  ABX.parseCard = function (card) {
+    const r = origParseCard.apply(this, arguments);
+    const out = [];
+    r.abilities.forEach(ab => {
+      const t = ab.trigger;
+      if (!(t && t.event === "unknown" && t.src)) { out.push(ab); return; }
+      const m = ABX.norm(t.src).match(/^(when|whenever) this card (.+?),? or (?:when |whenever )?(?:this card |it )?(.+)$/i);
+      if (!m) { out.push(ab); return; }
+      const body = String(ab.cleaned || "").slice(String(ab.cleaned || "").indexOf(t.src) + t.src.length).replace(/^,\s*/, "");
+      const name = ab.name ? '"' + ab.name + '" ' : "";
+      const onceTxt = ab.once ? " This ability only activates once per " + ab.once + "." : "";
+      const a1 = ABX.parseAbilityLine(name + "When this card " + m[2] + ", " + body + onceTxt, card);
+      const a2 = ABX.parseAbilityLine(name + "When this card " + m[3] + ", " + body + onceTxt, card);
+      const ok = (a) => a.trigger && a.trigger.event !== "unknown" && !(a.unparsed && a.unparsed.length);
+      if (!ok(a1) || !ok(a2)) { out.push(ab); return; }
+      [a1, a2].forEach(a => { a.raw = ab.raw; a.kind = ab.tags && ab.tags.includes("act") ? "act" : "triggered"; if (ab.once && !ab.name) a.name = "__or:" + card.id + ":" + out.length; out.push(a); });
+    });
+    r.abilities = out;
+    return r;
+  };
+  // --- "When the «X» with this card in its soul attacks" (abilities of soul cards) ---
+  const ofa = ABX.fireAttack;
+  ABX.fireAttack = function (attSide, units, defSide, targetPos) {
+    const p = ofa.apply(this, arguments);
+    ABX.queue(async () => {
+      const f = F(attSide);
+      for (const x of units || []) {
+        const host = x && x.unit; if (!host || !(host.soul || []).length) continue;
+        for (const id of host.soul.slice()) {
+          const c = cardOf(id); if (!c) continue;
+          for (const ab of core.abilitiesOf(c, a => a.kind === "triggered" && a.trigger && a.trigger.event === "hostAttack" && ABX.isExecutable(a))) {
+            if (ab.trigger.np && !matchFilter(host.card, ab.trigger.np.filter || {}, { unit: host, side: attSide }, { f })) continue;
+            if (host.abxNullified === B.turnCount || core.onceUsed(f, c, ab, host)) continue;
+            const idx = host.soul.indexOf(id); if (idx < 0) continue;
+            const selfRef = { k: "soul", side: attSide, unit: host, idx, id, card: c };
+            const probe = { side: attSide, f, e: F(otherSide(attSide)), card: c, unit: null, ab, soulHost: host, hostArea: "soul", selfRef, bind: { chosen: [{ k: "unit", side: attSide, unit: host, card: host.card, id: host.card.id }] }, lastDone: true, auto: true, log: [] };
+            if (!(ab.conds || []).every(cd => evalCond(cd, probe))) continue;
+            core.markOnce(f, c, ab, host);
+            cut("ABILITY!", c.name, c.img);
+            const ctx = await core.runAbility(attSide, c, ab, null, { event: { name: "attack" }, hostArea: "soul", soulHost: host, selfRef });
+            if (B.matchOver) return;
+          }
+        }
+      }
+    });
+    return p;
+  };
+
+  // --- clause rules ---
+  const ACT3 = [];
+  const ar3 = (re, fn) => ACT3.push([re, fn, false]);
+  ar3(/^shuffle (?:it|them|your deck|the deck)$/i, () => ({ op: "shuffle", who: "you" }));
+  ar3(/^deal (\d+|one|two|three|four|five) damage$/i, (m) => ({ op: "damage", who: "opp", n: toNum(m[1]) }));
+  ar3(/^look at the top card of your deck$/i, () => ({ op: "look", n: 1, who: "you" }));
+  ar3(/^(?:you may )?cast this card without paying (?:its|the) \[cast cost\]$/i, () => ({ op: "freeCost", what: "cast" }));
+  ar3(/^deal damage to (?:your|the) opponent equal to (?:that card's|its|the chosen card's|the revealed card's) (critical|power|size)$/i, (m) => ({ op: "damage", who: "opp", n: { refStat: lc(m[1]) } }));
+  ar3(/^(it|this card|that card|the chosen card|they|these cards|all (.+?)) can (?:also )?attack during (?:this|the|your) final phase$/i, (m) => ({ op: "finalAttack", who: /^all /i.test(m[1]) ? "np" : /^(this card)$/i.test(m[1]) ? "self" : "chosen", np: m[2] ? NP(m[2]) : null }));
+  ar3(/^you cannot be dealt damage(?: (by card effects|by attacks))?$/i, (m) => ({ op: "shield", mode: "turn", toZero: true, from: m[1] ? (/effects/i.test(m[1]) ? "effect" : "attack") : null }));
+  ar3(/^play "rock-paper-scissors" with your opponent$/i, () => ({ op: "rps" }));
+  ar3(/^your opponent cannot \[counter\] during the battle that this card is attacking alone$/i, () => ({ op: "noCounterSelf" }));
+  ABX.ACTION_RULES.unshift(...ACT3);
+  // --- clause conditions ---
+  const C3 = [];
+  const cr3 = (re, fn) => C3.push([re, fn]);
+  cr3(/^(?:it|that card) is (?:a|an) (monster|spell|item|impact)(?: card)?$/i, (m) => ({ t: "refType", type: lc(m[1]) }));
+  cr3(/^(?:it is not|not|it is not so|otherwise|they are not|it was not)$/i, () => ({ t: "xElse" }));
+  cr3(/^you do not have (?:a|any) monsters? (?:in|on) (?:the|your) center$/i, () => ({ t: "xCenterEmpty", who: "you" }));
+  cr3(/^you win$/i, () => ({ t: "xRps", v: "win" }));
+  cr3(/^you lose$/i, () => ({ t: "xRps", v: "lose" }));
+  cr3(/^you (?:didn't|did not|do not) lose$/i, () => ({ t: "xRps", v: "notLose" }));
+  cr3(/^(?:it is a tie|it's a tie|you tie|it is a draw)$/i, () => ({ t: "xRps", v: "tie" }));
+  ABX.COND_RULES.unshift(...C3);
+  XC.xElse = () => false;   // replaced at parse time by "not <previous condition>"
+  XC.xRps = (c, ctx) => { const r = ctx.rps; if (!r) return false; return c.v === "notLose" ? r !== "lose" : r === c.v; };
+  addOk("xElse", "xRps");
+
+  // --- new effects ---
+  OPS.finalAttack = {
+    run(s, ctx) {
+      let us = [];
+      if (s.who === "self") us = ctx.unit ? [ctx.unit] : [];
+      else if (s.who === "np") us = s.np ? refsFor(s.np, ctx, { owner: "you", area: "field" }).filter(r => r.unit).map(r => r.unit) : [];
+      else us = chosenUnits(ctx).length ? chosenUnits(ctx) : (ctx.unit ? [ctx.unit] : []);
+      us.forEach(u => { u.canAttackFinal = true; if (!u.rested) u.attacksLeft = Math.max(u.attacksLeft || 0, 1); });
+      fresh(); return us.length > 0;
+    },
+    check: (s) => s.who !== "np" || !!s.np
+  };
+  OPS.noCounterSelf = { run(s, ctx) { if (!ctx.unit) return false; ctx.unit.abxNoCounter = { turn: B.turnCount, mode: "alone" }; return true; }, check: () => true };
+  const RPS = ["✊ Rock", "✋ Paper", "✌️ Scissors"];
+  OPS.rps = {
+    async run(s, ctx) {
+      for (let round = 0; round < 5; round++) {
+        let me = Math.floor(Math.random() * 3);
+        if (!isAuto(ctx)) { const i = await ABX.ui.pickOption({ title: `${ctx.card.name} — Rock-Paper-Scissors!`, subtitle: "Choose your hand.", options: RPS.map(l => ({ label: l })) }); if (i != null && i >= 0) me = i; }
+        const opp = Math.floor(Math.random() * 3);   // the other player's hand is picked at random (their device / the bot can't be asked here)
+        const res = me === opp ? "tie" : (me + 1) % 3 === opp ? "lose" : "win";
+        say(`✊✋✌️ ${RPS[me]} vs ${RPS[opp]} — ${res === "win" ? "you WIN!" : res === "lose" ? "you lose." : "tie, again!"}`);
+        if (res !== "tie" || /once/i.test(s.src || "")) { ctx.rps = res; return true; }
+      }
+      ctx.rps = "tie"; return true;
+    },
+    check: () => true
+  };
+
+
+  /* ============================================================
+   * 7. UNREAD TEXT, PART 2
+   * ============================================================ */
+  // --- triggers ---
+  const T4 = [];
+  const tr4 = (re, fn) => T4.push([re, fn]);
+  tr4(/^when this card \[(?:ride|transform)\]$|^when you \[(?:transform|ride)\] (?:into|on) it$/i, () => ({ event: "equipped", self: true }));
+  tr4(/^when this card enters on the (left|right|center)$/i, (m) => ({ event: "enter", self: true, pos: [lc(m[1])] }));
+  tr4(/^when this hand card is (?:dropped|discarded)$/i, () => ({ event: "discardedFromHand", self: true }));
+  tr4(/^when you gained life$/i, () => ({ event: "lifeGain", who: "you" }));
+  tr4(/^when this card is destroyed by (?:an |your opponent's )?attacks?$/i, () => ({ event: "leave", self: true, destroyedOnly: true, byAttackOnly: true }));
+  tr4(/^when this card is destroyed by the effect of (?:a|an|your opponent's) (?:monster|card|spell)$/i, () => ({ event: "leave", self: true, destroyedOnly: true, byEffect: true }));
+  tr4(/^when this card is put from the field$/i, () => ({ event: "leave", self: true }));
+  tr4(/^when this card is \[stand\] by (?:a )?card effects?$/i, () => ({ event: "stoodByEffect", self: true }));
+  ABX.TRIGGER_RULES.unshift(...T4);
+  // [Stand] by card effects: fire for units an ABX effect stood up
+  const ostand = OPS.stand.run;
+  OPS.stand.run = async function (s, ctx) {
+    const before = new Map();
+    ["plr", "opp"].forEach(sd => fieldUnits(F(sd), true).forEach(x => before.set(x.unit, { rested: !!x.unit.rested, side: sd })));
+    const res = await ostand.call(this, s, ctx);
+    for (const [u, b] of before) {
+      if (!b.rested || u.rested) continue;
+      for (const ab of core.abilitiesOf(u.card, a => a.kind === "triggered" && a.trigger && a.trigger.event === "stoodByEffect" && ABX.isExecutable(a))) {
+        const f = F(b.side);
+        if (u.abxNullified === B.turnCount || core.onceUsed(f, u.card, ab, u)) continue;
+        core.markOnce(f, u.card, ab, u);
+        ABX.queue(() => core.runAbility(b.side, u.card, ab, u, { event: { name: "stood" } }));
+      }
+    }
+    return res;
+  };
+
+  // --- "Then, if five or more, ..." repeats the last count condition with a new number ---
+  const C4 = [];
+  const cr4 = (re, fn) => C4.push([re, fn]);
+  cr4(new RegExp("^" + NUM + " or more$", "i"), (m) => ({ t: "xChainMore", n: N(m[1]) }));
+  cr4(/^you destroyed(?: (?:a|an|one|any) .+)?$|^you called(?: (?:a|an|one) .+)?$|^put$|^you put a card into your hand$|^called$/i, () => ({ t: "xLastCount", n: 1 }));
+  cr4(/^you are \[station\] at (?:a |an )?card$/i, () => ({ t: "xItemMode", mode: "st" }));
+  cr4(/^you are \[transform\] into (?:a|an) card$/i, () => ({ t: "xItemMode", mode: "tr" }));
+  cr4(/^your flags? (?:is|are) in \[reversal\]$/i, () => ({ t: "reversal", n: 1, cmp: "ge" }));
+  cr4(/^during each player's (attack|main|final) phase and (attack|main|final) phase$/i, (m) => ({ t: "or", list: [{ t: "phase", phase: lc(m[1]) }, { t: "phase", phase: lc(m[2]) }] }));
+  cr4(/^during the battle (?:that|in which) this card is attacking alone$/i, () => ({ t: "xAlone" }));
+  cr4(/^during the battle of this card$|^this card is in battle$/i, () => ({ t: "xOwnBattle" }));
+  cr4(/^there is a card of the declared (?:card )?type among them$/i, () => ({ t: "xDeclared", among: true }));
+  cr4(/^(?:that card|it|the revealed card|the dropped card) is (?:of )?the declared (?:card )?type$/i, () => ({ t: "xDeclared" }));
+  ABX.COND_RULES.unshift(...C4);
+  XC.xChainMore = () => false;   // replaced at parse time
+  XC.xOwnBattle = (c, ctx) => { const b = battleNow(); return !!(b && ctx.unit && ((b.attUnits || []).includes(ctx.unit) || b.defUnit === ctx.unit)); };
+  const typeIs = (card, t) => !!card && (t === "monster" ? core.isMonsterCard(card) : t === "spell" ? card.type === "Spell" : t === "item" ? card.type === "Item" : card.type === "Impact");
+  XC.xDeclared = (c, ctx) => {
+    if (!ctx.declared) return false;
+    const refs = [].concat(ctx.bind.looked || [], ctx.bind.revealed || [], ctx.bind.chosen || []).filter(r => r && r.card);
+    return c.among ? refs.some(r => typeIs(r.card, ctx.declared)) : (refs.length > 0 && typeIs(refs[refs.length - 1].card, ctx.declared));
+  };
+  addOk("xChainMore", "xOwnBattle", "xDeclared");
+  const NUMERIC = (c) => c && typeof c.n === "number" && c.t !== "xChainMore" && c.t !== "xLastCount";
+  function findNumeric(c) { if (!c) return null; if (NUMERIC(c) && c.cmp !== "le" && c.cmp !== "eq") return c; if (c.list) { for (const x of c.list) { const r = findNumeric(x); if (r) return r; } } if (c.c) return findNumeric(c.c); return null; }
+  function replaceChain(c, base) {
+    if (!c) return;
+    if (c.t === "xChainMore") { if (base) { const n = c.n; Object.keys(c).forEach(k => delete c[k]); Object.assign(c, JSON.parse(JSON.stringify(base)), { n, cmp: "ge" }); } return; }
+    (c.list || []).forEach(x => replaceChain(x, base));
+    if (c.c) replaceChain(c.c, base);
+  }
+  function fixChains(steps, conds) {
+    let base = null;
+    (conds || []).forEach(c => { const b = findNumeric(c); if (b) base = b; });
+    (steps || []).forEach(x => {
+      if (x.cond) { replaceChain(x.cond, base); const b = findNumeric(x.cond); if (b) base = b; }
+      if (x.op === "seq") fixChains(x.steps, []);
+    });
+  }
+
+  // --- clauses ---
+  const A4 = [];
+  const ar4 = (re, fn) => A4.push([re, fn, false]);
+  ar4(/^(?:you may )?reveal this (?:hand )?card(?: from your hand)?$/i, () => ({ op: "noop", note: "reveal" }));
+  ar4(/^declare (?:a|one) card type(?: \(monster, spell, item(?:,| or) impact\))?$|^declare either monster or spell$/i, (m) => ({ op: "declareType", two: /either/i.test(m[0]) }));
+  ar4(/^pay (\d+|one|two|three) gauge and (\d+|one|two|three) life$/i, (m) => ({ op: "pay", gauge: toNum(m[1]), life: toNum(m[2]), cost: true }));
+  ar4(/^drop (?:up to )?the top (\w+) cards? of your opponent's deck$/i, (m) => ({ op: "mill", who: "opp", n: toNum(m[1]), to: "drop zone" }));
+  ar4(/^your opponent cannot (?:use|cast|use or cast) \[counter\]$/i, () => ({ op: "oppNoCounter" }));
+  ar4(/^change the target of the attack to your (center|left|right) (.+)$/i, (m) => ({ op: "redirectPos", pos: lc(m[1]), np: NP(m[2]) }));
+  ar4(/^deal (\d+|one|two) damage to you or your opponent$/i, (m) => ({ op: "either", opts: [[{ op: "damage", who: "opp", n: toNum(m[1]) }], [{ op: "damage", who: "you", n: toNum(m[1]) }]], labels: ["Deal " + m[1] + " damage to your opponent", "Deal " + m[1] + " damage to yourself"] }));
+  ar4(/^your opponent cannot gain life$/i, () => ({ op: "noLifeGain" }));
+  ABX.ACTION_RULES.unshift(...A4);
+  function rewrite4(s) {
+    s = s.replace(/(^|[.!,]\s+|\]\s+)during this turn,\s*/ig, "$1for this turn, ");
+    s = s.replace(/\breturn (.+?) on your opponent's field to the hand\b/ig, "return $1 on your opponent's field to hand");
+    return s;
+  }
+  const prevRw3 = ABX.rewriteLine;
+  ABX.rewriteLine = (t) => rewrite4(prevRw3(t));
+  const palNow3 = ABX.parseAbilityLine;
+  ABX.parseAbilityLine = function (rawLine, card) {
+    const fixed = rewrite4(rawLine);
+    const ab = palNow3.call(this, fixed, card);
+    if (fixed !== rawLine) ab.raw = ABX.clean(rawLine);
+    fixChains(ab.steps, ab.conds);
+    return ab;
+  };
+  // "When this card enters the field or when you [Transform] into it": the second trigger has its own subject
+  const pcOr = ABX.parseCard;
+  ABX.parseCard = function (card) {
+    const r = pcOr.apply(this, arguments);
+    const out = [];
+    r.abilities.forEach(ab => {
+      const t = ab.trigger;
+      const m = t && t.event === "unknown" && t.src && ABX.norm(t.src).match(/^(when|whenever) this card (.+?),? or (?:when |whenever )?((?:you|your|a|an|another) .+)$/i);
+      if (!m) { out.push(ab); return; }
+      const body = String(ab.cleaned || "").slice(String(ab.cleaned || "").indexOf(t.src) + t.src.length).replace(/^,\s*/, "");
+      const onceTxt = ab.once ? " This ability only activates once per " + ab.once + "." : "";
+      const a1 = ABX.parseAbilityLine("When this card " + m[2] + ", " + body + onceTxt, card);
+      const a2 = ABX.parseAbilityLine("When " + m[3] + ", " + body + onceTxt, card);
+      const ok = (a) => a.trigger && a.trigger.event !== "unknown" && !(a.unparsed && a.unparsed.length);
+      if (!ok(a1) || !ok(a2)) { out.push(ab); return; }
+      [a1, a2].forEach(a => { a.raw = ab.raw; a.kind = "triggered"; if (ab.once) a.name = "__or:" + card.id + ":" + out.length; out.push(a); });
+    });
+    r.abilities = out;
+    return r;
+  };
+
+  // --- effects ---
+  OPS.declareType = {
+    async run(s, ctx) {
+      const types = s.two ? ["monster", "spell"] : ["monster", "spell", "item", "impact"];
+      let i = 0;
+      if (!isAuto(ctx)) { const k = await ABX.ui.pickOption({ title: `${ctx.card.name} — declare a card type`, options: types.map(t => ({ label: t[0].toUpperCase() + t.slice(1) })) }); if (k != null && k >= 0) i = k; }
+      ctx.declared = types[i];
+      say(`📢 ${ctx.f.name || "You"} declared: ${types[i].toUpperCase()}`);
+      return true;
+    },
+    check: () => true
+  };
+  OPS.oppNoCounter = {
+    run(s, ctx) { const e = ctx.e; if (s.duration === "battle" || battleNow()) e.timeStoppedThisBattle = true; else e.timeStoppedThisTurn = true; say(`⛔ ${e.name || "Your opponent"} cannot use [Counter]!`); return true; },
+    check: () => true
+  };
+  OPS.noCounter.run = function (s, ctx) { return OPS.oppNoCounter.run(s, ctx); };   // was a no-op
+  OPS.redirectPos = {
+    run(s, ctx) {
+      const bc = ABX.battleCtx; const u = ctx.f.monsters[s.pos];
+      if (!bc || !bc.active || !u) return false;
+      if (s.np && !matchFilter(u.card, s.np.filter || {}, { unit: u, side: ctx.side }, ctx)) return false;
+      bc.redirectTo = s.pos; say(`🎯 The attack's target was changed to "${u.card.name}"!`); return true;
+    },
+    check: () => true
+  };
+  OPS.noLifeGain = { run() { return true; }, check: () => true };   // continuous; read by ABX.lifeGainBlocked
+  ABX.lifeGainBlocked = function (f) {
+    const side = B.plr === f ? "plr" : B.opp === f ? "opp" : null;
+    if (!side) return false;
+    const other = F(otherSide(side));
+    return fieldUnits(other, true).some(x => x.unit.abxNullified !== B.turnCount && core.abilitiesOf(x.unit.card, a => a.kind === "static").some(a => (a.steps || []).some(st => st.op === "noLifeGain") && (a.conds || []).every(c => ABX.condExecutable(c) && evalCond(c, { side: otherSide(side), f: other, e: f, card: x.unit.card, unit: x.unit, bind: { chosen: [] } }))));
+  };
+  // statics made only of "passive" effects are executable
+  const PASSIVE = new Set(["freeCost", "noLifeGain"]);
+  const ie2 = ABX.isExecutable;
+  ABX.isExecutable = function (ab) {
+    if (ab && ab.kind === "static" && ab.steps && ab.steps.length && ab.steps.every(x => PASSIVE.has(x.op)) && !(ab.unparsed && ab.unparsed.length))
+      return (ab.conds || []).every(ABX.condExecutable) && ab.steps.every(x => !x.cond || ABX.condExecutable(x.cond));
+    return ie2.call(this, ab);
+  };
+  // "cannot use [Counter]" also closes the spell / call response window
+  if (ABX.castWindow) { const ocw2 = ABX.castWindow; ABX.castWindow = function (casterSide, card, kind) { const r = F(otherSide(casterSide)); if (r && (r.timeStoppedThisTurn || r.timeStoppedThisBattle)) return Promise.resolve(false); return ocw2.apply(this, arguments); }; }
+
   if (ABX.resetCaches) ABX.resetCaches();
 })(typeof window !== "undefined" ? window : globalThis);

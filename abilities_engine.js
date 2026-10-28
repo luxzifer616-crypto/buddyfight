@@ -104,7 +104,7 @@
     enter: t => t.self, attack: t => t.self && !(t.target && t.target.junk), dealsDamage: t => t.self || !!t.np, damaged: () => true, attackDestroys: t => t.self, attackOutcome: t => t.self, attacked: t => t.self, link: t => t.self, discardedFromHand: t => t.self, otherAttack: t => !!t.np, oppAttack: () => true, battleEnd: () => true,
     turnStart: () => true, turnEnd: () => true, phaseStart: t => ["start", "draw", "main", "attack", "final", "turn"].includes(t.phase),
     otherEnter: t => !!t.np, otherDestroyed: t => !!t.np && !t.np.self, youCast: () => true, oppCast: () => true, leave: t => t.self && !t.byOpp,
-    lifeGain: () => true, equipped: t => t.self, soulEmpty: t => t.self
+    lifeGain: () => true, equipped: t => t.self, soulEmpty: t => t.self, hostAttack: t => !t.np || !t.np.junk, stoodByEffect: t => t.self
   };
   function triggerSupported(t) { return !!t && !!TRIG_OK[t.event] && TRIG_OK[t.event](t); }
   ABX.triggerSupported = triggerSupported;
@@ -894,9 +894,9 @@
       const tgtOK = (t) => (!t.targetPos || t.targetPos.includes(targetPos)) && (!t.target || (defUnit && matchFilter(defUnit.card, t.target.filter || {}, { unit: defUnit, side: defSide }, { f: F(defSide) })));
       if (ABX.applyBattleNullify) ABX.applyBattleNullify(attSide, units.map(u => u.unit), defSide, defUnit);
       await fireTriggers((t, src, side) => (t.event === "attack" && t.self && tgtOK(t) && side === attSide && us.has(src.unit)) ||
-        (t.event === "link" && t.self && units.length > 1 && side === attSide && us.has(src.unit)) ||
+        (t.event === "link" && t.self && units.length > 1 && side === attSide && us.has(src.unit) && (!ABX.linkWithOK || ABX.linkWithOK(t, src.unit, units, attSide))) ||
         (t.event === "otherAttack" && side === attSide && src.unit && !us.has(src.unit) && !t.np.self && units.some(u => matchFilter(u.unit.card, t.np.filter || {}, { unit: u.unit, side: attSide }, { f: F(attSide) }))) ||
-        (t.event === "oppAttack" && side === defSide) ||
+        (t.event === "oppAttack" && side === defSide && (!t.fighterTarget || !defUnit)) ||
         (t.event === "attacked" && t.self && side === defSide && defUnit && src.unit === defUnit), { name: "attack", attSide, defSide, attUnits: units.map(u => u.unit), defUnit });
     }).catch(() => {});
   };
@@ -934,7 +934,7 @@
   };
   ABX.fireBattleEnd = function (attSide, units) {
     if (ABX.clearBattleNullify) ABX.clearBattleNullify();
-    return ABX.queue(() => fireTriggers((t, src, side) => t.event === "battleEnd" && side === attSide && (!t.self || units.some(u => u.unit === src.unit)), { name: "battleEnd" }));
+    return ABX.queue(() => fireTriggers((t, src, side) => t.event === "battleEnd" && side === attSide && (!t.self || units.some(u => u.unit === src.unit)) && (!t.link || units.length > 1) && (!t.with || !ABX.linkWithOK || ABX.linkWithOK(t, src.unit, units, attSide)), { name: "battleEnd" }));
   };
   ABX.fireTurnEvent = function (kind, phase) {
     return ABX.queue(() => fireTriggers((t, src, side) => {
@@ -993,7 +993,12 @@
     Object.defineProperty(f, "life", {
       configurable: true, enumerable: true,
       get() { return v; },
-      set(n) { const old = v; v = n; if (typeof n === "number" && typeof old === "number" && n > old && ABX.enabled !== false) { const sd = sideOfF(f); if (sd) ABX.fireLifeGain(sd); } }
+      set(n) {
+        const old = v;
+        // "Your opponent cannot gain life" (a continuous ability on the other side)
+        if (typeof n === "number" && typeof old === "number" && n > old && ABX.lifeGainBlocked && ABX.lifeGainBlocked(f)) return;
+        v = n; if (typeof n === "number" && typeof old === "number" && n > old && ABX.enabled !== false) { const sd = sideOfF(f); if (sd) ABX.fireLifeGain(sd); }
+      }
     });
   }
   ABX.watchFighters = function () {
@@ -1021,7 +1026,7 @@
   // "When this card is destroyed / leaves the field": the card is already gone, so run with no unit.
   ABX.fireLeave = function (side, card, byAttack) {
     return ABX.queue(async () => {
-      for (const ab of abilitiesOf(card, a => a.kind === "triggered" && a.trigger && ((a.trigger.event === "leave" && a.trigger.self && !a.trigger.byOpp) || (a.trigger.event === "attack" && a.trigger.also === "leave")) && ABX.isExecutable(a))) {
+      for (const ab of abilitiesOf(card, a => a.kind === "triggered" && a.trigger && ((a.trigger.event === "leave" && a.trigger.self && !a.trigger.byOpp && !(a.trigger.byEffect && byAttack) && !(a.trigger.byAttackOnly && !byAttack)) || (a.trigger.event === "attack" && a.trigger.also === "leave")) && ABX.isExecutable(a))) {
         const f = F(side);
         if (onceUsed(f, card, ab, null)) continue;
         const probe = { side, f, e: F(otherSide(side)), card, unit: null, ab, bind: { chosen: [], revealed: [], looked: [] }, lastDone: true, auto: true, log: [], hostArea: "drop", event: { name: "leave" } };
