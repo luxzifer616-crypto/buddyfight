@@ -495,3 +495,10 @@
   accent-color: #4fa8ff;
   cursor: pointer;
 }
+
+/* Phones: only the speaker button shows; tapping it opens the slider (app.toggleBgmMute) */
+@media (max-width: 600px) {
+  .bgm-volume:not(.open) { padding: 4px; }
+  .bgm-volume:not(.open) input[type="range"] { display: none; }
+  .bgm-volume.open { opacity: 1; }
+}

@@ -2303,17 +2303,66 @@ const app = {
       if (v > 0) localStorage.setItem("bf_bgm_muted", "0");
     } catch (e) {}
     this.syncBgmControls();
+    this.keepBgmControlOpen();
   },
 
   toggleBgmMute() {
+    // Phones show only the speaker button: the first tap opens the slider, a tap while open mutes / unmutes.
+    const ctl = document.querySelector(".bgm-volume");
+    if (ctl && window.matchMedia && window.matchMedia("(max-width: 600px)").matches && !ctl.classList.contains("open")) {
+      ctl.classList.add("open");
+      this.keepBgmControlOpen();
+      const close = (ev) => {
+        if (ctl.contains(ev.target)) return;
+        ctl.classList.remove("open");
+        document.removeEventListener("pointerdown", close, true);
+      };
+      document.addEventListener("pointerdown", close, true);
+      requestAnimationFrame(() => this.placeBgmControl());
+      return;
+    }
     try { localStorage.setItem("bf_bgm_muted", this.isBgmMuted() ? "0" : "1"); } catch (e) {}
     this.syncBgmControls();
+    this.keepBgmControlOpen();
+  },
+
+  // the phone slider folds back after a few seconds without use
+  keepBgmControlOpen() {
+    const ctl = document.querySelector(".bgm-volume");
+    if (!ctl || !ctl.classList.contains("open")) return;
+    clearTimeout(this._bgmCloseTimer);
+    this._bgmCloseTimer = setTimeout(() => { ctl.classList.remove("open"); this.placeBgmControl(); }, 4000);
+  },
+
+  // Keep the volume control in the bottom-left corner, but lift it above the hand when they would overlap
+  // (narrow / phone screens), so it never covers a hand card.
+  placeBgmControl() {
+    const ctl = document.querySelector(".bgm-volume");
+    const hand = document.getElementById("bt-plr-hand");
+    if (!ctl) return;
+    ctl.style.bottom = "";
+    if (!hand) return;
+    const c = ctl.getBoundingClientRect(), h = hand.getBoundingClientRect();
+    if (!h.width || !c.width) return;
+    const overlaps = c.left < h.right && c.right > h.left && c.top < h.bottom && c.bottom > h.top;
+    if (overlaps) ctl.style.bottom = `${12 + (c.bottom - h.top) + 6}px`;
+  },
+
+  watchBgmControl() {
+    if (this._bgmWatch) return;
+    this._bgmWatch = true;
+    const place = () => this.placeBgmControl();
+    window.addEventListener("resize", place);
+    const hand = document.getElementById("bt-plr-hand");
+    if (hand && typeof ResizeObserver !== "undefined") new ResizeObserver(place).observe(hand);
   },
 
   playBgm() {
     const audio = document.getElementById("battle-bgm");
     if (!audio) return;
     this.syncBgmControls();
+    this.watchBgmControl();
+    requestAnimationFrame(() => this.placeBgmControl());
     if (!audio.paused) return;
     const p = audio.play();
     // Browsers block autoplay until the page has been clicked; retry on the next click.
