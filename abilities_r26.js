@@ -19,7 +19,7 @@
   /* ---- 1. rewrites ---- */
   const RW = [
     [/\b(?:this ability )?(?:only )?activates once per (?:main|attack) phase and once per final phase\.?/gi, "This ability only activates once per phase."],
-    [/\byou may discard two soul from this card's soul\b/gi, "you may drop two souls from this card"],
+    [/\byou may discard two soul from this card's soul\b/gi, "You may drop two souls from this card"],
     [/\bif you are not equipped with an item, you may equip an item from your drop zone with ("[^"]+") in its card name by paying its \[equip cost\]/gi, "if you have no item equipped, you may equip an item with $1 in its card name from your drop zone by paying its [Equip Cost]"],
     [/\[stand\] the chosen card and this card\b/gi, "[Stand] the chosen card, and [Stand] this card"],
     [/\bif this is the attack phase\b/gi, "if during the attack phase"],

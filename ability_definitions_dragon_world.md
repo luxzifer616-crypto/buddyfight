@@ -5,7 +5,9 @@ Grouped by mechanism: each group is built by one handler. One line per ability: 
 "You choose" = the owner picks (the bot picks for itself). **JC** = judgment call (the text leaves it open).
 Not tested yet (by request); debug later.
 
-**Progress:** 224 → 90 missing.
+**Progress:** 224 → 82 missing.
+- `abilities_r28.js`: condition "a monster on your field used [Move] this turn", "nullify the [Penetrate] of the
+  attacking cards", [G EVO] enter wording, «Thunder Empire» save wording, all-different-names as a whole sentence.
 - `abilities_r27.js`: "must attack this card (alone) first" (enforced in initiateAttackWithDefenseCheck), change the
   target to you / to this card / to an «Armordragon» moved to the center, static "no [Counter] while it attacks alone",
   "if that is the only card attacking … cannot be nullified", move this card to an open area / to the center,

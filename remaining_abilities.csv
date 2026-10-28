@@ -79,7 +79,6 @@ id,name,type,world,status,abilities,working,first_unread_sentence
 597,Viking Sword Dragon,Monster,Dragon World,NOT BUILT,1,0,"If this card is on your field, your monsters are not affected by the effect of ""Day of the Dragon""."
 609,Dirk Shotel Dragon,Monster,Dragon World,NOT BUILT,1,0,"If this is the only card attacking, this card's attack cannot be nullified by a card with ""Dragon Shield"" in its card name."
 620,"Dragon Knight, Vlad Dracula",Monster,Dragon World,NOT BUILT,1,0,This card gets critical+1 for each «Dragon Knight» monster in your drop zone. This card's critical cannot be greater than 6.
-677,Inferno Armor Dragon,Monster,Dragon World,PARTLY BUILT,2,1,"""Inferno Shoot"" you may drop two souls from this card. If you do, destroy a monster on your opponent's field."
 694,Checkmate,Impact,Generic,PARTLY BUILT,2,1,"Attack with a [Stand] «Chess» monster on your field. If you deal damage to your opponent with the attack, you win the game."
 695,Blade of Athame,Item,Generic,NOT BUILT,1,0,"When you equip this card, look at the top card of your deck, and put it on the top or the bottom of your deck."
 699,Arcana Flash,Spell,Generic,NOT BUILT,1,0,"reveal the top five cards of your deck. For each monster with ""Actor Knights"" in its card name from among them, deal 1 damage to your opponent. Then, put the revealed cards on the bottom of your deck "
@@ -171,7 +170,6 @@ id,name,type,world,status,abilities,working,first_unread_sentence
 1464,"Fifth Omni Cavalry Dragon, Ice Lance Merak",Monster,Dragon World,PARTLY BUILT,3,2,"When you would be dealt damage, you may pay 1 gauge. If you do, that damage is reduced by 1."
 1473,Dragon Bind Attack,Spell,Dragon World,NOT BUILT,1,0,"Draw a card. for this turn, during the battle in which cards on your field link attack your opponent's monster, your opponent cannot use or cast a [Counter]."
 1479,"Crimson Battler, The Blacksmith",Monster,Dragon World,NOT BUILT,1,0,"If an item on your field with ""Fist"" is the only card attacking, the attack cannot be nullified."
-1493,"Fifth Omni Armored Dragon, Leaping Zakuro",Monster,Dragon World,PARTLY BUILT,2,1,"When this card enters the field, if you have 6 life or less, search your deck for up to one ""Fifth Omni Dragon Lord, Drum"", put it into your hand, and shuffle your deck. Then, if you put it into your "
 1504,"Mediator, Botis",Monster,Magic World,NOT BUILT,1,0,"When this card enters the field, you and your opponent may discard a card from hand. Deal 2 damage to the fighter who does not discard a card."
 1513,Sturdy Dragon Strike,Spell,Ancient World,NOT BUILT,1,0,"Drop up to two <Ancient World> monsters from your deck into your drop zone, and shuffle your deck. Then, put the top card of your deck into your gauge."
 1515,"Guardian Dragon Emperor, Amuray",Monster,Ancient World,NOT BUILT,1,0,"If you have a size 3 monster on your field, you may discard this card from your hand and pay 1 life. If you do, for this turn, nullify all [Lifelink] on your field."
@@ -640,7 +638,6 @@ id,name,type,world,status,abilities,working,first_unread_sentence
 4234,"Freak-Wrist Beast Lord, Ziun",Monster,Katana World,NOT BUILT,1,0,"This card's attack cannot be nullified if it is attacking alone, and for each other [Omni Lord] or originally size 1 monster on your field, this card's size on the field is reduced by 1 and it gets po"
 4236,Jewelry Chest,Spell,Star Dragon World,PARTLY BUILT,2,1,Return all size 1 or less monsters on the field to their owners' hand.
 4237,"Inheritable Sun, Sunshine Impact",Item,Dragon World,PARTLY BUILT,2,1,"If the card in your buddy zone is in [Rest], this card gets [Penetrate], and its power becomes infinite."
-4244,"Thunder Knights, Motivated Halberd Dragon",Monster,Dragon World,PARTLY BUILT,2,1,"If a monster with ""Thunder Knights"" in its card name on your field used [Move] for this turn, call this card from your hand without paying its [Call Cost]."
 4253,"Retainer of the Demonic Dragon, Abyss Shield Dragon",Monster,Dragon World,NOT BUILT,1,0,"You may discard this hand card during an attack on your opponent's turn if you have three or more different world names of cards in your drop zone. If you do, nullify the attack,. If you have a card w"
 4257,Super Sun Dragon Shield,Spell,Dragon World / Darkness Dragon World / Star Dragon World,PARTLY BUILT,2,1,"Nullify the attack. Then, if you have a «Sun Dragon» on your field, draw a card, a «Neodragon», put the top card of your deck into your gauge, a «Black Dragon», you gain 1 life."
 4260,Balle Soleil Imagine,Monster,Dragon World,PARTLY BUILT,2,1,"At the end of the battle that the «Sun Dragon» with this card in its soul attacked, if your opponent does not have a monster on the center, put the top card of your deck into your gauge, and you gain "
@@ -650,7 +647,6 @@ id,name,type,world,status,abilities,working,first_unread_sentence
 4275,"Retainer of the Demonic Dragon, Malgheld",Monster,Ancient World,NOT BUILT,1,0,"When this card is put from the field or hand into the drop zone, put the top card of your deck into your gauge. Then, if you have a size 3 or greater monster on your field, draw a card."
 4315,Let's Eat Pizza-La! Yuga & Garga,Monster,Generic,PARTLY BUILT,2,1,"When this card enters the field, you gain 1 life for every «Deity Dragon Tribe» monster on your field."
 4324,Tri-Star Decision,Impact,Star Dragon World,PARTLY BUILT,2,1,Deal 5 Damage to your oppenent.
-4377,"Guardseer Dragon, Gules Bend",Monster,Star Dragon World,PARTLY BUILT,2,1,"When this card is attacked, if you have an «Astrodragon» item equipped, for this turn, nullify the [Penetrate] of the attacking cards."
 4410,"Bonesplitter, Shearzelus",Monster,Danger World,NOT BUILT,1,0,"When this card enters the field, return all of your opponent's gauge to their deck, shuffle it, and put the top two cards of your opponent's deck into their gauge. If any of their gauge were returned,"
 4414,Topfist Punishment! Keravnos Burst Fist!,Impact,Danger World,PARTLY BUILT,2,1,"Deal 2 damage to your opponent. If your opponent has no gauge, deal 5 damage to your opponent instead."
 4430,"Summer With Ace of Games! Yuga & Garga ""SD""",Monster,Generic,PARTLY BUILT,3,2,"If this month is July or August, this card gets power+3000, defense+3000, and critical+3."
@@ -683,7 +679,6 @@ id,name,type,world,status,abilities,working,first_unread_sentence
 4660,Dimension Shadowgate,Spell,Lost World,NOT BUILT,1,0,"When you are attacked, your opponent may pay 1 life. If they do not, nullify the attack."
 4663,"Battle Poet, Twin Reading",Monster,Hero World,PARTLY BUILT,3,2,"You may drop a hand card with ""Battle Poet"" in its card name. If you do, [Stand] this card."
 4666,Vanity Destruct Vanish,Impact,Lost World,NOT BUILT,1,0,"[Stand] a «Lostvader» on your field, and for this turn, that card gets critical+5 and [Penetrate]. Then, attack with that card."
-4671,"Guardian of Tomes, Gar-Sechster",Monster,Dragon World,NOT BUILT,1,0,"During your attack phase, if a monster enters your field by [G EVO], draw two cards."
 4677,Lostknight: Nero Lance,Monster,Star Dragon World,PARTLY BUILT,2,1,"At the end of your turn, if this card is on an oppressed area, deal 2 damage to your opponent."
 4681,"Radiant Electrodeity, Ameno-Wakahiko",Monster,Katana World,PARTLY BUILT,2,1,"If this card has an «Electrodeity» soul, this card cannot leave the field by your opponent's card effects."
 4682,Gargantua Wind Demon Dragon,Monster,Katana World,NOT BUILT,1,0,"Put the top card of your deck face down on the field as a ""«Dragod»/size 0/6000 power/6000 defense/2 critical"" monster. Then, if this card has a soul with [G.EVO], you may put another copy on the fiel"
@@ -793,7 +788,6 @@ id,name,type,world,status,abilities,working,first_unread_sentence
 5310,Saving Subordinates! Inspector Megure,Monster,Detective Conan,PARTLY BUILT,2,1,"If you have a «Police» or character with ""Detective"" in its attribute on your left or right, this card's size on the center is reduced by 2."
 5314,FBI Agent,Spell,Detective Conan,PARTLY BUILT,3,2,"When an «FBI«FBI» on your field destroys your opponent's cards or deals damage to your opponent, put the top card of your deck into your gauge, you gain 1 life and draw a card."
 5317,Conan Edogawa Giving Chase,Monster,Detective Conan,PARTLY BUILT,3,2,"During your opponent's turn, when this card is put into your drop zone from soul, put the top card of your deck into your gauge, you gain 1 life, and draw a card."
-5334,"Beyond Aspiration, Chibi Panda",Monster,Dragon World,PARTLY BUILT,2,1,"If another Thunder Empire would leave your field, you may put this card into your drop zone. If you do, that card remains on your field."
 5337,"Dragon Fangs Thunder Emperor Sword, Bal X Bunker",Item,Dragon World,PARTLY BUILT,3,2,"If a monster with ""Batzz"" in its card name is on your field, the size of monsters with ""Drum"" or ""Bal Dragon"" in their card names on your field is reduced by 2."
 5341,"CHAOS Vanguard, Geargod ver. ZERO",Monster,Generic,PARTLY BUILT,3,2,"Nullify the attack. Then, if your opponent's cards attacked four times or more during this turn, end the turn."
 5345,"Tempest Shield, Draco Guard",Item,Dungeon World,PARTLY BUILT,2,1,"If you have a ""Thunder Sword, Ktenos Edge"" equipped, damage you take other than by your card effects are reduced by 2, and all items on your field get power+10000 and [Double Attack]."
@@ -813,7 +807,6 @@ id,name,type,world,status,abilities,working,first_unread_sentence
 5385,"Spreading Smiles Throughout the World, ""Hello, Happy World!""",Impact,BanG Dream! Girls Band Party! PICO,NOT BUILT,2,0,You cannot take damage by your opponent's character effects.
 5388,"Classic Rock Among Childhood Friends, ""Afterglow""",Impact,BanG Dream! Girls Band Party! PICO,PARTLY BUILT,2,1,"During the attack phase and final phase, choose a card on your opponent's field, and you may drop a soul from this card. If you do, destroy the chosen card or return it to hand."
 5395,Marina Tsukishima,Monster,BanG Dream! Girls Band Party! PICO,PARTLY BUILT,2,1,"If your «Band» character would leave the field, you may put this card from your drop zone on the bottom of your deck and pay 1 life. If you do, that card remains on the field."
-5405,"Awakened Deity Dragon, Kuhler Gardragon",Monster,Dragon World,PARTLY BUILT,2,1,"When this card is attacked, for this turn, nullify the [Penetrate] of the attacking cards."
 5412,"Twinseer Dragon, Vee Starunner",Monster,Star Dragon World,PARTLY BUILT,2,1,"When this card on the right attacks, if an «Astrodragon» is on your center, for this turn, this card gets [Triple Attack]."
 5418,"Flame Deity, Magma Horus",Monster,Legend World,NOT BUILT,2,0,"When this card enters the field by the effect of ""Ice Deity, Freeza Horus"", destroy up to two cards on your opponent's field, and draw two cards."
 5419,"Ice Deity, Freeza Horus",Monster,Legend World,PARTLY BUILT,2,1,"When this card enters the field by a buddy call, you may buddy call ""Flame Deity, Magma Horus"" from your hand without paying its [Call Cost]."
@@ -851,7 +844,6 @@ id,name,type,world,status,abilities,working,first_unread_sentence
 5560,Melody of the Evil Moon,Spell,Darkness Dragon World,PARTLY BUILT,2,1,Choose and use one of the following two.
 5561,"Evil Demonic Dragon, Simiae",Monster,Darkness Dragon World,PARTLY BUILT,2,1,"If an originally size 3 «Evil Demonic Dragon» would leave your field, you may put this card into your drop zone. If you do, that card remains on your field."
 5573,"Evil Demonic Dragon, Cornix",Monster,Darkness Dragon World,PARTLY BUILT,2,1,"When this card attacks, choose a monster on your opponent's field, destroy the chosen card. If your life is 6 or less, drop all souls of the chosen card instead, and destroy that card."
-5594,"Gar Geo Dragon ""HMS Mode""",Monster,Dragon World,NOT BUILT,1,0,"At the start of your attack phase, drop the top 3 cards of your deck. If all of them have different card names, put all of those cards to your hand"
 5597,"Dragowhite, Fifth Omni Holy Light",Spell,Dragon World,PARTLY BUILT,2,1,"Draw a card, and choose and use one of the following two."
 5605,"Hyper Rainbow Vision, Shadowscare",Monster,Star Dragon World,PARTLY BUILT,2,1,"When a soul is put into your «Neodragon», look at the top three cards of your deck, put one from among them into your gauge, one from among them into your hand. Then, drop the rest or put it into the "
 5612,"Negative Idol, Nono Morikubo",Monster,THE IDOLM@STER Cinderella Girls Theater,PARTLY BUILT,2,1,"If a [Syoko Hoshi] is on your field, all «Idol» on your field can attack your opponent even if they have characters on the center."
@@ -1038,7 +1030,6 @@ id,name,type,world,status,abilities,working,first_unread_sentence
 6306,My Soul is Shouting!!,Spell,Hero World,PARTLY BUILT,2,1,"Nullify the attack. Then, if one or more souls are in the item on your field, put the top two cards of your deck into your gauge, you gain 2 life, and if three or more, draw a card, and this card cann"
 6314,"Demonic Karma Dragon Deity of the Black Luster, Gaen ""IF""",Monster,Generic,PARTLY BUILT,5,3,"When you [Transform] into this card, draw two cards, and your opponent cannot draw cards by card effects during their next turn."
 6315,"Ultimate Garga ""SD""",Monster,Generic,PARTLY BUILT,3,2,Souls in the card with [G.BOOST] and this card in its soul cannot be dropped by your opponent's card effects.
-6324,"Thunder Knights, Thunder Halberd",Monster,Dragon World,PARTLY BUILT,2,1,"If monsters on your field used [Move] for this turn, call this card from your hand by paying its [Call Cost]."
 6336,"Turbulent Warlord Sword, Dragzamber",Item,Dragon World,PARTLY BUILT,2,1,"Put up to one «Thunder Empire» monster from your deck into the drop zone, and shuffle your deck. For this turn, this card's world name on the field is also treated as the world name of the card put in"
 6342,Space Bridge,Spell,Star Dragon World,NOT BUILT,2,0,All cards revealed by your card effects get «Cosmo Dragoon».
 6345,For the Future,Spell,Star Dragon World / Darkness Dragon World,NOT BUILT,1,0,"Put the top two cards of your deck into your gauge. Then, look at all of your gauge, reveal up to one monster from among them, and put it into your hand. If a monster with ""Jackknife"" or ""Abygale"" in "

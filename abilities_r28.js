@@ -2,7 +2,7 @@
  * Built to ability_definitions_dragon_world.md:
  *  - "a monster (with "X" in its card name) on your field used [Move] during this turn" (condition; #4244, #6324)
  *  - "for this turn, nullify the [Penetrate] of the attacking cards" (#5405; read in getUnitEffectiveCombatStats)
- *  - wording fixes: #1493, #4671 ([G EVO] enter), #5334 («Thunder Empire»),
+ *  - wording fixes: #4671 ([G EVO] enter), #5334 («Thunder Empire»),
  *    #5594 ("If all of them have different card names" as a whole sentence)
  * Loaded after abilities_r27.js.
  */
@@ -15,9 +15,8 @@
   const NP = (t) => { const np = ABX.parseNP(t); return np && !np.junk ? np : null; };
 
   const RW = [
-    [/\bif you put it into your hand, you take\b/gi, "if you put it, you take"],
-    [/\bduring your attack phase, if a monster enters your field by \[g ?\.?evo\]/gi, "During your attack phase, when a monster enters your field by [G EVO]"],
-    [/\bif another thunder empire would leave your field\b/gi, "If another «Thunder Empire» would leave your field"],
+    [/\bduring your attack phase, if a monster enters your field by \[g ?\.?evo\]/gi, "During your attack phase, when a monster enters your field by [G.EVO]"],
+    [/\bif another thunder empire would leave your field\b/gi, "If another «Thunder Empire» on your field would leave the field"],
   ];
   const palPrev = ABX.parseAbilityLine;
   ABX.parseAbilityLine = function (rawLine, card) {
@@ -61,7 +60,7 @@
   XC.xMovedThisTurn = (c, ctx) => core.fieldUnits(ctx.f, false).some(x => x.unit.abxMovedTurn === B.turnCount && (!c.np || matchFilter(x.unit.card, c.np.filter || {}, { unit: x.unit, side: ctx.side }, ctx)));
   ABX.COND_OK.add("xMovedThisTurn");
   ABX.COND_RULES.unshift([/^(?:a |an )?monsters?(?: with ("[^"]+") in its card name)? on your field used \[move\] (?:during|for) this turn$/i,
-    (m) => ({ t: "xMovedThisTurn", np: m[1] ? NP("a monster with " + m[1] + " in its card name") : null })]);
+    (m) => m[1] ? { t: "xMovedThisTurn", np: NP("a monster with " + m[1] + " in its card name") } : { t: "xMovedThisTurn" }]);   // np: null reads as "unreadable"
 
   if (ABX.resetCaches) ABX.resetCaches();
 })(typeof window !== "undefined" ? window : globalThis);

@@ -24,7 +24,7 @@
       "for this turn, nullify all abilities of the chosen card. For this turn, the chosen card must attack this card$1 first for this attack phase if able"],
     // the [Stand] right after an [Overturn] cost was taken as another tag
     [/(\[overturn\] \[[^\]]+\]) \[stand\]/gi, "$1 Then, [Stand]"],
-    [/\bif you put a "[^"]+" into your hand, you take\b/gi, "if you put it into your hand, you take"],
+    [/\bif you put a "[^"]+" into your hand, you take\b/gi, "if you put it, you take"],   // the count condition reads "you put it"
   ];
   const palPrev = ABX.parseAbilityLine;
   ABX.parseAbilityLine = function (rawLine, card) {
