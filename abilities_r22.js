@@ -1108,7 +1108,10 @@
       try {
         const isOK = (a) => ABX.isExecutable(a) ||
           (a.kind === "rule" && (!a.unparsed || !a.unparsed.length) && a.parsed !== false) ||
-          (ABX.ownsStaticLine && ABX.ownsStaticLine(card, a.raw || ""));
+          (ABX.ownsStaticLine && ABX.ownsStaticLine(card, a.raw || "")) ||
+          // a fully read continuous ability: the static-line check can't see it while this card is still being parsed
+          (a.kind === "static" && (a.steps || []).length && !(a.unparsed && a.unparsed.length) && (a.conds || []).every(ABX.condExecutable) &&
+            a.steps.every(s => s.op === "static" && OPS.static && OPS.static.check && OPS.static.check(s)));
         (r.abilities || []).forEach(ab => {
           if (SKIP_KINDS.has(ab.kind)) return;
           if (ab.kind === "triggered" && ab.trigger && !ABX.triggerSupported(ab.trigger)) {

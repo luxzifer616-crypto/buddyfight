@@ -5,7 +5,10 @@ Grouped by mechanism: each group is built by one handler. One line per ability: 
 "You choose" = the owner picks (the bot picks for itself). **JC** = judgment call (the text leaves it open).
 Not tested yet (by request); debug later.
 
-**Progress:** 224 → 78 missing.
+**Progress:** 224 → 73 missing.
+- `abilities_r30.js`: "this card's world name is also treated as …" (chosen world / the world of the card put into the
+  drop zone; counted by the "different world names on your field" checks), "call "Jackknife" monsters without paying
+  gauge" as a [Call Cost] reduction.
 - `abilities_r29.js`: "at the end of the turn this card was destroyed" (runs from the drop zone), "a card is put on the
   bottom of a deck", "your «X» enters the field on the left or right".
 - `abilities_r28.js`: condition "a monster on your field used [Move] this turn", "nullify the [Penetrate] of the
