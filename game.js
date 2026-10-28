@@ -1040,12 +1040,127 @@ function getUnitEffectiveCombatStats(fighter, unit) {
   return { power: Math.max(0, power), defense: Math.max(0, defense), crit: Math.max(0, crit), pen, da, ta, qa };
 }
 
+/* ==================== [RELEASE CONDITION!] (Dragon Force & other "Force" items) ====================
+ * "[Release Condition!] [You have 6 life or less & You have a monster with "Bal Dragon" in its card name on your field]"
+ * The item can only be equipped while every part of its release condition is met. Once equipped it stays.
+ * A part this reader does not understand counts as NOT met (with the reason shown), never as met. */
+function getReleaseConditionText(card) {
+  if (!card || !card.skill) return null;
+  const line = String(card.skill).split(/\n+/).find(l => /^\s*\[Release Condition!?\]/i.test(l));
+  if (!line) return null;
+  let t = line.replace(/^\s*\[Release Condition!?\]\s*/i, "").trim();
+  t = t.replace(/^\[/, "").replace(/\]\s*$/, "").replace(/[.!]\s*$/, "").trim();
+  return t || null;
+}
+
+function releaseNameNorm(s) {
+  return String(s || "").toLowerCase().replace(/[“”"'’]/g, "").replace(/\s+/g, " ").trim();
+}
+function releaseTribeEq(card, tribe) {
+  const k = String(tribe || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+  return (card.attrs || []).some(a => String(a).toLowerCase().replace(/[^a-z0-9]/g, "") === k);
+}
+const RELEASE_NUM = { a: 1, an: 1, one: 1, two: 2, three: 3, four: 4, five: 5, six: 6 };
+const releaseNum = (w) => RELEASE_NUM[String(w).toLowerCase()] || parseInt(w, 10) || 1;
+
+// One part of a release condition -> { known, met, text }
+function checkReleaseClause(clause, fighter) {
+  const raw = clause.trim().replace(/[.!]+$/, "").replace(/\s+/g, " ");
+  const t = raw.toLowerCase();
+  const out = (known, met) => ({ known, met: known && met, text: raw });
+  let m;
+  if ((m = t.match(/^you have (\d+) life or less$/))) return out(true, fighter.life <= parseInt(m[1], 10));
+  if ((m = t.match(/^you have (\d+) life or more$/))) return out(true, fighter.life >= parseInt(m[1], 10));
+
+  const fieldMons = ["left", "center", "right"].map(p => fighter.monsters[p]).filter(Boolean);
+  const sizeOf = (u) => (typeof getEffectiveCardSize === "function" ? getEffectiveCardSize(fighter, u.card, u) : (u.card.size || 0));
+
+  // "You have X or Y equipped"
+  if ((m = raw.match(/^you have (.+) equipped$/i))) {
+    const item = fighter.item && fighter.item.card;
+    const alts = m[1].split(/\s+or\s+(?=a |an |")/i);
+    let known = true;
+    const met = !!item && alts.some(alt => {
+      let a;
+      if ((a = alt.match(/^an? (?:<([^>]+)> )?(?:item|card) with "([^"]+)" in its card name$/i))) {
+        if (a[1] && releaseNameNorm(item.world) !== releaseNameNorm(a[1]) && !(item.worlds || []).some(w => releaseNameNorm(w) === releaseNameNorm(a[1]))) return false;
+        return releaseNameNorm(item.name).includes(releaseNameNorm(a[2]));
+      }
+      if (/^".+"$/.test(alt.trim())) {
+        const want = releaseNameNorm(alt);
+        return releaseNameNorm(item.name) === want || releaseNameNorm(item.skill || "").includes("also treated as " + want);
+      }
+      known = false;
+      return false;
+    });
+    return out(known, met);
+  }
+
+  // where to look: field (monsters) and maybe the drop zone
+  let body = raw.replace(/^you have /i, "");
+  let inDrop = false;
+  if ((m = body.match(/^(.+?) (?:is |are )?on your field or (?:in your )?drop zone$/i))) { body = m[1]; inDrop = true; }
+  else if ((m = body.match(/^(.+?) (?:is |are )?on (?:your|the) field$/i))) body = m[1];
+  else return out(false, false);
+  const pool = fieldMons.map(u => ({ card: u.card, unit: u }));
+  if (inDrop) fighter.drop.forEach(id => { const c = CARD_MAP.get(id); if (c && c.type === "Monster") pool.push({ card: c, unit: null }); });
+
+  // "Three or more different monsters with both «A» and «B»"
+  if ((m = body.match(/^(\w+) or more different monsters with both «([^»]+)» and «([^»]+)»$/i))) {
+    const names = new Set(pool.filter(x => x.unit && releaseTribeEq(x.card, m[2]) && releaseTribeEq(x.card, m[3])).map(x => releaseNameNorm(x.card.name)));
+    return out(true, names.size >= releaseNum(m[1]));
+  }
+  // "monsters with "Drum", "Bal Dragon", and "Batzz" in their card names" (each one)
+  if ((m = body.match(/^monsters with (.+) in their card names$/i))) {
+    const names = (m[1].match(/"([^"]+)"/g) || []).map(q => releaseNameNorm(q));
+    if (!names.length) return out(false, false);
+    return out(true, names.every(n => pool.some(x => releaseNameNorm(x.card.name).includes(n))));
+  }
+  // "a [size N (or greater)] monster/«X» [with "A" (or "B") in its card name] [and two or more «Y» (cards) in its soul]"
+  m = body.match(/^(?:a|an|one) (?:size (\d+)(?: or (greater|more|less))? )?(monster|«[^»]+»)(?: with ((?:"[^"]+"(?:\s*,?\s*(?:or )?)?)+) in its card name)?(?: and (\w+) or more «([^»]+)»(?: cards?)? in its soul)?$/i);
+  if (m) {
+    const size = m[1] != null ? parseInt(m[1], 10) : null, cmp = m[2] ? (/less/i.test(m[2]) ? "le" : "ge") : "eq";
+    const tribe = /^«/.test(m[3]) ? m[3].slice(1, -1) : null;
+    const names = m[4] ? (m[4].match(/"([^"]+)"/g) || []).map(q => releaseNameNorm(q)) : [];
+    const soulN = m[5] ? releaseNum(m[5]) : 0, soulTribe = m[6] || null;
+    const ok = pool.some(x => {
+      if (tribe && !releaseTribeEq(x.card, tribe)) return false;
+      if (names.length && !names.some(n => releaseNameNorm(x.card.name).includes(n))) return false;
+      if (size != null) {
+        const sz = x.unit ? sizeOf(x.unit) : (x.card.size || 0);
+        if (cmp === "eq" ? sz !== size : cmp === "ge" ? sz < size : sz > size) return false;
+      }
+      if (soulN) {
+        if (!x.unit) return false;
+        const cnt = (x.unit.soul || []).filter(id => { const c = CARD_MAP.get(id); return c && releaseTribeEq(c, soulTribe); }).length;
+        if (cnt < soulN) return false;
+      }
+      return true;
+    });
+    return out(true, ok);
+  }
+  return out(false, false);
+}
+
+// { has, met, reasons, parts } for a card's release condition (has=false when the card has none)
+function getReleaseConditionStatus(card, fighter) {
+  const text = getReleaseConditionText(card);
+  if (!text || !fighter) return { has: false, met: true, reasons: [], parts: [] };
+  const parts = text.split(/\s*&\s*/).filter(Boolean).map(p => checkReleaseClause(p, fighter));
+  const reasons = parts.filter(p => !p.met).map(p => p.known ? `[Release Condition] not met: ${p.text}` : `[Release Condition] can't be checked yet: ${p.text}`);
+  return { has: true, met: reasons.length === 0, reasons, parts };
+}
+
 function evaluateCardConditions(card, fighter, enemy, isAbilityCall = false) {
   const s = card.skill || "";
   const sLower = s.toLowerCase();
   const cost = parseCardCost(card.cost, card.skill, fighter, card);
   const reasons = [];
   const revCnt = getFighterReversalCount(fighter);
+
+  // Items with [Release Condition!] (Dragon Force ...): can only be equipped while the condition is met
+  const rel = getReleaseConditionStatus(card, fighter);
+  if (rel.has && !rel.met) reasons.push(...rel.reasons);
 
   if (card.id === 6202) {
     if (!fighter.godclock || !fighter.godclock.awakened) {
@@ -5044,8 +5159,11 @@ const battle = {
       if (card.type === "Item" && this.phase === "main") {
         const bEq = document.createElement("button");
         bEq.className = "primary-cta-btn";
-        bEq.textContent = `🗡️ Equip Item (${cost.gauge} Gauge)`;
+        const relSt = getReleaseConditionStatus(card, f);
+        bEq.textContent = relSt.met ? `🗡️ Equip Item (${cost.gauge} Gauge)` : `🔒 ${relSt.reasons[0]}`;
+        bEq.disabled = !relSt.met;
         bEq.onclick = () => {
+          if (!relSt.met) return;
           this.closeCardBanner();
           this.equipCardFromHand(side, handIdx, "Equip");
         };
@@ -6194,9 +6312,16 @@ const battle = {
       return;
     }
 
+    // [Release Condition!] (Dragon Force ...) must be met to equip
+    const rel = getReleaseConditionStatus(c, f);
+    if (!rel.met) {
+      if (!f.isBot) alert(`Cannot ${modeLabel.toLowerCase()} "${c.name}" yet:\n• ${rel.reasons.join("\n• ")}`);
+      return;
+    }
+
     const cost = parseCardCost(c.cost, c.skill, f, c);
     if (f.gauge.length < cost.gauge) {
-      alert(`Not enough Gauge to ${modeLabel}! Need ${cost.gauge} Gauge.`);
+      if (!f.isBot) alert(`Not enough Gauge to ${modeLabel}! Need ${cost.gauge} Gauge.`);
       return;
     }
 
@@ -7241,7 +7366,7 @@ const battle = {
       if (!stillThisMatch()) return;
       const itemIdx = bot.hand.findIndex(cid => {
         const c = CARD_MAP.get(cid);
-        return c && c.type === "Item" && parseCardCost(c.cost, c.skill, bot, c).gauge <= bot.gauge.length;
+        return c && c.type === "Item" && parseCardCost(c.cost, c.skill, bot, c).gauge <= bot.gauge.length && getReleaseConditionStatus(c, bot).met;
       });
       if (itemIdx !== -1 && !bot.item) {  // (bot.item is also set while its Endruler flag is active)
         this.equipCardFromHand("opp", itemIdx, "Equip");

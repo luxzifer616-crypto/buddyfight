@@ -762,6 +762,8 @@
       if (s.ref === "chosen") cands = (ctx.bind.chosen || []).filter(r => r.k === "zone" && r.card && r.card.type === "Item");
       else (s.from || ["drop zone"]).forEach(a => (zoneArr(f, a) || []).forEach((id, idx) => { const c = cardOf(id); if (c && c.type === "Item" && matchFilter(c, s.np.filter || {}, null, ctx)) cands.push({ k: "zone", side: ctx.side, area: a === "drop zone" ? "drop" : a, idx, id, card: c }); }));
       if (s.pay) cands = cands.filter(r => { const cost = parseCardCost(r.card.cost, r.card.skill, f, r.card); return f.gauge.length >= (cost.gauge || 0) && !(cost.life > 0 && f.life <= cost.life); });
+      // [Release Condition!] items can only be equipped while their condition is met
+      if (typeof getReleaseConditionStatus === "function") cands = cands.filter(r => getReleaseConditionStatus(r.card, f).met);
       if (!cands.length) return false;
       const ch = await core.pick(cands, { qty: { n: 1, upTo: !!s.upTo }, raw: s.np.raw }, ctx, { intent: "help", title: `${ctx.card.name} — equip` });
       const r = ch[0]; if (!r) return false;

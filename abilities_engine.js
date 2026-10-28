@@ -104,8 +104,10 @@
     enter: t => t.self, attack: t => t.self && !(t.target && t.target.junk), dealsDamage: t => t.self || !!t.np, damaged: () => true, attackDestroys: t => t.self, attackOutcome: t => t.self, attacked: t => t.self, link: t => t.self, discardedFromHand: t => t.self, otherAttack: t => !!t.np, oppAttack: () => true, battleEnd: () => true,
     turnStart: () => true, turnEnd: () => true, phaseStart: t => ["start", "draw", "main", "attack", "final", "turn"].includes(t.phase),
     otherEnter: t => !!t.np, otherDestroyed: t => !!t.np && !t.np.self, youCast: () => true, oppCast: () => true, leave: t => t.self && !t.byOpp,
-    lifeGain: () => true, equipped: t => t.self, soulEmpty: t => t.self, hostAttack: t => !t.np || !t.np.junk, stoodByEffect: t => t.self
+    lifeGain: () => true, equipped: t => t.self, soulEmpty: t => t.self, hostAttack: t => !t.np || !t.np.junk, stoodByEffect: t => t.self,
+    gevoEnter: () => true, hostGBoost: () => true
   };
+  ABX.TRIG_OK = TRIG_OK;
   function triggerSupported(t) { return !!t && !!TRIG_OK[t.event] && TRIG_OK[t.event](t); }
   ABX.triggerSupported = triggerSupported;
   ABX.isExecutable = function (ab) {
@@ -138,6 +140,8 @@
     return (card.attrs || []).some(a => norm(a) === k);
   }
   function kwOf(card, kw) {
+    // [G.EVO] / [G.BOOST-X-] and other ability tags (abilities_gkw.js): only when printed as the ability's tag
+    if (ABX.kwOfExtra) { const r = ABX.kwOfExtra(card, kw); if (r !== undefined) return r; }
     switch (kw) {
       case "set": return !!card.set;
       case "move": return !!card.move;
@@ -728,6 +732,8 @@
     const ctx = { side, f, e, card, unit: unit || null, ab, bind: { chosen: [], revealed: [], looked: [] }, lastDone: true, event: opts.event || null, auto: !!opts.auto, log: [], hostArea: opts.hostArea || (unit ? "field" : null), soulHost: opts.soulHost || null, selfRef: opts.selfRef || null, preApproved: !!opts.preApproved };
     // "This card cannot be nullified, and its damage cannot be reduced" / "This damage cannot be reduced" (written after the damage)
     if ((ab.steps || []).some(x => x.op === "static" && !x.cond && (x.kind === "unreducible" || (x.kind === "unnullifiable" && x.noReduce)))) ctx.unreducible = true;
+    // hook: [G.BOOST] used this turn, [G.EVO] calls (abilities_gkw.js)
+    if (ABX.onAbilityStart) { try { ABX.onAbilityStart(ctx); } catch (e) { if (ABX.debug) console.error(e); } }
     if (ab.kind === "modal") {
       await runSteps(ab.steps || [], ctx);
       if (!ctx.lastDone) return ctx;
@@ -860,6 +866,7 @@
     return out;
   }
   core.sources = sources;
+  core.fireTriggers = (match, info) => fireTriggers(match, info);
 
   // Run every executable triggered ability matching `match(trigger, src, sideOfSource)`.
   async function fireTriggers(match, info) {
