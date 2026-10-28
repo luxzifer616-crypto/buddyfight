@@ -17,7 +17,13 @@
   function amount(n, ctx) {
     if (typeof n === "number") return n;
     if (!n) return 0;
-    if (n.each) return (n.per || 1) * refsFor(n.each, ctx, { owner: "you", area: "field" }).length;
+    if (n.lastCount) return (n.per || 1) * (ctx.lastCount || 0) + (n.plus || 0);   // "equal to the number of cards destroyed / put"
+    if (n.each) {
+      let k;
+      if (n.each.perReversal) k = getFighterReversalCount(ctx.f);
+      else { const refs = refsFor(n.each, ctx, { owner: "you", area: "field" }); k = n.each.filter && n.each.filter.distinct ? new Set(refs.map(r => r.card && r.card.name)).size : refs.length; }
+      return (n.per || 1) * k + (n.plus || 0);
+    }
     if (n.fromRef) {
       const r = (ctx.bind.chosen || [])[0] || (ctx.bind.revealed || [])[0];
       return r && r.card ? (r.card.size || 0) : 0;
@@ -39,7 +45,7 @@
       afterChange();
       return got > 0;
     },
-    check: (s) => typeof s.n === "number" || (s.n && (s.n.each || s.n.fromRef)),
+    check: (s) => typeof s.n === "number" || (s.n && (s.n.each || s.n.fromRef || s.n.lastCount)),
     canDo: (s, ctx) => F(sideOf(ctx, s.who)).deck.length > 0
   };
   OPS.drawUntil = {
@@ -59,7 +65,7 @@
       afterChange();
       return dealt > 0 || n === 0;
     },
-    check: (s) => typeof s.n === "number" || (s.n && (s.n.each || s.n.fromRef || s.n.fromSelf))
+    check: (s) => typeof s.n === "number" || (s.n && (s.n.each || s.n.fromRef || s.n.fromSelf || s.n.lastCount))
   };
   OPS.shield = {
     run(s, ctx) {
@@ -158,6 +164,7 @@
   async function moveRefs(refs, dest, ctx, order) {
     if (!refs.length) return false;
     refs = refs.slice();
+    if (ctx && ctx.bind) ctx.bind.lastMoved = refs.slice();
     if (order === "any" && refs.length > 1 && !(F(ctx.side).isBot || ABX.autoPlay)) {
       const idxs = await ABX.ui.pickCards({
         title: `${ctx.card.name} — choose the order`, subtitle: "Pick the cards in the order you want them placed (first = placed first).",
@@ -193,6 +200,7 @@
       place(id, Object.assign({}, dest, { owner: ownerSide === ctx.side ? "you" : "opp" }), ctx, r.side);
       moved++;
     }
+    ctx.lastCount = moved;
     afterChange();
     return moved > 0;
   }
@@ -250,7 +258,7 @@
       });
       afterChange(); return ids.length > 0;
     },
-    check: (s) => (typeof s.n === "number" || (s.n && s.n.each)) && !s.hostNP
+    check: (s) => (typeof s.n === "number" || (s.n && (s.n.each || s.n.lastCount))) && !s.hostNP
   };
   OPS.deckToBottom = { run(s, ctx) { const f = ctx.f; const ids = f.deck.splice(0, s.n || 1); f.deck.push(...ids); fresh(); return ids.length > 0; } };
   OPS.shuffle = { run(s, ctx) { const f = F(sideOf(ctx, s.who)); for (let i = f.deck.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [f.deck[i], f.deck[j]] = [f.deck[j], f.deck[i]]; } return true; } };
@@ -308,6 +316,7 @@
         if (pos === "item") { const f = F(r.side); const it = f.item; f.item = null; f.drop.push(it.card.id, ...(it.soul || [])); did++; continue; }
         if (B.destroyMonster(r.side, pos) !== false) did++;
       }
+      ctx.lastCount = did;
       fresh();
       return did > 0;
     },
@@ -320,6 +329,7 @@
         const ch = s.np.ref ? (ctx.bind.chosen || []).filter(r => r.unit) : s.np.qty.all ? cands : await pick(cands, s.np, ctx, { intent: val ? "harm" : "help", title: `${ctx.card.name} — ${val ? "[Rest]" : "[Stand]"}` });
         let n = 0;
         ch.forEach(r => { if (r.side !== ctx.side && isProtected(r.unit, r.side, "rest", ctx)) return; r.unit.rested = val; n++; });
+        ctx.lastCount = n;
         fresh(); return n > 0;
       },
       check: (s) => !!s.np && !(s.np.zone && !["field", "center", "left", "right"].includes(s.np.zone.area))
@@ -333,17 +343,17 @@
     async run(s, ctx) {
       const refs = s.np.ref ? (ctx.bind.chosen || []).filter(r => r.unit) : s.np.self ? refsFor(s.np, ctx) : refsFor(s.np, ctx, { owner: "you", area: "field" }).filter(r => r.unit);
       const ch = s.np.ref || s.np.self || s.np.qty.all ? refs : await pick(refs, s.np, ctx, { intent: "help", title: `${ctx.card.name} — choose` });
-      const mult = s.each ? refsFor(s.each, ctx, { owner: "you", area: "field" }).length : 1;
+      const mult = s.each ? (s.each.perReversal ? getFighterReversalCount(ctx.f) : refsFor(s.each, ctx, { owner: "you", area: "field" }).length) : 1;
       if (s.alsoSelf && ctx.unit && !ch.some(r => r.unit === ctx.unit)) ch.push({ k: "unit", side: ctx.side, unit: ctx.unit, card: ctx.card, id: ctx.card.id });
       ch.forEach(r => {
         r.unit.tempPower = (r.unit.tempPower || 0) + (s.mods.power || 0) * mult;
         r.unit.tempDef = (r.unit.tempDef || 0) + (s.mods.defense || 0) * mult;
         r.unit.tempCrit = (r.unit.tempCrit || 0) + (s.mods.critical || 0) * mult;
-        (s.mods.kws || []).forEach(k => { if (k === "penetrate") r.unit.tempPen = true; if (k === "counterattack") r.unit.tempCA = true; if (k === "double attack") { r.unit.tempDA = true; r.unit.attacksLeft = Math.max(r.unit.attacksLeft || 0, 2); } if (k === "triple attack") { r.unit.tempTA = true; r.unit.attacksLeft = Math.max(r.unit.attacksLeft || 0, 3); } if (k === "quadruple attack") { r.unit.tempQA = true; r.unit.attacksLeft = Math.max(r.unit.attacksLeft || 0, 4); } if (k === "soulguard") r.unit.tempSG = true; if (k === "move") r.unit.tempMove = true; });
+        (s.mods.kws || []).forEach(k => { if (k === "penetrate") r.unit.tempPen = true; if (k === "counterattack") r.unit.tempCA = true; if (k === "double attack") { r.unit.tempDA = true; r.unit.attacksLeft = Math.max(r.unit.attacksLeft || 0, 2); } if (k === "triple attack") { r.unit.tempTA = true; r.unit.attacksLeft = Math.max(r.unit.attacksLeft || 0, 3); } if (k === "quadruple attack") { r.unit.tempQA = true; r.unit.attacksLeft = Math.max(r.unit.attacksLeft || 0, 4); } if (k === "hextuple attack") { r.unit.tempHA = true; r.unit.attacksLeft = Math.max(r.unit.attacksLeft || 0, 6); } if (k === "soulguard") r.unit.tempSG = true; if (k === "move") r.unit.tempMove = true; });
       });
       fresh(); return ch.length > 0;
     },
-    check: (s) => s.mods && (s.mods.kws || []).every(k => ["penetrate", "counterattack", "double attack", "triple attack", "quadruple attack", "soulguard", "move"].includes(k)) && !(s.np && s.np.zone && !["field", "center", "left", "right"].includes(s.np.zone.area))
+    check: (s) => s.mods && (s.mods.kws || []).every(k => ["penetrate", "counterattack", "double attack", "triple attack", "quadruple attack", "hextuple attack", "soulguard", "move", "weaponry link"].includes(k)) && !(s.np && s.np.zone && !["field", "center", "left", "right"].includes(s.np.zone.area))
   };
 
   /* ---------- call ---------- */

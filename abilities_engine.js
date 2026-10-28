@@ -172,6 +172,16 @@
   function matchFilter(card, f, ref, ctx) {
     if (!card) return false;
     if (f.anyOf) return f.anyOf.some(sub => matchFilter(card, sub, ref, ctx));
+    // relations to an earlier card of the same ability ("with a different card name from the returned card", "of the same size as that monster")
+    if (f.rel && ctx && ctx.bind) {
+      const base = [].concat(ctx.bind.lastMoved || [], ctx.bind.chosen || []).filter(x => x && x.card).shift() || (ctx.event && ctx.event.card ? { card: ctx.event.card } : null);
+      if (!base) return false;
+      if (f.rel === "diffName" && lc(base.card.name) === lc(card.name)) return false;
+      if (f.rel === "sameName" && lc(base.card.name) !== lc(card.name)) return false;
+      if (f.rel === "sameSize" && (base.card.size == null ? 0 : base.card.size) !== (card.size == null ? 0 : card.size)) return false;
+    }
+    if (f.notImpact && typeof IMX !== "undefined" && IMX.isImpactMonster && IMX.isImpactMonster(card)) return false;
+    if (f.notInBattle && ref && ref.unit) { const b = ABX.curBattle || ABX.battleCtx; if (b && ((b.attUnits || []).includes(ref.unit) || b.defUnit === ref.unit)) return false; }
     const unit = ref && ref.unit;
     const fighter = ref && ref.side ? F(ref.side) : (ctx ? ctx.f : null);
     const t = f.types;
@@ -194,7 +204,7 @@
     if (f.power && !cmpOK(statOf(card, unit, fighter, "power", f.original), f.power)) return false;
     if (f.defense && !cmpOK(statOf(card, unit, fighter, "defense", f.original), f.defense)) return false;
     if (f.critical && !cmpOK(statOf(card, unit, fighter, "critical", f.original), f.critical)) return false;
-    if (f.kws && f.kws.length) { if (!f.kws.every(k => kwOf(card, k))) return false; }
+    if (f.kws && f.kws.length) { if (!f.kws.every(k => kwOf(card, k) || (unit && fighter && ABX.unitHasKw && ABX.unitHasKw(fighter, unit, k)))) return false; }   // printed, or given to it right now
     if (f.buddy) { if (!(unit && (unit.isBuddyGift || card.id === (fighter && fighter.buddyId)))) return false; }
     if (f.powerOrDef) { const pw = statOf(card, unit, fighter, "power", f.original), df = statOf(card, unit, fighter, "defense", f.original); if (!(cmpOK(pw, f.powerOrDef) || cmpOK(df, f.powerOrDef))) return false; }
     if (f.soulCount && unit) { const n = (unit.soul || []).length; if (!cmpOK(n, f.soulCount)) return false; }
@@ -349,7 +359,7 @@
       case "gauge": return cmpN((c.who === "you" ? f : e).gauge.length, c);
       case "hand": return cmpN((c.who === "you" ? f : e).hand.length, c);
       case "flagIs": { const fc = flagCard(f); const n = lc(fc ? fc.name : ""); return c.names.some(x => n === x || n.includes(x)); }
-      case "flagWorld": return f.world === c.world || (flagCard(f) && (flagCard(f).worlds || []).includes(c.world));
+      case "flagWorld": return f.world === c.world || (flagCard(f) && (flagCard(f).worlds || []).includes(c.world)) || !!(f.abxFlagWorlds && f.abxFlagWorlds.turn === B.turnCount && f.abxFlagWorlds.worlds.some(w => lc(w) === lc(c.world)));
       case "reversal": return getFighterReversalCount(f) >= c.n;
       // "another ..." in a condition never counts the card itself
       case "has": { const n = countNP(c.other ? Object.assign({}, c.np, { excludeSelf: true }) : c.np, c.owner === "any" ? null : c.owner, ctx); return n >= (c.n || 1); }
@@ -390,9 +400,11 @@
 
   // Choose refs for an NP. opts: {intent, title, ordered, min, max, chooser}
   async function pick(cands, np, ctx, opts) {
-    if (np && np.qty && (np.qty.eachOf || np.qty.numOf)) {
-      const cnt = countNP(np.qty.eachOf || np.qty.numOf, null, ctx);
-      np = Object.assign({}, np, { qty: Object.assign({}, np.qty, { n: np.qty.numOf ? cnt : (np.qty.n || 1) * cnt, all: false, eachOf: null, numOf: null }) });
+    if (np && np.qty && (np.qty.eachOf || np.qty.numOf || np.qty.perReversal || np.qty.fromLast)) {
+      // "for each «X» on your field" / "equal to the number of ..." / "for each time your flags [Reversal]" / "equal to the number of cards put"
+      const cnt = np.qty.perReversal ? getFighterReversalCount(ctx.f) : np.qty.fromLast ? (ctx.lastCount || 0) : countNP(np.qty.eachOf || np.qty.numOf, null, ctx);
+      np = Object.assign({}, np, { qty: Object.assign({}, np.qty, { n: (np.qty.numOf || np.qty.fromLast) ? cnt : (np.qty.n || 1) * cnt, all: false, eachOf: null, numOf: null, perReversal: false, fromLast: false }) });
+      if (np.qty.n <= 0) return [];
     }
     const out0 = await pick0(cands, np, ctx, opts);
     const fl = (np && np.filter) || {};
@@ -1119,7 +1131,7 @@
   function fresh_() { try { B.renderBattle(); } catch (e) { /* ignore */ } }
 
   /* ---- static (continuous) stat boosts, replacing the old per-line text guessing for lines ABX fully understands ---- */
-  const STATIC_KW = ["penetrate", "counterattack", "double attack", "triple attack", "quadruple attack", "soulguard", "move"];
+  const STATIC_KW = ["penetrate", "counterattack", "double attack", "triple attack", "quadruple attack", "soulguard", "move", "weaponry link"];
   const SPECIAL_LEGACY = /for each time your flags? \[reversal\]|overgod|endruler/i;
   const STATIC_CACHE = new Map();
   function staticBoosts(card) {
@@ -1177,7 +1189,7 @@
               const mult = st.each ? refsFor(st.each, ctx, { owner: "you", area: "field" }).length : 1;
               const lock = (stat, v) => (v < 0 && ABX.statLocked && ABX.statLocked(mySide, unit, stat, side !== mySide) ? 0 : v);
               out.power += lock("power", (st.mods.power || 0) * mult); out.defense += lock("defense", (st.mods.defense || 0) * mult); out.crit += lock("critical", (st.mods.critical || 0) * mult);
-              (st.mods.kws || []).forEach(k => { if (k === "penetrate") out.pen = true; if (k === "double attack") out.da = true; if (k === "triple attack") out.ta = true; if (k === "counterattack") out.ca = true; if (k === "soulguard") out.sg = true; if (k === "move") out.move = true; if (k === "quadruple attack") out.qa = true; });
+              (st.mods.kws || []).forEach(k => { if (k === "penetrate") out.pen = true; if (k === "double attack") out.da = true; if (k === "triple attack") out.ta = true; if (k === "counterattack") out.ca = true; if (k === "soulguard") out.sg = true; if (k === "move") out.move = true; if (k === "quadruple attack") out.qa = true; if (k === "weaponry link") out.wl = true; });
             }
           }
         }

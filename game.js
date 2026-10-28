@@ -4635,7 +4635,7 @@ const battle = {
         m.tempDef = 0;
         m.tempCrit = 0;
         m.tempCA = false;
-        m.tempDA = false; m.tempTA = false; m.tempQA = false; m.tempSG = false; m.tempMove = false;
+        m.tempDA = false; m.tempTA = false; m.tempQA = false; m.tempHA = false; m.tempSG = false; m.tempMove = false;
         m.tempIndestructible = false;
         m.actUsed = false;
 
@@ -4661,7 +4661,7 @@ const battle = {
       u.tempDef = 0;
       u.tempCrit = 0;
       u.tempCA = false;
-      u.tempDA = false; u.tempTA = false; u.tempQA = false; u.tempSG = false; u.tempMove = false;
+      u.tempDA = false; u.tempTA = false; u.tempQA = false; u.tempHA = false; u.tempSG = false; u.tempMove = false;
       u.tempIndestructible = false;
       u.tempPen = false;
     };
@@ -5197,6 +5197,19 @@ const battle = {
           this.promptOptionalAbility(side, card, unit);
         };
         actionsEl.appendChild(bAct);
+      }
+
+      // [Act]s of cards in this card's soul ("Call this card from the soul of a «Neodragon»")
+      if (window.ABX && ABX.soulActs && side === this.activeSide && this.isLocalTurn()) {
+        ABX.soulActs(side, unit).forEach(sa => {
+          const ok = ABX.canUseSoulAct(side, unit, sa.card, sa.ab);
+          const bSoul = document.createElement("button");
+          bSoul.className = "action-btn";
+          bSoul.textContent = `${ok ? "✨" : "🔒"} Soul [Act]: "${sa.card.name}"`;
+          bSoul.disabled = !ok;
+          bSoul.onclick = () => { this.closeCardBanner(); ABX.useSoulAct(side, unit, sa.card, sa.ab); };
+          actionsEl.appendChild(bSoul);
+        });
       }
 
       if ((card.ot || card.ok || card.oth) && !f.overturnUsed) {
@@ -6658,6 +6671,8 @@ const battle = {
     } else {
       defFighter.timeStoppedThisBattle = false;
     }
+    // "for this turn, your opponent cannot [Counter] during the battle that the chosen card attacks alone" (ABX)
+    if (window.ABX && ABX.noCounterThisBattle && ABX.noCounterThisBattle(attSide, units)) defFighter.timeStoppedThisBattle = true;
 
     const isLink = units.length > 1;
     if (this.mode === "online_p2p" && attSide === "plr" && app.peerConn && app.peerConn.open) {
@@ -7088,7 +7103,7 @@ const battle = {
     // "The next time this card would be destroyed this turn, it remains on the field" (ABX saveOnce)
     if (window.ABX && ABX.core && ABX.core.useSave && ABX.core.useSave(side, m)) { this.renderBattle(); return false; }
     const abxSG = !!(window.ABX && ABX.staticBonus && ABX.staticBonus(f, m).sg);
-    if ((m.card.sg || m.tempSG || abxSG) && m.soul && m.soul.length > 0) {
+    if ((m.card.sg || m.tempSG || abxSG) && !(window.ABX && ABX.kwLost && ABX.kwLost(m, "soulguard")) && m.soul && m.soul.length > 0) {
       const discardedSoul = m.soul.pop();
       const soulCard = CARD_MAP.get(discardedSoul);
       const fromZoneId = `z-${side}-${pos}`;

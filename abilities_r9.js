@@ -84,6 +84,7 @@
   const N = (w) => { const n = toNum(w); return isNaN(n) ? (/^an?$/i.test(w) ? 1 : NaN) : n; };
   // new rules go first, so they win over the broad "there are N or more ..." rules
   const NEW_RULES = [];
+  const NP = (t) => { const np = ABX.parseNP(t); return np && !np.junk ? np : null; };
   const cr = (re, fn) => NEW_RULES.push([re, fn]);
 
   // --- soul of this card ---
@@ -158,6 +159,15 @@
   // damage taken this turn
   cr(new RegExp("^you (?:took|have taken) " + NUM + " or more damage(?: in total)? (?:during|in) this turn$", "i"), (m) => ({ t: "xDamageTaken", n: N(m[1]) }));
 
+  cr(/^you have more life than your opponent$/i, () => ({ t: "lifeVs", cmp: "gt" }));
+  cr(/^you have less life than your opponent$/i, () => ({ t: "lifeVs", cmp: "le" }));
+  cr(new RegExp("^you have " + NUM + " or more different worlds among (?:cards|the cards) on your field$", "i"), (m) => ({ t: "xWorldNames", area: "field", n: N(m[1]) }));
+  cr(new RegExp("^you (?:do )?put " + NUM + "(?: cards?)?$", "i"), (m) => ({ t: "xLastCount", n: N(m[1]) }));
+  cr(/^you (?:destroyed|put|returned|dropped) (?:any|one or more|a card)$/i, () => ({ t: "xLastCount", n: 1 }));
+  cr(/^(?:returned|destroyed)$/i, () => ({ t: "xLastCount", n: 1 }));
+  cr(/^(?:this|it) is during the (attack|main|final) phase$/i, (m) => ({ t: "phase", phase: lc(m[1]) }));
+  cr(/^(?:a|an) (.+?) is among them$/i, (m) => { const np = NP(m[1]); return np ? { t: "xAmong", np } : null; });
+  cr(new RegExp("^you or your opponent (?:has|have) " + NUM + " life or (less|more)$", "i"), (m) => ({ t: "or", list: [{ t: "life", who: "you", n: N(m[1]), cmp: CMP(m[2]) }, { t: "life", who: "opp", n: N(m[1]), cmp: CMP(m[2]) }] }));
   ABX.COND_RULES.unshift(...NEW_RULES);
   addOk("xCenterEmpty", "xLinkAttack", "xAlone", "xBeingAttacked", "selfAttacking", "xLinking", "xZoneCount", "xWorldNames", "xItemState", "xSelfItemMode", "xItemMode", "xInSoulOfItemMode", "xIsBuddy", "xBuddyName", "xInSoulOfBuddy", "xSetHas", "xOverturnUsed", "xDamageTaken");
 
@@ -224,8 +234,10 @@
   XC.xSetHas = (c, ctx) => (ctx.f.setSpells || []).some(sp => !c.np || matchFilter(sp, c.np.filter || {}, null, ctx));
   XC.xOverturnUsed = (c, ctx) => !!ctx.f.overturnUsed;
   XC.xDamageTaken = (c, ctx) => { const S = core.st(ctx.f); return S.dmgTurn === B.turnCount && (S.dmgTaken || 0) >= c.n; };
+  XC.xLastCount = (c, ctx) => (ctx.lastCount || 0) >= c.n;
+  XC.xAmong = (c, ctx) => [].concat(ctx.bind.looked || [], ctx.bind.revealed || []).some(r => r && r.card && matchFilter(r.card, c.np.filter || {}, r, ctx));
   XC.rideOn = (c, ctx) => { const it = itemOf(ctx.f); return itemMode(it, "ride") && (!c.np || matchFilter(it.card, c.np.filter || {}, { unit: it, side: ctx.side }, ctx)); };
-  addOk("rideOn");
+  addOk("rideOn", "xLastCount", "xAmong");
 
   /* ---------- line rewrites before parsing ---------- */
   // "If you have three or more «X» in your drop zone, this card gets A, then, if you have five or more, this card gets B"
@@ -282,6 +294,591 @@
       return null;
     } catch (e) { if (ABX.debug) console.error(e); return null; }
   };
+
+
+  /* ============================================================
+   * 4. PARSER: compound conditions / sentences, "instead", "either ... or ..."
+   * ============================================================ */
+  const OPS = ABX.OPS;
+  const stripEnd = (t) => String(t || "").trim().replace(/[.!]+$/, "").trim();
+  function insideAt(s, idx) { let q = 0, b = 0; for (let i = 0; i < idx; i++) { const c = s[i]; if (c === '"') q ^= 1; else if (!q) { if ("[«(<".includes(c)) b++; else if ("]»)>".includes(c)) b--; } } return q || b > 0; }
+  // split `s` at `re`, only outside quotes / brackets
+  function topSplit(s, re) {
+    const g = new RegExp(re.source, re.flags.includes("g") ? re.flags : re.flags + "g");
+    const out = []; let last = 0, m;
+    while ((m = g.exec(s))) { if (!m[0].length) { g.lastIndex++; continue; } if (insideAt(s, m.index)) continue; out.push(s.slice(last, m.index)); last = m.index + m[0].length; }
+    out.push(s.slice(last));
+    return out.map(x => x.trim()).filter(Boolean);
+  }
+  const fullOK = (r) => !!r && r.steps && r.steps.length > 0 && !(r.unparsed && r.unparsed.length) && r.steps.every(x => !x.np || !x.np.junk);
+
+  // --- compound conditions: "If A, or if B, ..." / "If A, and B, ..." / "an «X» on your center and left" ---
+  const origPC = ABX.parseCondition;
+  const SUBJ_RE = /^(?:you |your |this |there |a |an |another |neither |it |the |that |no |all |each |during )/i;
+  let pcDepth = 0;
+  ABX.parseCondition = function (text) {
+    const r = origPC.call(this, text);
+    if (r || pcDepth > 3) return r;
+    const t = stripEnd(ABX.norm(text)).replace(/^(?:if|while)\s+/i, "");
+    if (!t || t.length > 260) return null;
+    pcDepth++;
+    try {
+      let m = t.match(/^(you have (?:a|an|another) (.+?) on your )(center|left|right) and (?:your )?(center|left|right)$/i);
+      if (m) { const a = ABX.parseCondition(m[1] + m[3]), b = ABX.parseCondition(m[1] + m[4]); if (a && b) return { t: "and", list: [a, b] }; }
+      for (const [re, kind] of [[/,?\s+or\s+(?:if\s+)?(?=you |your |this |there |a |an |another |if |the |it )/i, "or"], [/,\s*and\s+(?:if\s+)?|\s+and\s+if\s+/i, "and"]]) {
+        const parts = topSplit(t, re);
+        if (parts.length < 2) continue;
+        const subs = []; let prevSubj = null;
+        for (const p of parts) {
+          let c = ABX.parseCondition(p);
+          if (!c && prevSubj && !SUBJ_RE.test(p)) c = ABX.parseCondition(prevSubj + p);
+          if (!c) break;
+          subs.push(c);
+          const sm = p.match(/^(you have |your opponent has |there (?:is|are) )/i); if (sm) prevSubj = sm[1];
+        }
+        if (subs.length === parts.length) return { t: kind, list: subs };
+      }
+      return null;
+    } finally { pcDepth--; }
+  };
+
+  // --- sentences ---
+  const origPSS = ABX.parseSentenceSteps;
+  const pss = (t, st) => origPSS.call(ABX, t, st || { conds: [] });
+  // "If A, B, C, ..." where the condition itself contains commas: take the longest head that reads as a condition
+  function leadCond(s, minK) {
+    const lm = s.match(/^((?:then,?\s*)?(?:if|while)\s+)/i);
+    if (!lm || /^(?:then,?\s*)?if you (?:do|did|can)\b/i.test(s)) return null;
+    const body = s.slice(lm[0].length);
+    const parts = topSplit(body, /,\s*/);
+    let best = null;
+    for (let k = 1; k < parts.length; k++) {
+      const head = parts.slice(0, k).join(", ");
+      const c = ABX.parseCondition(head);
+      if (c) best = { k, c };
+    }
+    if (!best || best.k < (minK || 2)) return null;   // a one-comma condition is read fine already
+    return { cond: best.c, rest: parts.slice(best.k).join(", ") };
+  }
+  // split a compound sentence and parse each part ("all «X» cannot be destroyed ..., get defense+5000, and damage ... cannot be reduced")
+  function splitRetry(text, st) {
+    const r0 = pss(text, st);
+    if (fullOK(r0)) return r0;
+    let pre = "", t = stripEnd(ABX.norm(text));
+    const pm = t.match(/^((?:for|during) (?:this|that) (turn|battle|fight),?\s*)/i);
+    if (pm) { pre = "for this " + lc(pm[2]) + ", "; t = t.slice(pm[0].length); }
+    const parts = topSplit(t, /,\s*(?:and\s+)?(?:then,?\s*)?|\s+and\s+(?=(?:damage|all|the|this card|that card|it|its|your|you|items?|monsters?|cards?|draw|put|destroy|deal|call)\b)/i);
+    if (parts.length < 2 || parts.length > 6) return r0;
+    const sm = parts[0].match(/^(.+?)\s+(?:cannot|can|gets?)\b/i);
+    const subj = sm ? sm[1] : null;
+    const steps = [];
+    for (let p of parts) {
+      if (subj && /^(?:gets?|cannot|can)\b/i.test(p)) p = subj + " " + p;
+      const r = pss(pre + p, st);
+      if (!fullOK(r)) return r0;
+      steps.push(...r.steps);
+    }
+    return { steps, unparsed: [] };
+  }
+  ABX.parseSentenceSteps = function (sentence, st) {
+    let s = stripEnd(ABX.norm(sentence));
+    let instead = false;
+    if (/,?\s+instead$/i.test(s)) { instead = true; s = s.replace(/,?\s+instead$/i, ""); }
+    else if (/,\s*instead,\s*/i.test(s)) { instead = true; s = s.replace(/,\s*instead,\s*/i, ", "); }
+    let r = null;
+    const lead = leadCond(s);
+    if (lead) {
+      const rr = splitRetry(lead.rest, st);
+      if (fullOK(rr)) { rr.steps.forEach(x => { x.cond = x.cond ? { t: "and", list: [lead.cond, x.cond] } : lead.cond; }); r = rr; }
+    }
+    if (!r) r = instead ? splitRetry(s, st) : (() => { const r0 = pss(sentence, st); return fullOK(r0) ? r0 : splitRetry(s, st); })();
+    if (!fullOK(r)) {   // "if C, A, B, and C2" where only splitting the effects helps
+      const l1 = leadCond(s, 1);
+      if (l1) { const rr = splitRetry(l1.rest, st); if (fullOK(rr)) { rr.steps.forEach(x => { x.cond = x.cond ? { t: "and", list: [l1.cond, x.cond] } : l1.cond; }); r = rr; } }
+    }
+    if (instead && fullOK(r)) { const wc = r.steps.filter(x => x.cond); (wc.length ? wc : r.steps).forEach(x => { x.instead = true; }); }
+    return r;
+  };
+  // "Destroy A. If C, destroy B instead." -> A only when not C
+  function applyInstead(steps) {
+    for (let i = 1; i < steps.length; i++) {
+      const x = steps[i];
+      if (!x.instead || !x.cond) continue;
+      let j = i - 1; while (j >= 0 && steps[j].instead) j--;
+      if (j < 0) continue;
+      const notC = { t: "not", c: x.cond };
+      steps[j].cond = steps[j].cond ? { t: "and", list: [steps[j].cond, notC] } : notC;
+    }
+  }
+
+  /* ---------- more line rewrites ---------- */
+  function rewrite2(s) {
+    s = s.replace(/\bchoose and (\[rest\]|\[stand\]|destroy|rest|stand) (up to [^.]+?|an? [^.]+?|all [^.]+?)(?=\.|$)/ig, (all, verb, np) => `choose ${np}, and ${verb} the chosen cards`);
+    s = s.replace(/\b(card|monster|item)s? on your opponent's turn\b/ig, (m, w) => m.replace(/turn$/i, "field"));
+    s = s.replace(/\bsize (\d+) or (less|greater) on (your|your opponent's) field/ig, "size $1 or $2 monster on $3 field");
+    s = s.replace(/\bevents? or items?\b/ig, "item");
+    s = s.replace(/\bcall or \[ride\] /ig, "call ").replace(/ or \[ride\] cost\b/ig, "");
+    s = s.replace(/\blook at (two|three|four|five|six|\d+) cards from the top of your deck\b/ig, "look at the top $1 cards of your deck");
+    s = s.replace(/\bfor this turn, for each (.+?) this card gets (.+?)(?=\.|$)/ig, "for this turn, this card gets $2 for each $1");
+    s = s.replace(/\bduring the battle (?:that )?this card is attacking alone, (?:it|this card) gets\b/ig, "If this card is attacking alone, this card gets");
+    s = s.replace(/\byou may choose to put\b/ig, "you may put");
+    s = s.replace(/\bduring the attack phase of this turn,\s*/ig, "for this turn, ");
+    s = s.replace(/, and during this turn, the next time\b/ig, ". For this turn, the next time");
+    if (/in your drop zone/i.test(s)) s = s.replace(/\bcall this card on your field\b/ig, "call this card from your drop zone");
+    s = s.replace(/\bif you do put\b/ig, "if you put");
+    s = s.replace(/\bput the top (\w+) cards? of both players'? decks? into the drop zone(?: and then|, and then|, then)?/ig, "put the top $1 cards of your deck into your drop zone, put the top $1 cards of your opponent's deck into their drop zone, then");
+    s = s.replace(/\bfrom the soul of this card\b/ig, "from this card's soul");
+    s = s.replace(/\bup to one size (\d+) and one size (\d+) («[^»]+»(?: monsters?)?)/ig, "up to one size $1 $3 and up to one size $2 $3");
+    s = s.replace(/\b(put (?:up to \w+|an?|one|two|three) [^,.]+?) into your hand from among them\b/ig, "$1 from among them into your hand");
+    s = s.replace(/\b(a card|cards?) from among them face up or down\b/ig, "$1 from among them");
+    s = s.replace(/\ba total of up to (\w+) items and spells\b/ig, "up to $1 items or spells");
+    s = s.replace(/ (?:five|two|three) times(?=\.|$)/ig, "");
+    s = s.replace(/\. if you have\b/ig, ". If you have").replace(/ and if you have\b/ig, ". If you have");
+    s = s.replace(/,? and drop the rest\b/ig, ", and put the rest into the drop zone");
+    s = s.replace(/\bnullify the abilities of\b/ig, "nullify all abilities of");
+    s = s.replace(/\ba face down soul\b/ig, "a soul");
+    s = s.replace(/ in total on your opponent's field/ig, " on your opponent's field");
+    s = s.replace(/\bif (it|that card) would be destroyed, (it|that card) remains on the field\b/ig, "the next time $1 would be destroyed, $2 remains on the field");
+    s = s.replace(/\bthe next time (that card|it|this card) would leave the field by your opponent's card effects\b/ig, "the next time $1 would be destroyed");
+    const lk = s.match(/\blook at the top (two|three|four|five|six|seven|\d+) cards\b/i);
+    if (lk) s = s.replace(/\b(?:any number of|as many of) (them|those cards|«[^»]+»(?: monsters?)?)(?: as you like)?\b/ig, (m, what) => `up to ${lk[1]} ${/^(them|those cards)$/i.test(what) ? "of them" : what}`);
+    return s;
+  }
+  const prevRewrite = ABX.rewriteLine;
+  ABX.rewriteLine = (t) => rewrite2(prevRewrite(t));
+
+  /* ---------- action rules ---------- */
+  const NEW_ACT = [];
+  const ar = (re, fn) => NEW_ACT.push([re, fn, false]);
+  const arw = (re, fn) => NEW_ACT.push([re, fn, true]);
+  const subSteps = (t) => { const r = ABX.parseSentenceSteps(t, { conds: [] }); return fullOK(r) ? r.steps : null; };
+  const EITHER_VERB = /^(?:destroy|put|return|deal|draw|call|discard|drop|give|for this turn|you gain|\[rest\]|\[stand\])\b/i;
+  function eitherOf(verb, body) {
+    // try every " or " split point (", or " first)
+    const pts = [];
+    const re = /,?\s+or\s+/g; let m;
+    while ((m = re.exec(body))) if (!insideAt(body, m.index)) pts.push([m.index, m[0]]);
+    pts.sort((a, b) => (b[1].startsWith(",") ? 1 : 0) - (a[1].startsWith(",") ? 1 : 0));
+    for (const [i, sep] of pts) {
+      let a = body.slice(0, i).trim(), b = body.slice(i + sep.length).trim();
+      if (verb) { a = verb + " " + a; if (!EITHER_VERB.test(b)) b = verb + " " + b; }
+      const zone = b.match(/ on your opponent's field$/i);
+      if (zone && !/\bfield\b|\bcenter\b|\bleft\b|\bright\b/i.test(a)) a += zone[0];
+      const sa = subSteps(a), sb = subSteps(b);
+      if (sa && sb) return { op: "either", opts: [sa, sb], labels: [a, b] };
+    }
+    return null;
+  }
+  ar(/^(?:(destroy|put|return|deal|draw|call|discard|drop) )?either (.+)$/i, (m) => eitherOf(m[1] ? lc(m[1]) : null, m[2]));
+  ar(/^(destroy .+?) or ((?:put|return|deal|draw|destroy) .+)$/i, (m) => { const sa = subSteps(m[1]), sb = subSteps(m[2]); return sa && sb ? { op: "either", opts: [sa, sb], labels: [m[1], m[2]] } : null; });
+  // opponent's gauge / life
+  ar(/^drop (up to )?(\d+|one|two|three|four|five) of your opponent's gauge$/i, (m) => ({ op: "dropOppGauge", n: toNum(m[2]), upTo: !!m[1] }));
+  ar(/^(?:then,? )?put the top card of your deck into your gauge for each gauge dropped$/i, () => ({ op: "mill", who: "you", n: { lastCount: true }, to: "gauge" }));
+  ar(/^each player gains (\d+|one|two|three|four|five) life$/i, (m) => ({ op: "seq", steps: [{ op: "life", who: "you", n: toNum(m[1]) }, { op: "life", who: "opp", n: toNum(m[1]) }] }));
+  ar(/^(?:your opponent's|their) life becomes (\d+)$/i, (m) => ({ op: "setLife", who: "opp", n: +m[1] }));
+  // damage / draw / charge by count
+  ar(/^deal damage to (?:your|the) opponent equal to (?:(\d+|one|two|three) plus )?the number of (cards? (?:destroyed|put|\[rest\]|returned|dropped))$/i, (m) => ({ op: "damage", who: "opp", n: { lastCount: true, plus: m[1] ? toNum(m[1]) : 0 } }));
+  ar(/^deal damage to (?:your|the) opponent equal to (?:(\d+|one|two|three) plus )?the number of (.+)$/i, (m) => { const np = NP(m[2]); return np ? { op: "damage", who: "opp", n: { each: np, plus: m[1] ? toNum(m[1]) : 0 } } : null; });
+  ar(/^draw (?:cards|a card) equal to the number of (.+)$/i, (m) => { const np = NP(m[1]); return np ? { op: "draw", who: "you", n: { each: np } } : null; });
+  ar(/^put cards from the top of your deck into your gauge,? equal to the number of (.+)$/i, (m) => { const np = NP(m[1]); return np ? { op: "mill", who: "you", n: { each: np }, to: "gauge" } : null; });
+  ar(/^destroy (?:the number of )?(cards?|monsters?) on your opponent's field equal to the number of (cards? (?:put|destroyed|dropped|returned))$/i, (m) => ({ op: "destroy", np: { raw: m[1] + " on your opponent's field", qty: { n: 1, fromLast: true }, filter: /monster/i.test(m[1]) ? { types: ["monster"] } : {}, zone: { owner: "opp", area: "field" } } }));
+  ar(/^destroy (?:the number of )?(cards?|monsters?) on your opponent's field equal to the number of (.+)$/i, (m) => { const each = NP(m[2]); return each ? { op: "destroy", np: { raw: m[1] + " on your opponent's field", qty: { n: 1, numOf: each }, filter: /monster/i.test(m[1]) ? { types: ["monster"] } : {}, zone: { owner: "opp", area: "field" } } } : null; });
+  ar(/^destroy (?:one|all) of (?:those|the attacked) monsters?$|^destroy that monster$/i, () => ({ op: "destroyBattleTarget" }));
+  ar(/^destroy all (?:\[set\] )?spells on your opponent's field$/i, () => ({ op: "destroySet", who: "opp" }));
+  // shields / life floor / cannot lose
+  ar(/^the next time you would be dealt damage,? (?:it|that damage) is reduced (?:to 0|by (\d+|one|two|three))$/i, (m) => ({ op: "shield", mode: "next", toZero: !m[1], reduceBy: m[1] ? toNum(m[1]) : 0 }));
+  ar(/^(?:the )?damage (?:dealt to you|you take|you would take) (?:are|is) reduced by (\d+|one|two|three)$/i, (m) => ({ op: "shield", mode: "turn", reduceBy: toNum(m[1]) }));
+  ar(/^the next time your life would become 0,? it becomes 1 instead$|^the next time your life would become 0,? your life becomes 1$/i, () => ({ op: "lifeFloor" }));
+  ar(/^until the (?:beginning|start) of your opponent's next turn,? you cannot lose the (?:game|fight)$/i, () => ({ op: "noLose" }));
+  ar(/^damage (?:your opponent takes|dealt to your opponent) by your card effects cannot be reduced$/i, () => ({ op: "unreducibleTurn" }));
+  // boosts with keywords only
+  ar(/^give (.+?) ((?:\[[^\]]+\])(?:(?:,\s*|,?\s*and\s+)\[[^\]]+\])*)$/i, (m) => { const np = /^(it|them|that card|the chosen cards?)$/i.test(m[1]) ? { ref: "chosen", qty: { all: true, n: 99 }, filter: {}, raw: m[1] } : NP(m[1]); const mods = ABX.parseStatMods(m[2]); return np && mods ? { op: "boost", np, mods } : null; });
+  // zone moves
+  ar(/^add (.+?) from your (drop zone|deck|gauge) to your hand$/i, (m) => { const np = NP(m[1] + " from your " + m[2]); return np ? { op: "move", np, to: { area: "hand", owner: "you", end: "top" } } : null; });
+  arw(/^put all cards (?:from|in) your drop zone on the bottom of (?:the|your) deck,? and shuffle (?:it|your deck|the deck)$/i, () => ({ op: "seq", steps: [{ op: "move", np: { qty: { all: true, n: 99 }, filter: {}, zone: { owner: "you", area: "drop zone" }, raw: "all cards in your drop zone" }, to: { area: "deck", owner: "you", end: "bottom" } }, { op: "shuffle", who: "you" }] }));
+  arw(/^return up to (\w+) cards from your opponent's drop zone (?:in)?to (?:the|their) deck,? and shuffle (?:the|their) deck$/i, (m) => ({ op: "seq", steps: [{ op: "move", np: { qty: { n: toNum(m[1]), upTo: true }, filter: {}, zone: { owner: "opp", area: "drop zone" }, raw: "cards from your opponent's drop zone" }, to: { area: "deck", owner: "owner", end: "bottom" } }, { op: "shuffle", who: "opp" }] }));
+  arw(/^your opponent chooses and drops a hand card,? and you draw a card$/i, () => ({ op: "seq", steps: [{ op: "oppDiscard", n: 1 }, { op: "draw", who: "you", n: 1 }] }));
+  // equip / cast from a zone
+  ar(/^(?:you may )?equip (?:up to one |an? |one )?(.+?) from your (drop zone|hand|deck)(?: or (drop zone|hand|deck))? (by paying|without paying) its \[equip cost\]$/i, (m) => { const np = NP(m[1]); return np ? { op: "equipFrom", np, from: [m[2], m[3]].filter(Boolean).map(lc), pay: /^by/i.test(m[4]), upTo: /up to/i.test(m[0]) } : null; });
+  ar(/^(?:you may )?equip (?:up to one |an? |one )?(.+?) from your (drop zone|hand|deck)(?: or (drop zone|hand|deck))?$/i, (m) => { const np = NP(m[1]); return np ? { op: "equipFrom", np, from: [m[2], m[3]].filter(Boolean).map(lc), pay: false, upTo: /up to/i.test(m[0]) } : null; });
+  ar(/^cast (?:a|an|up to one) (.+?) from your (drop zone|hand) by paying its \[cast cost\]$/i, (m) => { const np = NP(m[1]); return np ? { op: "castFrom", np, from: lc(m[2]), pay: true } : null; });
+  ar(/^cast (?:it|that card|the chosen card) by paying its \[cast cost\]$/i, () => ({ op: "castFrom", ref: "chosen", pay: true }));
+  // free costs (static)
+  ar(/^you may call (?:this|this card) without paying its \[call cost\]$/i, () => ({ op: "freeCost", what: "call" }));
+  ar(/^you may choose not to pay the \[cast cost\] of this card$/i, () => ({ op: "freeCost", what: "cast" }));
+  // call this card from a soul
+  ar(/^call this card from (?:the|a|its) soul(?: of (.+?))?(?: (by paying|without paying) its \[call cost\])?$/i, (m) => ({ op: "callFromSoul", host: m[1] ? NP(m[1]) : null, pay: /^by/i.test(m[2] || "") }));
+
+  ar(/^(?:you may )?choose not to pay the \[cast cost\] of this card$/i, () => ({ op: "freeCost", what: "cast" }));
+  ar(/^put all cards in both (?:fighter|player)'?s'? gauges? into the(?:ir)? drop zones?$/i, () => ({ op: "seq", steps: [{ op: "moveZone", from: { owner: "you", area: "gauge" }, to: { owner: "you", area: "drop zone" }, n: 99 }, { op: "moveZone", from: { owner: "opp", area: "gauge" }, to: { owner: "opp", area: "drop zone" }, n: 99 }] }));
+  ar(/^(?:you may )?put (?:a card|cards) from your (drop zone|hand|gauge) into this card's soul until (\w+) cards? (?:are|is) in (?:its|this card's) soul$/i, (m) => ({ op: "soulFill", from: lc(m[1]), n: toNum(m[2]) }));
+  ar(/^put (.+? from .+?) and ((?:a|an|one|up to \w+) .+? from .+?|this card) into (.+)$/i, (m) => { const a = subSteps("put " + m[1] + " into " + m[3]), b = subSteps("put " + m[2] + " into " + m[3]); return a && b ? { op: "seq", steps: a.concat(b) } : null; });
+  ar(/^the next time your life would become 0,? (?:it becomes 1|your life becomes 1)(?: instead)?$/i, () => ({ op: "lifeFloor" }));
+  ar(/^equip (?:it|that card|the chosen card) (by paying|without paying) its \[equip cost\]$/i, (m) => ({ op: "equipFrom", ref: "chosen", np: { raw: "the chosen card", filter: {} }, from: [], pay: /^by/i.test(m[1]) }));
+  ar(/^nullify (?:your opponent's|the opponent's) (spell|impact)$/i, (m) => ({ op: "nullifyCast", what: lc(m[1]) }));
+  ar(/^(all cards|all monsters|all items) on your opponent's field cannot \[stand\] during their next (?:start|stand) phase$/i, (m) => { const np = NP(m[1] + " on your opponent's field"); return np ? { op: "restrict", np, kinds: ["stand"], duration: "next" } : null; });
+  ar(/^(?:that card's|the chosen card's|its) attacks? cannot be nullified(?: and its damage cannot be reduced)?(?: if it is attacking alone)?$/i, (m) => ({ op: "unnullChosen", alone: /alone/i.test(m[0]), noReduce: /reduced/i.test(m[0]) }));
+  ar(/^(?:that card's|the chosen card's|the chosen cards'|their) ((?:power|defense|critical|attack)(?:,? (?:and )?(?:power|defense|critical))*) cannot be reduced(?: by your opponent's card effects)?$/i, (m) => ({ op: "noReduceChosen", stats: (m[1].match(/power|defense|critical|attack/ig) || []).map(x => lc(x) === "attack" ? "power" : lc(x)) }));
+  ar(/^the (attack|power), defense and critical of all cards on your field cannot be reduced by your opponent's card effects$/i, () => ({ op: "noReduceAll", stats: ["power", "defense", "critical"] }));
+  ar(/^(?:during the battle that (?:it|the chosen card) (?:attacks alone|is attacking alone|link attacks),? )?your opponent cannot \[counter\](?: during the battle that (?:it|the chosen card) (?:attacks alone|is attacking alone|link attacks))?$/i, (m) => ({ op: "noCounterChosen", mode: /link/i.test(m[0]) ? "link" : "alone" }));
+  ar(/^during the battle that (?:it|the chosen card) (attacks alone|link attacks),? your opponent cannot \[counter\](?: and that damage dealt cannot be reduced)?$/i, (m) => ({ op: "noCounterChosen", mode: /link/i.test(m[1]) ? "link" : "alone" }));
+  ar(/^(?:it|this card) loses \[soulguard\]$/i, () => ({ op: "loseKw", kw: "soulguard" }));
+  ar(/^your flag is (?:regarded|treated) as (?:both )?"([^"]+)" and "([^"]+)"$/i, (m) => ({ op: "flagAsWorlds", worlds: [m[1], m[2]] }));
+  ar(/^put (?:it|that card|the chosen card) on your open (left|right|center)$/i, (m) => ({ op: "placeAt", pos: lc(m[1]) }));
+  ar(/^swap (?:the )?(.+?) on your left and right$/i, (m) => ({ op: "swapLR" }));
+  ar(/^move (?:a|one) monster on their left or right to the center$/i, () => ({ op: "oppToCenter" }));
+  ar(/^drop a soul of a card on your opponent's field,? and destroy that card$/i, () => ({ op: "seq", steps: [{ op: "choose", np: { raw: "a card with a soul on your opponent's field", qty: { n: 1 }, filter: {}, zone: { owner: "opp", area: "field" }, hasSoul: true } }, { op: "dropSoul", hostNP: { ref: "chosen", qty: { n: 1 }, filter: {}, raw: "chosen" }, n: 1 }, { op: "destroy", np: { ref: "chosen", qty: { all: true, n: 99 }, filter: {}, raw: "that card" }, gate: "ifYouDo" }] }));
+  ar(/^return all souls of a card on your opponent's field to their deck,? and shuffle it$/i, () => ({ op: "soulsToDeck" }));
+  ar(/^(?:the )?damage you take (?:are|is) reduced by 1 for each time your flags? \[reversal\] during this fight$/i, () => ({ op: "shieldRev" }));
+  ar(/^end this (phase|turn)$/i, (m) => /turn/i.test(m[1]) ? { op: "endTurnNow" } : { op: "endPhaseNow" });
+  ABX.ACTION_RULES.unshift(...NEW_ACT);
+  // tried only after every older rule (so the continuous protection auras keep their own reading)
+  ABX.ACTION_RULES.push([/^(all cards|all monsters|all items|all «[^»]+»(?: monsters)?|all monsters with "[^"]+" in their card names) on your field cannot be (destroyed|returned to hand)(?:,? (?:or )?(returned to hand|leave the field))?(?:,? and their abilities cannot be nullified)?(?:,? (?:by|due to) your opponent's (?:card effects|cards))?$/i,
+    (m) => { const np = NP(m[1] + " on your field"); if (!np) return null; const kinds = [lc(m[2])]; if (m[3]) kinds.push(lc(m[3])); if (/nullified/i.test(m[0])) kinds.push("nullified"); return { op: "restrict", np, kinds, byOpp: /opponent's/i.test(m[0]) }; }, false]);
+
+  // trailing "... if you have five or more" etc. already handled; now the card-level post-processing
+  function fixNP(np) {
+    if (!np) return;
+    const raw = String(np.raw || "");
+    if (/for each time your flags? \[reversal\]/i.test(raw)) { np.qty = Object.assign({}, np.qty, { perReversal: true }); delete np.junk; if (np.filter) { delete np.filter.cardNames; if (np.filter.types && np.filter.types.includes("flag")) delete np.filter.types; } }
+    if (np.junk === "up to one" && np.qty && np.qty.eachOf) { np.qty.upTo = true; delete np.junk; }
+  }
+  function postSteps(steps) {
+    (steps || []).forEach(x => {
+      fixNP(x.np);
+      if (x.each && /time your flags? \[reversal\]/i.test(x.each.raw || "")) { x.each = { perReversal: true, raw: x.each.raw }; if (x.mods && x.mods.kws) x.mods.kws = x.mods.kws.filter(k => k !== "reversal"); }
+      if (x.n && x.n.each && /time your flags? \[reversal\]/i.test(x.n.each.raw || "")) x.n.each = { perReversal: true };
+      // "you may call this card without paying its [Call Cost]" parsed by the old rules as a call
+      if (x.op === "call" && x.np && x.np.self && x.free && /^(?:this|this card)$/i.test(String(x.np.raw || "").trim())) { const c = x.cond; Object.keys(x).forEach(k => delete x[k]); Object.assign(x, { op: "freeCost", what: "call" }); if (c) x.cond = c; }
+      if (x.op === "call" && x.np && !x.np.self) {
+        const raw = String(x.np.raw || "");
+        const REL = [[/\s*with (?:a )?different (?:card|character) names? (?:from|than) (?:that chosen card|the returned card|that card|the chosen card)/i, "diffName"],
+          [/\s*with the same (?:card|character) name as (?:the card returned|the returned card|that card)/i, "sameName"],
+          [/\s*of the same size as (?:that monster|that card|the destroyed monster)/i, "sameSize"], [/\s*that is not an impact monster/i, "notImpact"]];
+        for (const [re, rel] of REL) {
+          if (!re.test(raw)) continue;
+          const np2 = ABX.parseNP(raw.replace(re, ""));
+          if (!np2 || np2.junk) continue;
+          np2.filter = Object.assign({}, np2.filter, rel === "notImpact" ? { notImpact: true } : { rel });
+          x.np = np2;
+        }
+        // an effect that calls a card without saying "by paying its [Call Cost]" does not pay it
+        if (!x.pay && !x.free && !x.np.ref) x.free = true;
+        if (!x.np.zone && !x.np.ref && !x.np.self && !x.np.onTop) x.np.zone = { owner: "you", area: "hand" };
+      }
+      if (x.np && /\s*that (?:is|are) not in battle/i.test(String(x.np.raw || ""))) {
+        const np2 = ABX.parseNP(String(x.np.raw).replace(/\s*that (?:is|are) not in battle/i, ""));
+        if (np2 && !np2.junk) { np2.filter = Object.assign({}, np2.filter, { notInBattle: true }); x.np = np2; }
+      }
+      if (x.op === "seq") postSteps(x.steps);
+      if (x.op === "either") x.opts.forEach(postSteps);
+    });
+    applyInstead(steps || []);
+  }
+  const palNow = ABX.parseAbilityLine;
+  ABX.parseAbilityLine = function (rawLine, card) {
+    const fixed = rewrite2(rawLine);
+    const ab = palNow.call(this, fixed, card);
+    if (fixed !== rawLine) ab.raw = ABX.clean(rawLine);
+    postSteps(ab.steps);
+    return ab;
+  };
+  // a static whose only effect is a free cost is "executable" (it is read by parseCardCost below)
+  const origIsExec = ABX.isExecutable;
+  ABX.isExecutable = function (ab) {
+    if (ab && ab.kind === "static" && ab.steps && ab.steps.length && ab.steps.every(x => x.op === "freeCost") && !(ab.unparsed && ab.unparsed.length))
+      return (ab.conds || []).every(ABX.condExecutable) && ab.steps.every(x => !x.cond || ABX.condExecutable(x.cond));
+    return origIsExec.call(this, ab);
+  };
+
+  /* ============================================================
+   * 5. NEW EFFECTS
+   * ============================================================ */
+  const fresh = () => { try { B.renderBattle && B.renderBattle(); } catch (e) { /* ignore */ } };
+  const say = (t) => { try { B.setPrompt && B.setPrompt(t); } catch (e) { /* ignore */ } };
+  const isAuto = (ctx) => !!(ctx.auto || F(ctx.side).isBot || ABX.autoPlay === true || ABX.remoteAutoSide === ctx.side);
+  const stepsOk = (steps) => (steps || []).every(x => ABX.stepExecutable(x));
+
+  OPS.seq = {
+    async run(s, ctx) { await core.runSteps(s.steps, ctx); return ctx.lastDone; },
+    check: (s) => stepsOk(s.steps)
+  };
+  OPS.either = {
+    async run(s, ctx) {
+      let idx = 0;
+      if (!isAuto(ctx)) idx = await ABX.ui.pickOption({ title: `${ctx.card.name} — choose one`, options: s.labels.map(l => ({ label: ABX.clean(l).slice(0, 160) })) });
+      if (idx == null || idx < 0 || !s.opts[idx]) idx = 0;
+      await core.runSteps(s.opts[idx], ctx);
+      if (!ctx.lastDone && isAuto(ctx) && s.opts[1 - idx]) await core.runSteps(s.opts[1 - idx], ctx);   // bots: the other one if the first did nothing
+      return ctx.lastDone;
+    },
+    check: (s) => Array.isArray(s.opts) && s.opts.length === 2 && s.opts.every(stepsOk)
+  };
+  OPS.dropOppGauge = {
+    async run(s, ctx) {
+      const e = ctx.e;
+      let k = Math.min(s.n || 1, e.gauge.length);
+      if (s.upTo && k > 0 && !isAuto(ctx)) {
+        const opts = []; for (let i = k; i >= 0; i--) opts.push({ label: `Drop ${i}` });
+        const i = await ABX.ui.pickOption({ title: `${ctx.card.name} — drop how many of your opponent's gauge?`, options: opts });
+        if (i != null && i >= 0) k = k - i;
+      }
+      for (let i = 0; i < k; i++) e.drop.push(e.gauge.pop());
+      ctx.lastCount = k;
+      fresh(); return k > 0;
+    },
+    check: () => true
+  };
+  OPS.destroyBattleTarget = {
+    run(s, ctx) {
+      const b = battleNow(); if (!b || !b.defUnit) return false;
+      const df = F(b.defSide), pos = posOfUnit(df, b.defUnit);
+      if (!pos || pos === "item") return false;
+      if (core.isProtected(b.defUnit, b.defSide, "destroyed", ctx)) return false;
+      const ok = B.destroyMonster(b.defSide, pos) !== false; ctx.lastCount = ok ? 1 : 0; fresh(); return ok;
+    },
+    check: () => true
+  };
+  OPS.destroySet = {
+    run(s, ctx) { const f = F(s.who === "opp" ? otherSide(ctx.side) : ctx.side); const n = (f.setSpells || []).length; f.drop.push(...f.setSpells.map(c => c.id)); f.setSpells = []; ctx.lastCount = n; fresh(); return n > 0; },
+    check: () => true
+  };
+  OPS.lifeFloor = { run(s, ctx) { core.st(ctx.f).lifeFloor = B.turnCount; return true; }, check: () => true };
+  OPS.noLose = { run(s, ctx) { ctx.f.abxNoLose = { side: ctx.side, turn: B.turnCount }; say(`🛡️ ${ctx.f.name || "You"} cannot lose until the start of the opponent's next turn!`); return true; }, check: () => true };
+  OPS.unreducibleTurn = { run(s, ctx) { core.st(ctx.f).unreducibleTurn = B.turnCount; return true; }, check: () => true };
+  OPS.freeCost = { run() { return true; }, check: () => true };
+  const chosenUnits = (ctx) => (ctx.bind.chosen || []).filter(r => r.unit).map(r => r.unit);
+  OPS.unnullChosen = { run(s, ctx) { const us = chosenUnits(ctx); us.forEach(u => { u.abxUnnull = { turn: B.turnCount, cond: s.alone ? "alone" : null }; if (s.noReduce) u.abxUnreducible = { turn: B.turnCount, alone: !!s.alone }; }); fresh(); return us.length > 0; }, check: () => true };
+  OPS.noReduceChosen = { run(s, ctx) { const us = chosenUnits(ctx); us.forEach(u => { u.abxNoReduce = u.abxNoReduce || {}; s.stats.forEach(k => { u.abxNoReduce[k] = B.turnCount; }); }); return us.length > 0; }, check: (s) => (s.stats || []).length > 0 };
+  OPS.noReduceAll = { run(s, ctx) { fieldUnits(ctx.f, true).forEach(x => { const u = x.unit; u.abxNoReduce = u.abxNoReduce || {}; s.stats.forEach(k => { u.abxNoReduce[k] = B.turnCount; }); }); return true; }, check: () => true };
+  OPS.noCounterChosen = { run(s, ctx) { const us = chosenUnits(ctx); us.forEach(u => { u.abxNoCounter = { turn: B.turnCount, mode: s.mode }; }); return us.length > 0; }, check: () => true };
+  ABX.noCounterThisBattle = function (attSide, units) {
+    const us = (units || []).map(x => (x && x.unit) || x).filter(Boolean);
+    return us.some(u => u.abxNoCounter && u.abxNoCounter.turn === B.turnCount && (u.abxNoCounter.mode === "link" ? us.length > 1 : us.length === 1));
+  };
+  OPS.loseKw = { run(s, ctx) { const u = ctx.unit; if (!u) return false; u.abxLost = u.abxLost || {}; u.abxLost[s.kw] = B.turnCount; return true; }, check: () => true };
+  ABX.kwLost = (u, kw) => !!(u && u.abxLost && u.abxLost[kw] === B.turnCount);
+  OPS.flagAsWorlds = { run(s, ctx) { ctx.f.abxFlagWorlds = { turn: B.turnCount, worlds: s.worlds.slice() }; return true; }, check: () => true };
+  OPS.placeAt = {
+    run(s, ctx) { const f = ctx.f; const r = (ctx.bind.chosen || []).find(x => x.unit && x.side === ctx.side); if (!r || f.monsters[s.pos]) return false; const from = posOfUnit(f, r.unit); if (!from || from === "item") return false; f.monsters[s.pos] = r.unit; f.monsters[from] = null; fresh(); return true; },
+    check: () => true
+  };
+  OPS.swapLR = { run(s, ctx) { const f = ctx.f; const a = f.monsters.left, b = f.monsters.right; if (!a && !b) return false; f.monsters.left = b; f.monsters.right = a; fresh(); return true; }, check: () => true };
+  OPS.oppToCenter = {
+    async run(s, ctx) {
+      const e = ctx.e; if (e.monsters.center) return false;
+      const cands = ["left", "right"].filter(p => e.monsters[p]).map(p => ({ k: "unit", side: otherSide(ctx.side), unit: e.monsters[p], card: e.monsters[p].card, id: e.monsters[p].card.id, pos: p }));
+      const ch = await core.pick(cands, { qty: { n: 1 }, raw: "a monster on their left or right" }, ctx, { intent: "harm", title: `${ctx.card.name} — move to the center` });
+      if (!ch[0]) return false;
+      e.monsters.center = ch[0].unit; e.monsters[ch[0].pos] = null; fresh(); return true;
+    },
+    check: () => true
+  };
+  OPS.soulsToDeck = {
+    async run(s, ctx) {
+      const e = ctx.e;
+      const cands = fieldUnits(e, true).filter(x => (x.unit.soul || []).length).map(x => ({ k: x.pos === "item" ? "item" : "unit", side: otherSide(ctx.side), unit: x.unit, card: x.unit.card, id: x.unit.card.id }));
+      const ch = await core.pick(cands, { qty: { n: 1 }, raw: "a card on your opponent's field" }, ctx, { intent: "harm", title: `${ctx.card.name} — return its souls` });
+      if (!ch[0]) return false;
+      const ids = ch[0].unit.soul.splice(0); e.deck.push(...ids);
+      for (let i = e.deck.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [e.deck[i], e.deck[j]] = [e.deck[j], e.deck[i]]; }
+      ctx.lastCount = ids.length; fresh(); return ids.length > 0;
+    },
+    check: () => true
+  };
+  OPS.shieldRev = { run(s, ctx) { const n = typeof getFighterReversalCount === "function" ? getFighterReversalCount(ctx.f) : 0; if (!n) return false; core.st(ctx.f).shields.push({ mode: "turn", reduceBy: n, toZero: false, capTo: null, gainLife: 0, from: null, turn: B.turnCount }); return true; }, check: () => true };
+  OPS.endPhaseNow = { run(s, ctx) { return OPS.endPhase.run({ phase: B.phase === "final" ? "final" : B.phase === "attack" ? "attack" : "main" }, ctx); }, check: () => !!OPS.endPhase };
+  OPS.endTurnNow = { run(s, ctx) { return OPS.endPhase.run({ phase: "final" }, ctx); }, check: () => !!OPS.endPhase };
+  // does `unit` have keyword `k` right now (printed, given for the turn, or by a continuous ability)?
+  ABX.unitHasKw = function (fighter, unit, k) {
+    if (!unit || !unit.card) return false;
+    const t = { "penetrate": "tempPen", "double attack": "tempDA", "triple attack": "tempTA", "quadruple attack": "tempQA", "soulguard": "tempSG", "counterattack": "tempCA", "move": "tempMove" }[k];
+    if (t && unit[t]) return true;
+    const sb = ABX.staticBonus ? ABX.staticBonus(fighter, unit) : {};
+    const key = { "penetrate": "pen", "double attack": "da", "triple attack": "ta", "quadruple attack": "qa", "soulguard": "sg", "counterattack": "ca", "move": "move", "weaponry link": "wl" }[k];
+    return !!(key && sb[key]);
+  };
+  // "the chosen card's attacks cannot be nullified and its damage cannot be reduced if it is attacking alone"
+  if (ABX.attackUnreducible) {
+    const oau = ABX.attackUnreducible;
+    ABX.attackUnreducible = function (attSide, units) {
+      const us = (units || []).map(x => (x && x.unit) || x).filter(Boolean);
+      if (us.some(u => u.abxUnreducible && u.abxUnreducible.turn === B.turnCount && (!u.abxUnreducible.alone || us.length === 1))) return true;
+      return oau.apply(this, arguments);
+    };
+  }
+  // "put cards from your drop zone into this card's soul until two cards are in its soul"
+  OPS.soulFill = {
+    async run(s, ctx) {
+      const u = ctx.unit, f = ctx.f; if (!u) return false;
+      const need = Math.max(0, (s.n || 1) - (u.soul || []).length);
+      const arr = zoneArr(f, s.from || "drop zone");
+      if (!need || !arr || !arr.length) return false;
+      const cands = arr.map((id, idx) => ({ k: "zone", side: ctx.side, area: s.from === "drop zone" || !s.from ? "drop" : s.from, idx, id, card: cardOf(id) })).filter(r => r.card);
+      const ch = await core.pick(cands, { qty: { n: need, upTo: true }, raw: "cards for this card's soul" }, ctx, { intent: "help", title: `${ctx.card.name} — put into its soul` });
+      let n = 0;
+      ch.forEach(r => { const i = arr.indexOf(r.id); if (i >= 0) { arr.splice(i, 1); u.soul.push(r.id); n++; } });
+      ctx.lastCount = n; fresh(); return n > 0;
+    },
+    check: (s) => ["drop zone", "hand", "gauge"].includes(s.from || "drop zone")
+  };
+
+  // damage that "cannot be reduced" for the rest of the turn; next-time life floor
+  const applyNow = core.applyDamage;
+  core.applyDamage = function (side, n, src) {
+    src = src || {};
+    const atk = F(otherSide(side));
+    if (src.kind === "effect" && core.st(atk).unreducibleTurn === B.turnCount) src = Object.assign({}, src, { unreducible: true });
+    const f = F(side), lifeBefore = f.life;
+    const dealt = applyNow.call(this, side, n, src);
+    const S = core.st(f);
+    if (f.life <= 0 && lifeBefore > 0 && S.lifeFloor === B.turnCount) { f.life = 1; S.lifeFloor = null; say(`💫 ${f.name || "You"} stayed at 1 life!`); }
+    return dealt;
+  };
+  // "you cannot lose the game" until the opponent's next turn starts
+  wrap(B, "startTurn", function (side) { [B.plr, B.opp].forEach(f => { if (f && f.abxNoLose && f.abxNoLose.side !== side) f.abxNoLose = null; }); });
+  if (typeof B.checkWinCondition === "function") {
+    const ocw = B.checkWinCondition;
+    B.checkWinCondition = function () {
+      const saved = [];
+      [B.plr, B.opp].forEach(f => { if (f && f.abxNoLose && f.life <= 0) { saved.push([f, f.life]); f.life = 1; } });
+      try { return ocw.apply(this, arguments); } finally { saved.forEach(([f, l]) => { f.life = l; }); }
+    };
+  }
+
+  // equip an item from a zone
+  function payCost(f, card) {
+    const cost = typeof parseCardCost === "function" ? parseCardCost(card.cost, card.skill, f, card) : { gauge: 0, life: 0 };
+    if (f.gauge.length < (cost.gauge || 0) || (cost.life > 0 && f.life <= cost.life)) return false;
+    for (let g = 0; g < (cost.gauge || 0); g++) f.drop.push(f.gauge.pop());
+    if (cost.life > 0) f.life -= cost.life;
+    return true;
+  }
+  const zoneArr = (f, a) => a === "drop zone" ? f.drop : a === "hand" ? f.hand : a === "deck" ? f.deck : a === "gauge" ? f.gauge : null;
+  OPS.equipFrom = {
+    async run(s, ctx) {
+      const f = ctx.f;
+      let cands = [];
+      if (s.ref === "chosen") cands = (ctx.bind.chosen || []).filter(r => r.k === "zone" && r.card && r.card.type === "Item");
+      else (s.from || ["drop zone"]).forEach(a => (zoneArr(f, a) || []).forEach((id, idx) => { const c = cardOf(id); if (c && c.type === "Item" && matchFilter(c, s.np.filter || {}, null, ctx)) cands.push({ k: "zone", side: ctx.side, area: a === "drop zone" ? "drop" : a, idx, id, card: c }); }));
+      if (s.pay) cands = cands.filter(r => { const cost = parseCardCost(r.card.cost, r.card.skill, f, r.card); return f.gauge.length >= (cost.gauge || 0) && !(cost.life > 0 && f.life <= cost.life); });
+      if (!cands.length) return false;
+      const ch = await core.pick(cands, { qty: { n: 1, upTo: !!s.upTo }, raw: s.np.raw }, ctx, { intent: "help", title: `${ctx.card.name} — equip` });
+      const r = ch[0]; if (!r) return false;
+      if (s.pay && !payCost(f, r.card)) return false;
+      const arr = f[r.area]; const i = arr.indexOf(r.id); if (i < 0) return false; arr.splice(i, 1);
+      if ((s.from || []).includes("deck")) OPS.shuffle.run({ who: "you" }, ctx);
+      if (f.item && !f.item.isEndrulerFlag) { f.drop.push(f.item.card.id, ...(f.item.soul || [])); }
+      f.item = { card: r.card, rested: false, attacksLeft: r.card.atk_max || 1, soul: [] };
+      cut("EQUIP!", r.card.name, r.card.img);
+      fresh();
+      if (ABX.fireEquipped) await ABX.fireEquipped(ctx.side, r.card, f.item);
+      return true;
+    },
+    check: (s) => s.ref === "chosen" || (!!s.np && (s.from || []).every(a => ["drop zone", "hand", "deck"].includes(a)))
+  };
+  const cut = (a, b, img) => { try { if (B.showCutin && !ABX.fast) B.showCutin(a, b, img); } catch (e) { /* ignore */ } };
+  // cast a spell from a zone (or the chosen card) by paying its [Cast Cost]
+  OPS.castFrom = {
+    async run(s, ctx) {
+      const f = ctx.f;
+      let r;
+      if (s.ref === "chosen") r = (ctx.bind.chosen || []).find(x => x.k === "zone" && x.card && x.card.type === "Spell");
+      else {
+        const a = s.from || "drop zone";
+        const cands = (zoneArr(f, a) || []).map((id, idx) => ({ k: "zone", side: ctx.side, area: a === "drop zone" ? "drop" : a, idx, id, card: cardOf(id) })).filter(x => x.card && x.card.type === "Spell" && matchFilter(x.card, s.np.filter || {}, null, ctx));
+        r = (await core.pick(cands, { qty: { n: 1 }, raw: s.np.raw }, ctx, { intent: "help", title: `${ctx.card.name} — cast` }))[0];
+      }
+      if (!r) return false;
+      const c = r.card;
+      if (typeof evaluateCardConditions === "function" && !evaluateCardConditions(c, f, ctx.e).met) return false;
+      if (s.pay && !payCost(f, c)) return false;
+      const arr = f[r.area]; const i = arr.indexOf(r.id); if (i < 0) return false; arr.splice(i, 1);
+      if (c.set) f.setSpells.push(c); else f.drop.push(c.id);
+      cut("CAST!", c.name, c.img);
+      fresh();
+      for (const ab of core.abilitiesOf(c, a => a.kind === "spell" && ABX.isExecutable(a))) await core.runAbility(ctx.side, c, ab, null, { event: { name: "cast" } });
+      if (ABX.fireCast) ABX.fireCast(ctx.side, c);
+      return true;
+    },
+    check: (s) => s.ref === "chosen" || (!!s.np && ["drop zone", "hand"].includes(s.from))
+  };
+  // call this card from the soul it is in
+  OPS.callFromSoul = {
+    async run(s, ctx) {
+      const f = ctx.f, host = ctx.soulHost, sr = ctx.selfRef;
+      if (!host || !sr || sr.k !== "soul") return false;
+      if (s.host && !refsFor(s.host, ctx, { owner: "you", area: "field" }).some(r => r.unit === host)) return false;
+      const si = (host.soul || []).indexOf(ctx.card.id);
+      if (si < 0) return false;
+      const pos = core.SLOTS.find(p => !f.monsters[p]);
+      if (!pos) { say("✖ No open monster area."); return false; }
+      if (s.pay && !payCost(f, ctx.card)) return false;
+      host.soul.splice(si, 1);
+      f.hand.push(ctx.card.id);
+      B.completeMonsterCall(ctx.side, pos, f.hand.length - 1, false, true);
+      if (!f.monsters[pos]) return false;
+      ctx.unit = f.monsters[pos]; ctx.calledPos = pos; ctx.soulHost = null; ctx.hostArea = "field";
+      fresh(); return true;
+    },
+    check: (s) => !s.host || !s.host.junk
+  };
+  // [Act]s that a card in a soul can use (game.js shows them as buttons on the host's menu)
+  ABX.soulActs = function (side, hostUnit) {
+    const out = [];
+    if (!hostUnit || !hostUnit.soul) return out;
+    hostUnit.soul.forEach((id, idx) => {
+      const c = cardOf(id); if (!c) return;
+      core.abilitiesOf(c, a => a.kind === "act" && ABX.isExecutable(a) && (a.steps || []).some(x => x.op === "callFromSoul")).forEach(ab => out.push({ card: c, ab, idx }));
+    });
+    return out;
+  };
+  ABX.canUseSoulAct = function (side, hostUnit, card, ab) {
+    const f = F(side);
+    const ctx = { side, f, e: F(otherSide(side)), card, unit: null, ab, soulHost: hostUnit, hostArea: "soul", bind: { chosen: [{ k: "unit", side, unit: hostUnit, card: hostUnit.card, id: hostUnit.card.id }] }, lastDone: true, auto: true, log: [] };
+    if (hostUnit.abxNullified === B.turnCount) return false;
+    if (core.onceUsed(f, card, ab, null)) return false;
+    if (!(ab.conds || []).every(c => evalCond(c, ctx))) return false;
+    return !!core.SLOTS.find(p => !f.monsters[p]);
+  };
+  ABX.useSoulAct = async function (side, hostUnit, card, ab) {
+    const f = F(side);
+    const idx = hostUnit.soul.indexOf(card.id);
+    if (idx < 0) return;
+    core.markOnce(f, card, ab, null);
+    cut("ABILITY!", card.name, card.img);
+    await core.runAbility(side, card, ab, null, { event: { name: "act" }, hostArea: "soul", soulHost: hostUnit, selfRef: { k: "soul", side, unit: hostUnit, idx, id: card.id, card } });
+    fresh();
+  };
+
+  // free [Call Cost] / [Cast Cost] when a "you may call/cast this without paying" static is active
+  function freeCostActive(card, fighter, what) {
+    if (!card || !fighter) return false;
+    const side = B.plr === fighter ? "plr" : B.opp === fighter ? "opp" : null;
+    if (!side) return false;
+    for (const ab of core.abilitiesOf(card, a => a.kind === "static" || a.kind === "spell")) {
+      const st = (ab.steps || []).find(x => x.op === "freeCost" && x.what === what);
+      if (!st) continue;
+      const ctx = { side, f: fighter, e: F(otherSide(side)), card, unit: null, bind: { chosen: [] }, hostArea: "hand" };
+      if (!(ab.conds || []).every(c => ABX.condExecutable(c) && evalCond(c, ctx))) continue;
+      if (st.cond && !(ABX.condExecutable(st.cond) && evalCond(st.cond, ctx))) continue;
+      return true;
+    }
+    return false;
+  }
+  ABX.freeCostActive = freeCostActive;
+  if (typeof root.parseCardCost === "function") {
+    const opcc = root.parseCardCost;
+    root.parseCardCost = function (costStr, skill, fighter, card) {
+      const r = opcc.apply(this, arguments);
+      try {
+        if (card && r && ((card.type === "Monster" && freeCostActive(card, fighter, "call")) || (card.type === "Spell" && freeCostActive(card, fighter, "cast")))) return Object.assign({}, r, { gauge: 0, life: 0, abxFree: true });
+      } catch (e) { /* ignore */ }
+      return r;
+    };
+    if (ABX.hasExtras) { const ohe = ABX.hasExtras; ABX.hasExtras = function (card) { const f = B.activeSide ? F(B.activeSide) : null; if (card && f && card.type === "Monster" && freeCostActive(card, f, "call")) return false; return ohe.apply(this, arguments); }; }
+    if (ABX.canPayExtras) { const ocp = ABX.canPayExtras; ABX.canPayExtras = function (side, card) { if (card && card.type === "Monster" && freeCostActive(card, F(side), "call")) return true; return ocp.apply(this, arguments); }; }
+  }
 
   if (ABX.resetCaches) ABX.resetCaches();
 })(typeof window !== "undefined" ? window : globalThis);
