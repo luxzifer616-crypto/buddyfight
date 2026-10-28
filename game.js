@@ -7774,6 +7774,8 @@ const battle = {
     this.oppContinueCallback = null;
     this.pendingAction = null;
     this.pendingDefenseContext = null;
+    // Music ends with the match, not when the result popup is closed.
+    app.stopBgm();
     ["defense-prompt-modal", "ability-prompt-modal", "deck-search-modal", "card-detail-banner", "godclock-modal"].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.classList.add("hidden");
@@ -7809,6 +7811,7 @@ const battle = {
       this.oppContinueCallback = null;
       this.pendingAction = null;
       this.pendingDefenseContext = null;
+      app.stopBgm();
       app.showScreen("hub");
     }
   },
