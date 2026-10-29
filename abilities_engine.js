@@ -217,6 +217,7 @@
     }
     if (f.notTribes && f.notTribes.length) { if (f.notTribes.some(tb => tribeEq(card, tb))) return false; }
     if (f.names && f.names.length) { const n = lc(card.name); if (!f.names.some(x => n.includes(x))) return false; }
+    if (f.exactNames && f.exactNames.length) { const n3 = lc(card.name); if (!f.exactNames.some(x => n3 === x)) return false; }
     if (f.notNames && f.notNames.length) { const n2 = lc(card.name); if (f.notNames.some(x => n2.includes(x))) return false; }
     if (f.attrWords && f.attrWords.length) { const a = (card.attrs || []).map(norm); if (!f.attrWords.some(w => a.some(x => x.includes(norm(w))))) return false; }
     if (f.tribesAll && f.tribesAll.length) { if (!f.tribesAll.every(tb => tribeEq(card, tb))) return false; }
@@ -377,6 +378,7 @@
       case "turn": { const curSide = (ctx.event && ctx.event.activeSide) || B.activeSide; return c.who === "you" ? curSide === ctx.side : curSide !== ctx.side; }
       case "phase": return B.phase === c.phase && (!c.who || (c.who === "you" ? B.activeSide === ctx.side : B.activeSide !== ctx.side));
       case "underAttack": { const bc = ABX.battleCtx; return !!(bc && bc.active && bc.defSide === ctx.side) || (!!B.pendingDefenseContext && B.pendingDefenseContext.defSide === ctx.side); }
+      case "buddyCalledEver": return !!f.buddyCallEver;   // "if you buddy called during this fight" (fight = whole game)
       case "selfPos": return !!ctx.unit && (posOfUnit(f, ctx.unit) || "").replace("center2", "center") === c.pos;
       case "selfOnField": return !!ctx.unit && posOfUnit(f, ctx.unit) !== null || (ctx.card && (f.setSpells || []).includes(ctx.card));
       case "selfIn": return ctx.hostArea === (c.area === "drop zone" ? "drop" : c.area);

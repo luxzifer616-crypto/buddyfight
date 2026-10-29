@@ -153,6 +153,7 @@ function markFighterBuddyCalled(fighter, cardId) {
   const target = fighter.buddyZone.find(e => !e.isFaceDown && !e.rested && (Number(e.id) === Number(cardId) || (isYamigedoHalfId(e.id) && isYamigedoHalfId(cardId))))
     || fighter.buddyZone.find(e => !e.isFaceDown && !e.rested);
   if (target) target.rested = true;
+  fighter.buddyCallEver = true;
   const faceUpMonsters = fighter.buddyZone.filter(e => !e.isFaceDown && (CARD_MAP.get(e.id) || {}).type === "Monster");
   fighter.buddyCalled = faceUpMonsters.length > 0 ? faceUpMonsters.every(e => e.rested) : true;
 }
