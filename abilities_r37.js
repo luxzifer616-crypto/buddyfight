@@ -43,6 +43,30 @@
       if (i >= 0) {
         f.flagUnder.splice(i, 1);
         f.flagBefore = f.flagId; f.flagId = 3941; f.maxSize = INFINITE;
+        const infCard = Object.assign({}, cardOf(3941), {
+          id: 3941,
+          type: "Flag",
+          power: 15000,
+          crit: 2,
+          defense: 5000,
+          atk_max: 1
+        });
+        f.flagCard = infCard;
+        f.chaosUpgradeActive = true;
+        if (!f.item) {
+          f.item = {
+            card: infCard,
+            cardId: 3941,
+            rested: false,
+            attacksLeft: 1,
+            soul: [],
+            isFlagUnit: true,
+            isEndrulerFlag: true,
+            cannotLeaveField: true,
+            cannotNullify: true,
+            canAttackWithCenter: true
+          };
+        }
         try { B.showCutin("INFINITY THE CHAOS!", "Your flag is now \"Infinity the Chaos\" — size limit ∞", cardOf(3941).img); } catch (e) { /* ignore */ }
       }
       const gear = f.deck.map((id, idx) => ({ k: "zone", side: ctx.side, area: "deck", idx, id, card: cardOf(id) })).filter(r => r.card && lc(r.card.name).includes("geargod"));
@@ -53,11 +77,12 @@
     },
     check: () => true
   };
-  // size 30+ monsters can't be destroyed / nullified by effects under either Chaos flag
+  // size 30+ monsters and "Infinity the Chaos" (#3941) can't be destroyed / nullified by effects under either Chaos flag
   const ipPrev = core.isProtected;
   core.isProtected = function (unit, side, kind, ctx) {
     if (ipPrev.apply(this, arguments)) return true;
     try {
+      if (unit && (unit.isFlagUnit || (unit.card && Number(unit.card.id) === 3941) || Number(unit.cardId) === 3941)) return true;
       const f = F(side);
       if ((kind === "destroyed" || kind === "nullified") && (f.flagId === 3337 || f.flagId === 3941) && unit && unit.card) {
         const size = typeof getEffectiveCardSize === "function" ? getEffectiveCardSize(f, unit.card, unit) : (unit.card.size || 0);
@@ -100,7 +125,7 @@
     f[area].splice(i, 1);
     const unit = { card: c, rested: false, attacksLeft: c.atk_max || 1, soul: [], itemMode: "equip" };
     if (!f.item || f.item.isEndrulerFlag) f.item = unit;
-    else if (!f.item2 && typeof hasMultiItems === "function" && hasMultiItems(f)) f.item2 = unit;
+    else if (!f.item2 && typeof hasMultiItems === "function" && hasMultiItems(f, c)) f.item2 = unit;
     else { f.drop.push(...(f.item.soul || []), f.item.card.id); f.item = unit; }
     try { if (ABX.fireEquipped) ABX.fireEquipped(side, c, unit); } catch (e) { /* ignore */ }
     return true;

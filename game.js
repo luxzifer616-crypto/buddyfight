@@ -6,7 +6,32 @@ const GODCLOCK_FRONT_IDS = [5958, 5959, 5957, 5960];
 
 const ALL_CARDS = window.BUDDYFIGHT_CARDS || [];
 const CARD_MAP = new Map();
-ALL_CARDS.forEach(c => CARD_MAP.set(c.id, c));
+const _origCardMapGet = CARD_MAP.get.bind(CARD_MAP);
+CARD_MAP.get = function(key) {
+  if (key && typeof key === "object") {
+    const id = Number(key.id !== undefined ? key.id : key.cardId);
+    return _origCardMapGet(id);
+  }
+  return _origCardMapGet(Number(key));
+};
+ALL_CARDS.forEach(c => {
+  if (Number(c.id) === 3941) c.type = "Flag"; // Treat "Infinity the Chaos" (#3941) as a Flag
+  CARD_MAP.set(c.id, c);
+});
+
+// Soul Entry Helpers (supports both numeric cardId and { id, isFaceDown } objects for [Ambush])
+function getSoulCardId(entry) {
+  if (entry === null || entry === undefined) return null;
+  if (typeof entry === "object") return Number(entry.id !== undefined ? entry.id : entry.cardId);
+  return Number(entry);
+}
+function isSoulEntryFaceDown(entry) {
+  return Boolean(entry && typeof entry === "object" && entry.isFaceDown === true);
+}
+function createSoulEntry(cardId, isFaceDown = false) {
+  const id = getSoulCardId(cardId);
+  return isFaceDown ? { id, isFaceDown: true } : id;
+}
 
 /* ==================== HYAKUGAN YAMIGEDO ("EARTH HALF" #1911 & "SKY HALF" #1912) DUAL-CARD HELPERS ==================== */
 const YAMIGEDO_EARTH_ID = 1911;
@@ -580,6 +605,19 @@ function getFlagConfig(flagCard) {
       ruleSummary: "Awakened 2x2 Connected Godclock Flag (12000 Pow / 4 Crit / 12000 Def / [Triple Attack] / Eternal Eon)"
     };
   }
+  if (Number(flagCard.id) === 3941 || n.includes("infinity the chaos")) {
+    return {
+      key: "infinity_chaos",
+      world: "The Chaos",
+      life: 10,
+      hand: 4,
+      gauge: 2,
+      maxSize: 1e9,
+      cannotStartAsFlag: true,
+      cannotAddToDeck: true,
+      ruleSummary: "Starts Face-Down under The Chaos • Flipped by 'The Chaos Upgrade' (#4072) • Size: ∞ • 15000/2/5000"
+    };
+  }
   if (n.includes("the chaos")) {
     return {
       key: "chaos",
@@ -708,6 +746,11 @@ function isAllFlagsRuleCard(card) {
 
 function checkCardLegalityForFlag(card, flagCard, editingLostDeck = false, buddyId = null) {
   if (!card || !flagCard) return { allowed: false, maxCopies: 0 };
+
+  // "Infinity the Chaos" (#3941) is treated as a Flag and cannot be put into any Main Deck or Lost Deck
+  if (Number(card.id) === 3941 || (card.name || "").toLowerCase() === "infinity the chaos") {
+    return { allowed: false, maxCopies: 0 };
+  }
 
   if (editingLostDeck) {
     if (card.type === "Flag") return { allowed: false, maxCopies: 0 };
@@ -867,26 +910,74 @@ function parseCardCost(costStr, skillStr, fighter = null, cardObj = null) {
   return { gauge, life, soul };
 }
 
-// [CHAOS Territory]: while a monster with it is on your center, your center holds two monsters ("center" and "center2").
+// [CHAOS Territory]: while a monster with it is on your center (or being called to your center), your center holds two monsters ("center" and "center2").
 const MONSTER_POSITIONS = ["left", "center", "center2", "right"];
+function cardHasChaosTerritory(card) {
+  return !!card && /\[chaos territory\]/i.test(card.skill || "");
+}
 function hasChaosTerritory(fighter) {
-  return !!fighter && ["center", "center2"].some(p => { const u = fighter.monsters[p]; return u && u.card && /\[chaos territory\]/i.test(u.card.skill || "") && u.abxNullified !== battle.turnCount; });
+  return !!fighter && ["center", "center2"].some(p => { const u = fighter.monsters[p]; return u && u.card && cardHasChaosTerritory(u.card) && u.abxNullified !== battle.turnCount; });
+}
+function canPlaceSecondCenter(fighter, incomingCard = null) {
+  return !!fighter && !!fighter.monsters && !!fighter.monsters.center && !fighter.monsters.center2 && (hasChaosTerritory(fighter) || cardHasChaosTerritory(incomingCard));
 }
 
-// More than one item: while "you may equip any number of items" is active (#3728 on your field, #6512 in your buddy zone)
-// a second item goes to "item2". shortcut: two item slots, not "any number"; add more slots if a deck needs them
-function hasMultiItems(fighter) {
-  if (!fighter) return false;
-  const items = [fighter.item, fighter.item2].filter(u => u && u.card);
-  return items.some(u => u.card.id === 3728) || (fighter.buddyId === 6512 && !items.some(u => u.card.id === 6512));
+// More than one item: while "you may equip any number of items" or a dual-item card (#3728, #6512, #1461, #2553, #2554, #3676, #3869, #4175, #5345, #5346, #6471, #6226) is active,
+// a second item goes to "item2".
+const MULTI_ITEM_CARD_IDS = [3728, 6512, 1461, 2553, 2554, 3676, 3869, 4175, 5345, 5346, 6471, 6226];
+function cardAllowsMultiItems(card) {
+  if (!card) return false;
+  if (MULTI_ITEM_CARD_IDS.includes(Number(card.id))) return true;
+  return /you may equip (?:any number of|up to two|another) [^\n]*items?|equip this card even if you have/i.test(card.skill || "");
 }
-function unitAt(fighter, zone) { return zone === "item" ? fighter.item : zone === "item2" ? fighter.item2 : fighter.monsters[zone]; }
+function hasMultiItems(fighter, incomingCard = null) {
+  if (!fighter) return false;
+  const items = [fighter.item, fighter.item2].filter(u => u && u.card && !u.isEndrulerFlag);
+  if (items.some(u => cardAllowsMultiItems(u.card))) return true;
+  if (fighter.buddyId === 6512 && !items.some(u => u.card.id === 6512)) return true;
+  if ((fighter.setSpells || []).some(c => cardAllowsMultiItems(c))) return true;
+  if (MONSTER_POSITIONS.some(p => fighter.monsters && fighter.monsters[p] && cardAllowsMultiItems(fighter.monsters[p].card))) return true;
+  if (incomingCard && cardAllowsMultiItems(incomingCard)) return true;
+  return false;
+}
+function getEquippedItems(fighter) {
+  if (!fighter) return [];
+  const list = [];
+  if (fighter.item && fighter.item.card && !fighter.item.isEndrulerFlag) list.push({ slot: "item", unit: fighter.item });
+  if (fighter.item2 && fighter.item2.card) list.push({ slot: "item2", unit: fighter.item2 });
+  return list;
+}
+function unitAt(fighter, zone) {
+  if (zone === "item") return fighter.item;
+  if (zone === "item2") return fighter.item2;
+  if (typeof zone === "string" && zone.startsWith("opp_")) {
+    const oppPos = zone.slice(4);
+    const enemy = (typeof battle !== "undefined" && battle.plr && battle.opp)
+      ? (fighter === battle.plr ? battle.opp : battle.plr)
+      : null;
+    const u = enemy && enemy.monsters ? enemy.monsters[oppPos] : null;
+    const mySide = (typeof battle !== "undefined" && battle.plr === fighter) ? "plr" : "opp";
+    return (u && u.oppressedBy === mySide) ? u : null;
+  }
+  return fighter.monsters[zone];
+}
 
 function getAllFieldUnits(fighter) {
   const units = [];
+  const mySide = (typeof battle !== "undefined" && battle.plr === fighter) ? "plr" : (typeof battle !== "undefined" && battle.opp === fighter ? "opp" : null);
   MONSTER_POSITIONS.forEach(pos => {
-    if (fighter.monsters[pos]) units.push(fighter.monsters[pos]);
+    const m = fighter.monsters[pos];
+    if (m && (!m.oppressedBy || m.oppressedBy === mySide)) units.push(m);
   });
+  if (mySide && typeof battle !== "undefined" && battle.plr && battle.opp) {
+    const enemy = mySide === "plr" ? battle.opp : battle.plr;
+    if (enemy && enemy.monsters) {
+      ["left", "right", "center", "center2"].forEach(pos => {
+        const em = enemy.monsters[pos];
+        if (em && em.oppressedBy === mySide) units.push(em);
+      });
+    }
+  }
   if (fighter.item) units.push(fighter.item);
   if (fighter.item2) units.push(fighter.item2);
   return units;
@@ -3837,6 +3928,17 @@ const battle = {
       };
     }
 
+    const subFlags = cfg.key === "godclock" ? [
+      { id: 5958, backId: 5962, name: "Clock-I", reversed: false, card: CARD_MAP.get(5958) },
+      { id: 5959, backId: 5963, name: "Clock-II", reversed: false, card: CARD_MAP.get(5959) },
+      { id: 5960, backId: 5964, name: "Clock-III", reversed: false, card: CARD_MAP.get(5960) }
+    ] : [];
+
+    const hasLostWorldInDeck = (deckDef.cards || []).some(cid => [4569, 5760].includes(Number(cid)));
+    const resolvedLostDeck = Array.isArray(deckDef.lostDeck) && deckDef.lostDeck.length > 0
+      ? [...deckDef.lostDeck]
+      : (hasLostWorldInDeck ? generateLostDeck() : []);
+
     return {
       name,
       isBot,
@@ -3847,8 +3949,10 @@ const battle = {
       life: cfg.life,
       maxSize: cfg.maxSize,
       deck: shuffled,
-      lostDeck: [...(deckDef.lostDeck || generateLostDeck())],
+      lostDeck: resolvedLostDeck,
       isLostWorldActive: false,
+      subFlags,
+      oppressedAreas: {},
       hand,
       gauge,
       drop: [],
@@ -4122,9 +4226,12 @@ const battle = {
 
   getCurrentSizeUsed(fighter) {
     let total = 0;
+    const mySide = (this.plr === fighter) ? "plr" : "opp";
     MONSTER_POSITIONS.forEach(pos => {
       const m = fighter.monsters[pos];
-      if (m && m.card) total += getEffectiveCardSize(fighter, m.card, m);
+      if (m && m.card && (!m.oppressedBy || m.oppressedBy === mySide)) {
+        total += getEffectiveCardSize(fighter, m.card, m);
+      }
     });
     return total;
   },
@@ -4488,6 +4595,10 @@ const battle = {
 
     // 2. Flip this Clock card & record 1/turn Horary Domination + Reversal count
     q.reversed = true;
+    if (Array.isArray(f.subFlags)) {
+      const sf = f.subFlags.find(s => s.id === q.frontId || s.name === q.name);
+      if (sf) { sf.reversed = true; sf.card = CARD_MAP.get(q.backId) || sf.card; }
+    }
     f.godclock.horaryDominationUsedThisTurn = true;
     f.godclock.reversalCount = (f.godclock.reversalCount || 0) + 1;
 
@@ -4661,6 +4772,7 @@ const battle = {
 
     f.godclock.awakened = true;
     f.godclock.quadrants.forEach(q => q.reversed = true);
+    if (Array.isArray(f.subFlags)) f.subFlags.forEach(sf => { sf.reversed = true; sf.card = CARD_MAP.get(sf.backId) || sf.card; });
     f.godclock.reversalCount = Math.max(4, (f.godclock.reversalCount || 0) + 1);
 
     const endrulerCard = Object.assign({}, CARD_MAP.get(5961), {
@@ -5309,7 +5421,9 @@ const battle = {
       statsStr = `Size: ${effSz}  |  Power: ${eff.power}  |  Critical: ${eff.crit}  |  Defense: ${eff.defense}  |  Attacks: ${unit ? unit.attacksLeft : (card.atk_max || 1)}`;
       if (unit && unit.soul && unit.soul.length) statsStr += `  |  Soul: ${unit.soul.length}`;
     } else if (card.type === "Item") {
-      statsStr = `Item  |  Power: ${card.power || 0}  |  Critical: ${card.crit || 0} ${card.defense ? " | Defense: " + card.defense : ""}`;
+      const eff = unit ? getUnitEffectiveCombatStats(f, unit) : { power: card.power || 0, defense: card.defense || 0, crit: card.crit || 0 };
+      statsStr = `Item  |  Power: ${eff.power}  |  Critical: ${eff.crit} ${eff.defense ? " | Defense: " + eff.defense : ""}`;
+      if (unit && unit.soul && unit.soul.length) statsStr += `  |  Soul: ${unit.soul.length}`;
     } else if (card.type === "Flag") {
       const cfg = getFlagConfig(card);
       statsStr = cfg.ruleSummary;
@@ -5318,6 +5432,8 @@ const battle = {
       }
     } else {
       statsStr = `${card.type}  ${cost.gauge ? "|  Cost: " + cost.gauge + " Gauge" : ""}`;
+      const setSoul = (unit && unit.soul && unit.soul.length) ? unit.soul.length : (card.soul && card.soul.length ? card.soul.length : 0);
+      if (setSoul > 0) statsStr += `  |  Soul: ${setSoul}`;
     }
     if (card.attrs && card.attrs.length) {
       statsStr += `  •  «${card.attrs.map(formatTribeDisplayName).join("» «")}»`;
@@ -5648,6 +5764,62 @@ const battle = {
         };
         actionsEl.appendChild(bSpec);
       }
+    } else if (context === "set") {
+      const setHost = unit || card;
+      if (side === this.activeSide && this.isLocalTurn()) {
+        const abxActs = (window.ABX && ABX.actAbilities) ? ABX.actAbilities(card) : [];
+        if (abxActs.length > 0 || card.act) {
+          const bSetAct = document.createElement("button");
+          bSetAct.className = "primary-cta-btn";
+          bSetAct.textContent = `✨ Use [Set] Card Ability / [Act]`;
+          bSetAct.onclick = () => {
+            this.closeCardBanner();
+            if (abxActs.length > 0) {
+              ABX.useAct(side, card, setHost);
+            } else {
+              this.promptOptionalAbility(side, card, null);
+            }
+          };
+          actionsEl.appendChild(bSetAct);
+        }
+      }
+      const bBackSet = document.createElement("button");
+      bBackSet.className = "action-btn";
+      bBackSet.textContent = `🔮 Back to [Set] Zone List (${f.setSpells.length})`;
+      bBackSet.onclick = () => {
+        this.closeCardBanner();
+        this.openSetZoneViewer(side || "plr");
+      };
+      actionsEl.appendChild(bBackSet);
+    } else if (context === "soul") {
+      const hostUnit = unit && unit.hostUnit;
+      const hostZonePos = unit && unit.hostZonePos;
+      if (hostUnit && side === this.activeSide && this.isLocalTurn() && window.ABX && ABX.soulActs) {
+        const matchingActs = ABX.soulActs(side, hostUnit).filter(sa => sa.card && sa.card.id === card.id);
+        matchingActs.forEach(sa => {
+          const ok = ABX.canUseSoulAct(side, hostUnit, sa.card, sa.ab);
+          const bSoulAct = document.createElement("button");
+          bSoulAct.className = "primary-cta-btn";
+          bSoulAct.disabled = !ok;
+          bSoulAct.textContent = `${ok ? "✨" : "🔒"} Activate Soul [Act]: "${sa.card.name}"`;
+          bSoulAct.onclick = () => {
+            this.closeCardBanner();
+            ABX.useSoulAct(side, hostUnit, sa.card, sa.ab);
+          };
+          actionsEl.appendChild(bSoulAct);
+        });
+      }
+      if (hostUnit) {
+        const bBackSoul = document.createElement("button");
+        bBackSoul.className = "action-btn";
+        const hostName = (hostUnit.card && hostUnit.card.name) || hostUnit.name || "Card";
+        bBackSoul.textContent = `🟣 Back to "${hostName}"'s Soul (${(hostUnit.soul || []).length})`;
+        bBackSoul.onclick = () => {
+          this.closeCardBanner();
+          this.openSoulViewer(side || "plr", hostUnit, hostZonePos);
+        };
+        actionsEl.appendChild(bBackSoul);
+      }
     } else if (context === "drop") {
       // Cards in the Drop Zone can only be moved by a card ability, so this view is read-only.
       const bBackDrop = document.createElement("button");
@@ -5667,6 +5839,34 @@ const battle = {
         this.openGodclockModal();
       };
       actionsEl.appendChild(bBackGc);
+    }
+
+    // Universal Soul Inspector button whenever the inspected field/set card has Soul cards!
+    const soulHostObj = (unit && Array.isArray(unit.soul) && unit.soul.length > 0)
+      ? unit
+      : (card && Array.isArray(card.soul) && card.soul.length > 0 ? { card, soul: card.soul, isSetCard: true } : null);
+    if (soulHostObj && context !== "soul") {
+      const bInspectSoul = document.createElement("button");
+      bInspectSoul.className = "action-btn";
+      bInspectSoul.textContent = `🟣 Inspect Soul (${soulHostObj.soul.length} Card${soulHostObj.soul.length === 1 ? "" : "s"})`;
+      bInspectSoul.onclick = () => {
+        this.closeCardBanner();
+        this.openSoulViewer(side || "plr", soulHostObj, zonePos);
+      };
+      actionsEl.appendChild(bInspectSoul);
+    }
+
+    // Universal Equipped Items & Flag Inspector button when inspecting the Item/Flag area
+    const eqItems = getEquippedItems(f);
+    if ((zonePos === "item" || zonePos === "item2" || (context === "view" && card.type === "Flag")) && (eqItems.length > 0 || (f.flagUnder && f.flagUnder.length > 0))) {
+      const bInspectItems = document.createElement("button");
+      bInspectItems.className = "action-btn";
+      bInspectItems.textContent = `🗡️ Inspect Equipped Items & Flag (${eqItems.length} Item${eqItems.length === 1 ? "" : "s"})`;
+      bInspectItems.onclick = () => {
+        this.closeCardBanner();
+        this.openItemZoneViewer(side || "plr");
+      };
+      actionsEl.appendChild(bInspectItems);
     }
 
     const bClose = document.createElement("button");
@@ -5693,10 +5893,20 @@ const battle = {
 
   showBannerForZone(side, zoneType) {
     const f = this.getFighter(side);
+    if (zoneType === "drop") {
+      this.openDropZoneViewer(side);
+      return;
+    }
+    if (zoneType === "set") {
+      this.openSetZoneViewer(side);
+      return;
+    }
+    if (zoneType === "item") {
+      this.openItemZoneViewer(side);
+      return;
+    }
     let c = null;
-    if (zoneType === "drop" && f.drop.length > 0) c = CARD_MAP.get(f.drop[f.drop.length - 1]);
-    else if (zoneType === "set" && f.setSpells.length > 0) c = f.setSpells[f.setSpells.length - 1];
-    else if (zoneType === "buddy") c = isYamigedoHalfId(f.buddyId) ? getCanonicalYamigedoCard() : CARD_MAP.get(f.buddyId);
+    if (zoneType === "buddy") c = isYamigedoHalfId(f.buddyId) ? getCanonicalYamigedoCard() : CARD_MAP.get(f.buddyId);
     else if (zoneType === "deck" && side === "plr") {
       this.openDeckMenu();
       return;
@@ -6036,11 +6246,77 @@ const battle = {
     grid.innerHTML = "";
 
     const isDropMode = Boolean(this.deckSearchState && this.deckSearchState.isDropZoneMode);
+    const isSetMode = Boolean(this.deckSearchState && this.deckSearchState.isSetZoneMode);
+    const isItemMode = Boolean(this.deckSearchState && this.deckSearchState.isItemZoneMode);
+    const isSoulMode = Boolean(this.deckSearchState && this.deckSearchState.isSoulMode);
     const dropSide = (this.deckSearchState && this.deckSearchState.dropSide) || "plr";
     const dropFighter = this.getFighter(dropSide);
 
     const combinedPool = [];
-    if (isDropMode) {
+    if (isSetMode) {
+      (dropFighter.setSpells || []).forEach((sp, idx) => {
+        if (!sp) return;
+        const soulCnt = Array.isArray(sp.soul) ? sp.soul.length : 0;
+        combinedPool.push({
+          cid: sp.id,
+          cardObj: sp,
+          zone: "set",
+          idx,
+          badge: `🔮 [SET] #${idx + 1}${soulCnt ? ` • 🟣 Soul:${soulCnt}` : ""}`
+        });
+      });
+    } else if (isItemMode) {
+      getEquippedItems(dropFighter).forEach(({ slot, unit }, idx) => {
+        const soulCnt = Array.isArray(unit.soul) ? unit.soul.length : 0;
+        combinedPool.push({
+          cid: unit.card.id,
+          cardObj: unit.card,
+          unitObj: unit,
+          slotKey: slot,
+          zone: "item",
+          idx,
+          badge: `🗡️ EQUIPPED ITEM #${idx + 1}${soulCnt ? ` • 🟣 Soul:${soulCnt}` : ""}`
+        });
+      });
+      const flagC = CARD_MAP.get(dropFighter.flagId);
+      if (flagC) {
+        combinedPool.push({
+          cid: flagC.id,
+          cardObj: flagC,
+          zone: "flag",
+          idx: 0,
+          badge: `🏳️ ACTIVE FLAG`
+        });
+      }
+      (dropFighter.flagUnder || []).forEach((fid, idx) => {
+        const fc = CARD_MAP.get(fid);
+        if (fc) {
+          combinedPool.push({
+            cid: fc.id,
+            cardObj: fc,
+            zone: "flag_under",
+            idx,
+            badge: `🂠 UNDER FLAG`
+          });
+        }
+      });
+    } else if (isSoulMode) {
+      const hostUnit = this.deckSearchState.hostUnit;
+      const soulArr = (hostUnit && Array.isArray(hostUnit.soul)) ? hostUnit.soul : [];
+      const hostCard = (hostUnit && hostUnit.card) || hostUnit;
+      const hasSG = Boolean(hostCard && (hostCard.sg || (hostUnit && hostUnit.tempSG)));
+      for (let i = soulArr.length - 1; i >= 0; i--) {
+        const rawEntry = soulArr[i];
+        const faceDownTag = isSoulEntryFaceDown(rawEntry) ? " • 🂠 Face-Down [Ambush]" : "";
+        combinedPool.push({
+          cid: getSoulCardId(rawEntry),
+          soulEntry: rawEntry,
+          zone: "soul",
+          idx: i,
+          badge: `🟣 SOUL #${i + 1}${hasSG ? " [Soulguard]" : ""}${faceDownTag}`
+        });
+      }
+    } else if (isDropMode) {
       for (let i = dropFighter.drop.length - 1; i >= 0; i--) {
         combinedPool.push({ cid: dropFighter.drop[i], zone: "drop", idx: i });
       }
@@ -6057,7 +6333,7 @@ const battle = {
 
     let shownCount = 0;
     combinedPool.forEach(entry => {
-      const c = CARD_MAP.get(entry.cid);
+      const c = entry.cardObj || CARD_MAP.get(entry.cid);
       if (!c) return;
 
       if (tribeFilter && !cardHasTribe(c, tribeFilter)) return;
@@ -6079,6 +6355,50 @@ const battle = {
           alert(`"${c.name}" does not match the card ability requirement:\n"${criteria.rawText}"`);
           return;
         }
+        if (isSetMode) {
+          document.getElementById("deck-search-modal").classList.add("hidden");
+          this.openCardBanner({
+            card: c,
+            context: "set",
+            side: dropSide,
+            zonePos: `set:${entry.idx}`,
+            unit: entry.cardObj
+          });
+          return;
+        }
+        if (isItemMode) {
+          document.getElementById("deck-search-modal").classList.add("hidden");
+          if (entry.zone === "item" && entry.unitObj) {
+            this.openCardBanner({
+              card: c,
+              context: "field",
+              side: dropSide,
+              zonePos: entry.slotKey,
+              unit: entry.unitObj
+            });
+          } else {
+            this.openCardBanner({
+              card: c,
+              context: "view",
+              side: dropSide
+            });
+          }
+          return;
+        }
+        if (isSoulMode) {
+          document.getElementById("deck-search-modal").classList.add("hidden");
+          this.openCardBanner({
+            card: c,
+            context: "soul",
+            side: dropSide,
+            unit: {
+              soulIdx: entry.idx,
+              hostUnit: this.deckSearchState.hostUnit,
+              hostZonePos: this.deckSearchState.hostZonePos
+            }
+          });
+          return;
+        }
         if (isDropMode) {
           const actType = this.deckSearchState.actionType;
           document.getElementById("deck-search-modal").classList.add("hidden");
@@ -6096,9 +6416,9 @@ const battle = {
         }
         this.pickCardFromDeckSearch(entry.idx, entry.zone);
       };
-      const zoneTag = entry.zone === "drop" ? "♻️ DROP ZONE" : "✅ MATCH";
+      const zoneTag = entry.badge || (entry.zone === "drop" ? "♻️ DROP ZONE" : "✅ MATCH");
       tile.innerHTML = `
-        ${(matchesCrit && criteria) || entry.zone === "drop" ? `<div class="tile-owned-badge">${zoneTag}</div>` : ""}
+        ${(matchesCrit && criteria) || entry.zone === "drop" || entry.badge ? `<div class="tile-owned-badge">${zoneTag}</div>` : ""}
         <img src="${c.img}" alt="${escapeHtml(c.name)}" loading="lazy" />
         <div class="tile-name">${escapeHtml(c.name)}</div>
         <div class="tile-sub">${c.type} ${c.size !== null ? "• Sz " + c.size : ""} ${(c.attrs && c.attrs.length) ? "• «" + formatTribeDisplayName(c.attrs[0]) + "»" : ""}</div>
@@ -6107,7 +6427,7 @@ const battle = {
     });
 
     if (shownCount === 0) {
-      grid.innerHTML = `<div style="grid-column: 1 / -1; text-align:center; padding:28px; color:#cbd5e1;">No matching cards found in your deck for this filter. You can uncheck "Only Valid Matches" or click "🔀 Shuffle Deck & Close".</div>`;
+      grid.innerHTML = `<div style="grid-column: 1 / -1; text-align:center; padding:28px; color:#cbd5e1;">No matching cards found for this filter.</div>`;
     }
   },
 
@@ -6141,7 +6461,7 @@ const battle = {
       const isYami = isYamigedoHalfId(c.id);
       const effectiveCard = isYami ? (getCanonicalYamigedoCard() || c) : c;
       const cost = parseCardCost(effectiveCard.cost, effectiveCard.skill, f, effectiveCard);
-      const targetZone = ["center", "left", "right"].find(z => !f.monsters[z]);
+      const targetZone = ["center", "left", "right"].find(z => !f.monsters[z]) || (canPlaceSecondCenter(f, effectiveCard) ? "center2" : null);
       if (targetZone && f.gauge.length >= cost.gauge && (this.getCurrentSizeUsed(f) + getEffectiveCardSize(f, effectiveCard) <= (f.maxSize || 3))) {
         for (let i = 0; i < cost.gauge; i++) f.drop.push(f.gauge.pop());
         let pairedHalfIds = [c.id];
@@ -6179,7 +6499,7 @@ const battle = {
         };
         const eff = getUnitEffectiveCombatStats(f, newUnit);
         newUnit.attacksLeft = eff.qa ? 4 : eff.ta ? 3 : eff.da ? 2 : (effectiveCard.atk_max || 1);
-        this.animateCardFlight(fromZone, `z-plr-${targetZone}`, effectiveCard.img, "🐉 ABILITY CALL!", 0, () => {
+        this.animateCardFlight(fromZone, `z-plr-${targetZone === "center2" ? "center" : targetZone}`, effectiveCard.img, "🐉 ABILITY CALL!", 0, () => {
           f.monsters[targetZone] = newUnit;
           this.setPrompt(`🐉 Called "${isYami ? getBuddyDisplayName(effectiveCard) : effectiveCard.name}" to ${targetZone.toUpperCase()} by card ability!`);
           this.renderBattle();
@@ -6227,11 +6547,121 @@ const battle = {
       choice.onSelect(choice.firstPayload);
       return;
     }
-    if (this.deckSearchState && this.deckSearchState.isDropZoneMode) {
+    if (this.deckSearchState && (this.deckSearchState.isDropZoneMode || this.deckSearchState.isSetZoneMode || this.deckSearchState.isItemZoneMode || this.deckSearchState.isSoulMode)) {
       document.getElementById("deck-search-modal").classList.add("hidden");
       return;
     }
     this.shuffleDeckAndClose();
+  },
+
+  openSetZoneViewer(side = "plr") {
+    const f = this.getFighter(side);
+    if (!f.setSpells || f.setSpells.length === 0) {
+      alert(`${f.name}'s [Set] Zone is currently empty (0 cards cast with [Set]).`);
+      return;
+    }
+    this.activeChoice = null;
+    this.setDeckSearchFiltersEnabled(true);
+    this.deckSearchState = {
+      isSetZoneMode: true,
+      dropSide: side,
+      sourceLabel: `${f.name}'s [Set] Zone`,
+      criteria: null
+    };
+    document.getElementById("ds-title").textContent = `🔮 ${f.name.toUpperCase()}'S [SET] ZONE (${f.setSpells.length} Card${f.setSpells.length === 1 ? "" : "s"} Set on Field)`;
+    document.getElementById("ds-subtitle").textContent = `Click any [Set] card below to inspect its Card Detail Banner, check its Soul, or activate its [Act] ability!`;
+    document.getElementById("ds-filter").value = "";
+    const tribeSel = document.getElementById("ds-tribe");
+    if (tribeSel) tribeSel.value = "";
+    const onlyMatchChk = document.getElementById("ds-only-matching");
+    if (onlyMatchChk) onlyMatchChk.checked = false;
+
+    const footerEl = document.getElementById("ds-footer-actions");
+    if (footerEl) {
+      footerEl.innerHTML = `<button class="secondary-btn" onclick="document.getElementById('deck-search-modal').classList.add('hidden')">Close [Set] Zone</button>`;
+    }
+    this.renderDeckSearchGrid();
+    document.getElementById("deck-search-modal").classList.remove("hidden");
+  },
+
+  openItemZoneViewer(side = "plr") {
+    const f = this.getFighter(side);
+    if (f.godclock) {
+      if (side === "plr") this.openGodclockModal();
+      else this.openEndrulerOrOvergodBanner(side);
+      return;
+    }
+    const eqItems = getEquippedItems(f);
+    this.activeChoice = null;
+    this.setDeckSearchFiltersEnabled(true);
+    this.deckSearchState = {
+      isItemZoneMode: true,
+      dropSide: side,
+      sourceLabel: `${f.name}'s Equipped Items & Flag`,
+      criteria: null
+    };
+    document.getElementById("ds-title").textContent = `🗡️ ${f.name.toUpperCase()}'S EQUIPPED ITEMS (${eqItems.length}) & FLAG`;
+    document.getElementById("ds-subtitle").textContent = `Click any equipped Item or Flag card below to inspect its Card Detail Banner, Attack, use its [Act] ability, or inspect its Soul!`;
+    document.getElementById("ds-filter").value = "";
+    const tribeSel = document.getElementById("ds-tribe");
+    if (tribeSel) tribeSel.value = "";
+    const onlyMatchChk = document.getElementById("ds-only-matching");
+    if (onlyMatchChk) onlyMatchChk.checked = false;
+
+    const footerEl = document.getElementById("ds-footer-actions");
+    if (footerEl) {
+      footerEl.innerHTML = `<button class="secondary-btn" onclick="document.getElementById('deck-search-modal').classList.add('hidden')">Close Item / Flag Viewer</button>`;
+    }
+    this.renderDeckSearchGrid();
+    document.getElementById("deck-search-modal").classList.remove("hidden");
+  },
+
+  openSoulViewer(side = "plr", hostUnit = null, zonePos = null) {
+    const f = this.getFighter(side);
+    let resolvedHost = hostUnit;
+    if (!resolvedHost && zonePos) {
+      if (zonePos === "item") resolvedHost = f.item;
+      else if (zonePos === "item2") resolvedHost = f.item2;
+      else if (zonePos.startsWith("set:")) {
+        const idx = parseInt(zonePos.split(":")[1], 10);
+        resolvedHost = f.setSpells && f.setSpells[idx] ? f.setSpells[idx] : null;
+      } else if (f.monsters && f.monsters[zonePos]) {
+        resolvedHost = f.monsters[zonePos];
+      }
+    }
+    const soulList = resolvedHost && Array.isArray(resolvedHost.soul) ? resolvedHost.soul : [];
+    if (!resolvedHost || soulList.length === 0) {
+      alert(`This card currently has 0 cards in its Soul.`);
+      return;
+    }
+    const hostCard = resolvedHost.card || resolvedHost;
+    const hostName = hostCard && hostCard.name ? hostCard.name : "Card";
+    const hasSG = Boolean((hostCard && hostCard.sg) || resolvedHost.tempSG || (window.ABX && ABX.staticBonus && resolvedHost.card && ABX.staticBonus(f, resolvedHost).sg));
+
+    this.activeChoice = null;
+    this.setDeckSearchFiltersEnabled(true);
+    this.deckSearchState = {
+      isSoulMode: true,
+      dropSide: side,
+      hostUnit: resolvedHost,
+      hostZonePos: zonePos,
+      sourceLabel: `"${hostName}"'s Soul`,
+      criteria: null
+    };
+    document.getElementById("ds-title").textContent = `🟣 "${hostName.toUpperCase()}" — SOUL INSPECTOR (${soulList.length} Card${soulList.length === 1 ? "" : "s"}${hasSG ? " • 🛡️ [Soulguard]" : ""})`;
+    document.getElementById("ds-subtitle").textContent = `Click any Soul card below to inspect its Card Detail Banner, check its continuous Soul skills, or activate its Soul [Act] abilities!`;
+    document.getElementById("ds-filter").value = "";
+    const tribeSel = document.getElementById("ds-tribe");
+    if (tribeSel) tribeSel.value = "";
+    const onlyMatchChk = document.getElementById("ds-only-matching");
+    if (onlyMatchChk) onlyMatchChk.checked = false;
+
+    const footerEl = document.getElementById("ds-footer-actions");
+    if (footerEl) {
+      footerEl.innerHTML = `<button class="secondary-btn" onclick="document.getElementById('deck-search-modal').classList.add('hidden')">Close Soul Viewer</button>`;
+    }
+    this.renderDeckSearchGrid();
+    document.getElementById("deck-search-modal").classList.remove("hidden");
   },
 
   openDropZoneViewer(side = "plr", abilityOptions = null) {
@@ -6666,7 +7096,7 @@ const battle = {
     for (let i = 0; i < cost.gauge; i++) f.drop.push(f.gauge.pop());
     if (cost.life > 0) f.life = Math.max(1, f.life - cost.life);
 
-    const toSecond = !!(f.item && !f.item.isEndrulerFlag && !f.item2 && hasMultiItems(f));   // the old item stays: this one goes to "item2"
+    const toSecond = !!(f.item && !f.item.isEndrulerFlag && !f.item2 && hasMultiItems(f, c));   // the old item stays: this one goes to "item2"
     if (f.item && !f.item.isEndrulerFlag && !toSecond) {
       // The old item's soul goes to the Drop Zone (before, those cards were lost from the game).
       if (f.item.soul && f.item.soul.length) f.drop.push(...f.item.soul);
@@ -6857,13 +7287,12 @@ const battle = {
     const f = this.getFighter(mySide);
 
     if (this.pendingAction && this.pendingAction.type === "call") {
-      // "center2" is the second center area, open only while a [CHAOS Territory] monster is on your center
-      if (zoneSide === mySide && (["left", "center", "right"].includes(zonePos) || (zonePos === "center2" && f.monsters.center && hasChaosTerritory(f)))) {
-        // The hand may have changed since "Call" was pressed (e.g. a spell was cast), so find the card again
-        // instead of trusting the old position — otherwise the wrong card could be put on the field.
-        const pa = this.pendingAction;
-        let handIdx = pa.handIdx;
-        if (pa.cardId !== undefined && f.hand[handIdx] !== pa.cardId) handIdx = f.hand.indexOf(pa.cardId);
+      const pa = this.pendingAction;
+      let handIdx = pa.handIdx;
+      if (pa.cardId !== undefined && f.hand[handIdx] !== pa.cardId) handIdx = f.hand.indexOf(pa.cardId);
+      const callingCard = handIdx !== -1 ? CARD_MAP.get(f.hand[handIdx]) : null;
+      // "center2" is the second center area, open while a [CHAOS Territory] monster is on your center OR being called to your center!
+      if (zoneSide === mySide && (["left", "center", "right"].includes(zonePos) || (zonePos === "center2" && canPlaceSecondCenter(f, callingCard)))) {
         if (handIdx === -1) {
           this.pendingAction = null;
           this.setPrompt("That card is no longer in your hand, so the call was cancelled.");
@@ -7580,7 +8009,7 @@ const battle = {
 
       if (targetMonster) {
         outcome.destroyedMonster = !!this.resolveMonsterVsMonster(attSide, units, defSide, targetPos, combinedPower, combinedCrit, anyPenetrate);
-        outcome.dealtDamage = outcome.destroyedMonster && targetPos === "center" && anyPenetrate;
+        outcome.dealtDamage = outcome.destroyedMonster && (targetPos === "center" || targetPos === "center2") && anyPenetrate;
       } else {
         let finalDmg = combinedCrit;
         if (defFighter.tempDamageReduce && defFighter.tempDamageReduce > 0 && !unreducible) {
@@ -7634,7 +8063,7 @@ const battle = {
         try { destroyed = this.destroyMonster(defSide, targetPos); } finally { this._destroyByAttack = false; }
         destroyedFlag = !!destroyed;
         defenderSurvived = !destroyed;
-        if (targetPos === "center" && anyPenetrate && destroyed) {
+        if ((targetPos === "center" || targetPos === "center2") && anyPenetrate && destroyed) {
           let penDmg = combinedCrit;
           const unreducible = !!(window.ABX && ABX.attackUnreducible && ABX.attackUnreducible(attSide, attUnits));
           if (defFighter.tempDamageReduce && defFighter.tempDamageReduce > 0 && !unreducible) {
@@ -7685,7 +8114,7 @@ const battle = {
     if (pos === "item2") {   // the second item (see hasMultiItems)
       const it = f.item2;
       if (!it) return false;
-      f.drop.push(...(it.soul || []), it.card.id);
+      f.drop.push(...(it.soul || []).map(getSoulCardId), it.card.id);
       f.item2 = null;
       this.renderBattle();
       return true;
@@ -7693,20 +8122,33 @@ const battle = {
     const m = f.monsters[pos];
     if (!m) return false;
 
+    const ownerSide = m.oppressedBy || side;
+    const ownerFighter = this.getFighter(ownerSide);
+
     // "The next time this card would be destroyed this turn, it remains on the field" (ABX saveOnce)
-    if (window.ABX && ABX.core && ABX.core.useSave && ABX.core.useSave(side, m)) { this.renderBattle(); return false; }
-    const abxSG = !!(window.ABX && ABX.staticBonus && ABX.staticBonus(f, m).sg);
+    if (window.ABX && ABX.core && ABX.core.useSave && ABX.core.useSave(ownerSide, m)) { this.renderBattle(); return false; }
+    const abxSG = !!(window.ABX && ABX.staticBonus && ABX.staticBonus(ownerFighter, m).sg);
     if ((m.card.sg || m.tempSG || abxSG) && !(window.ABX && ABX.kwLost && ABX.kwLost(m, "soulguard")) && m.soul && m.soul.length > 0) {
       const discardedSoul = m.soul.pop();
-      const soulCard = CARD_MAP.get(discardedSoul);
+      const wasFaceDown = isSoulEntryFaceDown(discardedSoul);
+      const soulCardId = getSoulCardId(discardedSoul);
+      const soulCard = CARD_MAP.get(soulCardId);
       const fromZoneId = `z-${side}-${pos}`;
-      const toDropId = `z-${side}-drop`;
+      const toDropId = `z-${ownerSide}-drop`;
 
       this.animateCardFlight(fromZoneId, toDropId, soulCard ? soulCard.img : "Sprite/Sleeves/s0.png", "🟣 [SOULGUARD]!", 15, () => {
-        f.drop.push(discardedSoul);
+        ownerFighter.drop.push(soulCardId);
         this.setPrompt(`🟣 [Soulguard] "${m.card.name}" sent 1 Soul card to the Drop Zone (${m.soul.length} Soul left) and remained on the field!`);
-        if (soulCard && soulCard.amb && !f.monsters.left) {
-          f.monsters.left = { card: soulCard, rested: false, attacksLeft: soulCard.atk_max || 1, soul: [], tempPower: 0, tempDef: 0, tempCrit: 0 };
+        // [Ambush] triggers ONLY if the card was explicitly placed into the soul face-down!
+        if (wasFaceDown && soulCard && soulCard.amb) {
+          if (window.ABX && ABX.triggerAmbushFromSoul) {
+            ABX.triggerAmbushFromSoul(ownerSide, soulCardId, true);
+          } else {
+            const openPos = ["left", "right", "center"].find(p => !ownerFighter.monsters[p]);
+            if (openPos) {
+              ownerFighter.monsters[openPos] = { card: soulCard, rested: false, attacksLeft: soulCard.atk_max || 1, soul: [], tempPower: 0, tempDef: 0, tempCrit: 0, enteredByAmbush: true };
+            }
+          }
         }
         this.renderBattle();
       });
@@ -7714,24 +8156,24 @@ const battle = {
     }
 
     // "If this card would be destroyed, you may pay 1 gauge. If you do, this card remains on the field." (ABX replacement effects)
-    if (window.ABX && ABX.wouldLeaveSave && ABX.wouldLeaveSave(side, pos, m, !!this._destroyByAttack)) { this.renderBattle(); return false; }
+    if (window.ABX && ABX.wouldLeaveSave && ABX.wouldLeaveSave(ownerSide, pos, m, !!this._destroyByAttack)) { this.renderBattle(); return false; }
 
-    if ((m.isYamigedoConnected || isYamigedoHalfId(m.card.id)) && f.deck.length >= 5) {
-      const canPrevent = f.isBot || confirm(`[Evil Deity] "${getBuddyDisplayName(m.card)}" would leave the field! Put the top 5 cards of your deck into your Drop Zone so it remains on the field?`);
+    if ((m.isYamigedoConnected || isYamigedoHalfId(m.card.id)) && ownerFighter.deck.length >= 5) {
+      const canPrevent = ownerFighter.isBot || confirm(`[Evil Deity] "${getBuddyDisplayName(m.card)}" would leave the field! Put the top 5 cards of your deck into your Drop Zone so it remains on the field?`);
       if (canPrevent) {
-        const milled = f.deck.splice(0, 5);
-        f.drop.push(...milled);
-        this.setPrompt(`🛡️ [Evil Deity] Put the top 5 cards of ${f.name}'s deck into the Drop Zone — "${getBuddyDisplayName(m.card)}" remained on the field!`);
+        const milled = ownerFighter.deck.splice(0, 5);
+        ownerFighter.drop.push(...milled);
+        this.setPrompt(`🛡️ [Evil Deity] Put the top 5 cards of ${ownerFighter.name}'s deck into the Drop Zone — "${getBuddyDisplayName(m.card)}" remained on the field!`);
         this.checkWinCondition();
         this.renderBattle();
         return false;
       }
     }
 
-    if (this.imOnDestroyedUnit && window.IMX && IMX.isUnit(m)) this.imOnDestroyedUnit(side, m);
+    if (this.imOnDestroyedUnit && window.IMX && IMX.isUnit(m)) this.imOnDestroyedUnit(ownerSide, m);
     this.sendMonsterToDropWithAnimation(side, pos, false);
-    if (window.ABX && ABX.fireLeave) ABX.fireLeave(side, m.card, !!this._destroyByAttack);
-    if (window.ABX && ABX.fireOtherDestroyed) ABX.fireOtherDestroyed(side, m.card, m);
+    if (window.ABX && ABX.fireLeave) ABX.fireLeave(ownerSide, m.card, !!this._destroyByAttack);
+    if (window.ABX && ABX.fireOtherDestroyed) ABX.fireOtherDestroyed(ownerSide, m.card, m);
     return true;
   },
 
@@ -7740,6 +8182,8 @@ const battle = {
     const m = f.monsters[pos];
     if (!m) return;
 
+    const ownerSide = m.oppressedBy || side;
+    const ownerFighter = this.getFighter(ownerSide);
     const deadCard = m.card;
     const deadSoul = m.soul ? [...m.soul] : [];
     const deadHalfIds = (m.pairedHalfIds && m.pairedHalfIds.length) ? [...m.pairedHalfIds] : [deadCard.id];
@@ -7747,20 +8191,41 @@ const battle = {
     this.renderBattle();
 
     const fromZoneId = `z-${side}-${pos}`;
-    const toDropId = `z-${side}-drop`;
+    const toDropId = `z-${ownerSide}-drop`;
 
     this.animateCardFlight(fromZoneId, toDropId, deadCard.img, isRetire ? "♻️ RETIRED" : "💥 DESTROYED", -20, () => {
-      if (deadSoul.length > 0) f.drop.push(...deadSoul);
-      f.drop.push(...deadHalfIds);
+      const faceDownAmbushIds = [];
+      if (deadSoul.length > 0) {
+        deadSoul.forEach(entry => {
+          const cid = getSoulCardId(entry);
+          ownerFighter.drop.push(cid);
+          if (isSoulEntryFaceDown(entry)) faceDownAmbushIds.push(cid);
+        });
+      }
+      ownerFighter.drop.push(...deadHalfIds);
+
+      faceDownAmbushIds.forEach(cid => {
+        const sc = CARD_MAP.get(cid);
+        if (sc && sc.amb) {
+          if (window.ABX && ABX.triggerAmbushFromSoul) {
+            ABX.triggerAmbushFromSoul(ownerSide, cid, true);
+          } else {
+            const openPos = ["left", "right", "center"].find(p => !ownerFighter.monsters[p]);
+            if (openPos) {
+              ownerFighter.monsters[openPos] = { card: sc, rested: false, attacksLeft: sc.atk_max || 1, soul: [], tempPower: 0, tempDef: 0, tempCrit: 0, enteredByAmbush: true };
+            }
+          }
+        }
+      });
 
       if (isRetire) {
         // [Lifelink] only triggers when the monster is destroyed.
       } else if (deadCard.ll_lose) {
-        f.life = 0;
+        ownerFighter.life = 0;
         this.checkWinCondition();
-      } else if (deadCard.ll > 0 && !(window.ABX && ABX.lifelinkOff && ABX.lifelinkOff(side, deadCard))) {   // "nullify the [Lifelink] of this card"
-        f.life -= deadCard.ll;
-        this.setPrompt(`💔 [Lifelink ${deadCard.ll}] "${deadCard.name}" left the field — ${f.name} took ${deadCard.ll} damage!`);
+      } else if (deadCard.ll > 0 && !(window.ABX && ABX.lifelinkOff && ABX.lifelinkOff(ownerSide, deadCard))) {   // "nullify the [Lifelink] of this card"
+        ownerFighter.life -= deadCard.ll;
+        this.setPrompt(`💔 [Lifelink ${deadCard.ll}] "${deadCard.name}" left the field — ${ownerFighter.name} took ${deadCard.ll} damage!`);
         this.checkWinCondition();
       }
       this.renderBattle();
@@ -8106,14 +8571,19 @@ const battle = {
     }
   },
 
-  renderFieldCardHtml(fighter, unit) {
+  renderFieldCardHtml(fighter, unit, side = null, zonePos = null) {
     if (!unit || !unit.card) return "";
     const c = unit.card;
     const eff = getUnitEffectiveCombatStats(fighter, unit);
     const statLabel = (c.type === "Monster" || unit.isEndrulerFlag)
       ? `${eff.power}/${eff.crit}/${eff.defense}${eff.pen ? " [P]" : ""}`
       : `${eff.power}/${eff.crit}`;
-    const soulHtml = unit.soul && unit.soul.length > 0 ? `<div class="soul-badge">Soul:${unit.soul.length}</div>` : "";
+    const resolvedSide = side || (fighter === this.plr ? "plr" : "opp");
+    const resolvedPos = zonePos || (window.ABX && ABX.core && ABX.core.posOfUnit ? ABX.core.posOfUnit(fighter, unit) : "") || "";
+    const hasSG = Boolean(c.sg || unit.tempSG || (window.ABX && ABX.staticBonus && ABX.staticBonus(fighter, unit).sg));
+    const soulHtml = unit.soul && unit.soul.length > 0
+      ? `<div class="soul-badge" onclick="event.stopPropagation(); battle.openSoulViewer('${resolvedSide}', null, '${resolvedPos}')" title="Click to inspect ${unit.soul.length} Soul card(s)${hasSG ? " [Soulguard]" : ""}">🟣 Soul:${unit.soul.length}</div>`
+      : "";
     const isYami = unit.isYamigedoConnected || isYamigedoHalfId(c.id);
     const artHtml = isYami
       ? renderYamigedoDualStackHtml()
@@ -8138,6 +8608,7 @@ const battle = {
   },
 
   renderFlagZoneHtml(fighter) {
+    const side = fighter === this.plr ? "plr" : "opp";
     if (fighter.godclock) {
       if (fighter.godclock.overgodActive && fighter.item) {
         // Overgod, "0" placed on top of the 4 connected Endruler cards: show the full 2x2 Overgod art as one big flag
@@ -8171,12 +8642,11 @@ const battle = {
     }
 
     if (fighter.item && fighter.item2) {   // two items: side by side, each clickable
-      const side = fighter === this.plr ? "plr" : "opp";
-      const half = (zone, u) => `<div class="chaos-half" onclick="event.stopPropagation(); battle.onZoneClick('${side}','${zone}')">${this.renderFieldCardHtml(fighter, u)}</div>`;
+      const half = (zone, u) => `<div class="chaos-half" onclick="event.stopPropagation(); battle.onZoneClick('${side}','${zone}')">${this.renderFieldCardHtml(fighter, u, side, zone)}</div>`;
       return `<div class="chaos-pair">${half("item", fighter.item)}${half("item2", fighter.item2)}</div>`;
     }
     if (fighter.item) {
-      return this.renderFieldCardHtml(fighter, fighter.item);
+      return this.renderFieldCardHtml(fighter, fighter.item, side, "item");
     }
 
     const flagCard = CARD_MAP.get(fighter.flagId) || ALL_CARDS[0];
@@ -8192,14 +8662,45 @@ const battle = {
     return html;
   },
 
-  // [CHAOS Territory]: the center zone shows both center monsters, or an empty second half while there is room for one.
+  renderSetZoneSlotHtml(side) {
+    const f = this.getFighter(side);
+    const list = f && Array.isArray(f.setSpells) ? f.setSpells : [];
+    if (list.length === 0) return "";
+    const renderOneSet = (sp, idx) => {
+      const soulCnt = Array.isArray(sp.soul) ? sp.soul.length : 0;
+      const soulBadge = soulCnt > 0
+        ? `<div class="soul-badge" onclick="event.stopPropagation(); battle.openSoulViewer('${side}', null, 'set:${idx}')" title="Click to inspect ${soulCnt} Soul card(s)">🟣 Soul:${soulCnt}</div>`
+        : "";
+      return `<div class="field-card">${soulBadge}<img src="${sp.img}" alt="${escapeHtml(sp.name)}" /></div>`;
+    };
+    if (list.length === 1) {
+      return renderOneSet(list[0], 0);
+    }
+    const i1 = list.length - 2;
+    const i2 = list.length - 1;
+    return `
+      <div class="chaos-pair" title="Click to inspect all ${list.length} [Set] cards">
+        <div class="chaos-half">${renderOneSet(list[i1], i1)}</div>
+        <div class="chaos-half">${renderOneSet(list[i2], i2)}</div>
+      </div>
+    `;
+  },
+
+  // [CHAOS Territory]: the center zone shows both center monsters connected together, or an empty second half while there is room for one.
   renderCenterPairHtml(side) {
     const f = this.getFighter(side);
     if (!f.monsters.center && f.monsters.center2) { f.monsters.center = f.monsters.center2; f.monsters.center2 = null; }   // the first one left: the second moves up
-    const room = f.monsters.center && hasChaosTerritory(f);
-    if (!f.monsters.center2 && !room) return this.renderFieldCardHtml(f, f.monsters.center);
+    let pendingChaosCall = false;
+    if (this.pendingAction && this.pendingAction.type === "call" && this.pendingAction.side === side) {
+      const c = CARD_MAP.get(this.pendingAction.cardId !== undefined ? this.pendingAction.cardId : f.hand[this.pendingAction.handIdx]);
+      if (canPlaceSecondCenter(f, c)) pendingChaosCall = true;
+    }
+    const room = f.monsters.center && (hasChaosTerritory(f) || pendingChaosCall);
+    if (!f.monsters.center2 && !room) return this.renderFieldCardHtml(f, f.monsters.center, side, "center");
     const half = (pos, inner) => `<div class="chaos-half" onclick="event.stopPropagation(); battle.onZoneClick('${side}','${pos}')">${inner}</div>`;
-    return `<div class="chaos-pair">${half("center", this.renderFieldCardHtml(f, f.monsters.center))}${half("center2", f.monsters.center2 ? this.renderFieldCardHtml(f, f.monsters.center2) : '<div class="chaos-empty">CHAOS<br>Territory</div>')}</div>`;
+    const bothPresent = Boolean(f.monsters.center && f.monsters.center2);
+    const linkBadge = `<div class="chaos-connector-badge" title="[CHAOS Territory] Connected Dual-Center">${bothPresent ? "⚡CHAOS⚡" : "⚡+1"}</div>`;
+    return `<div class="chaos-pair chaos-connected ${bothPresent ? "both-active" : ""}">${half("center", this.renderFieldCardHtml(f, f.monsters.center, side, "center"))}${linkBadge}${half("center2", f.monsters.center2 ? this.renderFieldCardHtml(f, f.monsters.center2, side, "center2") : '<div class="chaos-empty">⚡ CHAOS<br>Territory</div>')}</div>`;
   },
 
   renderBattle() {
@@ -8248,11 +8749,8 @@ const battle = {
     const plrTopDrop = this.plr.drop.length ? CARD_MAP.get(this.plr.drop[this.plr.drop.length - 1]) : null;
     document.getElementById("z-plr-drop-slot").innerHTML = plrTopDrop ? `<div class="field-card"><img src="${plrTopDrop.img}" /></div>` : "";
 
-    const oppTopSet = this.opp.setSpells[this.opp.setSpells.length - 1];
-    document.getElementById("z-opp-set-slot").innerHTML = oppTopSet ? `<div class="field-card"><img src="${oppTopSet.img}" /></div>` : "";
-
-    const plrTopSet = this.plr.setSpells[this.plr.setSpells.length - 1];
-    document.getElementById("z-plr-set-slot").innerHTML = plrTopSet ? `<div class="field-card"><img src="${plrTopSet.img}" /></div>` : "";
+    document.getElementById("z-opp-set-slot").innerHTML = this.renderSetZoneSlotHtml("opp");
+    document.getElementById("z-plr-set-slot").innerHTML = this.renderSetZoneSlotHtml("plr");
 
     const oppBuddy = CARD_MAP.get(this.opp.buddyId);
     document.getElementById("z-opp-buddy-slot").innerHTML = oppBuddy
@@ -8270,13 +8768,25 @@ const battle = {
 
     document.getElementById("z-opp-item-slot").innerHTML = this.renderFlagZoneHtml(this.opp);
     document.getElementById("slot-plr-item").innerHTML = this.renderFlagZoneHtml(this.plr);
-    document.getElementById("z-plr-flag-badge").textContent = this.plr.godclock
-      ? (this.plr.godclock.overgodActive ? "👑 Overgod \"0\" (Click for Banner)" : this.plr.godclock.awakened ? "👑 Endruler (Click for Banner)" : "⏳ Godclock (2x2)")
-      : "Flag / Item";
+    const plrEqCnt = getEquippedItems(this.plr).length;
+    const plrFlagBadgeEl = document.getElementById("z-plr-flag-badge");
+    if (plrFlagBadgeEl) {
+      plrFlagBadgeEl.textContent = this.plr.godclock
+        ? (this.plr.godclock.overgodActive ? "👑 Overgod \"0\" (Click for Banner)" : this.plr.godclock.awakened ? "👑 Endruler (Click for Banner)" : "⏳ Godclock (2x2)")
+        : plrEqCnt > 0
+        ? `🗡️ Items (${plrEqCnt}) / Flag 🔍`
+        : "Flag / Item";
+      plrFlagBadgeEl.style.pointerEvents = "auto";
+      plrFlagBadgeEl.style.cursor = "pointer";
+      plrFlagBadgeEl.onclick = (e) => {
+        e.stopPropagation();
+        this.openItemZoneViewer("plr");
+      };
+    }
 
     ["left", "center", "right"].forEach(pos => {   // the second center ("center2") is drawn inside the center zone
-      document.getElementById(`slot-opp-${pos}`).innerHTML = pos === "center" ? this.renderCenterPairHtml("opp") : this.renderFieldCardHtml(this.opp, this.opp.monsters[pos]);
-      document.getElementById(`slot-plr-${pos}`).innerHTML = pos === "center" ? this.renderCenterPairHtml("plr") : this.renderFieldCardHtml(this.plr, this.plr.monsters[pos]);
+      document.getElementById(`slot-opp-${pos}`).innerHTML = pos === "center" ? this.renderCenterPairHtml("opp") : this.renderFieldCardHtml(this.opp, this.opp.monsters[pos], "opp", pos);
+      document.getElementById(`slot-plr-${pos}`).innerHTML = pos === "center" ? this.renderCenterPairHtml("plr") : this.renderFieldCardHtml(this.plr, this.plr.monsters[pos], "plr", pos);
 
       const plrZoneEl = document.getElementById(`z-plr-${pos}`);
       const oppZoneEl = document.getElementById(`z-opp-${pos}`);

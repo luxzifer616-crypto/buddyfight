@@ -31,7 +31,8 @@
   // soul become the new card's soul). pay: pay its gauge / life cost. Returns the new unit, or null.
   async function place(side, area, id, opts) {
     const f = F(side), c = cardOf(id); if (!c) return null;
-    let pos = opts.onTop ? posOfUnit(f, opts.onTop) : (opts.pos && !f.monsters[opts.pos] ? opts.pos : open(f)[0]);
+    const openPos = open(f)[0] || (typeof canPlaceSecondCenter === "function" && canPlaceSecondCenter(f, c) ? "center2" : null);
+    let pos = opts.onTop ? posOfUnit(f, opts.onTop) : (opts.pos && !f.monsters[opts.pos] ? opts.pos : (opts.pos === "center" && f.monsters.center && typeof canPlaceSecondCenter === "function" && canPlaceSecondCenter(f, c) ? "center2" : openPos));
     if (!pos || pos === "item") return null;
     if (opts.pay) {
       const cost = callCost(f, c);

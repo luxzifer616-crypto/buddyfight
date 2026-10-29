@@ -396,7 +396,9 @@
       }
       let n = 0;
       for (const r of ch) {
-        let pos = (s.pos && s.pos !== "open area") ? s.pos : (SLOTS.find(p => !f.monsters[p]) || "center");
+        let defaultOpen = SLOTS.find(p => !f.monsters[p]);
+        if (!defaultOpen && typeof canPlaceSecondCenter === "function" && canPlaceSecondCenter(f, r.card)) defaultOpen = "center2";
+        let pos = (s.pos && s.pos !== "open area") ? (s.pos === "center" && f.monsters.center && typeof canPlaceSecondCenter === "function" && canPlaceSecondCenter(f, r.card) ? "center2" : s.pos) : (defaultOpen || "center");
         let under = null;
         if (topHost) { pos = core.posOfUnit(f, topHost); if (!pos) break; under = topHost; }
         else if (s.pay && ABX.onTopCost(r.card)) {   // its [Call Cost] puts it on top of another monster

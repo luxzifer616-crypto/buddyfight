@@ -6,37 +6,66 @@ const vm = require("vm");
 const ROOT = path.join(__dirname, "..");
 
 function makeStub(name) {
+  const target = function () {};
+  target.__children = [];
   const handler = {
     get(t, p) {
       if (p === Symbol.toPrimitive) return () => "";
       if (p === "then") return undefined;
-      if (p === "length") return 0;
+      if (p === "length") return (t.__children || []).length;
       if (["firstChild", "lastChild", "parentNode", "parentElement", "nextSibling", "previousSibling", "firstElementChild", "lastElementChild", "nextElementSibling", "offsetParent"].includes(p)) return null;
       if (["value", "textContent", "innerHTML", "innerText", "src", "className", "id", "title", "placeholder", "href"].includes(p)) return t["__" + String(p)] ?? "";
       if (p === "checked" || p === "disabled" || p === "hidden") return t["__" + String(p)] ?? false;
-      if (p === "classList") return { add() {}, remove() {}, toggle() {}, contains() { return false; } };
-      if (p === "style") return t.__style || (t.__style = {});
-      if (p === "dataset") return {};
-      if (p === "children" || p === "childNodes") return [];
+      if (p === "classList") return t.__classList || (t.__classList = {
+        _set: new Set(),
+        add(... names) { names.forEach(n => this._set.add(n)); },
+        remove(...names) { names.forEach(n => this._set.delete(n)); },
+        toggle(n, force) { if (force === undefined ? !this._set.has(n) : force) { this._set.add(n); return true; } this._set.delete(n); return false; },
+        contains(n) { return this._set.has(n); }
+      });
+      if (p === "style") return t.__style || (t.__style = { setProperty() {}, removeProperty() {} });
+      if (p === "dataset") return t.__dataset || (t.__dataset = {});
+      if (p === "children" || p === "childNodes") return t.__children || [];
+      if (p === "appendChild") return (child) => { (t.__children = t.__children || []).push(child); return child; };
+      if (p === "replaceChildren") return (...kids) => {
+        const flat = [];
+        kids.forEach(k => {
+          if (k && Array.isArray(k.__children) && k.__isFrag) flat.push(...k.__children);
+          else if (k) flat.push(k);
+        });
+        t.__children = flat;
+      };
+      if (p === "remove") return () => {};
       if (p === "getBoundingClientRect") return () => ({ left: 0, top: 0, width: 0, height: 0, right: 0, bottom: 0 });
+      if ("__" + String(p) in t) return t["__" + String(p)];
       if (p in t) return t[p];
       return makeStub(String(p));
     },
-    set(t, p, v) { t["__" + String(p)] = v; return true; },
+    set(t, p, v) {
+      t["__" + String(p)] = v;
+      if (p === "innerHTML" && v === "") t.__children = [];
+      return true;
+    },
     apply() { return makeStub("call"); },
     construct() { return makeStub("new"); },
   };
-  return new Proxy(function () {}, handler);
+  return new Proxy(target, handler);
 }
 
 function createEnv(opts = {}) {
   const timers = [];
   const doc = makeStub("document");
+  const elCache = new Map();
   const overrides = {
-    getElementById: (id) => (id === "fx-layer" ? null : makeStub(id)),
+    getElementById: (id) => {
+      if (id === "fx-layer") return null;
+      if (!elCache.has(id)) elCache.set(id, makeStub(id));
+      return elCache.get(id);
+    },
     querySelector: () => makeStub("qs"),
     querySelectorAll: () => [],
-    createElement: () => makeStub("el"),
+    createElement: (tag) => makeStub(tag || "el"),
+    createDocumentFragment: () => { const f = makeStub("frag"); f.__isFrag = true; return f; },
     addEventListener: () => {},
     body: makeStub("body"),
   };
@@ -59,7 +88,7 @@ function createEnv(opts = {}) {
   sandbox.globalThis = sandbox;
   const ctx = vm.createContext(sandbox);
   const load = (file) => vm.runInContext(fs.readFileSync(path.join(ROOT, file), "utf8"), ctx, { filename: file });
-  const files = opts.files || ["cards_data.js", "game.js", "impact_monsters.js", "abilities_parser.js", "abilities_ui.js", "abilities_engine.js", "abilities_ops.js", "abilities_more.js", "abilities_r9.js", "abilities_r10.js", "abilities_gkw.js", "abilities_r13.js", "abilities_r14.js", "abilities_r15.js", "abilities_r16.js", "abilities_r17.js", "abilities_r18.js", "abilities_r19.js", "abilities_r20.js", "abilities_r21.js", "abilities_r22.js", "abilities_r23.js", "abilities_r24.js", "abilities_r25.js", "abilities_r26.js", "abilities_r27.js", "abilities_r28.js", "abilities_r29.js", "abilities_r30.js", "abilities_r31.js", "abilities_r32.js", "abilities_r33.js", "abilities_r34.js", "abilities_r35.js", "abilities_r36.js", "abilities_r37.js"];
+  const files = opts.files || ["cards_data.js", "game.js", "impact_monsters.js", "abilities_parser.js", "abilities_ui.js", "abilities_engine.js", "abilities_ops.js", "abilities_more.js", "abilities_r9.js", "abilities_r10.js", "abilities_gkw.js", "abilities_r13.js", "abilities_r14.js", "abilities_r15.js", "abilities_r16.js", "abilities_r17.js", "abilities_r18.js", "abilities_r19.js", "abilities_r20.js", "abilities_r21.js", "abilities_r22.js", "abilities_r23.js", "abilities_r24.js", "abilities_r25.js", "abilities_r26.js", "abilities_r27.js", "abilities_r28.js", "abilities_r29.js", "abilities_r30.js", "abilities_r31.js", "abilities_r32.js", "abilities_r33.js", "abilities_r34.js", "abilities_r35.js", "abilities_r36.js", "abilities_r37.js", "abilities_r38.js"];
   files.forEach((f) => { if (fs.existsSync(path.join(ROOT, f))) load(f); });
   // flush timers (animations etc.) so everything resolves synchronously
   const flush = (max = 5000) => { let n = 0; while (timers.length && n++ < max) { const t = timers.shift(); try { t.fn(); } catch (e) { sandbox.__timerErrors = (sandbox.__timerErrors || []); sandbox.__timerErrors.push(String(e && e.stack || e)); } } };
