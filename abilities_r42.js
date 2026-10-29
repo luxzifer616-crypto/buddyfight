@@ -1,0 +1,150 @@
+/* ==================== ABX — round 42: Legend Dragon tribe review fixes ====================
+ * Per-card overrides found by tests/legend_dragon.js (same OV mechanism as r38/r40). Loaded after abilities_r41.js.
+ * Wave 1: #6138 independent Fire/Water/Thunder conditions, #5527 attack trigger, #5418/#5737 gated [Triple Attack].
+ * Wave 2: "for each card in your buddy zone" counts (#5544 #5516 #5742 #5524 #5543 #5718 #5720), #5516 buddy monsters,
+ *         #5538 Sector Collapse (turn-long attack trigger), #5757 dropped-from-hand trigger, #6140 whole drop zone to deck,
+ *         #5422 Dragod+Legend Dragon filter, #5419 "Dragod and King", #5515/#5534 Dragod AND King, #5421 left+right Dragod,
+ *         #5429 size reduction on left/right, "different Dragod" counts (#5532 #5748 #5759).
+ */
+(function (root) {
+  "use strict";
+  const ABX = root.ABX;
+  if (!ABX || !ABX.core) return;
+  const core = ABX.core, OPS = ABX.OPS, F = core.F, otherSide = core.otherSide;
+  const lc = (s) => String(s || "").toLowerCase();
+  const clone = (o) => JSON.parse(JSON.stringify(o));
+  const np = (filter, area, pos, owner) => {
+    const zone = { owner: owner || "you", area: area || "field" }; if (pos) zone.pos = pos;
+    return { qty: { n: 1, upTo: false, all: false, any: false, each: false }, ref: null, self: false, filter, zone, excludeSelf: false, topN: null, soulOf: null };
+  };
+  const has = (filter, area, pos) => ({ t: "has", owner: "you", np: np(filter, area, pos), n: 1, other: false });
+  const walk = (o, fn) => { if (Array.isArray(o)) o.forEach(x => walk(x, fn)); else if (o && typeof o === "object") { fn(o); Object.values(o).forEach(v => walk(v, fn)); } };
+  const DRAGOD_BUDDIES = np({ tribes: ["Dragod"] }, "buddy zone");
+  const ANY_BUDDY_CARD = np({}, "buddy zone");
+
+  const OV42 = [
+    /* ---- wave 1 ---- */
+    [6138, /if a «?fire»? is on your field/i, () => ({
+      kind: "spell", once: "turn", steps: [
+        { op: "damage", who: "opp", n: 2, cond: has({ tribes: ["Fire"] }) },
+        { op: "life", who: "you", n: 2, cond: has({ tribes: ["Water"] }) },
+        { op: "draw", who: "you", n: 2, cond: has({ tribes: ["Thunder"] }) }
+      ]
+    })],
+    [5527, /if this card is in the center, when a «?legend dragon»? monster/i, () => ({
+      kind: "triggered",
+      trigger: { event: "otherAttack", np: np({ tribes: ["Legend Dragon"], types: ["monster"] }) },
+      conds: [{ t: "selfPos", pos: "center" }],
+      steps: [{ op: "damage", who: "opp", n: 1 }]
+    })],
+    [5418, /at the start of your attack phase/i, (ab) => ({
+      kind: "triggered", trigger: ab.trigger || { event: "phaseStart", who: "you", phase: "attack" }, conds: [],
+      steps: [Object.assign({}, (ab.steps || []).find(s => s.op === "boost"), { cond: has({ exactNames: ["ice deity, freeza horus"] }) })]
+    })],
+    [5737, /when this card attacks, if you buddy called/i, () => ({
+      kind: "triggered", trigger: { event: "attack", self: true }, once: "turn", conds: [{ t: "buddyCalledEver" }],
+      steps: [{ op: "boost", np: { self: true, selfTail: "" }, mods: { power: 0, defense: 0, critical: 0, kws: ["triple attack"] } }]
+    })],
+
+    /* ---- wave 2: buddy zone counts ---- */
+    [5544, /for each card in your buddy zone/i, (ab) => { const st = clone(ab.steps); st[0].each = clone(ANY_BUDDY_CARD); return { kind: "static", steps: st }; }],
+    [5516, /size reduced by 1 for each «?dragod»? in your buddy zone/i, (ab) => { const st = clone(ab.steps); st[0].each = clone(DRAGOD_BUDDIES); return { kind: "static", steps: st }; }],
+    [5742, /size reduced by 1 for each «?dragod»? in your buddy zone/i, (ab) => { const st = clone(ab.steps); st[0].each = clone(DRAGOD_BUDDIES); return { kind: "static", steps: st }; }],
+    [5516, /this card and all of your buddy monsters/i, (ab) => {
+      const self = clone(ab.steps[0]); const buddies = clone(ab.steps[0]);
+      buddies.np = np({ buddy: true, types: ["monster"] }); buddies.np.excludeSelf = true;
+      return { kind: "static", steps: [self, buddies] };
+    }],
+    [5524, /gain 1 life for each card in your buddy zone/i, (ab) => { const st = clone(ab.steps); const l = st.find(s => s.op === "life"); if (l) l.n = { each: clone(ANY_BUDDY_CARD), per: 1 }; return { kind: "spell", steps: st }; }],
+    [5543, /reduce the size of this card on the field by 1 for each card on your left or right/i, (ab) => { const st = clone(ab.steps); st[0].each = np({}, "field", ["left", "right"]); return { kind: "static", steps: st }; }],
+    [5543, /choose monsters on your opponent's field up to the number of cards in your buddy zone/i, (ab) => {
+      const st = clone(ab.steps); const ch = st.find(s => s.op === "choose");
+      ch.np = np({ types: ["monster"] }, "field", null, "opp"); ch.qtyEach = clone(ANY_BUDDY_CARD);
+      return { kind: ab.kind, steps: st };
+    }],
+    [5429, /size reduced by 1 for each monster on your left and right/i, (ab) => { const st = clone(ab.steps); st[0].each = np({ types: ["monster"] }, "field", ["left", "right"]); return { kind: "static", steps: st }; }],
+    [5718, /choose and use one of the following two/i, (ab) => ({ kind: "modal", steps: ab.steps, options: clone(ab.options).map(o => { const ch = o.steps[0]; ch.np = np({ types: ["monster"] }, "field", null, "opp"); ch.qtyEach = clone(DRAGOD_BUDDIES); return o; }) })],
+    [5720, /choose and use one of the following two/i, (ab) => ({ kind: "modal", steps: ab.steps, options: clone(ab.options).map((o, i) => { const ch = o.steps[0]; ch.np = np({}, "field", null, i === 0 ? "you" : "opp"); ch.qtyEach = clone(DRAGOD_BUDDIES); return o; }) })],
+
+    /* ---- wave 2: single-card fixes ---- */
+    [5538, /for this turn, the critical of all/i, (ab) => ({ kind: "spell", steps: [clone(ab.steps[0]), { op: "r42SectorCollapse" }] })],
+    [5757, /put into the drop zone from your hand or the field/i, () => ({
+      kind: "triggered", trigger: { event: "leave", self: true }, conds: [has({ tribes: ["Legend Dragon"] })],
+      steps: [{ op: "destroy", np: np({ types: ["spell", "item"] }, "field", null, "opp") }]
+    })],
+    [6140, /put a «?legend dragon»? from your drop zone into your hand/i, () => ({
+      kind: "spell", once: "game", steps: [
+        { op: "move", np: np({ tribes: ["Legend Dragon"], types: ["monster"] }, "drop zone"), to: { area: "hand", owner: "you", end: "top" } },
+        { op: "move", np: Object.assign(np({}, "drop zone"), { qty: { n: 99, upTo: false, all: true, any: false, each: false } }), to: { area: "deck", owner: "you", end: "top" } },
+        { op: "shuffle", who: "you" }
+      ]
+    })],
+    [5422, /put up to two monsters with both/i, () => null],   // handled below (filter patch on the existing step)
+    [5419, /all dragod and king on your field cannot be destroyed/i, (ab) => { const st = clone(ab.steps); st[0].np.filter = { tribes: ["Dragod", "King"] }; return { kind: "static", steps: st }; }],
+    [5515, /you may only cast this card if your opponent's life is 4 or less/i, () => ({ kind: "rule", action: "cast", steps: [], conds: [{ t: "and", list: [{ t: "life", who: "opp", n: 4, cmp: "le" }, has({ tribes: ["Dragod"] }), has({ tribes: ["King"] })] }] })],
+    [5534, /you may only cast this card if a «?dragod»? and «?king»? are on your field/i, () => ({ kind: "rule", action: "cast", steps: [], conds: [{ t: "and", list: [has({ tribes: ["Dragod"] }), has({ tribes: ["King"] })] }] })],
+    [5421, /counter\]?\s*nullify the attack/i, () => ({
+      kind: "spell", steps: [
+        { op: "nullifyAttack" },
+        { op: "discard", n: 1, cost: true, optional: true, cond: { t: "and", list: [has({ tribes: ["Dragod"] }, "field", ["left"]), has({ tribes: ["Dragod"] }, "field", ["right"])] } },
+        { op: "moveSelf", to: { area: "hand", owner: "you", end: "top" }, gate: "ifYouDo" }
+      ]
+    })],
+    /* "different" Dragod counts */
+    [5748, /two or more «?dragod»? with different card names/i, () => null],
+    [5759, /two or more different «?dragod»?/i, () => null],
+    [5532, /choose and use one of the following two/i, (ab) => ({ kind: "modal", steps: ab.steps, options: clone(ab.options).map(o => { walk(o.steps, x => { if (x.t === "count" && x.np && x.np.filter && x.np.filter.tribes) x.np.filter.distinct = true; }); return o; }) })]
+  ];
+
+  /* ---- ops ---- */
+  // #5538: remember that Sector Collapse is active this turn (the attack hook below applies it)
+  OPS.r42SectorCollapse = { run(s, ctx) { ctx.f.abxSectorCollapse = battle.turnCount; return true; }, check: () => true };
+
+  const prev = ABX.parseCard;
+  ABX.parseCard = function (card) {
+    const r = prev.apply(this, arguments);
+    try {
+      if (!card || !r || !Array.isArray(r.abilities)) return r;
+      if (!OV42.some(o => o[0] === card.id) && ![5422, 5748, 5759].includes(card.id)) return r;
+      const extra = [];
+      r.abilities.forEach(ab => {
+        const raw = String(ab.cleaned || ab.raw || "");
+        const full = String(ab.raw || "");
+        // plain filter patches: only the filter of the existing steps changes
+        if (card.id === 5422 && Array.isArray(ab.steps)) walk(ab.steps, x => { if (x.filter && x.filter.uniqueBy === "cardName") { x.filter.tribesAll = ["Dragod", "Legend Dragon"]; } });
+        if ((card.id === 5748 || card.id === 5759) && Array.isArray(ab.steps)) walk(ab.steps, x => { if (x.t === "count" && x.np && x.np.filter && x.np.filter.tribes && x.np.filter.tribes.includes("Dragod")) x.np.filter.distinct = true; if (x.filter && x.filter.uniqueBy && x.filter.tribes) { x.filter.distinct = true; } });
+        for (const [id, re, build] of OV42) {
+          if (card.id !== id || !(re.test(raw) || re.test(full) || re.test(lc(raw)))) continue;
+          const o = build(ab);
+          if (!o) continue;
+          ab.kind = o.kind; ab.steps = o.steps; ab.unparsed = []; ab.parsed = true; ab.r42 = true;
+          if (o.options) ab.options = o.options;
+          if (o.action) ab.action = o.action;
+          if (o.once) ab.once = o.once;
+          if (o.trigger) ab.trigger = o.trigger;
+          if (o.conds !== undefined) ab.conds = o.conds;
+          // #5757: the same effect also happens when it is dropped from the hand
+          if (card.id === 5757 && o.kind === "triggered") { const c2 = clone(ab); c2.trigger = { event: "discardedFromHand", self: true }; extra.push(c2); }
+          break;
+        }
+      });
+      extra.forEach(x => r.abilities.push(x));
+    } catch (e) { /* keep the parsed card as is */ }
+    return r;
+  };
+
+  // #5538 Sector Collapse: for this turn, when a size 1 or less Legend Dragon monster on your field attacks, destroy up to one card on the opponent's field; if you do, 1 damage
+  const prevAttack = ABX.fireAttack;
+  ABX.fireAttack = function (attSide, units, defSide, targetPos) {
+    const r = prevAttack.apply(this, arguments);
+    try {
+      const f = F(attSide);
+      if (f && f.abxSectorCollapse === battle.turnCount && (units || []).some(u => u && u.unit && core.matchFilter(u.unit.card, { tribes: ["Legend Dragon"], types: ["monster"], size: { n: 1, cmp: "le" } }, { unit: u.unit, side: attSide }, { f }))) {
+        const card = core.cardOf(5538);
+        const ab = { kind: "spell", steps: [{ op: "destroy", np: Object.assign(np({}, "field", null, "opp"), { qty: { n: 1, upTo: true, all: false, any: false, each: false } }) }, { op: "damage", who: "opp", n: 1, gate: "ifYouDo" }] };
+        return ABX.queue(async () => { await r; await ABX.runAbility(attSide, card, ab, null, { preApproved: true }); });
+      }
+    } catch (e) { /* ignore */ }
+    return r;
+  };
+})(typeof window !== "undefined" ? window : globalThis);

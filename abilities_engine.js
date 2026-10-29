@@ -217,6 +217,7 @@
     }
     if (f.notTribes && f.notTribes.length) { if (f.notTribes.some(tb => tribeEq(card, tb))) return false; }
     if (f.names && f.names.length) { const n = lc(card.name); if (!f.names.some(x => n.includes(x))) return false; }
+    if (f.exactNames && f.exactNames.length) { const n3 = lc(card.name); if (!f.exactNames.some(x => n3 === x)) return false; }
     if (f.notNames && f.notNames.length) { const n2 = lc(card.name); if (f.notNames.some(x => n2.includes(x))) return false; }
     if (f.attrWords && f.attrWords.length) { const a = (card.attrs || []).map(norm); if (!f.attrWords.some(w => a.some(x => x.includes(norm(w))))) return false; }
     if (f.tribesAll && f.tribesAll.length) { if (!f.tribesAll.every(tb => tribeEq(card, tb))) return false; }
@@ -330,6 +331,11 @@
         if (wantSet && !z.pos) (f.setSpells || []).forEach((c, i) => push({ k: "set", side, idx: i, card: c, id: c.id, unit: null }));
         return;
       }
+      if (area === "buddy zone") {   // face-up cards in the buddy zone (Dragod / buddy counts, "for each card in your buddy zone")
+        const ents = typeof getFighterBuddyZoneEntries === "function" ? getFighterBuddyZoneEntries(f) : (f.buddyZone || []);
+        ents.forEach((en, i) => { if (en && !en.isFaceDown && cardOf(en.id)) push({ k: "zone", side, area: "buddyZone", idx: i, id: en.id, card: cardOf(en.id), unit: null }); });
+        return;
+      }
       const arrName = area === "drop zone" ? "drop" : area === "hand" ? "hand" : area === "gauge" ? "gauge" : area === "deck" ? "deck" : null;
       if (!arrName) return;
       let arr = f[arrName];
@@ -377,6 +383,7 @@
       case "turn": { const curSide = (ctx.event && ctx.event.activeSide) || B.activeSide; return c.who === "you" ? curSide === ctx.side : curSide !== ctx.side; }
       case "phase": return B.phase === c.phase && (!c.who || (c.who === "you" ? B.activeSide === ctx.side : B.activeSide !== ctx.side));
       case "underAttack": { const bc = ABX.battleCtx; return !!(bc && bc.active && bc.defSide === ctx.side) || (!!B.pendingDefenseContext && B.pendingDefenseContext.defSide === ctx.side); }
+      case "buddyCalledEver": return !!f.buddyCallEver;   // "if you buddy called during this fight" (fight = whole game)
       case "selfPos": return !!ctx.unit && (posOfUnit(f, ctx.unit) || "").replace("center2", "center") === c.pos;
       case "selfOnField": return !!ctx.unit && posOfUnit(f, ctx.unit) !== null || (ctx.card && (f.setSpells || []).includes(ctx.card));
       case "selfIn": return ctx.hostArea === (c.area === "drop zone" ? "drop" : c.area);
@@ -441,8 +448,10 @@
       np = Object.assign({}, np, { qty: Object.assign({}, np.qty, { n: (np.qty.numOf || np.qty.fromLast) ? cnt : (np.qty.n || 1) * cnt, all: false, eachOf: null, numOf: null, perReversal: false, fromLast: false }) });
       if (np.qty.n <= 0) return [];
     }
-    const out0 = await pick0(cands, np, ctx, opts);
     const fl = (np && np.filter) || {};
+    // "with different card names": offer one copy per name so two picks can never be the same card name
+    if (fl.uniqueBy && fl.uniqueBy !== "size") { const seen = new Set(); cands = cands.filter(r => { const k = lc(r.card && r.card.name); if (seen.has(k)) return false; seen.add(k); return true; }); }
+    const out0 = await pick0(cands, np, ctx, opts);
     if (!fl.uniqueBy && !fl.sameBy) return out0;
     const keyOf = (r) => fl.uniqueBy === "size" || fl.sameBy === "size" ? statOf(r.card, r.unit, r.side ? F(r.side) : null, "size") : lc(r.card.name);
     const kept = [];

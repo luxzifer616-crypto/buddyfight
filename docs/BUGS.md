@@ -8,7 +8,7 @@
 ## Reported by you
 - [x] B1 "Come to hand at end of turn" abilities do not fire. Commit bbe5aca says it fixed endTurn return-to-hand: first write a headless test; if it already passes, just tick it. -> Verified fixed by bbe5aca; regression test tests/b1_eot_hand.js (#5185, #2645 own+opp turn, #6036) passes.
 - [ ] B2 Counter skills/abilities cannot be used on the opponent's turn. Not tested yet. Test style: tests/counter.js. Engine: abilities_engine.js (counter / defense options).
-- [ ] B3 During a fight a player cannot open a card's skill banner to read its skill when it is not their turn. Not tested yet. Look in abilities_ui.js and game.js (inspect).
+- [x] B3 During a fight a player cannot open a card's skill banner to read its skill when it is not their turn. -> Fixed in game.js: `onHandCardClick` / `onZoneClick` no longer bail out when `isLocalTurn()` is false (bot / online friend / match over); they open the banner read-only, and `openCardBanner` only builds hand/field action buttons on a local turn (a bot's own units used to show Attack/Act buttons). Test: tests/b3_inspect.js.
 
 ## Failing tests found by audit (all also fail on older code, so not new regressions)
 The test already exists. Check the test's expectation against the real card text first (query the card with node, never open cards_data.js), then fix the code or the test.
@@ -52,7 +52,7 @@ The test already exists. Check the test's expectation against the real card text
 ## Chaos review, wave 3 (fixed, tests/chaos_review2.js)
 - "...cannot be nullified / reduced if it is attacking alone": the "alone" part was dropped when the ability also had an "If you have ..." condition (#3369, #4050). Overkill acts #3915 and #4092 never gave the unnullifiable-when-alone effect at all (now added).
 - #5357 Overkill: [Stand] all Chaos was missing, and "all Chaos" (no «») parsed with an empty filter so critical+1 hit every monster. Now stands and boosts only Chaos.
-- #5710: "If your flag is "Dungeon World"" condition was lost on the Demon Lord size reduction (it applied under every flag). Same loss exists on #4503, #5337, #5628, #6214 (other worlds, not fixed yet).
+- #5710: "If your flag is \"Dungeon World\"" condition was lost on the Demon Lord size reduction (it applied under every flag). Same loss exists on #4503, #5337, #5628, #6214 (other worlds, not fixed yet).
 - #4091: only a called Demon Lord becomes size 0 (a called Chaos monster no longer does).
 - #4019: Overkill "nullify a card ... and destroy it" never destroyed anything (the chosen card was not remembered).
 - #3737 Gravity Rest: "[Rest] that monster" did nothing (the entering monster is now bound as "that monster" for other-enter triggers).
@@ -65,3 +65,6 @@ The test already exists. Check the test's expectation against the real card text
 ## Lost World review (72 cards)
 Fixed (tests/lost_world.js): #5012 return-to-hand + draw lock (+#548), drop-zone phase triggers (#5110 +10), #5047 life per Lostvader, modal triggers on attack/battle-end/leave (33 cards), free calls skip soul cost, "that monster" after a call (#4604), #6435 draw gate, #4591/#5769 opponent drops two, "two or more «X»" cast rule (19 cards), timing calls #4941/#5013/#6440, #5116 hand-to-soul cost, #5107 static front-nullify, Belost: removed invented +2 life/draw, once per fight enforced.
 Open: Belost is still activated via the game's draw/hand-click prompt rather than strictly at the end of the opponent's turn.
+
+## Thunder Empire (attr ThunderEmpire, 317 cards)
+- [x] TE1 #3631 attack-based gauge cost cut, #3812 "put all field cards into drop" cost, #4070 "cannot be called" - fixed in abilities_r41.js, test: tests/thunder_empire.js. Scan: 310 done, 0 partly, 0 none, 7 no effect text.

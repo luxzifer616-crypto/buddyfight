@@ -153,6 +153,7 @@ function markFighterBuddyCalled(fighter, cardId) {
   const target = fighter.buddyZone.find(e => !e.isFaceDown && !e.rested && (Number(e.id) === Number(cardId) || (isYamigedoHalfId(e.id) && isYamigedoHalfId(cardId))))
     || fighter.buddyZone.find(e => !e.isFaceDown && !e.rested);
   if (target) target.rested = true;
+  fighter.buddyCallEver = true;
   const faceUpMonsters = fighter.buddyZone.filter(e => !e.isFaceDown && (CARD_MAP.get(e.id) || {}).type === "Monster");
   fighter.buddyCalled = faceUpMonsters.length > 0 ? faceUpMonsters.every(e => e.rested) : true;
 }
@@ -5698,14 +5699,16 @@ const battle = {
   },
 
   onHandCardClick(handIdx) {
-    if (!this.isLocalTurn()) return;
-    const side = this.activeSide;
+    // Not your turn (bot / online friend / match over): you can still open your own hand cards to read their skill,
+    // but the banner is read-only (openCardBanner only adds action buttons on a local turn).
+    const localTurn = this.isLocalTurn();
+    const side = localTurn ? this.activeSide : ((this.mode === "hotseat" && this.activeSide === "opp") ? "opp" : "plr");
     const f = this.getFighter(side);
     const cid = f.hand[handIdx];
     const c = CARD_MAP.get(cid);
     if (!c) return;
 
-    if (this.pendingAction && this.pendingAction.type === "charge") {
+    if (localTurn && this.pendingAction && this.pendingAction.type === "charge") {
       this.executeChargeAndDraw(side, handIdx);
       return;
     }
@@ -5779,7 +5782,7 @@ const battle = {
     const actionsEl = document.getElementById("bnr-actions");
     actionsEl.innerHTML = "";
 
-    if (context === "hand" && side === this.activeSide) {
+    if (context === "hand" && side === this.activeSide && this.isLocalTurn()) {
       if (this.phase === "main" && !f.chargedThisTurn) {
         const bCharge = document.createElement("button");
         bCharge.className = "action-btn";
@@ -5966,7 +5969,7 @@ const battle = {
         };
         actionsEl.appendChild(bImp);
       }
-    } else if (context === "field" && side === this.activeSide && unit) {
+    } else if (context === "field" && side === this.activeSide && this.isLocalTurn() && unit) {
       if (window.IMX && IMX.isUnit(unit)) this.imAppendActButtons(actionsEl, side, unit);
       if ((this.phase === "attack" || this.phase === "main" || (this.phase === "final" && this.imCanAttackInFinal(unit))) && unit.attacksLeft > 0 && !unit.rested) {
         const bAtk = document.createElement("button");
@@ -7832,6 +7835,16 @@ const battle = {
       if (zoneSide === "plr" && zonePos === "item" && this.plr.godclock) {
         if (this.plr.godclock.awakened) this.openEndrulerOrOvergodBanner("plr");
         else this.openGodclockModal();
+        return;
+      }
+      // Read-only: any monster / item / flag can still be opened to read its skill (no action buttons off-turn).
+      const roFighter = this.getFighter(zoneSide);
+      const roUnit = unitAt(roFighter, zonePos);
+      if (roUnit) {
+        this.openCardBanner({ card: roUnit.card, context: "field", side: zoneSide, zonePos, unit: roUnit });
+      } else if (zonePos === "item") {
+        const roFlag = CARD_MAP.get(roFighter.flagId);
+        if (roFlag) this.openCardBanner({ card: roFlag, context: "view", side: zoneSide });
       }
       return;
     }

@@ -142,7 +142,10 @@
   OPS.choose = {
     async run(s, ctx) {
       const cands = refsFor(s.np, ctx);
-      const chosen = await pick(cands, s.np, ctx, { title: `${ctx.card.name} — choose`, subtitle: ABX.clean(s.np.raw), intent: "help" });
+      // "choose up to one card for each X": the quantity is the number of X (s.qtyEach = np describing X)
+      const npQ = s.qtyEach ? Object.assign({}, s.np, { qty: Object.assign({}, s.np.qty, { n: Math.max(0, refsFor(s.qtyEach, ctx, { owner: "you", area: "field" }).length), upTo: true }) }) : s.np;
+      if (s.qtyEach && npQ.qty.n === 0) return false;
+      const chosen = await pick(cands, npQ, ctx, { title: `${ctx.card.name} — choose`, subtitle: ABX.clean(s.np.raw), intent: "help" });
       ctx.bind.chosen = chosen;
       return chosen.length > 0;
     }
