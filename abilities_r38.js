@@ -35,13 +35,14 @@
   const hasAttr = (c, a) => !!c && (c.attrs || []).some(x => lc(x).replace(/\s+/g, "") === lc(a).replace(/\s+/g, ""));
   const auto = (side) => !!F(side).isBot || ABX.autoPlay === true;
   const getCid = (x) => (typeof root.getSoulCardId === "function" ? root.getSoulCardId(x) : (x && typeof x === "object" ? Number(x.id ?? x.cardId ?? x.valueOf()) : Number(x)));
-  const isFD = (x) => (typeof root.isSoulEntryFaceDown === "function" ? root.isSoulEntryFaceDown(x) : Boolean(x && typeof x === "object" && x.isFaceDown === true));
-  const makeSoul = (id, faceDown) => (typeof root.createSoulEntry === "function" ? root.createSoulEntry(id, faceDown) : (faceDown ? Object.assign(new Number(getCid(id)), { id: getCid(id), cardId: getCid(id), isFaceDown: true }) : getCid(id)));
+  const isFD = (x) => x === true || (typeof root.isSoulEntryFaceDown === "function" ? root.isSoulEntryFaceDown(x) : Boolean(x && typeof x === "object" && x.isFaceDown === true));
+  const makeSoul = (id, faceDown) => (typeof root.createSoulEntry === "function" ? root.createSoulEntry(id, faceDown) : (faceDown ? { id: getCid(id), isFaceDown: true } : getCid(id)));
 
   /* ==================== 1. OPPRESSED AREAS CORE INTEGRATION ==================== */
   // Extend core.fieldUnits and core.posOfUnit so a monster on an opponent's oppressed area belongs to `oppressedBy`!
-  core.fieldUnits = function (side, includeItem) {
-    const f = F(side);
+  core.fieldUnits = function (fighterOrSide, includeItem) {
+    const f = typeof fighterOrSide === "string" ? F(fighterOrSide) : fighterOrSide;
+    const side = typeof fighterOrSide === "string" ? fighterOrSide : (f === B.plr ? "plr" : "opp");
     const enemy = F(otherSide(side));
     const out = [];
     if (f && f.monsters) {
@@ -60,8 +61,8 @@
         }
       });
     }
-    if (includeItem !== false && f) {
-      if (f.item && f.item.card) out.push({ side, pos: "item", unit: f.item, card: f.item.card, area: f.item.isEndrulerFlag ? "flag" : "item" });
+    if (includeItem && f) {
+      if (f.item && f.item.card && !f.item.isEndrulerFlag) out.push({ side, pos: "item", unit: f.item, card: f.item.card, area: "item" });
       if (f.item2 && f.item2.card) out.push({ side, pos: "item2", unit: f.item2, card: f.item2.card, area: "item" });
     }
     return out;
@@ -120,6 +121,8 @@
           }
         });
       }
+      if (f) f.r38TurnDamageReduce = 0;
+      if (enemy) enemy.r38TurnDamageReduce = 0;
       const res = _origStartTurn.apply(this, arguments);
       enemyOwnedOnMyBoard.forEach(({ unit, rested, attacksLeft }) => {
         unit.rested = rested;
@@ -256,18 +259,22 @@
 
         let calledUnit = null;
         if (ABX.placeFromZone) {
-          calledUnit = await ABX.placeFromZone(side, "drop", cid, { free: false, byAmbush: true });
-        } else {
+          const beforeUnits = new Set(core.fieldUnits(side, false).map(r => r.unit));
+          const u = await ABX.placeFromZone(side, "drop", cid, { free: false, byAmbush: true });
+          calledUnit = u || core.fieldUnits(side, false).map(r => r.unit).find(x => !beforeUnits.has(x));
+        }
+        if (!calledUnit) {
           const openPos = ["left", "center", "right"].find(z => !f.monsters[z]);
           if (openPos) {
-            f.drop.splice(dropIdx, 1);
-            calledUnit = { card: c, rested: false, attacksLeft: c.atk_max || 1, soul: [], tempPower: 0, tempDef: 0, tempCrit: 0, calledByAmbush: true };
+            const idxNow = f.drop.lastIndexOf(cid);
+            if (idxNow >= 0) f.drop.splice(idxNow, 1);
+            calledUnit = { card: c, rested: false, attacksLeft: c.atk_max || 1, soul: [], tempPower: 0, tempDef: 0, tempCrit: 0, calledByAmbush: true, enteredByAmbush: true };
             f.monsters[openPos] = calledUnit;
           }
         }
         if (calledUnit) {
           calledUnit.calledByAmbush = true;
-          // Fire "when a monster enters the field by [Ambush]" (e.g. #2992 Secret Sword, Apex of Ambush)
+          calledUnit.enteredByAmbush = true;
           await handlePostAmbushTriggers(side, calledUnit);
         }
       }
@@ -364,49 +371,46 @@
     };
   }
 
-  if (core.sendUnitTo) {
-    const _origSendUnitTo = core.sendUnitTo;
-    core.sendUnitTo = function (side, pos, unit, dest, ctx) {
-      // Normalize any soul entries on `unit` before sending to drop, triggering [Ambush] only on `isFaceDown: true`
-      const ownerSide = (unit && unit.oppressedBy) || side;
-      const faceDownSouls = [];
-      if (unit && Array.isArray(unit.soul)) {
-        unit.soul = unit.soul.map(se => {
-          const cid = getCid(se);
-          if (isFD(se)) faceDownSouls.push({ cid, se });
-          return cid;
-        });
-      }
-      // If `pos` is an oppressed position (`opp_left` or `opp_right`), map it to the enemy's slot for removal while keeping owner drop
-      if (pos === "opp_left" || pos === "opp_right") {
-        const hostSide = otherSide(ownerSide);
-        const hostPos = pos === "opp_left" ? "left" : "right";
-        const hostF = F(hostSide);
-        const ownerF = F(ownerSide);
-        if (hostF && hostF.monsters && hostF.monsters[hostPos] === unit) {
-          if (dest === "drop") {
-            B.sendMonsterToDropWithAnimation(hostSide, hostPos, !!(ctx && ctx.isRetire));
-            faceDownSouls.forEach(({ cid, se }) => triggerAmbushFromSoul(ownerSide, cid, se));
-            return true;
-          }
-          const souls = (unit.soul || []).splice(0);
-          ownerF.drop.push(...souls);
-          hostF.monsters[hostPos] = null;
-          if (dest === "hand") ownerF.hand.push(unit.card.id);
-          else if (dest === "gauge") ownerF.gauge.push(unit.card.id);
-          else if (dest === "bottomDeck") ownerF.deck.push(unit.card.id);
-          else if (dest === "deck") { ownerF.deck.push(unit.card.id); if (B.shuffleFighterDeck) B.shuffleFighterDeck(ownerSide); }
-          faceDownSouls.forEach(({ cid, se }) => triggerAmbushFromSoul(ownerSide, cid, se));
-          return true;
-        }
-      }
-      const r = _origSendUnitTo.apply(this, arguments);
-      if (r && faceDownSouls.length) {
+  core.sendUnitTo = function (side, pos, unit, dest, ctx) {
+    if (!unit) return false;
+    const ownerSide = (unit && unit.oppressedBy) || side;
+    const ownerF = F(ownerSide);
+    const faceDownSouls = [];
+    if (Array.isArray(unit.soul)) {
+      unit.soul = unit.soul.map(se => {
+        const cid = getCid(se);
+        if (isFD(se)) faceDownSouls.push({ cid, se });
+        return cid;
+      });
+    }
+    const hostSide = (pos === "opp_left" || pos === "opp_right") ? otherSide(ownerSide) : side;
+    const hostPos = pos === "opp_left" ? "left" : (pos === "opp_right" ? "right" : pos);
+    const hostF = F(hostSide);
+    if (hostPos === "item" && hostF.item === unit) {
+      hostF.item = null;
+    } else if (hostPos === "item2" && hostF.item2 === unit) {
+      hostF.item2 = null;
+    } else if (hostF && hostF.monsters && hostF.monsters[hostPos] === unit) {
+      if (dest === "drop") {
+        B.sendMonsterToDropWithAnimation(hostSide, hostPos, !!(ctx && ctx.isRetire));
         faceDownSouls.forEach(({ cid, se }) => triggerAmbushFromSoul(ownerSide, cid, se));
+        return true;
       }
-      return r;
-    };
-  }
+      hostF.monsters[hostPos] = null;
+    } else {
+      return false;
+    }
+    const souls = (unit.soul || []).splice(0);
+    ownerF.drop.push(...souls);
+    const ids = (unit.pairedHalfIds && unit.pairedHalfIds.length) ? unit.pairedHalfIds : [unit.card.id];
+    if (dest === "hand") ownerF.hand.push(...ids);
+    else if (dest === "gauge") ownerF.gauge.push(...ids);
+    else if (dest === "bottomDeck") ownerF.deck.push(...ids);
+    else if (dest === "deck") { ownerF.deck.push(...ids); if (B.shuffleFighterDeck) B.shuffleFighterDeck(ownerSide); }
+    else ownerF.drop.push(...ids);
+    faceDownSouls.forEach(({ cid, se }) => triggerAmbushFromSoul(ownerSide, cid, se));
+    return true;
+  };
 
   /* ==================== 3. SPELL LOCK ("Cornet Loop" #5371) ==================== */
   // Blocks Spells only (NOT Impacts!) while `f.abxSpellLockUntilMainEnd` is active
@@ -505,7 +509,8 @@
       return true;
     },
     check(s, ctx) {
-      return highestWeaponPowerOnField(ctx.side) >= 0;
+      if (!ctx) return true;
+      return highestWeaponPowerOnField(ctx.side) >= 0 || (ctx.e && Array.isArray(ctx.e.setSpells) && ctx.e.setSpells.length > 0);
     }
   };
 
@@ -555,7 +560,9 @@
       const maxPayableLife = Math.max(0, f.life - 1);
       let choice = s.opt;
       if (!choice) {
-        if (auto(ctx.side) || maxPayableLife < 1) {
+        if (f.r38ChosenLifePay !== undefined && maxPayableLife >= 1) {
+          choice = 2;
+        } else if (auto(ctx.side) || maxPayableLife < 1) {
           choice = 1;
         } else {
           const picked = await UI.choose({
@@ -573,8 +580,10 @@
         if (f.deck.length > 0) f.hand.push(f.deck.shift());
         (f.abxShields = f.abxShields || []).push({ kind: "any", toZero: true, turn: B.turnCount });
       } else {
-        let payAmt = s.payLife ? Math.min(maxPayableLife, Math.max(1, Number(s.payLife))) : 1;
-        if (!s.payLife && !auto(ctx.side)) {
+        let payAmt = (s.payLife !== undefined ? s.payLife : f.r38ChosenLifePay);
+        if (payAmt !== undefined) {
+          payAmt = Math.min(maxPayableLife, Math.max(1, Number(payAmt)));
+        } else if (!auto(ctx.side)) {
           const lifeOpts = [];
           for (let k = 1; k <= maxPayableLife; k++) {
             lifeOpts.push({ label: `Pay ${k} Life (Leaves you at ${f.life - k} Life • Reduces all damage this turn by ${k})`, value: k });
@@ -585,8 +594,11 @@
             options: lifeOpts
           });
           payAmt = Math.min(maxPayableLife, Math.max(1, Number(chosenAmt) || 1));
+        } else {
+          payAmt = 1;
         }
         f.life -= payAmt;
+        f.r38TurnDamageReduce = (f.r38TurnDamageReduce || 0) + payAmt;
         (f.abxShields = f.abxShields || []).push({ kind: "any", by: payAmt, continuous: true, turn: B.turnCount });
       }
       fresh();
@@ -739,6 +751,10 @@
     core.applyDamage = function (side, n, opts) {
       let dmg = Math.max(0, Number(n) || 0);
       try {
+        const f = F(side);
+        if (f && f.r38TurnDamageReduce > 0 && !(opts && opts.unreducible)) {
+          dmg = Math.max(0, dmg - f.r38TurnDamageReduce);
+        }
         // #907 Amigo Takata: During your opponent's turn, when you are dealt 2 or more damage, automatically reduce that damage by 1
         if (dmg >= 2 && !(opts && opts.unreducible) && B.activeSide !== side) {
           const amigoCount = core.fieldUnits(side, false).filter(r => r.card && r.card.id === 907 && r.unit.abxNullified !== B.turnCount).length;
@@ -791,11 +807,8 @@
     ABX.staticBonus = function (fighter, unit) {
       const res = _origSB.apply(this, arguments);
       try {
-        if (unit && unit.card && unit.card.id === 5021 && unit.abxNullified !== B.turnCount) {
-          res.power = (res.power || 0) + 10000;
-        }
-        // #4699 Lostknight: Bishop: Giallo Mace: While you have an oppressed area, all «Drametal» on your field get power+3000 and defense+3000!
-        if (fighter && unit && unit.card && hasAttr(unit.card, "Drametal")) {
+        // #4699 Bishop: Giallo Mace: If you have an oppressed area on your field, all monsters on your field get power+3000 and defense+3000!
+        if (fighter && unit && unit.card && unit.card.type === "Monster") {
           const side = fighter === B.plr ? "plr" : "opp";
           if (hasOppressedArea(side)) {
             const maceCount = core.fieldUnits(side, false).filter(r => r.card && r.card.id === 4699 && r.unit.abxNullified !== B.turnCount).length;
@@ -860,12 +873,14 @@
     root.evaluateCardConditions = function (card, fighter, enemy, isAbilityCall) {
       const res = _origECC2.apply(this, arguments);
       if (card && card.id === 4148) {
+        // Remove false positive "Requires a monster in your Center" caused by "only cast this card if you have ... in the center"
+        res.reasons = (res.reasons || []).filter(r => !r.includes("Requires a monster in your Center"));
         if ((fighter && fighter.monsters && fighter.monsters.center) || (enemy && enemy.monsters && enemy.monsters.center)) {
-          res.met = false;
           const msg = "Requires neither player to have a monster in the center";
           if (!res.reasons.includes(msg)) res.reasons.unshift(msg);
-          res.summary = `⚠️ ${res.reasons[0]}`;
         }
+        res.met = res.reasons.length === 0;
+        res.summary = res.met ? "✅ Conditions Met" : `⚠️ ${res.reasons[0]}`;
       }
       return res;
     };
@@ -881,6 +896,7 @@
       return true;
     },
     check(s, ctx) {
+      if (!ctx) return true;
       return !(ctx.f.monsters && ctx.f.monsters.center) && !(ctx.e.monsters && ctx.e.monsters.center);
     }
   };
@@ -932,6 +948,7 @@
       return true;
     },
     check(s, ctx) {
+      if (!ctx) return true;
       if (B.activeSide !== ctx.side) return false;
       if (!ctx.unit || ctx.f.gauge.length < 1) return false;
       return ["left", "right"].some(p => !ctx.e.monsters[p]);
@@ -950,16 +967,15 @@
       return true;
     },
     check(s, ctx) {
+      if (!ctx) return true;
       return B.activeSide === ctx.side && isUnitOnOppressedArea(ctx.side, ctx.unit);
     }
   };
 
   // #4702 Chess Break, Grandmaster Cane (Item):
-  // [Counter] [Act] During your turn, [Rest] this card: [Stand] a «Drametal» monster on your field.
-  // If that monster is on an oppressed area, deal 1 damage to your opponent!
+  // [Counter] [Act] Choose a «Drametal» monster on your field, and you may [Rest] this card. If you do, [Stand] the chosen card. Then, if the card [Stand] is on an oppressed area, deal 1 damage to your opponent!
   OPS.r38GrandmasterCane4702 = {
     async run(s, ctx) {
-      if (B.activeSide !== ctx.side) return false;
       if (!ctx.unit || ctx.unit.rested) return false;
       const drametals = core.fieldUnits(ctx.side, false).filter(r => r.card && hasAttr(r.card, "Drametal"));
       if (!drametals.length) return false;
@@ -980,7 +996,8 @@
       return true;
     },
     check(s, ctx) {
-      return B.activeSide === ctx.side && ctx.unit && !ctx.unit.rested && core.fieldUnits(ctx.side, false).some(r => r.card && hasAttr(r.card, "Drametal"));
+      if (!ctx) return true;
+      return Boolean(ctx.unit && !ctx.unit.rested && core.fieldUnits(ctx.side, false).some(r => r.card && hasAttr(r.card, "Drametal")));
     }
   };
 
@@ -1050,6 +1067,7 @@
       return true;
     },
     check(s, ctx) {
+      if (!ctx) return true;
       return hasMonsterWithOppressOnField(ctx.side);
     }
   };
@@ -1069,7 +1087,7 @@
   const _origEvalCondAbx = core.evalCond;
   core.evalCond = function (c, ctx) {
     if (c && c.k === "enteredByAmbush") {
-      return Boolean(ctx && ctx.unit && ctx.unit.calledByAmbush === true);
+      return Boolean(ctx && ctx.unit && (ctx.unit.calledByAmbush === true || ctx.unit.enteredByAmbush === true));
     }
     if (c && c.k === "hasOppressedArea") {
       return Boolean(ctx && hasOppressedArea(ctx.side));
@@ -1082,78 +1100,94 @@
 
   /* ==================== 8. PER-CARD ABILITY OVERRIDES ==================== */
   const C = (op, extra) => Object.assign({ op }, extra || {});
+  const MODAL_SPELL_MAP = {
+    2439: "r38DemonSlay2439",
+    5371: "r38CornetLoop5371",
+    5560: "r38MelodyEvilMoon5560",
+    6154: "r38ZugZwang6154"
+  };
+
   const OV = [
-    // Batch 1 Modal Judgment Calls
-    [2439, /destroy all monsters on your opponent's field with defense lower than the power of a «weapon»|destroy all spells on your opponent's field/i, (ab) => ({ kind: ab.kind, steps: [C("r38DemonSlay2439")] })],
-    [5371, /your opponent cannot cast events until the end of your next main phase|the next time you take damage, it is reduced to 0/i, (ab) => ({ kind: ab.kind, steps: [C("r38CornetLoop5371")] })],
-    [5560, /draw a card, and for this turn, the next damage you take is reduced to 0|pay any amount of life/i, (ab) => ({ kind: ab.kind, steps: [C("r38MelodyEvilMoon5560")] })],
-    [6255, /cannot be destroyed or \[rest\] by your opponent's card effects/i, () => ({ kind: "static", steps: [{ op: "static", kind: "protect", kinds: ["destroyed", "rested"], self: true }] })],
-    [6255, /"home sick"|"reflect"|"tumble"|choose one of the following three/i, () => ({ kind: "act", counter: true, once: "turn", steps: [C("r38FirstAceMedachange6255")] })],
-
     // Verbal / Joke / Physical Condition Cards
-    [907, /when this card attacks, say/i, () => ({ kind: "trigger", when: ["attack"], steps: [C("r38AmigoDraw907")] })],
-    [907, /during your opponent's turn, when you are dealt 2 or more damage/i, () => ({ kind: "rule", steps: [] })], // handled in core.applyDamage above
-    [1795, /when this card enters the field, both players say/i, () => ({ kind: "trigger", when: ["enter"], steps: [C("r38Khoushan1795")] })],
-    [6068, /when this card is put on the field, say "why!"/i, () => ({ kind: "trigger", when: ["enter"], steps: [C("r38Kibaou6068")] })],
-    [5021, /if the silver coating on this card is scraped out/i, () => ({ kind: "rule", steps: [] })], // handled in ABX.staticBonus (+10000 Power always active)
-    [5021, /at the end of the battle of this card, draw a card, then, call up to one «dragod»/i, () => ({ kind: "trigger", when: ["battleEnd"], steps: [C("r38GargaGEvo5021")] })],
-    [4148, /deal 4 damage to your opponent!! this card cannot be nullified/i, (ab) => ({ kind: ab.kind, steps: [C("r38CrabPunisher4148")] })],
+    [907, /when this card attacks, say/i, (ab) => ({ kind: ab.kind || "triggered", trigger: ab.trigger || { event: "attack", self: true }, steps: [C("r38AmigoDraw907")] })],
+    [907, /during your opponent's turn, when you are dealt 2 or more damage/i, () => ({ kind: "rule", steps: [] })],
+    [1795, /when this card enters the field, both players (?:may )?say/i, (ab) => ({ kind: ab.kind || "triggered", trigger: ab.trigger || { event: "enter", self: true }, steps: [C("r38Khoushan1795")] })],
+    [6068, /when this card is put on the field, say "why!"/i, (ab) => ({ kind: ab.kind || "triggered", trigger: ab.trigger || { event: "enter", self: true }, steps: [C("r38Kibaou6068")] })],
+    [5021, /if the silver (?:coating on|from) this card is scraped out/i, () => ({ kind: "rule", steps: [] })],
+    [5021, /at the end of the battle of this card, draw a card[.,]?\s*then, call up to one «dragod»/i, (ab) => ({ kind: ab.kind || "triggered", trigger: ab.trigger || { event: "battleEnd", self: true }, once: "turn", steps: [C("r38GargaGEvo5021")] })],
+    [4148, /you may only cast this card if you have eaten four or more crab legs/i, () => ({ kind: "rule", action: "cast", conds: [], steps: [] })],
+    [4148, /deal 4 damage to (?:your|the) opponent!!/i, () => ({ kind: "spell", steps: [C("r38CrabPunisher4148")] })],
 
-    // Oppressed Areas (#4677, #4699, #4702, #6154)
-    [4677, /"oppress" during your turn, choose an open area on your opponent's left or right/i, () => ({ kind: "act", counter: true, steps: [C("r38OppressAct")] })],
-    [4677, /at the end of your turn, if this card is on an oppressed area, deal 2 damage/i, () => ({ kind: "trigger", when: ["turnEnd"], steps: [C("r38NeroLanceEnd4677")] })],
-    [4699, /"oppress" during your turn, choose an open area on your opponent's left or right/i, () => ({ kind: "act", counter: true, steps: [C("r38OppressAct")] })],
-    [4699, /while you have an oppressed area, all «drametal» on your field get power\+3000/i, () => ({ kind: "rule", steps: [] })], // handled in ABX.staticBonus above
-    [4702, /during your turn, \[rest\] this card\. if you do, \[stand\] a «drametal» monster/i, () => ({ kind: "act", counter: true, steps: [C("r38GrandmasterCane4702")] })],
-    [6154, /\[stand\] a «drametal» on your field, and if that card is on an oppressed area|your opponent cannot call monsters by card effects/i, (ab) => ({ kind: ab.kind, steps: [C("r38ZugZwang6154")] })]
+    // Oppressed Areas (#4677, #4699, #4702)
+    [4677, /"oppress"|put this card on your opponent's open left or right/i, () => ({ kind: "act", tags: ["counter", "act"], counter: true, conds: [], steps: [C("r38OppressAct")] })],
+    [4677, /at the end of your turn, if this card is on an oppressed area, deal 2 damage/i, (ab) => ({ kind: ab.kind || "triggered", trigger: ab.trigger || { event: "turnEnd", who: "you" }, conds: [], steps: [C("r38NeroLanceEnd4677")] })],
+    [4699, /"oppress"|put this card on your opponent's open left or right/i, () => ({ kind: "act", tags: ["counter", "act"], counter: true, conds: [], steps: [C("r38OppressAct")] })],
+    [4699, /if you have an oppressed area on your field|while you have an oppressed area/i, () => ({ kind: "rule", steps: [] })],
+    [4702, /choose a «drametal» monster on your field, and you may \[rest\] this card|during your turn, \[rest\] this card/i, () => ({ kind: "act", tags: ["counter", "act"], counter: true, conds: [], steps: [C("r38GrandmasterCane4702")] })]
   ];
 
   const pcPrev = ABX.parseCard;
   ABX.parseCard = function (card) {
     const r = pcPrev.apply(this, arguments);
     try {
-      // Collapse multi-line modals for #2439, #5371, #5560, #6255, #6154 so they don't split into separate bullet lines
-      if ([2439, 5371, 5560, 6154].includes(card.id) && r && Array.isArray(r.abilities) && r.abilities.length > 0) {
-        const firstAb = r.abilities[0];
-        for (const [id, re, build] of OV) {
-          if (card.id === id) {
-            const o = build(firstAb);
-            firstAb.kind = o.kind || "spell";
-            firstAb.steps = o.steps;
-            firstAb.unparsed = [];
-            firstAb.r31 = true;
-            firstAb.parsed = true;
-            r.abilities = [firstAb];
-            return r;
-          }
-        }
-      }
-      if (card.id === 6255 && r && Array.isArray(r.abilities)) {
-        const kept = [];
-        let modalAdded = false;
-        r.abilities.forEach(ab => {
-          const full = String(ab.raw || ab.cleaned || "");
-          if (/cannot be destroyed or \[rest\]/i.test(full)) {
-            ab.kind = "static";
-            ab.steps = [{ op: "static", kind: "protect", kinds: ["destroyed", "rested"], self: true }];
-            ab.unparsed = []; ab.r31 = true; ab.parsed = true;
-            kept.push(ab);
-          } else if (!modalAdded && (/choose one of the following three|"home sick"|"reflect"|"tumble"/i.test(full))) {
-            modalAdded = true;
-            ab.kind = "act"; ab.counter = true; ab.once = "turn";
-            ab.steps = [C("r38FirstAceMedachange6255")];
-            ab.unparsed = []; ab.r31 = true; ab.parsed = true;
-            kept.push(ab);
-          }
+      if (card && MODAL_SPELL_MAP[card.id] && r && Array.isArray(r.abilities)) {
+        const opName = MODAL_SPELL_MAP[card.id];
+        const kept = r.abilities.filter(ab => ab.kind === "rule" || ab.kind === "cost");
+        kept.push({
+          kind: "spell",
+          tags: [5371, 5560, 6154].includes(card.id) ? ["counter"] : [],
+          counter: [5371, 5560, 6154].includes(card.id),
+          conds: [],
+          steps: [C(opName)],
+          unparsed: [],
+          r31: true,
+          parsed: true,
+          raw: card.skill || "",
+          cleaned: card.skill || "",
+          idx: kept.length,
+          cardId: card.id
         });
-        if (kept.length) r.abilities = kept;
+        r.abilities = kept;
+        return r;
+      }
+
+      if (card && card.id === 6255 && r && Array.isArray(r.abilities)) {
+        const kept = r.abilities.filter(ab => ab.kind === "cost" || ab.kind === "keyword");
+        kept.push({
+          kind: "static",
+          tags: [],
+          conds: [],
+          steps: [{ op: "static", kind: "protect", kinds: ["destroyed", "rest", "rested"], self: true }],
+          unparsed: [],
+          r31: true,
+          parsed: true,
+          raw: "This card on the field cannot be destroyed or [Rest] by your opponent's card effects.",
+          cleaned: "This card on the field cannot be destroyed or [Rest] by your opponent's card effects.",
+          idx: kept.length,
+          cardId: 6255
+        });
+        kept.push({
+          kind: "act",
+          tags: ["counter", "act"],
+          counter: true,
+          once: "turn",
+          conds: [],
+          steps: [C("r38FirstAceMedachange6255")],
+          unparsed: [],
+          r31: true,
+          parsed: true,
+          raw: "[Counter] [Act] Choose and use one of the following three. You may only use this ability once per turn.",
+          cleaned: "[Counter] [Act] Choose and use one of the following three. You may only use this ability once per turn.",
+          idx: kept.length,
+          cardId: 6255
+        });
+        r.abilities = kept;
         return r;
       }
 
       (r && r.abilities || []).forEach(ab => {
         const raw = String(ab.cleaned || ab.raw || "").replace(/^\s*(?:\[[^\]]+\]\s*)*(?:"[^"]+"\s*)?/, "");
         const full = String(ab.raw || "");
-        // Attach `{ k: "enteredByAmbush" }` condition to any "When this card enters the field by [Ambush]" trigger!
         if (/when this card enters the field by \[ambush\]|if this card entered the field by \[ambush\]/i.test(full)) {
           ab.conds = ab.conds || [];
           if (!ab.conds.some(c => c && c.k === "enteredByAmbush")) {
@@ -1166,10 +1200,15 @@
           ab.kind = o.kind; ab.steps = o.steps; ab.unparsed = []; ab.r31 = true; ab.parsed = true;
           if (o.once) ab.once = o.once;
           if (o.counter) ab.counter = true;
-          if (o.when) ab.when = o.when;
+          if (o.tags) ab.tags = o.tags;
+          if (o.trigger) ab.trigger = o.trigger;
+          if (o.conds !== undefined) ab.conds = o.conds;
           break;
         }
       });
+      if (card && (card.id === 5021 || card.id === 4699)) {
+        r._hasR22Static = false;
+      }
     } catch (e) { if (ABX.debug) console.error(e); }
     return r;
   };

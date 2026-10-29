@@ -49,22 +49,24 @@
   let unitSeq = 1;
   function uid(unit) { if (unit && !unit.abxId) unit.abxId = unitSeq++; return unit ? unit.abxId : 0; }
 
-  function posOfUnit(f, unit) {
+  function _basePosOfUnit(f, unit) {
     for (const p of ALL_SLOTS) if (f.monsters[p] === unit) return p;
     if (f.item === unit) return "item";
     if (f.item2 && f.item2 === unit) return "item2";
     return null;
   }
-  core.posOfUnit = posOfUnit;
+  core.posOfUnit = _basePosOfUnit;
+  function posOfUnit(f, unit) { return core.posOfUnit(f, unit); }
 
-  function fieldUnits(f, withItem) {
+  function _baseFieldUnits(f, withItem) {
     const out = [];
     ALL_SLOTS.forEach(p => { if (f.monsters[p]) out.push({ unit: f.monsters[p], pos: p }); });
     if (withItem && f.item && !f.item.isEndrulerFlag) out.push({ unit: f.item, pos: "item" });
     if (withItem && f.item2) out.push({ unit: f.item2, pos: "item2" });   // second item (game.js hasMultiItems)
     return out;
   }
-  core.fieldUnits = fieldUnits;
+  core.fieldUnits = _baseFieldUnits;
+  function fieldUnits(f, withItem) { return core.fieldUnits(f, withItem); }
 
   /* parsed abilities (cached) */
   const PARSE_CACHE = new Map();
