@@ -280,7 +280,8 @@
     if (np.ref === "host") {
       const h = ctx.soulHost;
       if (!h || (np.hostFilter && !matchFilter(h.card, np.hostFilter, null, ctx))) return [];
-      return [{ k: h === F(ctx.side).item ? "item" : "unit", side: ctx.side, pos: posOfUnit(F(ctx.side), h), unit: h, card: h.card, id: h.card.id }];
+      const hp = posOfUnit(F(ctx.side), h);
+      return [{ k: (hp && hp.startsWith("item")) ? "item" : "unit", side: ctx.side, pos: hp, unit: h, card: h.card, id: h.card.id }];
     }
     if (np.ref === "looked") {
       const lr = [].concat(ctx.bind.looked || [], ctx.bind.revealed || []);
@@ -293,7 +294,10 @@
     if (np.ref) return (ctx.bind[np.ref === "chosen" ? "chosen" : np.ref] || []).slice();
     if (np.self) {
       if (np.zone && np.zone.area === "soul") return soulRefs(ctx.unit, ctx.side);
-      if (ctx.unit) return [{ k: ctx.unit === F(ctx.side).item ? "item" : "unit", side: ctx.side, pos: posOfUnit(F(ctx.side), ctx.unit), unit: ctx.unit, card: ctx.card, id: ctx.card.id }];
+      if (ctx.unit) {
+        const up = posOfUnit(F(ctx.side), ctx.unit);
+        return [{ k: (up && up.startsWith("item")) ? "item" : "unit", side: ctx.side, pos: up, unit: ctx.unit, card: ctx.card, id: ctx.card.id }];
+      }
       if (ctx.selfRef) return [ctx.selfRef];
       return [];
     }
@@ -316,7 +320,13 @@
         const wantItem = !flt.types || !flt.types.length || flt.types.some(x => x === "item" || x === "character" || x === "card");
         const wantSet = !flt.types || !flt.types.length || flt.types.some(x => x === "spell" || x === "card");
         if (wantMon) ALL_SLOTS.forEach(p => { const zp = p === "center2" ? "center" : p; if ((!z.pos || (Array.isArray(z.pos) ? z.pos.includes(zp) : z.pos === zp)) && f.monsters[p]) { const u = f.monsters[p]; push({ k: "unit", side, pos: p, unit: u, card: u.card, id: u.card.id }); } });
-        if (wantItem && !z.pos && f.item && !f.item.isEndrulerFlag) push({ k: "item", side, pos: "item", unit: f.item, card: f.item.card, id: f.item.card.id });
+        if (wantItem && !z.pos) {
+          if (typeof getEquippedItems === "function") {
+            getEquippedItems(f).forEach(({ slot, unit }) => push({ k: "item", side, pos: slot, unit, card: unit.card, id: unit.card.id }));
+          } else if (f.item && !f.item.isEndrulerFlag) {
+            push({ k: "item", side, pos: "item", unit: f.item, card: f.item.card, id: f.item.card.id });
+          }
+        }
         if (wantSet && !z.pos) (f.setSpells || []).forEach((c, i) => push({ k: "set", side, idx: i, card: c, id: c.id, unit: null }));
         return;
       }
@@ -364,7 +374,7 @@
       case "always": return true;
       case "and": return c.list.every(x => evalCond(x, ctx));
       case "or": return c.list.some(x => evalCond(x, ctx));
-      case "turn": return c.who === "you" ? B.activeSide === ctx.side : B.activeSide !== ctx.side;
+      case "turn": { const curSide = (ctx.event && ctx.event.activeSide) || B.activeSide; return c.who === "you" ? curSide === ctx.side : curSide !== ctx.side; }
       case "phase": return B.phase === c.phase && (!c.who || (c.who === "you" ? B.activeSide === ctx.side : B.activeSide !== ctx.side));
       case "underAttack": { const bc = ABX.battleCtx; return !!(bc && bc.active && bc.defSide === ctx.side) || (!!B.pendingDefenseContext && B.pendingDefenseContext.defSide === ctx.side); }
       case "selfPos": return !!ctx.unit && (posOfUnit(f, ctx.unit) || "").replace("center2", "center") === c.pos;
@@ -495,18 +505,29 @@
       arr.splice(i, 1);
       return ref.id;
     }
-    if (ref.k === "unit") {
+    if (ref.k === "unit" || ref.k === "item") {
       const p = posOfUnit(f, ref.unit);
       if (!p) return null;
-      f.monsters[p] = null;
+      if (p === "item") {
+        if (f.item !== ref.unit) return null;
+        f.item = null;
+      } else if (p === "item2") {
+        if (f.item2 !== ref.unit) return null;
+        f.item2 = null;
+      } else if (/^item(\d+)$/.test(p) && Array.isArray(f.extraItems)) {
+        const idx = parseInt(p.slice(4), 10) - 3;
+        if (idx < 0 || f.extraItems[idx] !== ref.unit) return null;
+        f.extraItems.splice(idx, 1);
+      } else if (p.startsWith("opp_")) {
+        const enemy = F(otherSide(ref.side));
+        const ep = p.slice(4);
+        if (!enemy || !enemy.monsters || enemy.monsters[ep] !== ref.unit) return null;
+        enemy.monsters[ep] = null;
+      } else {
+        f.monsters[p] = null;
+      }
       if (ref.unit.soul && ref.unit.soul.length) { f.drop.push(...ref.unit.soul); ref.unit.soul = []; }
       if (ref.unit.pairedHalfIds && ref.unit.pairedHalfIds.length > 1) { ref.unit.pairedHalfIds.slice(1).forEach(id => f.drop.push(id)); }
-      return ref.card.id;
-    }
-    if (ref.k === "item") {
-      if (f.item !== ref.unit) return null;
-      f.item = null;
-      if (ref.unit.soul && ref.unit.soul.length) { f.drop.push(...ref.unit.soul); ref.unit.soul = []; }
       return ref.card.id;
     }
     if (ref.k === "set") {
@@ -888,8 +909,8 @@
 
   // All trigger sources on a side: field units, item, set spells.
   function sources(side) {
-    const f = F(side), out = fieldUnits(f, true).map(x => ({ unit: x.unit, card: x.unit.card }));
-    (f.setSpells || []).forEach(c => out.push({ unit: null, card: c }));
+    const f = F(side), out = fieldUnits(f, true).map(x => ({ unit: x.unit, card: x.unit.card, hostArea: "field" }));
+    (f.setSpells || []).forEach(c => out.push({ unit: null, card: c, hostArea: "field" }));
     return out;
   }
   core.sources = sources;
@@ -897,7 +918,8 @@
 
   // Run every executable triggered ability matching `match(trigger, src, sideOfSource)`.
   async function fireTriggers(match, info) {
-    const order = [B.activeSide, otherSide(B.activeSide)];
+    const activeAtFire = (info && info.activeSide) || B.activeSide;
+    const order = [activeAtFire, otherSide(activeAtFire)];
     for (const side of order) {
       for (const src of sources(side)) {
         for (const ab of abilitiesOf(src.card, a => a.kind === "triggered" && a.trigger && ABX.isExecutable(a))) {
@@ -906,11 +928,12 @@
           if (src.unit && core.posOfUnit(f, src.unit) === null && !(src.unit === f.item)) continue;
           if (src.unit && src.unit.abxNullified === B.turnCount) continue;
           if (onceUsed(f, src.card, ab, src.unit)) continue;
-          const probe = { side, f, e: F(otherSide(side)), card: src.card, unit: src.unit, ab, bind: { chosen: [], revealed: [], looked: [] }, lastDone: true, auto: true, log: [], hostArea: "field", event: info };
+          const hostArea = src.hostArea || "field";
+          const probe = { side, f, e: F(otherSide(side)), card: src.card, unit: src.unit, ab, bind: { chosen: [], revealed: [], looked: [] }, lastDone: true, auto: true, log: [], hostArea, selfRef: src.selfRef || null, event: info };
           if (!(ab.conds || []).every(c => evalCond(c, probe))) continue;
           markOnce(f, src.card, ab, src.unit);
           announce(src.card, ab);
-          await runAbility(side, src.card, ab, src.unit, { event: info });
+          await runAbility(side, src.card, ab, src.unit, { event: info, hostArea, selfRef: src.selfRef || null });
           if (B.matchOver) return;
         }
       }
@@ -918,7 +941,10 @@
   }
 
   // "both" = "at the start of each player's turn" (was read as the opponent's turn only)
-  const whoOK = (t, side) => !t.who || t.who === "any" || t.who === "each" || t.who === "both" || (t.who === "you" ? B.activeSide === side : B.activeSide !== side);
+  const whoOK = (t, side, activeAtFire) => {
+    const cur = activeAtFire || B.activeSide;
+    return !t.who || t.who === "any" || t.who === "each" || t.who === "both" || (t.who === "you" ? cur === side : cur !== side);
+  };
 
   ABX.fireAttack = function (attSide, units, defSide, targetPos) {
     turnStats(F(attSide)).attacks++;   // a link attack counts as one attack
@@ -954,6 +980,8 @@
     return ABX.queue(() => fireTriggers((t, src, s) => t.event === "damaged" && (t.who === "opp" ? s !== side : s === side), { name: "damaged" }));
   };
   ABX.fireDiscarded = function (side, card) {
+    const f0 = F(side);
+    if (f0 && card) { f0.droppedFromHandTurn = f0.droppedFromHandTurn || {}; f0.droppedFromHandTurn[card.id] = B.turnCount; }
     return ABX.queue(async () => {
       const f = F(side);
       for (const ab of abilitiesOf(card, a => a.kind === "triggered" && a.trigger && a.trigger.event === "discardedFromHand" && ABX.isExecutable(a))) {
@@ -971,13 +999,55 @@
     if (ABX.clearBattleNullify) ABX.clearBattleNullify();
     return ABX.queue(() => fireTriggers((t, src, side) => t.event === "battleEnd" && side === attSide && (!t.self || units.some(u => u.unit === src.unit)) && (!t.link || units.length > 1) && (!t.with || !ABX.linkWithOK || ABX.linkWithOK(t, src.unit, units, attSide)), { name: "battleEnd" }));
   };
-  ABX.fireTurnEvent = function (kind, phase) {
-    return ABX.queue(() => fireTriggers((t, src, side) => {
-      if (kind === "turnStart") return (t.event === "turnStart" || (t.event === "phaseStart" && t.phase === "turn")) && whoOK(t, side);
-      if (kind === "turnEnd") return t.event === "turnEnd" && whoOK(t, side);
-      if (kind === "phaseStart") return t.event === "phaseStart" && t.phase === phase && whoOK(t, side);
-      return false;
-    }, { name: kind }));
+  ABX.fireTurnEvent = function (kind, phase, explicitActiveSide) {
+    const activeAtFire = explicitActiveSide || B.activeSide;
+    const turnAtFire = B.turnCount;
+    return ABX.queue(async () => {
+      await fireTriggers((t, src, side) => {
+        if (kind === "turnStart") return (t.event === "turnStart" || (t.event === "phaseStart" && t.phase === "turn")) && whoOK(t, side, activeAtFire);
+        if (kind === "turnEnd") return t.event === "turnEnd" && whoOK(t, side, activeAtFire);
+        if (kind === "phaseStart") return t.event === "phaseStart" && t.phase === phase && whoOK(t, side, activeAtFire);
+        return false;
+      }, { name: kind, activeSide: activeAtFire, turnAtFire });
+      // Handle drop-zone cards that return to hand at the start of final phase / end of turn (#5536 Liim, #6036 Zeff Hiter)
+      if ((kind === "phaseStart" && phase === "final") || kind === "turnEnd") {
+        const f = F(activeAtFire);
+        if (f && f.droppedFromHandTurn) {
+          for (const dropCid of [5536, 6036]) {
+            if (f.droppedFromHandTurn[dropCid] === turnAtFire && f.drop.includes(dropCid)) {
+              const condOk = dropCid === 5536
+                ? fieldUnits(f, false).some(r => r.card && (r.card.attrs || []).some(a => lc(a).replace(/\s+/g, "") === "legenddragon"))
+                : fieldUnits(f, true).some(r => r.pos && r.pos.startsWith("item") && r.card && (r.card.attrs || []).some(a => lc(a).includes("dragon")));
+              if (condOk) {
+                f.droppedFromHandTurn[dropCid] = -1;
+                const dIdx = f.drop.indexOf(dropCid);
+                if (dIdx >= 0) {
+                  f.hand.push(f.drop.splice(dIdx, 1)[0]);
+                  if (f.deck.length > 0) f.gauge.push(f.deck.shift());
+                  f.life += 1;
+                  if (B.renderBattle) B.renderBattle();
+                }
+              }
+            }
+          }
+        }
+      }
+      // Handle units marked with returnToHandAtTurnEnd (e.g. #6226 Mirror Hero, J "Gemclone Origin Cloak" or delayed EOT return)
+      if (kind === "turnEnd") {
+        for (const sd of [activeAtFire, otherSide(activeAtFire)]) {
+          const sf = F(sd);
+          if (!sf) continue;
+          for (const r of fieldUnits(sf, true)) {
+            if (r.unit && r.unit.returnToHandAtTurnEnd) {
+              r.unit.returnToHandAtTurnEnd = false;
+              const id = detach({ k: (r.pos && r.pos.startsWith("item")) ? "item" : "unit", side: sd, pos: r.pos, unit: r.unit, card: r.unit.card, id: r.unit.card.id });
+              if (id != null) sf.hand.push(id);
+            }
+          }
+        }
+        if (B.renderBattle) B.renderBattle();
+      }
+    });
   };
   ABX.fireOtherEnter = function (side, unit) {
     return ABX.queue(() => fireTriggers((t, src, s) => t.event === "otherEnter" && src.unit !== unit &&

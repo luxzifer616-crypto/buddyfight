@@ -2372,3 +2372,116 @@ body {
 .slot-fan-stack.buddy-fan-stack.buddy-count-4 .fan-card-slot {
   left: calc(74% + var(--fan-offset, 0%));
 }
+.slot-fan-stack.buddy-fan-stack .fan-card-slot.active-front-buddy .field-card {
+  box-shadow: 0 0 12px rgba(251, 191, 36, 0.9), 0 4px 12px rgba(0, 0, 0, 0.85);
+}
+
+/* Active / Buddy Called Vertical Landscape Stack (matching 3 buddy active.png for 2, 3, and 4 Buddies) */
+.slot-fan-stack.buddy-fan-stack.buddy-active-vertical-stack .fan-card-slot {
+  left: 50% !important;
+  top: calc(50% + var(--v-offset, 0%)) !important;
+  width: 72%;
+  height: 96%;
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+.slot-fan-stack.buddy-fan-stack.buddy-active-vertical-stack.buddy-count-2 .fan-card-slot {
+  width: 74%;
+  height: 98%;
+}
+.slot-fan-stack.buddy-fan-stack.buddy-active-vertical-stack.buddy-count-3 .fan-card-slot {
+  width: 72%;
+  height: 96%;
+}
+.slot-fan-stack.buddy-fan-stack.buddy-active-vertical-stack.buddy-count-4 .fan-card-slot {
+  width: 68%;
+  height: 92%;
+}
+.slot-fan-stack.buddy-fan-stack.buddy-active-vertical-stack .fan-card-slot:hover {
+  transform: translate(-50%, -50%) rotate(90deg) scale(1.06);
+  z-index: 30 !important;
+}
+.slot-fan-stack.buddy-fan-stack.buddy-active-vertical-stack .fan-card-slot .field-card.rested {
+  transform: none !important;
+  filter: brightness(0.92);
+}
+
+/* Arrow Navigation Controls & Index Pill for Multi-Buddy Stack (Deck Edit & Battle Buddy Zone) */
+.buddy-stack-nav {
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  background: rgba(8, 12, 26, 0.92);
+  border: 1px solid rgba(251, 191, 36, 0.75);
+  border-radius: 99px;
+  padding: 1px 4px;
+  z-index: 35;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.85);
+}
+.buddy-stack-arrow {
+  background: rgba(251, 191, 36, 0.22);
+  color: #fde68a;
+  border: 1px solid rgba(251, 191, 36, 0.55);
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  font-size: 9px;
+  font-weight: 900;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.12s, background 0.12s;
+}
+.buddy-stack-arrow:hover {
+  background: #f59e0b;
+  color: #000;
+  transform: scale(1.15);
+}
+.buddy-stack-idx {
+  font-size: 8.5px;
+  font-weight: 900;
+  color: #fde68a;
+  padding: 0 2px;
+  white-space: nowrap;
+}
+
+/* Deck Edit & Hub Multi-Buddy Stack Container */
+.dk-buddy-visual-wrap {
+  position: relative;
+  width: 100%;
+  height: 92px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.dk-buddy-visual-wrap .slot-fan-stack.buddy-fan-stack {
+  width: 96px;
+  height: 88px;
+}
+.dk-buddy-visual-wrap .slot-fan-stack.buddy-fan-stack .fan-card-slot {
+  width: 62px;
+  height: 84px;
+}
+.dk-buddy-visual-wrap .slot-fan-stack.buddy-fan-stack .fan-card-slot img {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  object-fit: cover;
+  border-radius: 5px;
+  border: 1.5px solid rgba(251, 191, 36, 0.7);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.75);
+}
+.dk-buddy-visual-wrap .slot-fan-stack.buddy-fan-stack .fan-card-slot.active-front-buddy img {
+  border-color: #fde68a;
+  box-shadow: 0 0 12px rgba(251, 191, 36, 0.95);
+}
+.avatar-ring .slot-fan-stack.buddy-fan-stack .fan-card-slot img {
+  border-radius: 5px;
+  border: 1.5px solid rgba(251, 191, 36, 0.8);
+}

@@ -1,10 +1,6 @@
-// Verification suite for all 5 Slot Abilities & Inspector UIs (1.png - 5.png):
-// 1. [CHAOS Territory] full-size dual-center (.chaos-pair.chaos-connected.both-active) (1.png)
-// 2. Multi-Buddy Zone ([Double Buddy] 2 Buddies & [Triple Buddy] 3 Buddies .buddy-fan-stack + openBuddyZoneViewer) (2.png & 3.png)
-// 3. Multi-Item equipping (2, 3, 4+ items in .item-fan-stack + openItemZoneViewer + ABX fieldUnits) (4.png)
-// 4. [Set] Spell Zone horizontal fan (.set-fan-stack) & [Set] Zone Inspector (openSetZoneViewer) (5.png)
-// 5. Soul / [Soulguard] Inspector (openSoulViewer) & Soul [Act] activation from the Soul Inspector
-const { createEnv } = require("./headless.js");
+// Verification suite for all 5 Slot Abilities, Multi-Buddy Arrow Cycling & Active Vertical Stack (3 buddy active.png),
+// End-of-Turn Return-to-Hand Abilities, and Inspector UIs:
+const { createEnv } = require("./tests/headless.js".replace("./tests/", "./"));
 const env = createEnv();
 let fail = 0;
 const ok = (c, m) => { if (!c) { fail++; console.log("FAIL:", m); } else console.log("ok:", m); };
@@ -34,29 +30,70 @@ const wait = (ms) => new Promise(r => setTimeout(r, ms));
   const pairHtmlBoth = env.run(`battle.renderCenterPairHtml("plr")`);
   ok(pairHtmlBoth.includes("chaos-connected") && pairHtmlBoth.includes("both-active") && pairHtmlBoth.includes("chaos-left-half") && pairHtmlBoth.includes("chaos-right-half"), "connected dual-center renders full-size side-by-side cards with .chaos-connected.both-active (1.png)");
 
-  // 2. Multi-Buddy Zone: 2 Buddies ([Double Buddy] #5418/#5419, 3.png) & 3 Buddies ([Triple Buddy] #5717, 2.png)
-  const doubleBuddyRes = JSON.parse(env.run(`{
+  // 2. Multi-Buddy Zone: Standing Stack + Arrow Cycling (Deck Edit & Battle) + Active Vertical Landscape Stack for 2, 3, and 4 Buddies (3 buddy active.png)
+  const multiBuddyRes = JSON.parse(env.run(`{
+    // Deck Edit Buddy Preview arrow cycling (#5717 Triple Buddy)
+    if (!app.state.decks || !app.state.decks.length) {
+      app.state.decks = [generateFlagDeck(5957, "Godclock", 5717, false)];
+      app.state.activeDeckIndex = 0;
+    }
+    const dk = app.state.decks[app.state.activeDeckIndex];
+    dk.buddyId = 5717;
+    app.deckBuddyPreviewIdx = 0;
+    app.renderCurrentDeckPane();
+    const dkName0 = document.getElementById("dk-buddy-name").textContent;
+    const dkHtml0 = document.getElementById("dk-buddy-visual").innerHTML;
+    app.cycleDeckBuddyPreview(1);
+    const dkName1 = document.getElementById("dk-buddy-name").textContent;
+
+    // 2 Buddies (#5418 & #5419): Standing vs Active Buddy Call
     const ids2 = getDefaultBuddyZoneIds(5418);
     battle.plr.buddyId = 5418;
     battle.plr.buddyIds = ids2;
     battle.plr.buddyZone = ids2.map(id => ({ id, rested: false, isFaceDown: false }));
     battle.plr.buddyCalled = false;
-    const html2 = battle.renderBuddyZoneHtml(battle.plr, "plr");
+    battle.plr.buddyPreviewIdx = 0;
+    const html2Stand = battle.renderBuddyZoneHtml(battle.plr, "plr");
     markFighterBuddyCalled(battle.plr, 5418);
+    const html2Active = battle.renderBuddyZoneHtml(battle.plr, "plr");
     const canCallSecond = canFighterBuddyCallCard(battle.plr, 5419);
     const canCallFirstAgain = canFighterBuddyCallCard(battle.plr, 5418);
+
+    // 3 Buddies (#5717 Voltic Ra + Magma Horus + Freeza Horus): Standing vs Active + Arrow Cycling
     const ids3 = getDefaultBuddyZoneIds(5717);
     battle.plr.buddyId = 5717;
     battle.plr.buddyIds = ids3;
     battle.plr.buddyZone = ids3.map(id => ({ id, rested: false, isFaceDown: false }));
-    const html3 = battle.renderBuddyZoneHtml(battle.plr, "plr");
+    battle.plr.buddyCalled = false;
+    battle.plr.buddyPreviewIdx = 0;
+    const html3Stand = battle.renderBuddyZoneHtml(battle.plr, "plr");
+    battle.cycleBuddyZonePreview("plr", 1);
+    const previewIdxAfterCycle = battle.plr.buddyPreviewIdx;
+    markFighterBuddyCalled(battle.plr, 5717);
+    const html3Active = battle.renderBuddyZoneHtml(battle.plr, "plr");
     battle.openBuddyZoneViewer("plr");
-    const viewerCount = document.getElementById("ds-grid").children.length;
-    JSON.stringify({ ids2, html2, canCallSecond, canCallFirstAgain, ids3, html3, viewerCount });
+    const viewerCount3 = document.getElementById("ds-grid").children.length;
+
+    // 4 Buddies (#6518 First Knight of the Apocalypse, Gratos "Re:B" + Voremos + Aberrucia + Thanatos): Active Vertical Stack
+    const ids4 = getDefaultBuddyZoneIds(6518);
+    battle.plr.buddyId = 6518;
+    battle.plr.buddyIds = ids4;
+    battle.plr.buddyZone = ids4.map(id => ({ id, rested: false, isFaceDown: false }));
+    markFighterBuddyCalled(battle.plr, 6518);
+    const html4Active = battle.renderBuddyZoneHtml(battle.plr, "plr");
+
+    JSON.stringify({
+      dkName0, dkName1, hasDkNav: dkHtml0.includes("buddy-stack-nav") && dkHtml0.includes("cycleDeckBuddyPreview"),
+      ids2, html2Stand, html2Active, canCallSecond, canCallFirstAgain,
+      ids3, html3Stand, html3Active, previewIdxAfterCycle, viewerCount3,
+      ids4, html4Active
+    });
   }`));
-  ok(doubleBuddyRes.ids2.length === 2 && doubleBuddyRes.html2.includes("buddy-fan-stack") && doubleBuddyRes.html2.includes("buddy-count-2"), "2 Buddies ([Double Buddy] #5418 & #5419) render overlapping .buddy-fan-stack.buddy-count-2 (3.png)");
-  ok(doubleBuddyRes.canCallSecond && !doubleBuddyRes.canCallFirstAgain, "Buddy Calling 1st Buddy rests only that Buddy while 2nd Buddy remains ready for Buddy Call");
-  ok(doubleBuddyRes.ids3.length === 3 && doubleBuddyRes.html3.includes("buddy-fan-stack") && doubleBuddyRes.html3.includes("buddy-count-3") && doubleBuddyRes.viewerCount === 3, "3 Buddies ([Triple Buddy] #5717 Voltic Ra + Magma Horus + Freeza Horus) render .buddy-fan-stack.buddy-count-3 and openBuddyZoneViewer lists all 3 Buddies (2.png)");
+  ok(multiBuddyRes.hasDkNav && multiBuddyRes.dkName0.includes("[1/3]") && multiBuddyRes.dkName1.includes("[2/3]"), `Deck Edit Buddy preview renders stacked cards with ◀ ▶ arrow cycling (${multiBuddyRes.dkName0} -> ${multiBuddyRes.dkName1})`);
+  ok(multiBuddyRes.ids2.length === 2 && multiBuddyRes.html2Stand.includes("buddy-fan-stack") && !multiBuddyRes.html2Stand.includes("buddy-active-vertical-stack") && multiBuddyRes.html2Active.includes("buddy-active-vertical-stack") && multiBuddyRes.html2Active.includes("buddy-count-2"), "2 Buddies switch from horizontal stack to vertical landscape stack (.buddy-active-vertical-stack.buddy-count-2) when Buddy Call activates");
+  ok(multiBuddyRes.canCallSecond && !multiBuddyRes.canCallFirstAgain, "Buddy Calling 1st Buddy rests only that Buddy while 2nd Buddy remains ready for Buddy Call");
+  ok(multiBuddyRes.ids3.length === 3 && multiBuddyRes.previewIdxAfterCycle === 1 && multiBuddyRes.html3Active.includes("buddy-active-vertical-stack") && multiBuddyRes.html3Active.includes("buddy-count-3") && multiBuddyRes.viewerCount3 === 3, "3 Buddies support ◀ ▶ arrow cycling in Battle Buddy Zone and switch to .buddy-active-vertical-stack.buddy-count-3 when Buddy Call activates (3 buddy active.png)");
+  ok(multiBuddyRes.ids4.length === 4 && multiBuddyRes.html4Active.includes("buddy-active-vertical-stack") && multiBuddyRes.html4Active.includes("buddy-count-4"), "4 Buddies (#6518 Gratos 'Re:B' + 3 Knights) adapt to .buddy-active-vertical-stack.buddy-count-4 when Buddy Call activates");
 
   // 3. Multi-Item equipping (2, 3+ items in .item-fan-stack + openItemZoneViewer + ABX fieldUnits) (4.png)
   env.run(`{
@@ -126,6 +163,34 @@ const wait = (ms) => new Promise(r => setTimeout(r, ms));
   }`));
   ok(soulViewerInfo.tileCount === 3 && soulViewerInfo.title.includes("SOUL INSPECTOR"), `openSoulViewer displays all 3 Soul cards (${soulViewerInfo.title})`);
   ok(soulViewerInfo.bnrActions.some(t => t.includes("Back to") && t.includes("Soul")), `clicking a Soul card opens its Card Detail Banner with a Back to Soul button (${soulViewerInfo.bnrName})`);
+
+  // 6. End-of-Turn & Final-Phase Return-to-Hand Abilities when clicking End Turn (#4434, #2109 [Transform], #4079, #5536)
+  env.run(`{
+    const f = battle.plr;
+    f.item = { card: CARD_MAP.get(2109), rested: false, attacksLeft: 1, soul: [], itemMode: "Transform" };
+    f.item2 = null; f.extraItems = [];
+    f.monsters.center = { card: CARD_MAP.get(4434), rested: false, attacksLeft: 2, soul: [] };
+    f.monsters.center2 = null;
+    f.monsters.left = { card: CARD_MAP.get(4079), rested: false, attacksLeft: 1, soul: [] };
+    f.monsters.right = { card: CARD_MAP.get(5418), rested: false, attacksLeft: 1, soul: [] }; // «Legend Dragon» for #5536
+    f.hand = [];
+    f.drop.push(5536);
+    ABX.fireDiscarded("plr", CARD_MAP.get(5536));
+    battle.activeSide = "plr";
+    battle.phase = "main";
+    battle.endTurn();
+  }`);
+  await wait(500);
+  const eotRes = JSON.parse(env.run(`JSON.stringify({
+    center: battle.plr.monsters.center && battle.plr.monsters.center.card.id,
+    left: battle.plr.monsters.left && battle.plr.monsters.left.card.id,
+    item: battle.plr.item && battle.plr.item.card.id,
+    hand4434: battle.plr.hand.includes(4434),
+    hand2109: battle.plr.hand.includes(2109),
+    hand4079: battle.plr.hand.includes(4079),
+    hand5536: battle.plr.hand.includes(5536)
+  })`));
+  ok(!eotRes.center && !eotRes.left && !eotRes.item && eotRes.hand4434 && eotRes.hand2109 && eotRes.hand4079 && eotRes.hand5536, "End Turn returns field monsters (#4434), [Transform] items (#2109), final-phase returners (#4079), and dropped-this-turn cards (#5536) to hand");
 
   console.log(fail ? "FAILED " + fail : "ALL PASSED");
   process.exit(fail ? 1 : 0);

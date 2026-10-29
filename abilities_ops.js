@@ -232,8 +232,12 @@
     async run(s, ctx) {
       const f = ctx.f;
       if (ctx.unit) {
-        const ref = { k: ctx.unit === f.item ? "item" : "unit", side: ctx.side, unit: ctx.unit, card: ctx.card, id: ctx.card.id };
+        const up = core.posOfUnit(f, ctx.unit);
+        const ref = { k: (up && up.startsWith("item")) ? "item" : "unit", side: ctx.side, pos: up, unit: ctx.unit, card: ctx.card, id: ctx.card.id };
         return moveRefs([ref], s.to, ctx);
+      }
+      if (ctx.selfRef) {
+        return moveRefs([ctx.selfRef], s.to, ctx);
       }
       return false;
     }
