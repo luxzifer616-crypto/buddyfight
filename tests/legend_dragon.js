@@ -52,6 +52,50 @@ const stats = (pos) => J(`getUnitEffectiveCombatStats(battle.plr, battle.plr.mon
   run(`clear(); battle.plr.monsters.center=mku(${FLAME}); battle.plr.monsters.left=mku(5517);`); await startAtk();
   ok(J(`!!getUnitEffectiveCombatStats(battle.plr, battle.plr.monsters.center).ta`) === false, "#5418 'Legendary' Ice Deity is a different card -> no Triple Attack");
 
+  // ---- wave 2 ----
+  const modalOpt = async (id, i) => { run(`{ const c=CARD_MAP.get(${id}); const m=ABX.get(c).abilities.find(a=>a.kind==='modal'); ABX.runAbility('plr',c,m.options[${i}],null,{preApproved:true,auto:true,event:{name:'counter'}}); }`); await settle(); };
+  const zone = (ids) => run(`battle.plr.buddyZone=${JSON.stringify(ids)}.map(id=>({id,rested:false,isFaceDown:false}))`);
+
+  // #5544 Alamgar: power+5000 and defense+5000 for each card in your buddy zone
+  for (const n of [1, 2]) { run(`clear(); battle.plr.monsters.center=mku(5544);`); zone([FLAME, ICE].slice(0, n)); const st = stats("center"), base = J(`CARD_MAP.get(5544).power`);
+    ok(st.power === base + 5000 * n && st.defense === J(`CARD_MAP.get(5544).defense`) + 5000 * n, `#5544 ${n} buddy zone card(s): power ${st.power} (base ${base})`); }
+
+  // #5516 Grand Sage: in the center, this card AND all of your buddy monsters get power+10000 and critical+1
+  run(`clear(); battle.plr.monsters.center=mku(5516); battle.plr.monsters.left=mku(battle.plr.buddyId); battle.plr.monsters.right=mku(46);`); zone([FLAME]);
+  const gs = (p) => stats(p); const bm = J(`CARD_MAP.get(battle.plr.buddyId).power`);
+  ok(gs("left").power === bm + 10000 && gs("right").power === J(`CARD_MAP.get(46).power`), `#5516 buddy monster on the left gets +10000, other monster does not (${gs("left").power}/${bm})`);
+
+  // #5718 Talla Bu Luucy: up to ONE monster for each Dragod in your buddy zone (2 Dragod -> 2 monsters)
+  run(`clear(); battle.plr.monsters.center=mku(${FLAME}); ["left","center","right"].forEach(p=>battle.opp.monsters[p]=mku(46));`); zone([FLAME, ICE]);
+  await modalOpt(5718, 0);
+  ok(J(`["left","center","right"].filter(p=>!battle.opp.monsters[p]).length`) === 2, "#5718 returns up to two monsters when two Dragod are in the buddy zone");
+  // #5720 The Grand Guidance: [Rest] up to one opp card per Dragod in buddy zone
+  run(`clear(); battle.plr.monsters.center=mku(${FLAME}); ["left","center","right"].forEach(p=>battle.opp.monsters[p]=mku(46));`); zone([FLAME, ICE]);
+  await modalOpt(5720, 1);
+  ok(J(`["left","center","right"].filter(p=>battle.opp.monsters[p].rested).length`) === 2, "#5720 rests up to two opponent cards when two Dragod are in the buddy zone");
+
+  // #5538 Sector Collapse: for this turn, when a size<=1 Legend Dragon monster on your field attacks, destroy up to one opp card, then 1 damage
+  run(`clear(); battle.plr.monsters.left=mku(${FLAME}); battle.opp.monsters.center=mku(46); globalThis.__ol=battle.opp.life;`); await spell(5538);
+  ok(J(`!!battle.opp.monsters.center && __ol===battle.opp.life`), "#5538 casting does nothing by itself");
+  run(`ABX.fireAttack('plr',[{unit:battle.plr.monsters.left}],'opp','center')`); await settle();
+  ok(J(`!battle.opp.monsters.center && __ol-battle.opp.life===1`), "#5538 then a size<=1 Legend Dragon attacks: destroys an opp card and deals 1 damage");
+
+  // #5757 Karkade: when put into the drop zone from HAND, if a Legend Dragon is on your field, destroy an opp spell/item
+  run(`clear(); battle.plr.monsters.center=mku(${LD_PLAIN}); battle.opp.item=mku(5514); battle.plr.drop=[5757];`); run(`ABX.fireDiscarded('plr', CARD_MAP.get(5757))`); await settle();
+  ok(J(`!battle.opp.item`), "#5757 dropped from hand with a Legend Dragon on the field destroys the opponent's item");
+
+  // #6140 Cremaza Sith Nokima: put a Legend Dragon from drop into hand, return ALL other drop cards to the deck, shuffle
+  run(`clear(); battle.plr.deck=Array(5).fill(46); battle.plr.drop=[${LD_PLAIN},46,46,46]; globalThis.__d=battle.plr.deck.length;`); await spell(6140);
+  ok(J(`battle.plr.hand.includes(${LD_PLAIN}) && battle.plr.drop.length===0 && battle.plr.deck.length===__d+3`), `#6140 LD to hand, whole drop zone back into the deck (hand ${J(`battle.plr.hand.length`)}, drop ${J(`battle.plr.drop.length`)}, deck ${J(`battle.plr.deck.length`)})`);
+
+  // #5422 De Ju Mau: only monsters with BOTH Dragod and Legend Dragon, different names
+  run(`clear(); battle.plr.deck=[46,46,${FLAME},${FLAME},${ICE},46]; battle.plr.hand=[46];`); await spell(5422);
+  const got = J(`battle.plr.hand.concat(battle.plr.drop).filter(id=>id!==46)`);   // two cards put -> one hand card is dropped (it may be one of them)
+  ok(got.length === 2 && new Set(got).size === 2 && got.every(id => [FLAME, ICE].includes(id)), `#5422 fetched only Dragod+Legend Dragon monsters with different names (${JSON.stringify(got)})`);
+
+  // #5419 Ice Deity: "Dragod and King" filter must match a Dragod
+  ok(J(`ABX.core.matchFilter(CARD_MAP.get(${FLAME}), ABX.get(CARD_MAP.get(${ICE})).abilities.find(a=>a.kind==='static').steps[0].np.filter, {}, {})`) === true, "#5419 protection filter matches a Dragod monster");
+
   console.log(fail ? `\nlegend_dragon: fail ${fail}` : "\nlegend_dragon: fail 0");
   process.exitCode = fail ? 1 : 0;
 })();

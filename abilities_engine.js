@@ -331,6 +331,11 @@
         if (wantSet && !z.pos) (f.setSpells || []).forEach((c, i) => push({ k: "set", side, idx: i, card: c, id: c.id, unit: null }));
         return;
       }
+      if (area === "buddy zone") {   // face-up cards in the buddy zone (Dragod / buddy counts, "for each card in your buddy zone")
+        const ents = typeof getFighterBuddyZoneEntries === "function" ? getFighterBuddyZoneEntries(f) : (f.buddyZone || []);
+        ents.forEach((en, i) => { if (en && !en.isFaceDown && cardOf(en.id)) push({ k: "zone", side, area: "buddyZone", idx: i, id: en.id, card: cardOf(en.id), unit: null }); });
+        return;
+      }
       const arrName = area === "drop zone" ? "drop" : area === "hand" ? "hand" : area === "gauge" ? "gauge" : area === "deck" ? "deck" : null;
       if (!arrName) return;
       let arr = f[arrName];
@@ -443,8 +448,10 @@
       np = Object.assign({}, np, { qty: Object.assign({}, np.qty, { n: (np.qty.numOf || np.qty.fromLast) ? cnt : (np.qty.n || 1) * cnt, all: false, eachOf: null, numOf: null, perReversal: false, fromLast: false }) });
       if (np.qty.n <= 0) return [];
     }
-    const out0 = await pick0(cands, np, ctx, opts);
     const fl = (np && np.filter) || {};
+    // "with different card names": offer one copy per name so two picks can never be the same card name
+    if (fl.uniqueBy && fl.uniqueBy !== "size") { const seen = new Set(); cands = cands.filter(r => { const k = lc(r.card && r.card.name); if (seen.has(k)) return false; seen.add(k); return true; }); }
+    const out0 = await pick0(cands, np, ctx, opts);
     if (!fl.uniqueBy && !fl.sameBy) return out0;
     const keyOf = (r) => fl.uniqueBy === "size" || fl.sameBy === "size" ? statOf(r.card, r.unit, r.side ? F(r.side) : null, "size") : lc(r.card.name);
     const kept = [];
