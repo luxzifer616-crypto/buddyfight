@@ -1115,23 +1115,49 @@
       }
     } catch (e) { if (ABX.debug) console.error(e); }
     ABX.battleCtx = null;
-    return { nullified: bc.nullified };
+    return { nullified: bc.nullified, targetPos: bc.redirectTo || info.targetPos };
   };
 
-  /* ---- extra [Call Cost] parts the old code ignores: soul from zone, discard, destroy ---- */
+  /* ---- extra [Call Cost] / [Cast Cost] / [Equip Cost] parts: soul from zone, discard, destroy ---- */
   function extraParts(card) {
     const out = [];
-    abilitiesOf(card, a => a.kind === "cost" && a.costKind === "call").forEach(a => (a.parts || []).forEach(p => { if (p.soulFrom || p.discard || p.destroy) out.push(p); }));
+    abilitiesOf(card, a => a.kind === "cost").forEach(a => (a.parts || []).forEach(p => {
+      if (p.soulFrom || p.discard || p.destroy) { out.push(p); return; }
+      const txt = String(p.text || "");
+      const mChooseSoul = txt.match(/^choose a card from your hand,\s*deck,?\s*or drop zone/i);
+      if (mChooseSoul) {
+        out.push({ chooseSoulFromAny: true, faceDown: /face\s*down/i.test(card.skill || ""), text: txt });
+        return;
+      }
+      const mDeckChooseSoul = txt.match(/^choose a card from your deck,\s*put it face down into this card's soul/i);
+      if (mDeckChooseSoul) {
+        out.push({ soulFrom: { area: "deck", n: 1, faceDown: true, np: { raw: "card", qty: { n: 1 }, filter: {} } }, text: txt });
+        return;
+      }
+      if (p.step && p.step.op === "move" && p.step.to && p.step.to.area === "drop zone" && p.step.np && (!p.step.np.zone || p.step.np.zone.area === "field")) {
+        out.push({ destroy: { n: (p.step.np.qty && p.step.np.qty.n) || 1, np: p.step.np }, text: txt });
+      }
+    }));
     return out;
   }
-  const AREA = { "drop zone": "drop", hand: "hand", gauge: "gauge", field: "field" };
+  const AREA = { "drop zone": "drop", hand: "hand", gauge: "gauge", field: "field", deck: "deck" };
   function partCands(part, side, card, exclHandIdx) {
     const f = F(side), ctx = { side, f, e: F(otherSide(side)), card, unit: null, bind: {} };
+    if (part.chooseSoulFromAny) {
+      const cands = [];
+      ["hand", "deck", "drop"].forEach(area => {
+        (f[area] || []).forEach((id, i) => {
+          if (area === "hand" && i === exclHandIdx) return;
+          cands.push({ k: "zone", side, area, idx: i, id, card: cardOf(id) });
+        });
+      });
+      return cands;
+    }
     const spec = part.soulFrom || part.discard || part.destroy;
     const flt = (spec.np && spec.np.filter) || {};
     let area = part.soulFrom ? AREA[spec.area] : part.discard ? "hand" : "field";
     if (area === "field") return refsFor(spec.np, ctx, { owner: "you", area: "field" });
-    return f[area].map((id, i) => ({ k: "zone", side, area, idx: i, id, card: cardOf(id) }))
+    return (f[area] || []).map((id, i) => ({ k: "zone", side, area, idx: i, id, card: cardOf(id) }))
       .filter((r, i) => !(area === "hand" && i === exclHandIdx) && matchFilter(r.card, flt, r, ctx));
   }
   // [Call Cost] "Put this card on top of a «X» on your field": the call goes onto that monster's zone,
@@ -1150,22 +1176,40 @@
   ABX.onTopMatches = (side, card, unit) => ABX.onTopHosts(side, card).some(r => r.unit === unit);
   ABX.canPayExtras = function (side, card, exclHandIdx) {
     if (ABX.onTopCost(card) && !ABX.onTopHosts(side, card).length) return false;
-    return extraParts(card).every(p => partCands(p, side, card, exclHandIdx).length >= ((p.soulFrom || p.discard || p.destroy).n || 1));
+    return extraParts(card).every(p => {
+      if (p.chooseSoulFromAny) return partCands(p, side, card, exclHandIdx).length >= 1;
+      return partCands(p, side, card, exclHandIdx).length >= ((p.soulFrom || p.discard || p.destroy).n || 1);
+    });
   };
   ABX.hasExtras = (card) => extraParts(card).length > 0;
-  // unit may be null (card not on the field yet is fine for discard); soul parts need the new unit
+  // unit may be null (card not on the field yet is fine for discard); soul parts need the new unit or [Set] spell host
   ABX.payExtras = async function (side, card, unit) {
     const f = F(side);
     for (const part of extraParts(card)) {
+      if (part.chooseSoulFromAny) {
+        const ctx = { side, f, e: F(otherSide(side)), card, unit, bind: {}, auto: true };
+        const cands = partCands(part, side, card, -1);
+        const chosen = await pick(cands, { qty: { n: 1 }, raw: "a card from your hand, deck, or drop zone" }, ctx, { intent: "help", title: `${card.name} — choose a card for its soul`, subtitle: part.text, min: Math.min(1, cands.length), max: 1 });
+        for (const r of chosen) {
+          const id = detach(r); if (id == null) continue;
+          const entry = (part.faceDown && typeof root.createSoulEntry === "function") ? root.createSoulEntry(id, true) : (part.faceDown ? { id, isFaceDown: true } : id);
+          if (unit && Array.isArray(unit.soul)) unit.soul.push(entry); else f.drop.push(id);
+          if (r.area === "deck" && B.shuffleFighterDeck) B.shuffleFighterDeck(side);
+        }
+        continue;
+      }
       const spec = part.soulFrom || part.discard || part.destroy, n = spec.n || 1;
       const ctx = { side, f, e: F(otherSide(side)), card, unit, bind: {}, auto: true };
       let cands = partCands(part, side, card, -1).filter(r => !(unit && r.unit === unit));
       const np = { qty: { n }, raw: spec.np ? spec.np.raw : "a card" };
-      const chosen = await pick(cands, np, ctx, { intent: "cost", title: `${card.name} — pay the Call Cost`, subtitle: part.text, min: Math.min(n, cands.length), max: n });
+      const chosen = await pick(cands, np, ctx, { intent: "cost", title: `${card.name} — pay the Cost`, subtitle: part.text, min: Math.min(n, cands.length), max: n });
       for (const r of chosen) {
         if (part.destroy) { const pos = core.posOfUnit(f, r.unit); if (pos) B.destroyMonster(side, pos); continue; }
         const id = detach(r); if (id == null) continue;
-        if (part.soulFrom && unit) unit.soul.push(id); else f.drop.push(id);
+        const isFD = Boolean(spec.faceDown || /face\s*down/i.test(part.text || ""));
+        const entry = (isFD && typeof root.createSoulEntry === "function") ? root.createSoulEntry(id, true) : (isFD ? { id, isFaceDown: true } : id);
+        if (part.soulFrom && unit && Array.isArray(unit.soul)) unit.soul.push(entry); else f.drop.push(id);
+        if (r.area === "deck" && B.shuffleFighterDeck) B.shuffleFighterDeck(side);
       }
     }
     fresh_();

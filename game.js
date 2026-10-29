@@ -14,8 +14,31 @@ CARD_MAP.get = function(key) {
   }
   return _origCardMapGet(Number(key));
 };
+const OFFICIAL_MONSTER_SIZE_FIXES = {
+  // Size 4
+  867: 4, 2019: 4, 4174: 4, 4886: 4,
+  5858: 4, 5862: 4, 5863: 4, 5864: 4, 5865: 4, 5866: 4, 5867: 4, 5868: 4, 5869: 4, 5889: 4, 5924: 4,
+  6417: 4, 6419: 4, 6526: 4,
+  // Size 5
+  2107: 5, 3125: 5, 3233: 5, 3934: 5, 4885: 5, 5164: 5,
+  5385: 5, 5386: 5, 5387: 5, 5388: 5, 5389: 5,
+  5861: 5, 6476: 5,
+  // Size 6
+  4436: 6, 4873: 6, 4967: 6,
+  // Size 9
+  6214: 9,
+  // Size 10
+  2790: 10, 4147: 10, 6314: 10,
+  // Size 30
+  3338: 30, 3345: 30, 3348: 30, 3369: 30, 3650: 30, 3918: 30, 4119: 30, 4804: 30, 6500: 30,
+  // Size 90
+  3743: 90, 3825: 90, 3940: 90, 5341: 90,
+  // Size 10000
+  4071: 10000
+};
 ALL_CARDS.forEach(c => {
   if (Number(c.id) === 3941) c.type = "Flag"; // Treat "Infinity the Chaos" (#3941) as a Flag
+  if (OFFICIAL_MONSTER_SIZE_FIXES[c.id] !== undefined) c.size = OFFICIAL_MONSTER_SIZE_FIXES[c.id];
   CARD_MAP.set(c.id, c);
 });
 
@@ -1394,6 +1417,15 @@ function evaluateCardConditions(card, fighter, enemy, isAbilityCall = false) {
   if (attrCastMatch) {
     if (!fighterHasFieldCardMatching(fighter, attrCastMatch[1])) {
       reasons.push(`Requires «${attrCastMatch[1]}» on your field`);
+    }
+  }
+
+  if (card.type === "Monster" && !(window.IMX && IMX.isImpactMonster(card))) {
+    const effSz = getEffectiveCardSize(fighter, card);
+    const maxAllowed = (fighter && fighter.maxSize) || 3;
+    if (effSz > maxAllowed && !(card.tr || card.ride || card.st)) {
+      const limitStr = maxAllowed >= 1e9 ? "∞" : maxAllowed;
+      reasons.push(`Monster Size (${effSz}) exceeds your Flag's Max Size limit (${limitStr})${fighter && fighter.flagId === 3337 ? ' — flip into "Infinity the Chaos" (#3941) via "The Chaos Upgrade" (#4072) first!' : '!'}`);
     }
   }
 
@@ -2838,7 +2870,7 @@ const app = {
       if (world && !c.worlds.includes(world)) return false;
       if (tribe && !cardHasTribe(c, tribe)) return false;
       if (type && c.type !== type) return false;
-      if (size !== "" && String(c.size) !== size) return false;
+      if (size !== "" && String(c.size) !== size && !(size === "1000" && c.size === 10000)) return false;
       if (skillKey) {
         if (skillKey === "ll" && !c.ll && !c.ll_lose) return false;
         else if (skillKey !== "ll" && !c[skillKey]) return false;
@@ -5113,7 +5145,6 @@ const battle = {
   startTurn(side) {
     if (this.matchOver) return;
     this.activeSide = side;
-    this.phase = "start";
     this.pendingAction = null;
     this.linkAttackers = [];
     const f = this.getFighter(side);
@@ -5131,39 +5162,8 @@ const battle = {
     if (this.plr.godclock) this.plr.godclock.horaryDominationUsedThisTurn = false;
     if (this.opp.godclock) this.opp.godclock.horaryDominationUsedThisTurn = false;
 
-    MONSTER_POSITIONS.forEach(pos => {
-      const m = f.monsters[pos];
-      if (m) {
-        if (m.abxNo && m.abxNo.stand === true) { m.abxNo.stand = false; } else m.rested = false;
-        m.defenseZeroTurn = false;
-        const eff = getUnitEffectiveCombatStats(f, m);
-        m.attacksLeft = eff.qa ? 4 : eff.ta ? 3 : eff.da ? 2 : (m.card.atk_max || 1);
-        m.tempPower = 0;
-        m.tempDef = 0;
-        m.tempCrit = 0;
-        m.tempCA = false;
-        m.tempDA = false; m.tempTA = false; m.tempQA = false; m.tempHA = false; m.tempSG = false; m.tempMove = false;
-        m.tempIndestructible = false;
-        m.actUsed = false;
-
-        // "Wind Kronos" start-of-turn soul charge for Time Ruler Dragon (#5955, #5956, #6065)
-        // (ABX runs it itself — optional, you pick the cards — so this only fills in when ABX doesn't own the line)
-        const kronosLine = (m.card.skill || "").split(/\n+/).find(l => l.includes("Wind Kronos"));
-        if (kronosLine && f.drop.length > 0 && !(window.ABX && ABX.ownsTriggerLine && ABX.ownsTriggerLine(m.card, kronosLine))) {
-          const targetSoul = m.card.id === 5955 ? 1 : 2;
-          while ((m.soul || []).length < targetSoul && f.drop.length > 0) {
-            m.soul.push(f.drop.pop());
-          }
-        }
-      }
-      if (enemy.monsters[pos]) {
-        enemy.monsters[pos].defenseZeroTurn = false;
-      }
-    });
-
-    // "This turn" boosts end when the turn ends. Before, the boosts of the fighter whose turn just ended
-    // (e.g. Overturn +5000/+1 Crit) stayed on during the opponent's whole turn, and [Penetrate] given by
-    // an ability was never removed at all.
+    // Clear previous turn's temporary boosts and stand units BEFORE firing "start" phase triggers,
+    // so buffs granted by "At the beginning/start of your turn" abilities are NOT wiped out!
     const clearTurnBoosts = (u) => {
       if (!u) return;
       u.tempPower = 0;
@@ -5181,6 +5181,28 @@ const battle = {
       fighter.tempDamageReduce = 0;
     });
 
+    MONSTER_POSITIONS.forEach(pos => {
+      const m = f.monsters[pos];
+      if (m) {
+        if (m.abxNo && m.abxNo.stand === true) { m.abxNo.stand = false; } else m.rested = false;
+        m.defenseZeroTurn = false;
+        const eff = getUnitEffectiveCombatStats(f, m);
+        m.attacksLeft = eff.qa ? 4 : eff.ta ? 3 : eff.da ? 2 : (m.card.atk_max || 1);
+        m.actUsed = false;
+
+        const kronosLine = (m.card.skill || "").split(/\n+/).find(l => l.includes("Wind Kronos"));
+        if (kronosLine && f.drop.length > 0 && !(window.ABX && ABX.ownsTriggerLine && ABX.ownsTriggerLine(m.card, kronosLine))) {
+          const targetSoul = m.card.id === 5955 ? 1 : 2;
+          while ((m.soul || []).length < targetSoul && f.drop.length > 0) {
+            m.soul.push(f.drop.pop());
+          }
+        }
+      }
+      if (enemy.monsters[pos]) {
+        enemy.monsters[pos].defenseZeroTurn = false;
+      }
+    });
+
     [f.item, f.item2].forEach(it => {
       if (!it) return;
       it.rested = false;
@@ -5188,6 +5210,7 @@ const battle = {
       it.actUsed = false;
     });
 
+    this.phase = "start";
     this.phase = "main";
     this.setPrompt(`🔄 Turn ${this.turnCount}: ${f.name}'s Start Phase — Drawing 1 card from Deck...`);
     this.renderBattle();
@@ -5494,14 +5517,22 @@ const battle = {
       if (card.type === "Monster" && this.phase === "main") {
         const isYami = isYamigedoHalfId(card.id);
         const hasBothYami = !isYami || fighterHasBothYamigedoHalvesInHand(f);
+        const effSz = getEffectiveCardSize(f, card);
+        const maxAllowed = f.maxSize || 3;
+        const sizeFitsFlag = effSz <= maxAllowed;
+        const maxLabel = maxAllowed >= 1e9 ? "∞" : maxAllowed;
         const bCall = document.createElement("button");
         bCall.className = "primary-cta-btn";
-        bCall.textContent = isYami
+        bCall.disabled = !sizeFitsFlag || (isYami && !hasBothYami);
+        bCall.textContent = !sizeFitsFlag
+          ? `🔒 Size ${effSz} Exceeds Flag Limit (Max Size ${maxLabel})`
+          : isYami
           ? (hasBothYami
-            ? `🐉 Call Connected Hyakugan Yamigedo (Both Halves • ${cost.gauge} Gauge • Size ${getEffectiveCardSize(f, card)})`
+            ? `🐉 Call Connected Hyakugan Yamigedo (Both Halves • ${cost.gauge} Gauge • Size ${effSz})`
             : `🔒 Requires Both "Earth Half" & "Sky Half" in Hand (or Call by Ability)`)
-          : `🐉 Call Monster (${cost.gauge} Gauge • Size ${getEffectiveCardSize(f, card)})`;
+          : `🐉 Call Monster (${cost.gauge} Gauge • Size ${effSz})`;
         bCall.onclick = () => {
+          if (!sizeFitsFlag) return;
           this.closeCardBanner();
           this.startMonsterCall(side, handIdx, false);
         };
@@ -5510,10 +5541,14 @@ const battle = {
         if (!f.buddyCalled && isFighterBuddyMatch(f.buddyId, card.id)) {
           const bBuddy = document.createElement("button");
           bBuddy.className = "primary-cta-btn";
-          bBuddy.textContent = isYami
+          bBuddy.disabled = !sizeFitsFlag;
+          bBuddy.textContent = !sizeFitsFlag
+            ? `🔒 Buddy Call Locked (Size ${effSz} > Flag Max ${maxLabel})`
+            : isYami
             ? `🌟 BUDDY CALL CONNECTED HYAKUGAN YAMIGEDO! (+1 Life)`
             : `🌟 BUDDY CALL! (+1 Life)`;
           bBuddy.onclick = () => {
+            if (!sizeFitsFlag) return;
             this.closeCardBanner();
             this.startMonsterCall(side, handIdx, true);
           };
@@ -6921,6 +6956,18 @@ const battle = {
       }
     }
 
+    const maxAllowedSize = f.maxSize || 3;
+    const newSize = getEffectiveCardSize(f, c);
+    if (newSize > maxAllowedSize) {
+      if (!f.isBot) {
+        this.pendingAction = null;
+        const limitStr = maxAllowedSize >= 1e9 ? "∞" : maxAllowedSize;
+        this.setPrompt(`Cannot call "${c.name}": its Size (${newSize}) exceeds your Flag's Max Size limit (${limitStr})${f.flagId === 3337 ? ' — flip into "Infinity the Chaos" (#3941) first!' : '!'}`);
+        this.renderBattle();
+      }
+      return;
+    }
+
     const cost = parseCardCost(c.cost, c.skill, f, c);
     if (!isAbilityCall && f.gauge.length < cost.gauge) {
       if (!f.isBot) {
@@ -6966,8 +7013,6 @@ const battle = {
       this.sendMonsterToDropWithAnimation(side, zonePos, true);
     }
 
-    const maxAllowedSize = f.maxSize || 3;
-    const newSize = getEffectiveCardSize(f, c);
     if (this.getCurrentSizeUsed(f) + newSize > maxAllowedSize) {
       MONSTER_POSITIONS.forEach(pos => {
         if (pos !== zonePos && f.monsters[pos] && this.getCurrentSizeUsed(f) + newSize > maxAllowedSize) {
@@ -7092,6 +7137,10 @@ const battle = {
       if (!f.isBot) alert(`Not enough Gauge to ${modeLabel}! Need ${cost.gauge} Gauge.`);
       return;
     }
+    if (window.ABX && ABX.canPayExtras && !ABX.canPayExtras(side, c, handIdx)) {
+      if (!f.isBot) alert(`Cannot ${modeLabel.toLowerCase()} "${c.name}": its [Equip Cost] requires a card you don't have.`);
+      return;
+    }
 
     for (let i = 0; i < cost.gauge; i++) f.drop.push(f.gauge.pop());
     if (cost.life > 0) f.life = Math.max(1, f.life - cost.life);
@@ -7099,7 +7148,7 @@ const battle = {
     const toSecond = !!(f.item && !f.item.isEndrulerFlag && !f.item2 && hasMultiItems(f, c));   // the old item stays: this one goes to "item2"
     if (f.item && !f.item.isEndrulerFlag && !toSecond) {
       // The old item's soul goes to the Drop Zone (before, those cards were lost from the game).
-      if (f.item.soul && f.item.soul.length) f.drop.push(...f.item.soul);
+      if (f.item.soul && f.item.soul.length) f.drop.push(...f.item.soul.map(getSoulCardId));
       if (c.eqc) {
         f.hand.push(f.item.card.id);
       } else {
@@ -7113,13 +7162,19 @@ const battle = {
     const toItemZone = side === "plr" ? "z-plr-item" : "z-opp-fighter";
 
     this.animateCardFlight(fromHandId, toItemZone, c.img, `🗡️ ${modeLabel.toUpperCase()}!`, 0, () => {
+      const soulCount = Math.max(cost.soul || 0, c.sg ? 1 : 0);
+      const soulArr = [];
+      for (let i = 0; i < soulCount; i++) {
+        if (f.deck.length > 0) soulArr.push(f.deck.shift());
+      }
       const newItem = {
         card: c,
         rested: false,
         attacksLeft: c.atk_max || 1,
-        soul: c.sg && f.deck.length > 0 ? [f.deck.shift()] : []
+        soul: soulArr
       };
       if (toSecond) f.item2 = newItem; else f.item = newItem;
+      if (window.ABX && ABX.payExtras && ABX.hasExtras && ABX.hasExtras(c)) ABX.payExtras(side, c, newItem);
 
       if (modeLabel !== "Equip") {
         this.showCutin(`${modeLabel.toUpperCase()}!`, c.name, c.img);
@@ -7142,12 +7197,25 @@ const battle = {
       alert(`Cannot cast "${c.name}" yet:\n• ${cond.reasons.join("\n• ")}`);
       return;
     }
+    if (window.ABX && ABX.canPayExtras && !ABX.canPayExtras(side, c, handIdx)) {
+      alert(`Cannot cast "${c.name}": its [Cast Cost] requires a card you don't have.`);
+      return;
+    }
 
     const cost = parseCardCost(c.cost, c.skill, f, c);
     for (let i = 0; i < cost.gauge; i++) f.drop.push(f.gauge.pop());
     if (cost.life > 0) f.life = Math.max(1, f.life - cost.life);
     f.hand.splice(handIdx, 1);
     noteSpellCast(f, c);
+
+    const setHost = c.set ? Object.assign({}, c, { soul: Array.isArray(c.soul) ? c.soul.slice() : [] }) : null;
+    if (c.set && cost.soul > 0) {
+      const isFD = /face\s*down/i.test(c.skill || "");
+      for (let i = 0; i < cost.soul && f.deck.length > 0; i++) {
+        setHost.soul.push(createSoulEntry(f.deck.shift(), isFD));
+      }
+    }
+    if (window.ABX && ABX.payExtras && ABX.hasExtras && ABX.hasExtras(c)) ABX.payExtras(side, c, setHost);
 
     const fromHandId = side === "plr" ? "bt-plr-hand" : "hud-opp-target";
     const destId = c.set ? `z-${side}-set` : `z-${side}-drop`;
@@ -7156,15 +7224,16 @@ const battle = {
       // The opponent may answer with "Nullify the spell cast by your opponent" (ABX) before it resolves.
       if (window.ABX && ABX.castWindow) {
         ABX.castWindow(side, c, "spell").then(nullified => {
-          if (!nullified) { this.resolveCastSpell(side, c, cid); return; }
+          if (!nullified) { this.resolveCastSpell(side, setHost || c, cid); return; }
+          if (setHost && Array.isArray(setHost.soul) && setHost.soul.length) f.drop.push(...setHost.soul.map(getSoulCardId));
           f.drop.push(cid);
           this.showCutin("NULLIFIED!", `"${c.name}" was nullified!`, c.img);
           this.setPrompt(`🚫 "${c.name}" was nullified by ${enemy.name}!`);
           this.renderBattle();
-        }, () => this.resolveCastSpell(side, c, cid));
+        }, () => this.resolveCastSpell(side, setHost || c, cid));
         return;
       }
-      this.resolveCastSpell(side, c, cid);
+      this.resolveCastSpell(side, setHost || c, cid);
     });
   },
 
@@ -7218,7 +7287,8 @@ const battle = {
       return;
     }
 
-    if (this.phase !== "final" || this.turnCount === 1) {
+    const allowsNonFinal = Boolean(c.cnt || /during (?:your|each player's) attack phase|during an attack/i.test(c.skill || ""));
+    if ((this.phase !== "final" && !allowsNonFinal) || (this.phase === "final" && this.turnCount === 1)) {
       alert(`Impact cards can only be cast during your Final Phase (after your Attack Phase, not on Turn 1).`);
       return;
     }
@@ -7228,16 +7298,29 @@ const battle = {
       alert(`Cannot cast Impact "${c.name}" yet:\n• ${cond.reasons.join("\n• ")}`);
       return;
     }
+    if (window.ABX && ABX.canPayExtras && !ABX.canPayExtras(side, c, handIdx)) {
+      alert(`Cannot cast Impact "${c.name}": its [Cast Cost] requires a card you don't have.`);
+      return;
+    }
 
     const cost = parseCardCost(c.cost, c.skill, f, c);
     for (let i = 0; i < cost.gauge; i++) f.drop.push(f.gauge.pop());
     if (cost.life > 0) f.life = Math.max(1, f.life - cost.life);
     f.hand.splice(handIdx, 1);
-    f.drop.push(cid);
+    noteSpellCast(f, c);
+
+    const setHost = c.set ? Object.assign({}, c, { soul: Array.isArray(c.soul) ? c.soul.slice() : [] }) : null;
+    if (c.set && cost.soul > 0) {
+      const isFD = /face\s*down/i.test(c.skill || "");
+      for (let i = 0; i < cost.soul && f.deck.length > 0; i++) {
+        setHost.soul.push(createSoulEntry(f.deck.shift(), isFD));
+      }
+    }
+    if (window.ABX && ABX.payExtras && ABX.hasExtras && ABX.hasExtras(c)) ABX.payExtras(side, c, setHost);
+    if (!c.set) f.drop.push(cid);
 
     let dmg = Math.max(2, cost.gauge);
     if (c.id === 6207) {
-      // Kronos Syn Finale: Deal 1 damage to your opponent for 12 times!
       dmg = 12;
     } else {
       const dmgMatch = (c.skill || "").match(/deal\s+(\d+)\s+damage/i);
@@ -7245,26 +7328,47 @@ const battle = {
     }
 
     const resolveImpact = () => {
-    this.showCutin("FINAL PHASE — IMPACT!", `${c.name} (${dmg} Damage!)`, c.img);
-    const es0 = side === "plr" ? "opp" : "plr";
-    // damage shields work against Impacts too, unless the card says its damage cannot be reduced
-    if (window.ABX && ABX.core && ABX.core.applyDamage) ABX.core.applyDamage(es0, dmg, { kind: "impact", unreducible: /cannot be reduced/i.test(c.skill || "") });
-    else enemy.life -= dmg;
+      if (c.set) {
+        f.setSpells.push(setHost || c);
+        this.showCutin("[SET] IMPACT!", c.name, c.img);
+        if (window.ABX && ABX.ownsSpell && ABX.ownsSpell(c)) {
+          ABX.fireSpell(side, setHost || c, () => { this.checkWinCondition(); this.renderBattle(); });
+        }
+        this.setPrompt(`🔮 [Set] Impact "${c.name}" remains on the field!`);
+        this.renderBattle();
+        return;
+      }
+      if (window.ABX && ABX.ownsSpell && ABX.ownsSpell(c)) {
+        this.showCutin("FINAL PHASE — IMPACT!", c.name, c.img);
+        ABX.fireSpell(side, c, () => {
+          this.checkWinCondition();
+          this.renderBattle();
+        });
+        return;
+      }
+      this.showCutin("FINAL PHASE — IMPACT!", `${c.name} (${dmg} Damage!)`, c.img);
+      const es0 = side === "plr" ? "opp" : "plr";
+      if (window.ABX && ABX.core && ABX.core.applyDamage) ABX.core.applyDamage(es0, dmg, { kind: "impact", unreducible: /cannot be reduced/i.test(c.skill || "") });
+      else enemy.life -= dmg;
 
-    if ((c.skill || "").toLowerCase().includes("destroy all monsters")) {
-      MONSTER_POSITIONS.forEach(pos => {
-        const es = side === "plr" ? "opp" : "plr";
-        if (enemy.monsters[pos] && !this.isEffectProtected(es, pos, "destroyed", side)) this.destroyMonster(es, pos);
-      });
-    }
+      if ((c.skill || "").toLowerCase().includes("destroy all monsters")) {
+        MONSTER_POSITIONS.forEach(pos => {
+          const es = side === "plr" ? "opp" : "plr";
+          if (enemy.monsters[pos] && !this.isEffectProtected(es, pos, "destroyed", side)) this.destroyMonster(es, pos);
+        });
+      }
 
-    this.checkWinCondition();
-    this.renderBattle();
+      this.checkWinCondition();
+      this.renderBattle();
     };
     // The opponent may answer with "Nullify the impact cast by your opponent" (ABX).
     if (window.ABX && ABX.castWindow) {
       ABX.castWindow(side, c, "impact").then(nullified => {
         if (!nullified) { resolveImpact(); return; }
+        if (c.set) {
+          if (setHost && Array.isArray(setHost.soul) && setHost.soul.length) f.drop.push(...setHost.soul.map(getSoulCardId));
+          f.drop.push(cid);
+        }
         this.showCutin("NULLIFIED!", `"${c.name}" was nullified!`, c.img);
         this.setPrompt(`🚫 Impact "${c.name}" was nullified by ${enemy.name}!`);
         this.renderBattle();

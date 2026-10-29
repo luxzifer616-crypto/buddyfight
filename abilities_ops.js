@@ -378,6 +378,8 @@
         }
       }
       cands = cands.filter(r => {
+        const effSz = typeof getEffectiveCardSize === "function" ? getEffectiveCardSize(f, r.card) : (r.card.size || 0);
+        if (effSz > (f.maxSize || 3)) return false;
         if (!s.pay) return true;
         const cost = parseCardCost(r.card.cost, r.card.skill, f, r.card);
         return f.gauge.length >= cost.gauge && f.life > cost.life && ABX.canPayExtras(ctx.side, r.card, -1);
