@@ -2586,11 +2586,6 @@ const app = {
           <div class="fan-card-slot ${it.isFront ? "active-front-buddy" : ""}" style="--fan-offset:${startLeft + slotPos * stepPct}%; z-index:${slotPos + 2};" title="Buddy #${it.origIdx + 1}: ${escapeHtml(it.card.name)}">
             <img src="${it.card.img}" alt="${escapeHtml(it.card.name)}" />
           </div>`).join("")}
-          <div class="buddy-stack-nav" onclick="event.stopPropagation()">
-            <button type="button" class="buddy-stack-arrow" onclick="event.stopPropagation(); app.cycleDeckBuddyPreview(-1)" title="Previous Buddy">◀</button>
-            <span class="buddy-stack-idx">${focusIdx + 1}/${n}</span>
-            <button type="button" class="buddy-stack-arrow" onclick="event.stopPropagation(); app.cycleDeckBuddyPreview(1)" title="Next Buddy">▶</button>
-          </div>
         </div>`;
       } else {
         hubBuddyVis.innerHTML = isYamigedoHalfId(buddy.id)
@@ -2642,6 +2637,7 @@ const app = {
     const ids = getDefaultBuddyZoneIds(deck.buddyId, deck.buddyIds);
     const focusIdx = ((this.deckBuddyPreviewIdx || 0) % ids.length + ids.length) % ids.length;
     this.openCardModal(ids[focusIdx] || deck.buddyId, true);
+    this.setModalNav(ids.length > 1);
   },
 
   // ===== Playmats: each mat is ONE player's side; two copies are joined (top one rotated 180°) =====
@@ -3285,21 +3281,33 @@ const app = {
 
   deckBuddyPreviewIdx: 0,
 
-  cycleDeckBuddyPreview(dir = 1) {
-    const deck = this.state.decks[this.state.activeDeckIndex] || this.state.decks[0];
+  previewDeckBuddy() {
+    const deck = this.state.decks[this.state.activeDeckIndex];
+    const ids = getDefaultBuddyZoneIds(deck.buddyId, deck.buddyIds);
+    const focusIdx = ((this.deckBuddyPreviewIdx || 0) % ids.length + ids.length) % ids.length;
+    this.openCardModal(ids[focusIdx] || deck.buddyId, true);
+    this.setModalNav(ids.length > 1);
+  },
+
+  // Big ◀ ▶ arrows on both sides of the card banner (Deck Edit / Hub buddy stack): flip through the buddies.
+  setModalNav(on) {
+    [["mdl-nav-prev", -1], ["mdl-nav-next", 1]].forEach(([id, dir]) => {
+      const b = document.getElementById(id);
+      if (!b) return;
+      b.classList.toggle("hidden", !on);
+      b.onclick = on ? (e => { e.stopPropagation(); this.stepDeckBuddyModal(dir); }) : null;
+    });
+  },
+
+  stepDeckBuddyModal(dir) {
+    const deck = this.state.decks[this.state.activeDeckIndex];
     if (!deck) return;
     const ids = getDefaultBuddyZoneIds(deck.buddyId, deck.buddyIds);
     if (ids.length <= 1) return;
     this.deckBuddyPreviewIdx = ((this.deckBuddyPreviewIdx || 0) + dir + ids.length) % ids.length;
     this.renderCurrentDeckPane();
     this.renderHub();
-  },
-
-  previewDeckBuddy() {
-    const deck = this.state.decks[this.state.activeDeckIndex];
-    const ids = getDefaultBuddyZoneIds(deck.buddyId, deck.buddyIds);
-    const focusIdx = ((this.deckBuddyPreviewIdx || 0) % ids.length + ids.length) % ids.length;
-    this.openCardModal(ids[focusIdx] || deck.buddyId, true);
+    this.previewDeckBuddy();
   },
 
   renderCurrentDeckPane() {
@@ -3348,11 +3356,6 @@ const app = {
           <div class="fan-card-slot ${it.isFront ? "active-front-buddy" : ""}" style="--fan-offset:${startLeft + slotPos * stepPct}%; z-index:${slotPos + 2};" title="Buddy #${it.origIdx + 1}: ${escapeHtml(it.card.name)}">
             <img src="${it.card.img}" alt="${escapeHtml(it.card.name)}" />
           </div>`).join("")}
-          <div class="buddy-stack-nav" onclick="event.stopPropagation()">
-            <button type="button" class="buddy-stack-arrow" onclick="event.stopPropagation(); app.cycleDeckBuddyPreview(-1)" title="Previous Buddy">◀</button>
-            <span class="buddy-stack-idx">${focusIdx + 1}/${nBuddies}</span>
-            <button type="button" class="buddy-stack-arrow" onclick="event.stopPropagation(); app.cycleDeckBuddyPreview(1)" title="Next Buddy">▶</button>
-          </div>
         </div>`;
       } else {
         dkBuddyVis.innerHTML = isYamigedoHalfId(buddy.id)
@@ -3718,6 +3721,7 @@ const app = {
   openCardModal(cardId, showCombinedYamigedo = false) {
     const c = CARD_MAP.get(cardId);
     if (!c) return;
+    this.setModalNav(false);
     this.currentInspectCardId = cardId;
 
     const mdlArtWrap = document.getElementById("mdl-art-wrap");
@@ -6205,6 +6209,7 @@ const battle = {
 
   closeCardBanner() {
     document.getElementById("card-detail-banner").classList.add("hidden");
+    ["bnr-nav-prev", "bnr-nav-next"].forEach(id => { const b = document.getElementById(id); if (b) b.classList.add("hidden"); });
   },
 
   showBannerForZone(side, zoneType) {
@@ -7263,19 +7268,46 @@ const battle = {
     this.startMonsterCall(this.activeSide, handIdx, true);
   },
 
-  cycleBuddyZonePreview(side = "plr", dir = 1) {
+  // Multi-Buddy Zone: click the stack -> card banner of the front Buddy with ◀ ▶ on both sides to view the next Buddy.
+  openBuddyBanner(side = "plr", dir = 0) {
     const f = this.getFighter(side);
-    if (!f) return;
     const entries = getFighterBuddyZoneEntries(f);
-    if (entries.length <= 1) return;
+    if (!entries.length) return;
     const n = Math.min(4, entries.length);
-    f.buddyPreviewIdx = (((f.buddyPreviewIdx || 0) + dir) % n + n) % n;
+    f.buddyPreviewIdx = ((((f.buddyPreviewIdx || 0) + dir) % n) + n) % n;
+    const e = entries[f.buddyPreviewIdx];
+    const c = e && !e.isFaceDown ? CARD_MAP.get(e.id) : null;
+    if (!c) { this.openBuddyZoneViewer(side); return; }
+    this.openCardBanner({ card: c, context: "view", side, showCombinedYamigedo: isYamigedoHalfId(c.id) });
+    const canCall = side === "plr" && this.activeSide === "plr" && this.phase === "main" && canFighterBuddyCallCard(f, e.id) && (isYamigedoHalfId(e.id) ? fighterHasBothYamigedoHalvesInHand(f) : f.hand.includes(Number(e.id)));
+    if (canCall) {
+      const b = document.createElement("button");
+      b.className = "primary-cta-btn";
+      b.textContent = "🌟 Buddy Call";
+      b.onclick = () => { this.closeCardBanner(); this.triggerBuddyCallFromZone(e.id); };
+      document.getElementById("bnr-actions").prepend(b);
+    }
+    [["bnr-nav-prev", -1], ["bnr-nav-next", 1]].forEach(([id, d]) => {
+      const b = document.getElementById(id);
+      if (!b) return;
+      b.classList.toggle("hidden", n < 2);
+      b.onclick = ev => { ev.stopPropagation(); this.openBuddyBanner(side, d); };
+    });
     this.renderBattle();
   },
 
   onBuddyZoneClick(specificBuddyId = null) {
     const f = this.getFighter("plr");
     const entries = getFighterBuddyZoneEntries(f);
+    if (entries.length > 1) {
+      if (specificBuddyId !== null) {
+        const vis = Math.min(4, entries.length);
+        const i = entries.slice(0, vis).findIndex(x => Number(x.id) === Number(specificBuddyId));
+        if (i >= 0) f.buddyPreviewIdx = i;
+      }
+      this.openBuddyBanner("plr", 0);
+      return;
+    }
     if (specificBuddyId === null && entries.length > 1) {
       const n = Math.min(4, entries.length);
       const focusIdx = ((f.buddyPreviewIdx || 0) % n + n) % n;
@@ -8679,7 +8711,7 @@ const battle = {
     if (this.imOnDestroyedUnit && window.IMX && IMX.isUnit(m)) this.imOnDestroyedUnit(ownerSide, m);
     this.sendMonsterToDropWithAnimation(side, pos, false);
     if (window.ABX && ABX.fireLeave) ABX.fireLeave(ownerSide, m.card, !!this._destroyByAttack);
-    if (window.ABX && ABX.fireOtherDestroyed) ABX.fireOtherDestroyed(ownerSide, m.card, m);
+    if (window.ABX && ABX.fireOtherDestroyed) ABX.fireOtherDestroyed(ownerSide, m.card, m, pos);
     return true;
   },
 
@@ -9210,11 +9242,6 @@ const battle = {
             : `event.stopPropagation(); battle.openBuddyZoneViewer('${side}')`;
           return `<div class="fan-card-slot buddy-fan-card ${isFront ? "active-front-buddy" : ""}" style="--fan-offset:${offsetPct}%; --v-offset:${vOff}%; z-index:${slotPos + 2};" onclick="${clickHandler}"><div class="field-card ${e.rested ? "rested" : ""}"><img src="${e.isFaceDown ? "Sprite/Sleeves/s0.png" : bc.img}" alt="${escapeHtml(bc.name)}" /></div></div>`;
         }).join("")}
-        <div class="buddy-stack-nav" onclick="event.stopPropagation()">
-          <button type="button" class="buddy-stack-arrow" onclick="event.stopPropagation(); battle.cycleBuddyZonePreview('${side}', -1)" title="Previous Buddy">◀</button>
-          <span class="buddy-stack-idx">${focusIdx + 1}/${n}</span>
-          <button type="button" class="buddy-stack-arrow" onclick="event.stopPropagation(); battle.cycleBuddyZonePreview('${side}', 1)" title="Next Buddy">▶</button>
-        </div>
       </div>
     `;
   },

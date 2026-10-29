@@ -43,7 +43,7 @@ const wait = (ms) => new Promise(r => setTimeout(r, ms));
     app.renderCurrentDeckPane();
     const dkName0 = document.getElementById("dk-buddy-name").textContent;
     const dkHtml0 = document.getElementById("dk-buddy-visual").innerHTML;
-    app.cycleDeckBuddyPreview(1);
+    app.stepDeckBuddyModal(1);
     const dkName1 = document.getElementById("dk-buddy-name").textContent;
 
     // 2 Buddies (#5418 & #5419): Standing vs Active Buddy Call
@@ -67,7 +67,7 @@ const wait = (ms) => new Promise(r => setTimeout(r, ms));
     battle.plr.buddyCalled = false;
     battle.plr.buddyPreviewIdx = 0;
     const html3Stand = battle.renderBuddyZoneHtml(battle.plr, "plr");
-    battle.cycleBuddyZonePreview("plr", 1);
+    battle.openBuddyBanner("plr", 1);
     const previewIdxAfterCycle = battle.plr.buddyPreviewIdx;
     markFighterBuddyCalled(battle.plr, 5717);
     const html3Active = battle.renderBuddyZoneHtml(battle.plr, "plr");
@@ -83,7 +83,7 @@ const wait = (ms) => new Promise(r => setTimeout(r, ms));
     const html4Active = battle.renderBuddyZoneHtml(battle.plr, "plr");
 
     JSON.stringify({
-      dkName0, dkName1, hasDkNav: dkHtml0.includes("buddy-stack-nav") && dkHtml0.includes("cycleDeckBuddyPreview"),
+      dkName0, dkName1, hasDkNav: !dkHtml0.includes("buddy-stack-nav") && !dkHtml0.includes("buddy-stack-arrow") && !document.getElementById("mdl-nav-prev").classList.contains("hidden") && !document.getElementById("mdl-nav-next").classList.contains("hidden"),
       ids2, html2Stand, html2Active, canCallSecond, canCallFirstAgain,
       ids3, html3Stand, html3Active, previewIdxAfterCycle, viewerCount3,
       ids4, html4Active
