@@ -902,7 +902,7 @@ function checkCardLegalityForFlag(card, flagCard, editingLostDeck = false, buddy
   // Dragon Zwei: same, but Monsters only (no Items). Dragon Drei is allowed as a sub-flag above.
   if (cfg.key === "dragon_ein" || cfg.key === "dragon_zwei") {
     const allowedTypes = cfg.key === "dragon_ein" ? ["Monster", "Item"] : ["Monster"];
-    const ok = allowedTypes.includes(card.type) && hasDragonInCard(card);
+    const ok = (allowedTypes.includes(card.type) && hasDragonInCard(card)) || (cfg.key === "dragon_ein" && card.type === "Spell" && /flag is "Dragon Ein"/i.test(card.skill || ""));
     if (ok) return { allowed: true, maxCopies: 4 };
   } else if (cfg.key === "chaos") {
     nativeMatch = attrs.some(a => a.includes("chaos")) || nameLower.includes("chaos") || isTrueGenericCard(card);
@@ -4237,7 +4237,7 @@ const battle = {
       ? [...deckDef.lostDeck]
       : (hasLostWorldInDeck ? generateLostDeck() : []);
 
-    return {
+    const __fighter = {
       name,
       isBot,
       world: cfg.world,
@@ -4273,6 +4273,14 @@ const battle = {
         right: null
       }
     };
+    // "Dragon Throne" (#941) in your set zone lets you hold monsters up to a total size of 4 (never lowers a bigger limit).
+    let __baseMax = __fighter.maxSize;
+    Object.defineProperty(__fighter, "maxSize", {
+      enumerable: true, configurable: true,
+      get() { return (__fighter.setSpells || []).some(c => c && c.id === 941) ? Math.max(__baseMax, 4) : __baseMax; },
+      set(v) { __baseMax = v; }
+    });
+    return __fighter;
   },
 
   start(mode, plrDeck, customOppDeck = null) {
