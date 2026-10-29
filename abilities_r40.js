@@ -157,10 +157,10 @@
     const prevOSL40 = ABX.ownsStaticLine;
     ABX.ownsStaticLine = function (card, line) {
       if (prevOSL40.apply(this, arguments)) return true;
-      if (!card || !line) return false;
+      if (!card || !line || card.id === 5021) return false;
       const n = ABX.norm(line);
       return (ABX.get(card).abilities || []).some(a =>
-        (a.r40 || a.r31 || (a.kind === "static" && (a.steps || []).some(s => s.op === "static" && VALID_STATIC_KINDS.has(s.kind)))) &&
+        a.kind === "static" && (a.r40 || a.r31 || (a.steps || []).some(s => s.op === "static" && VALID_STATIC_KINDS.has(s.kind))) &&
         ABX.norm(a.raw || a.cleaned || "") === n
       );
     };
@@ -434,6 +434,7 @@
       if (f.hand.length < 1) return false;
       f.deck.push(f.hand.pop());
       f.reversalCount = (f.reversalCount || 0) + 1;
+      if (f.godclock) f.godclock.reversalCount = (f.godclock.reversalCount || 0) + 1;
       if (Array.isArray(f.subFlags)) {
         const sf = f.subFlags.find(x => x.id === s.clockId);
         if (sf) { sf.reversalUsed = true; sf.flipped = true; }
@@ -465,7 +466,7 @@
   OPS.r40EndrulerReversal5957 = {
     async run(s, ctx) {
       const f = ctx.f;
-      const revCnt = typeof getFighterReversalCount === "function" ? getFighterReversalCount(f) : (f.reversalCount || 0);
+      const revCnt = Math.max(f.reversalCount || 0, typeof getFighterReversalCount === "function" ? getFighterReversalCount(f) : 0);
       if (revCnt < 3) return false;
       const hIdx = f.hand.findIndex(id => { const c = cardOf(id); return c && nameHas(c, "Time Ruler"); });
       const fMon = fieldUnits(f, false).find(r => r.card && nameHas(r.card, "Time Ruler"));
@@ -474,6 +475,7 @@
       else return false;
       f.reversalUsed = true;
       f.reversalCount = (f.reversalCount || 0) + 1;
+      if (f.godclock) f.godclock.reversalCount = (f.godclock.reversalCount || 0) + 1;
       const endCard = cardOf(5957) || ctx.card;
       f.item = { card: endCard, rested: false, attacksLeft: 3, soul: [], isEndrulerFlag: true };
       fresh();
@@ -817,10 +819,10 @@
           }
         }
 
-        // Check if already executable
-        const alreadyOk = ABX.isExecutable(ab) ||
-          (ab.kind === "rule" && (!ab.unparsed || !ab.unparsed.length) && ab.parsed !== false) ||
-          (ABX.ownsStaticLine && ABX.ownsStaticLine(card, ab.raw || ""));
+        // Check if already executable (avoid calling ABX.ownsStaticLine inside parseCard to prevent recursion)
+        const isStaticBoost = ab.kind === "static" && !(ab.unparsed && ab.unparsed.length) && Array.isArray(ab.steps) && ab.steps.length > 0 && ab.steps.some(x => x.op === "boost" && x.np && !x.np.junk);
+        const alreadyOk = isStaticBoost || ABX.isExecutable(ab) ||
+          (ab.kind === "rule" && (!ab.unparsed || !ab.unparsed.length) && ab.parsed !== false);
         if (alreadyOk && !(ab.unreadOptions && ab.unreadOptions.length)) return;
 
         // Clean residual np.junk on otherwise-valid steps

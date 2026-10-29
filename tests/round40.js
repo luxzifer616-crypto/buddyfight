@@ -129,7 +129,7 @@ const wait = (ms) => new Promise(r => setTimeout(r, ms));
     battle.start("hotseat", generateFlagDeck(5957, "Godclock", 5968, false), generateFlagDeck(447, "Opp", 571, false));
     ABX.autoPlay = true;
     const timeRuler = ALL_CARDS.find(c => c.type === "Monster" && /time ruler/i.test(c.name || "")) || Object.assign({}, CARD_MAP.get(46), { name: "Time Ruler Dragon" });
-    battle.plr.hand = [46, 46, 46, timeRuler.id, 6202];
+    battle.plr.hand = [timeRuler.id, 6202, 46, 46, 46];
     ABX.useAct("plr", CARD_MAP.get(5958), null);
     ABX.useAct("plr", CARD_MAP.get(5959), null);
     ABX.useAct("plr", CARD_MAP.get(5960), null);
