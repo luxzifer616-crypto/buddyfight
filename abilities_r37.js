@@ -124,14 +124,23 @@
     const i = f[area].indexOf(id); if (i < 0) return false;
     f[area].splice(i, 1);
     const unit = { card: c, rested: false, attacksLeft: c.atk_max || 1, soul: [], itemMode: "equip" };
-    if (!f.item || f.item.isEndrulerFlag) f.item = unit;
+    if (typeof root.addEquippedItemToFighter === "function" && typeof root.getMaxAllowedItems === "function" && typeof root.getEquippedItems === "function") {
+      const eqCount = root.getEquippedItems(f).length;
+      const maxAllowed = root.getMaxAllowedItems(f, c);
+      if (f.item && !f.item.isEndrulerFlag && eqCount >= maxAllowed) {
+        f.drop.push(...(f.item.soul || []), f.item.card.id);
+        f.item = unit;
+      } else {
+        root.addEquippedItemToFighter(f, unit, c);
+      }
+    } else if (!f.item || f.item.isEndrulerFlag) f.item = unit;
     else if (!f.item2 && typeof hasMultiItems === "function" && hasMultiItems(f, c)) f.item2 = unit;
     else { f.drop.push(...(f.item.soul || []), f.item.card.id); f.item = unit; }
     try { if (ABX.fireEquipped) ABX.fireEquipped(side, c, unit); } catch (e) { /* ignore */ }
     return true;
   }
   ABX.equipFrom = equipFrom;
-  const slotsFree = (f) => (typeof hasMultiItems === "function" && hasMultiItems(f) ? 2 : 1);
+  const slotsFree = (f) => (typeof root.getMaxAllowedItems === "function" ? root.getMaxAllowedItems(f) : (typeof hasMultiItems === "function" && hasMultiItems(f) ? 2 : 1));
   async function equipSome(ctx, area, pred, max, pay, title) {
     const f = ctx.f;
     const cands = f[area].map((id, idx) => ({ k: "zone", side: ctx.side, area, idx, id, card: cardOf(id) })).filter(r => r.card && r.card.type === "Item" && pred(r.card));

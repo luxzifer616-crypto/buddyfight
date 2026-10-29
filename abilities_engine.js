@@ -53,6 +53,10 @@
     for (const p of ALL_SLOTS) if (f.monsters[p] === unit) return p;
     if (f.item === unit) return "item";
     if (f.item2 && f.item2 === unit) return "item2";
+    if (Array.isArray(f.extraItems)) {
+      const idx = f.extraItems.indexOf(unit);
+      if (idx !== -1) return `item${idx + 3}`;
+    }
     return null;
   }
   core.posOfUnit = _basePosOfUnit;
@@ -63,6 +67,11 @@
     ALL_SLOTS.forEach(p => { if (f.monsters[p]) out.push({ unit: f.monsters[p], pos: p }); });
     if (withItem && f.item && !f.item.isEndrulerFlag) out.push({ unit: f.item, pos: "item" });
     if (withItem && f.item2) out.push({ unit: f.item2, pos: "item2" });   // second item (game.js hasMultiItems)
+    if (withItem && Array.isArray(f.extraItems)) {
+      f.extraItems.forEach((it, idx) => {
+        if (it) out.push({ unit: it, pos: `item${idx + 3}` });
+      });
+    }
     return out;
   }
   core.fieldUnits = _baseFieldUnits;

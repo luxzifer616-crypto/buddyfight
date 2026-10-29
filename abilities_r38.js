@@ -64,6 +64,11 @@
     if (includeItem && f) {
       if (f.item && f.item.card && !f.item.isEndrulerFlag) out.push({ side, pos: "item", unit: f.item, card: f.item.card, area: "item" });
       if (f.item2 && f.item2.card) out.push({ side, pos: "item2", unit: f.item2, card: f.item2.card, area: "item" });
+      if (Array.isArray(f.extraItems)) {
+        f.extraItems.forEach((it, idx) => {
+          if (it && it.card) out.push({ side, pos: `item${idx + 3}`, unit: it, card: it.card, area: "item" });
+        });
+      }
     }
     return out;
   };
@@ -75,6 +80,10 @@
     }
     if (f.item === u) return "item";
     if (f.item2 === u) return "item2";
+    if (Array.isArray(f.extraItems)) {
+      const idx = f.extraItems.indexOf(u);
+      if (idx !== -1) return `item${idx + 3}`;
+    }
     const mySide = f === B.plr ? "plr" : (f === B.opp ? "opp" : null);
     if (mySide) {
       const enemy = mySide === "plr" ? B.opp : B.plr;

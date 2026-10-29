@@ -2278,26 +2278,25 @@ body {
   background: var(--mat-img) center / cover no-repeat;
 }
 
-/* [CHAOS Territory]: two monsters side by side in the center zone (visually connected pair, separate interactive cards) */
+/* [CHAOS Territory]: two full-size monsters side by side in the center zone (matching 1.png) */
 .chaos-pair { display: flex; gap: 3px; width: 100%; height: 100%; position: relative; align-items: center; }
-/* When 2 center monsters are active (or calling the 2nd monster to center):
-   shift the 1st card left so its right edge/corner aligns with the exact 50% center of the slot,
-   and place the 2nd card on the right half connected edge-to-edge along the center seam! */
 .chaos-pair.chaos-connected {
-  width: 136%;
-  height: 92%;
-  left: -18%;
+  width: 176%;
+  height: 100%;
+  left: -38%;
   gap: 0;
   padding: 0;
   justify-content: center;
-  align-items: stretch;
-  z-index: 8;
+  align-items: center;
+  z-index: 12;
+  transform: translateY(-16%);
+}
+.opp-m-center .chaos-pair.chaos-connected {
+  transform: translateY(16%);
 }
 .chaos-pair.chaos-connected.both-active {
   border-radius: 7px;
-  border: 1.5px solid rgba(192, 132, 252, 0.9);
-  box-shadow: 0 0 14px rgba(168, 85, 247, 0.7), inset 0 0 8px rgba(168, 85, 247, 0.35);
-  background: rgba(59, 7, 100, 0.35);
+  filter: drop-shadow(0 0 10px rgba(168, 85, 247, 0.55));
 }
 .chaos-pair.chaos-connected .chaos-half {
   flex: 0 0 50%;
@@ -2308,48 +2307,68 @@ body {
 }
 .chaos-pair.chaos-connected .chaos-left-half {
   justify-content: flex-end;
-  border-right: 1px solid rgba(245, 208, 254, 0.85);
 }
 .chaos-pair.chaos-connected .chaos-right-half {
   justify-content: flex-start;
 }
 .chaos-pair.chaos-connected .chaos-half .field-card {
-  width: 100%;
-  height: 100%;
+  width: 98%;
+  height: 92%;
   margin: 0;
 }
 .chaos-pair.chaos-connected .chaos-left-half .field-card,
 .chaos-pair.chaos-connected .chaos-left-half .field-card img {
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-  object-fit: fill;
+  border-top-right-radius: 2px;
+  border-bottom-right-radius: 2px;
+  object-fit: contain;
 }
 .chaos-pair.chaos-connected .chaos-right-half .field-card,
 .chaos-pair.chaos-connected .chaos-right-half .field-card img {
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-  object-fit: fill;
-}
-.chaos-connector-badge {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 9;
-  pointer-events: none;
-  background: linear-gradient(135deg, #7c3aed, #db2777);
-  border: 1px solid #f5d0fe;
-  color: #fff;
-  font-size: 7px;
-  font-weight: 900;
-  letter-spacing: 0.3px;
-  padding: 1px 4px;
-  border-radius: 99px;
-  box-shadow: 0 0 8px rgba(219, 39, 119, 0.9);
-  white-space: nowrap;
+  border-top-left-radius: 2px;
+  border-bottom-left-radius: 2px;
+  object-fit: contain;
 }
 .chaos-half { flex: 1 1 0; min-width: 0; height: 100%; position: relative; cursor: pointer; }
 .chaos-half > * { max-width: 100%; }
-.chaos-empty { width: 100%; height: 100%; display: grid; place-items: center; text-align: center; font-size: 9px; font-weight: 800; line-height: 1.15; color: #e9d5ff; border: 1.5px dashed rgba(192, 132, 252, 0.9); border-left: none; background: rgba(88, 28, 135, 0.28); border-radius: 0 6px 6px 0; opacity: 0.95; }
+.chaos-empty { width: 96%; height: 92%; display: grid; place-items: center; text-align: center; font-size: 9px; font-weight: 800; line-height: 1.15; color: #e9d5ff; border: 1.5px dashed rgba(192, 132, 252, 0.9); background: rgba(88, 28, 135, 0.28); border-radius: 6px; opacity: 0.95; }
 .chaos-empty:hover { background: rgba(147, 51, 234, 0.42); box-shadow: 0 0 10px rgba(192, 132, 252, 0.7); }
-.chaos-half .field-stat-overlay { font-size: 7.5px; padding: 1px 3px; letter-spacing: -0.2px; white-space: nowrap; max-width: 100%; overflow: hidden; }
+.chaos-half .field-stat-overlay { font-size: 8px; padding: 1px 4px; letter-spacing: -0.2px; white-space: nowrap; max-width: 100%; overflow: hidden; }
+
+/* Horizontal Fan Stacks for 2/3 Buddies (2.png & 3.png), Multi-Items (4.png), and Multi-[Set] Spells (5.png) */
+.slot-fan-stack {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+}
+.slot-fan-stack .fan-card-slot {
+  position: absolute;
+  left: calc(50% + var(--fan-offset, 0%));
+  top: 50%;
+  width: 88%;
+  height: 92%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.16s ease, z-index 0s;
+}
+.slot-fan-stack .fan-card-slot:hover {
+  transform: translate(-50%, -56%) scale(1.08);
+  z-index: 30 !important;
+}
+.slot-fan-stack .fan-card-slot .field-card {
+  width: 100%;
+  height: 100%;
+}
+.slot-fan-stack.buddy-fan-stack.buddy-count-2 .fan-card-slot {
+  left: calc(64% + var(--fan-offset, 0%));
+}
+.slot-fan-stack.buddy-fan-stack.buddy-count-3 .fan-card-slot,
+.slot-fan-stack.buddy-fan-stack.buddy-count-4 .fan-card-slot {
+  left: calc(74% + var(--fan-offset, 0%));
+}

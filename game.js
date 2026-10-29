@@ -77,10 +77,97 @@ function fighterHasBothYamigedoHalvesInHand(fighter) {
   return fighter.hand.includes(YAMIGEDO_EARTH_ID) && fighter.hand.includes(YAMIGEDO_SKY_ID);
 }
 
-function isFighterBuddyMatch(buddyId, cardId) {
-  if (Number(buddyId) === Number(cardId)) return true;
-  if (isYamigedoHalfId(buddyId) && isYamigedoHalfId(cardId)) return true;
+function isFighterBuddyMatch(buddyOrFighter, cardId) {
+  const cid = Number(cardId);
+  if (buddyOrFighter && typeof buddyOrFighter === "object") {
+    const entries = getFighterBuddyZoneEntries(buddyOrFighter);
+    if (entries.some(e => !e.isFaceDown && (Number(e.id) === cid || (isYamigedoHalfId(e.id) && isYamigedoHalfId(cid))))) return true;
+    return Number(buddyOrFighter.buddyId) === cid || (isYamigedoHalfId(buddyOrFighter.buddyId) && isYamigedoHalfId(cid));
+  }
+  const bid = Number(buddyOrFighter);
+  if (bid === cid) return true;
+  if (isYamigedoHalfId(bid) && isYamigedoHalfId(cid)) return true;
+  for (const g of MULTI_BUDDY_GROUPS) {
+    if (g.includes(bid) && g.includes(cid)) return true;
+  }
   return false;
+}
+
+// Official [Double Buddy], [Triple Buddy], and Apocalypse 4-Knight Buddy groups
+const MULTI_BUDDY_GROUPS = [
+  [5418, 5419],       // [Double Buddy] Flame Deity, Magma Horus & Ice Deity, Freeza Horus
+  [5511, 5513],       // [Double Buddy] One Wing of the King, Freeza Horus & One Wing of the King, Magma Horus
+  [5517, 5523],       // [Double Buddy] Legendary Ice Deity, Freeza Horus & Legendary Flame Deity, Magma Horus
+  [5717, 5418, 5419], // [Triple Buddy] Thunder Deity, Voltic Ra + Magma Horus + Freeza Horus
+  [5749, 5523, 5517], // [Triple Buddy] Legendary Thunder Deity, Voltic Ra + Legendary Magma Horus + Legendary Freeza Horus
+  [6518, 1716, 1719, 1721] // First Knight of the Apocalypse, Gratos "Re:B" + Voremos, Aberrucia & Thanatos
+];
+
+function getDefaultBuddyZoneIds(primaryBuddyId, customBuddyIds = null) {
+  if (Array.isArray(customBuddyIds) && customBuddyIds.length > 0) {
+    return customBuddyIds.map(Number).filter(id => CARD_MAP.has(id));
+  }
+  const bid = Number(primaryBuddyId);
+  if (bid === 5717) return [5717, 5418, 5419];
+  if (bid === 5749) return [5749, 5523, 5517];
+  if (bid === 5418 || bid === 5419) return [bid, bid === 5418 ? 5419 : 5418];
+  if (bid === 5511 || bid === 5513) return [bid, bid === 5511 ? 5513 : 5511];
+  if (bid === 5517 || bid === 5523) return [bid, bid === 5517 ? 5523 : 5517];
+  if (bid === 6518) {
+    const voremos = ALL_CARDS.find(c => /second knight of the apocalypse,\s*voremos/i.test(c.name || ""));
+    const aberrucia = ALL_CARDS.find(c => /third knight of the apocalypse,\s*aberrucia/i.test(c.name || ""));
+    const thanatos = ALL_CARDS.find(c => /fourth knight of the apocalypse,\s*thanatos/i.test(c.name || ""));
+    return [6518, voremos && voremos.id, aberrucia && aberrucia.id, thanatos && thanatos.id].filter(Boolean);
+  }
+  return CARD_MAP.has(bid) ? [bid] : [46];
+}
+
+function getFighterBuddyZoneEntries(fighter) {
+  if (!fighter) return [];
+  if (!Array.isArray(fighter.buddyZone) || fighter.buddyZone.length === 0) {
+    const ids = getDefaultBuddyZoneIds(fighter.buddyId, fighter.buddyIds);
+    fighter.buddyZone = ids.map(id => ({ id: Number(id), rested: Boolean(fighter.buddyCalled), isFaceDown: false }));
+  }
+  const out = fighter.buddyZone.slice();
+  if (Array.isArray(fighter.buddyZoneFaceDown)) {
+    fighter.buddyZoneFaceDown.forEach(fid => {
+      out.push({ id: getSoulCardId(fid), rested: false, isFaceDown: true });
+    });
+  }
+  return out;
+}
+
+function canFighterBuddyCallCard(fighter, cardId) {
+  if (!fighter) return false;
+  const entries = getFighterBuddyZoneEntries(fighter).filter(e => !e.isFaceDown);
+  if (entries.length <= 1) return !fighter.buddyCalled && isFighterBuddyMatch(fighter, cardId);
+  return entries.some(e => !e.rested && (Number(e.id) === Number(cardId) || (isYamigedoHalfId(e.id) && isYamigedoHalfId(cardId))));
+}
+
+function markFighterBuddyCalled(fighter, cardId) {
+  if (!fighter) return;
+  const entries = getFighterBuddyZoneEntries(fighter);
+  const target = fighter.buddyZone.find(e => !e.isFaceDown && !e.rested && (Number(e.id) === Number(cardId) || (isYamigedoHalfId(e.id) && isYamigedoHalfId(cardId))))
+    || fighter.buddyZone.find(e => !e.isFaceDown && !e.rested);
+  if (target) target.rested = true;
+  const faceUpMonsters = fighter.buddyZone.filter(e => !e.isFaceDown && (CARD_MAP.get(e.id) || {}).type === "Monster");
+  fighter.buddyCalled = faceUpMonsters.length > 0 ? faceUpMonsters.every(e => e.rested) : true;
+}
+
+function standFighterBuddyZone(fighter, filterFn = null) {
+  if (!fighter) return 0;
+  getFighterBuddyZoneEntries(fighter);
+  let count = 0;
+  (fighter.buddyZone || []).forEach(e => {
+    const c = CARD_MAP.get(e.id);
+    if (e.rested && (!filterFn || (c && filterFn(c)))) {
+      e.rested = false;
+      count++;
+    }
+  });
+  const faceUpMonsters = (fighter.buddyZone || []).filter(e => !e.isFaceDown && (CARD_MAP.get(e.id) || {}).type === "Monster");
+  fighter.buddyCalled = faceUpMonsters.length > 0 ? faceUpMonsters.every(e => e.rested) : false;
+  return count;
 }
 
 function getCanonicalYamigedoCard() {
@@ -945,34 +1032,93 @@ function canPlaceSecondCenter(fighter, incomingCard = null) {
   return !!fighter && !!fighter.monsters && !!fighter.monsters.center && !fighter.monsters.center2 && (hasChaosTerritory(fighter) || cardHasChaosTerritory(incomingCard));
 }
 
-// More than one item: while "you may equip any number of items" or a dual-item card (#3728, #6512, #1461, #2553, #2554, #3676, #3869, #4175, #5345, #5346, #6471, #6226) is active,
-// a second item goes to "item2".
+// More than one item: supports equipping 2, 3, or any number of items ("item", "item2", "item3", "item4", ...)
 const MULTI_ITEM_CARD_IDS = [3728, 6512, 1461, 2553, 2554, 3676, 3869, 4175, 5345, 5346, 6471, 6226];
 function cardAllowsMultiItems(card) {
   if (!card) return false;
   if (MULTI_ITEM_CARD_IDS.includes(Number(card.id))) return true;
-  return /you may equip (?:any number of|up to two|another) [^\n]*items?|equip this card even if you have/i.test(card.skill || "");
+  return /you may equip (?:any number of|up to two|up to three|two|three|another) [^\n]*items?|equip this card even if you have/i.test(card.skill || "");
+}
+function cardAllowsUnlimitedItems(card) {
+  if (!card) return false;
+  if ([3728, 6512, 3869, 4175, 5345, 5346].includes(Number(card.id))) return true;
+  return /equip any number of [^\n]*items?/i.test(card.skill || "");
+}
+function getMaxAllowedItems(fighter, incomingCard = null) {
+  if (!fighter) return 1;
+  const eq = getEquippedItems(fighter).map(x => x.unit.card);
+  const allSources = [
+    ...eq,
+    ...(fighter.setSpells || []),
+    ...MONSTER_POSITIONS.map(p => fighter.monsters && fighter.monsters[p] && fighter.monsters[p].card).filter(Boolean),
+    ...getFighterBuddyZoneEntries(fighter).map(e => CARD_MAP.get(e.id)).filter(Boolean),
+    incomingCard
+  ].filter(Boolean);
+  if (allSources.some(c => cardAllowsUnlimitedItems(c))) return 99;
+  if (allSources.some(c => /equip up to three/i.test(c.skill || ""))) return 3;
+  if (allSources.some(c => cardAllowsMultiItems(c))) return 2;
+  return 1;
 }
 function hasMultiItems(fighter, incomingCard = null) {
-  if (!fighter) return false;
-  const items = [fighter.item, fighter.item2].filter(u => u && u.card && !u.isEndrulerFlag);
-  if (items.some(u => cardAllowsMultiItems(u.card))) return true;
-  if (fighter.buddyId === 6512 && !items.some(u => u.card.id === 6512)) return true;
-  if ((fighter.setSpells || []).some(c => cardAllowsMultiItems(c))) return true;
-  if (MONSTER_POSITIONS.some(p => fighter.monsters && fighter.monsters[p] && cardAllowsMultiItems(fighter.monsters[p].card))) return true;
-  if (incomingCard && cardAllowsMultiItems(incomingCard)) return true;
-  return false;
+  return getMaxAllowedItems(fighter, incomingCard) >= 2;
 }
 function getEquippedItems(fighter) {
   if (!fighter) return [];
   const list = [];
   if (fighter.item && fighter.item.card && !fighter.item.isEndrulerFlag) list.push({ slot: "item", unit: fighter.item });
   if (fighter.item2 && fighter.item2.card) list.push({ slot: "item2", unit: fighter.item2 });
+  if (Array.isArray(fighter.extraItems)) {
+    fighter.extraItems.forEach((u, i) => {
+      if (u && u.card) list.push({ slot: `item${i + 3}`, unit: u });
+    });
+  }
   return list;
+}
+function setEquippedItemAtSlot(fighter, slot, unit) {
+  if (!fighter) return;
+  if (slot === "item") { fighter.item = unit; return; }
+  if (slot === "item2") { fighter.item2 = unit; return; }
+  const m = String(slot || "").match(/^item(\d+)$/);
+  if (m) {
+    const idx = parseInt(m[1], 10) - 3;
+    if (idx >= 0) {
+      if (!Array.isArray(fighter.extraItems)) fighter.extraItems = [];
+      if (unit === null) {
+        fighter.extraItems.splice(idx, 1);
+      } else {
+        fighter.extraItems[idx] = unit;
+      }
+    }
+  }
+}
+function addEquippedItemToFighter(fighter, newItem, incomingCard = null) {
+  if (!fighter || !newItem) return "item";
+  const maxItems = getMaxAllowedItems(fighter, incomingCard || newItem.card);
+  if (!fighter.item || fighter.item.isEndrulerFlag) {
+    fighter.item = newItem;
+    return "item";
+  }
+  if (maxItems >= 2 && !fighter.item2) {
+    fighter.item2 = newItem;
+    return "item2";
+  }
+  if (maxItems > 2) {
+    if (!Array.isArray(fighter.extraItems)) fighter.extraItems = [];
+    if (2 + fighter.extraItems.length < maxItems) {
+      fighter.extraItems.push(newItem);
+      return `item${2 + fighter.extraItems.length}`;
+    }
+  }
+  fighter.item = newItem;
+  return "item";
 }
 function unitAt(fighter, zone) {
   if (zone === "item") return fighter.item;
   if (zone === "item2") return fighter.item2;
+  if (typeof zone === "string" && /^item(\d+)$/.test(zone)) {
+    const idx = parseInt(zone.slice(4), 10) - 3;
+    return (fighter && Array.isArray(fighter.extraItems) && idx >= 0) ? (fighter.extraItems[idx] || null) : null;
+  }
   if (typeof zone === "string" && zone.startsWith("opp_")) {
     const oppPos = zone.slice(4);
     const enemy = (typeof battle !== "undefined" && battle.plr && battle.opp)
@@ -1003,6 +1149,9 @@ function getAllFieldUnits(fighter) {
   }
   if (fighter.item) units.push(fighter.item);
   if (fighter.item2) units.push(fighter.item2);
+  if (Array.isArray(fighter.extraItems)) {
+    fighter.extraItems.forEach(u => { if (u) units.push(u); });
+  }
   return units;
 }
 
@@ -3110,13 +3259,26 @@ const app = {
     }
     document.getElementById("dk-flag-name").textContent = flag.name;
     document.getElementById("dk-flag-rule-tag").textContent = cfg.ruleSummary;
+    const dkBuddyIds = getDefaultBuddyZoneIds(buddy.id, deck.buddyIds);
+    const dkBuddyCards = dkBuddyIds.map(id => CARD_MAP.get(id)).filter(Boolean);
     const dkBuddyVis = document.getElementById("dk-buddy-visual");
     if (dkBuddyVis) {
-      dkBuddyVis.innerHTML = isYamigedoHalfId(buddy.id)
-        ? renderYamigedoDualStackHtml()
-        : `<img id="dk-buddy-img" src="${buddy.img}" alt="Buddy" />`;
+      if (dkBuddyCards.length > 1) {
+        const step = Math.min(24, Math.floor(48 / (dkBuddyCards.length - 1)));
+        const cardW = Math.max(52, 100 - step * (dkBuddyCards.length - 1));
+        dkBuddyVis.innerHTML = `<div class="slot-fan-stack buddy-fan-stack" data-count="${dkBuddyCards.length}">${dkBuddyCards.map((bc, idx) => `
+          <div class="fan-card-slot" style="left:${idx * step}%;width:${cardW}%;z-index:${idx + 1};" title="Buddy #${idx + 1}: ${escapeHtml(bc.name)}">
+            <img src="${bc.img}" alt="${escapeHtml(bc.name)}" />
+          </div>`).join("")}</div>`;
+      } else {
+        dkBuddyVis.innerHTML = isYamigedoHalfId(buddy.id)
+          ? renderYamigedoDualStackHtml()
+          : `<img id="dk-buddy-img" src="${buddy.img}" alt="Buddy" />`;
+      }
     }
-    document.getElementById("dk-buddy-name").textContent = getBuddyDisplayName(buddy);
+    document.getElementById("dk-buddy-name").textContent = dkBuddyCards.length > 1
+      ? `[${dkBuddyCards.length} BUDDIES] ${dkBuddyCards.map(c => c.name).join(" & ")}`
+      : getBuddyDisplayName(buddy);
 
     const hasLostWorldFlag = deck.cards.some(cid => [4569, 5760].includes(cid));
     const lostTabBtn = document.getElementById("tab-lost-deck");
@@ -3978,6 +4140,8 @@ const battle = {
       flagKey: cfg.key,
       flagId: deckDef.flagId,
       buddyId: deckDef.buddyId,
+      buddyIds: getDefaultBuddyZoneIds(deckDef.buddyId, deckDef.buddyIds),
+      buddyZone: getDefaultBuddyZoneIds(deckDef.buddyId, deckDef.buddyIds).map(id => ({ id: Number(id), rested: false, isFaceDown: false })),
       life: cfg.life,
       maxSize: cfg.maxSize,
       deck: shuffled,
@@ -3990,6 +4154,8 @@ const battle = {
       drop: [],
       setSpells: [],
       item: null,
+      item2: null,
+      extraItems: [],
       godclock: godclockState,
       timeStoppedThisBattle: false,
       timeStoppedThisTurn: false,
@@ -5203,12 +5369,32 @@ const battle = {
       }
     });
 
-    [f.item, f.item2].forEach(it => {
+    getEquippedItems(f).forEach(({ unit: it }) => {
       if (!it) return;
       it.rested = false;
       it.attacksLeft = it.card.atk_max || 1;
       it.actUsed = false;
     });
+
+    // [Double Buddy] / [Triple Buddy] automatic start-of-turn search:
+    // "This card will automatically search for its double buddy at the start of turn"
+    const bzEntries = getFighterBuddyZoneEntries(f).filter(e => !e.isFaceDown);
+    if (bzEntries.length >= 2) {
+      for (const e of bzEntries) {
+        const bc = CARD_MAP.get(e.id);
+        if (bc && /automatically search for its double buddy|double buddy|triple buddy/i.test(bc.skill || "")) {
+          const partnerEntry = bzEntries.find(p => p.id !== e.id && !f.hand.includes(p.id) && f.deck.includes(p.id));
+          if (partnerEntry) {
+            const dIdx = f.deck.indexOf(partnerEntry.id);
+            if (dIdx >= 0) {
+              f.hand.push(f.deck.splice(dIdx, 1)[0]);
+              this.shuffleFighterDeck(side);
+              break;
+            }
+          }
+        }
+      }
+    }
 
     this.phase = "start";
     this.phase = "main";
@@ -5538,7 +5724,7 @@ const battle = {
         };
         actionsEl.appendChild(bCall);
 
-        if (!f.buddyCalled && isFighterBuddyMatch(f.buddyId, card.id)) {
+        if (canFighterBuddyCallCard(f, card.id)) {
           const bBuddy = document.createElement("button");
           bBuddy.className = "primary-cta-btn";
           bBuddy.disabled = !sizeFitsFlag;
@@ -6283,12 +6469,29 @@ const battle = {
     const isDropMode = Boolean(this.deckSearchState && this.deckSearchState.isDropZoneMode);
     const isSetMode = Boolean(this.deckSearchState && this.deckSearchState.isSetZoneMode);
     const isItemMode = Boolean(this.deckSearchState && this.deckSearchState.isItemZoneMode);
+    const isBuddyMode = Boolean(this.deckSearchState && this.deckSearchState.isBuddyZoneMode);
     const isSoulMode = Boolean(this.deckSearchState && this.deckSearchState.isSoulMode);
     const dropSide = (this.deckSearchState && this.deckSearchState.dropSide) || "plr";
     const dropFighter = this.getFighter(dropSide);
 
     const combinedPool = [];
-    if (isSetMode) {
+    if (isBuddyMode) {
+      getFighterBuddyZoneEntries(dropFighter).forEach((entry, idx) => {
+        const bc = CARD_MAP.get(entry.id);
+        if (!bc) return;
+        const inHand = dropFighter.hand.includes(Number(entry.id)) || (isYamigedoHalfId(entry.id) && fighterHasBothYamigedoHalvesInHand(dropFighter));
+        combinedPool.push({
+          cid: bc.id,
+          cardObj: bc,
+          buddyEntry: entry,
+          zone: "buddy",
+          idx,
+          badge: entry.isFaceDown
+            ? `🂠 FACE-DOWN IN BUDDY ZONE #${idx + 1}`
+            : `🌟 BUDDY #${idx + 1} (${entry.rested ? "[Rest] Called" : inHand ? "[Stand] Ready in Hand!" : "[Stand]"})`
+        });
+      });
+    } else if (isSetMode) {
       (dropFighter.setSpells || []).forEach((sp, idx) => {
         if (!sp) return;
         const soulCnt = Array.isArray(sp.soul) ? sp.soul.length : 0;
@@ -6388,6 +6591,21 @@ const battle = {
       tile.onclick = () => {
         if (criteria && !matchesCrit) {
           alert(`"${c.name}" does not match the card ability requirement:\n"${criteria.rawText}"`);
+          return;
+        }
+        if (isBuddyMode) {
+          document.getElementById("deck-search-modal").classList.add("hidden");
+          const canCallThis = dropSide === this.activeSide && this.phase === "main" && canFighterBuddyCallCard(dropFighter, c.id) && (isYamigedoHalfId(c.id) ? fighterHasBothYamigedoHalvesInHand(dropFighter) : dropFighter.hand.includes(Number(c.id)));
+          if (canCallThis) {
+            this.triggerBuddyCallFromZone(c.id);
+          } else {
+            this.openCardBanner({
+              card: c,
+              context: "view",
+              side: dropSide,
+              showCombinedYamigedo: isYamigedoHalfId(c.id)
+            });
+          }
           return;
         }
         if (isSetMode) {
@@ -6881,17 +7099,58 @@ const battle = {
     this.renderBattle();
   },
 
-  triggerBuddyCallFromZone() {
+  openBuddyZoneViewer(side = "plr") {
+    const f = this.getFighter(side);
+    const entries = getFighterBuddyZoneEntries(f);
+    this.activeChoice = null;
+    this.setDeckSearchFiltersEnabled(true);
+    this.deckSearchState = {
+      isBuddyZoneMode: true,
+      dropSide: side,
+      sourceLabel: `${f.name}'s Buddy Zone`,
+      criteria: null
+    };
+    document.getElementById("ds-title").textContent = `🌟 ${f.name.toUpperCase()}'S BUDDY ZONE (${entries.length} Card${entries.length === 1 ? "" : "s"})`;
+    document.getElementById("ds-subtitle").textContent = `Click any Buddy card below to inspect its Card Detail Banner or perform a 🌟 Buddy Call if it is in your hand!`;
+    document.getElementById("ds-filter").value = "";
+    const tribeSel = document.getElementById("ds-tribe");
+    if (tribeSel) tribeSel.value = "";
+    const onlyMatchChk = document.getElementById("ds-only-matching");
+    if (onlyMatchChk) onlyMatchChk.checked = false;
+
+    const footerEl = document.getElementById("ds-footer-actions");
+    if (footerEl) {
+      footerEl.innerHTML = `<button class="secondary-btn" onclick="document.getElementById('deck-search-modal').classList.add('hidden')">Close Buddy Zone</button>`;
+    }
+    this.renderDeckSearchGrid();
+    document.getElementById("deck-search-modal").classList.remove("hidden");
+  },
+
+  triggerBuddyCallFromZone(specificBuddyId = null) {
     if (!this.isLocalTurn()) return;
     const f = this.getFighter(this.activeSide);
-    if (f.buddyCalled) {
-      alert("You have already performed your Buddy Call this fight!");
+    const entries = getFighterBuddyZoneEntries(f).filter(e => !e.isFaceDown);
+    const standingEntries = entries.filter(e => !e.rested);
+    if (standingEntries.length === 0 || f.buddyCalled) {
+      alert("All of your Buddy cards in the Buddy Zone have already been Buddy Called ([Rest])!");
       return;
     }
-    const buddyCard = CARD_MAP.get(f.buddyId);
+    const candidateEntries = specificBuddyId !== null
+      ? standingEntries.filter(e => Number(e.id) === Number(specificBuddyId) || (isYamigedoHalfId(e.id) && isYamigedoHalfId(specificBuddyId)))
+      : standingEntries;
+    const inHandEntry = candidateEntries.find(e => {
+      if (isYamigedoHalfId(e.id)) return fighterHasBothYamigedoHalvesInHand(f);
+      return f.hand.includes(Number(e.id));
+    });
+    if (!inHandEntry && entries.length > 1 && specificBuddyId === null) {
+      this.openBuddyZoneViewer(this.activeSide);
+      return;
+    }
+    const targetEntry = inHandEntry || candidateEntries[0] || standingEntries[0];
+    const buddyCard = CARD_MAP.get(targetEntry.id);
     if (!buddyCard) return;
 
-    if (isYamigedoHalfId(f.buddyId)) {
+    if (isYamigedoHalfId(targetEntry.id)) {
       if (!fighterHasBothYamigedoHalvesInHand(f)) {
         alert(`Buddy Call for "${getBuddyDisplayName(buddyCard)}" requires BOTH "Earth Half" (#1911) and "Sky Half" (#1912) in your hand!`);
         return;
@@ -6901,7 +7160,7 @@ const battle = {
       return;
     }
 
-    const handIdx = f.hand.indexOf(f.buddyId);
+    const handIdx = f.hand.indexOf(Number(targetEntry.id));
     if (handIdx === -1) {
       alert(`Buddy Call needs "${buddyCard.name}" in your hand. Draw or search for it first!`);
       return;
@@ -6909,8 +7168,25 @@ const battle = {
     this.startMonsterCall(this.activeSide, handIdx, true);
   },
 
-  onBuddyZoneClick() {
+  onBuddyZoneClick(specificBuddyId = null) {
     const f = this.getFighter("plr");
+    const entries = getFighterBuddyZoneEntries(f);
+    if (specificBuddyId !== null) {
+      const canCall = this.activeSide === "plr" && this.phase === "main" && canFighterBuddyCallCard(f, specificBuddyId) && (isYamigedoHalfId(specificBuddyId) ? fighterHasBothYamigedoHalvesInHand(f) : f.hand.includes(Number(specificBuddyId)));
+      if (canCall) {
+        this.triggerBuddyCallFromZone(specificBuddyId);
+        return;
+      }
+      const c = CARD_MAP.get(specificBuddyId);
+      if (c) {
+        this.openCardBanner({ card: c, context: "view", side: "plr", showCombinedYamigedo: isYamigedoHalfId(c.id) });
+        return;
+      }
+    }
+    if (entries.length > 1) {
+      this.openBuddyZoneViewer("plr");
+      return;
+    }
     const buddyCard = isYamigedoHalfId(f.buddyId) ? getCanonicalYamigedoCard() : CARD_MAP.get(f.buddyId);
     if (!f.buddyCalled && this.activeSide === "plr" && this.phase === "main") {
       this.triggerBuddyCallFromZone();
@@ -7072,7 +7348,7 @@ const battle = {
     if (!isAbilityCall && window.ABX && ABX.payExtras && ABX.hasExtras(c)) ABX.payExtras(side, c, unit);
     const eff = getUnitEffectiveCombatStats(f, unit);
     unit.attacksLeft = eff.qa ? 4 : eff.ta ? 3 : eff.da ? 2 : (c.atk_max || 1);
-    if (isBuddyCall) f.buddyCalled = true;
+    if (isBuddyCall) markFighterBuddyCalled(f, c.id);
 
     this.animateCardFlight(fromHandId, toZoneId, c.img, isBuddyCall ? "🌟 BUDDY CALL!" : "🐉 CALL!", 0, () => {
       // The opponent may answer with "Nullify the call" (ABX). A nullified monster goes to the drop zone with its soul.
@@ -7081,7 +7357,7 @@ const battle = {
           if (nullified && f.monsters[zonePos] === unit) {
             f.monsters[zonePos] = null;
             f.drop.push(...(unit.soul || []), ...(unit.pairedHalfIds && unit.pairedHalfIds.length ? unit.pairedHalfIds : [c.id]));
-            if (isBuddyCall) f.buddyCalled = false;
+            if (isBuddyCall) standFighterBuddyZone(f, bc => bc.id === c.id);
             this.showCutin("NULLIFIED!", `The call of "${c.name}" was nullified!`, c.img);
             this.setPrompt(`🚫 The call of "${c.name}" was nullified!`);
             this.renderBattle();
@@ -7145,9 +7421,10 @@ const battle = {
     for (let i = 0; i < cost.gauge; i++) f.drop.push(f.gauge.pop());
     if (cost.life > 0) f.life = Math.max(1, f.life - cost.life);
 
-    const toSecond = !!(f.item && !f.item.isEndrulerFlag && !f.item2 && hasMultiItems(f, c));   // the old item stays: this one goes to "item2"
-    if (f.item && !f.item.isEndrulerFlag && !toSecond) {
-      // The old item's soul goes to the Drop Zone (before, those cards were lost from the game).
+    const eqCount = getEquippedItems(f).length;
+    const maxItems = getMaxAllowedItems(f, c);
+    const canKeepExisting = eqCount > 0 && eqCount < maxItems;
+    if (f.item && !f.item.isEndrulerFlag && !canKeepExisting) {
       if (f.item.soul && f.item.soul.length) f.drop.push(...f.item.soul.map(getSoulCardId));
       if (c.eqc) {
         f.hand.push(f.item.card.id);
@@ -7173,7 +7450,7 @@ const battle = {
         attacksLeft: c.atk_max || 1,
         soul: soulArr
       };
-      if (toSecond) f.item2 = newItem; else f.item = newItem;
+      const placedSlot = addEquippedItemToFighter(f, newItem, c);
       if (window.ABX && ABX.payExtras && ABX.hasExtras && ABX.hasExtras(c)) ABX.payExtras(side, c, newItem);
 
       if (modeLabel !== "Equip") {
@@ -7181,7 +7458,7 @@ const battle = {
       }
       this.setPrompt(`🗡️ Equipped "${c.name}" (Pow ${c.power || 0} / Crit ${c.crit || 1})!`);
       this.renderBattle();
-      if (window.ABX && ABX.fireEquipped) ABX.fireEquipped(side, c, toSecond ? f.item2 : f.item);
+      if (window.ABX && ABX.fireEquipped) ABX.fireEquipped(side, c, unitAt(f, placedSlot) || newItem);
     });
   },
 
@@ -8220,11 +8497,11 @@ const battle = {
 
   destroyMonster(side, pos) {
     const f = this.getFighter(side);
-    if (pos === "item2") {   // the second item (see hasMultiItems)
-      const it = f.item2;
+    if (typeof pos === "string" && /^item(\d+)$/.test(pos)) {
+      const it = unitAt(f, pos);
       if (!it) return false;
       f.drop.push(...(it.soul || []).map(getSoulCardId), it.card.id);
-      f.item2 = null;
+      setEquippedItemAtSlot(f, pos, null);
       this.renderBattle();
       return true;
     }
@@ -8750,9 +9027,21 @@ const battle = {
       `;
     }
 
-    if (fighter.item && fighter.item2) {   // two items: side by side, each clickable
-      const half = (zone, u) => `<div class="chaos-half" onclick="event.stopPropagation(); battle.onZoneClick('${side}','${zone}')">${this.renderFieldCardHtml(fighter, u, side, zone)}</div>`;
-      return `<div class="chaos-pair">${half("item", fighter.item)}${half("item2", fighter.item2)}</div>`;
+    const eqItems = getEquippedItems(fighter);
+    if (eqItems.length >= 2) {
+      const visible = eqItems.slice(-6);
+      const n = visible.length;
+      const stepPct = Math.min(22, Math.floor(68 / Math.max(1, n - 1)));
+      const totalShift = stepPct * (n - 1);
+      const startLeft = -Math.floor(totalShift / 2);
+      return `
+        <div class="slot-fan-stack item-fan-stack chaos-pair" title="${eqItems.length} Equipped Items — Click any Item to Attack/Act, or inspect all Items & Flag">
+          ${visible.map(({ slot, unit }, idx) => {
+            const offsetPct = startLeft + idx * stepPct;
+            return `<div class="fan-card-slot chaos-half" style="--fan-offset:${offsetPct}%; z-index:${idx + 2};" onclick="event.stopPropagation(); battle.onZoneClick('${side}','${slot}')">${this.renderFieldCardHtml(fighter, unit, side, slot)}</div>`;
+          }).join("")}
+        </div>
+      `;
     }
     if (fighter.item) {
       return this.renderFieldCardHtml(fighter, fighter.item, side, "item");
@@ -8760,6 +9049,38 @@ const battle = {
 
     const flagCard = CARD_MAP.get(fighter.flagId) || ALL_CARDS[0];
     return `<div class="field-card"><img src="${flagCard.img}" alt="${escapeHtml(flagCard.name)}" /></div>`;
+  },
+
+  renderBuddyZoneHtml(fighter, side) {
+    const entries = getFighterBuddyZoneEntries(fighter);
+    if (entries.length === 0) return "";
+    if (entries.length === 1) {
+      const e = entries[0];
+      const bc = CARD_MAP.get(e.id);
+      if (!bc) return "";
+      if (isYamigedoHalfId(bc.id)) {
+        return `<div class="field-card yamigedo-connected-card ${e.rested || fighter.buddyCalled ? "rested" : ""}">${renderYamigedoDualStackHtml()}</div>`;
+      }
+      return `<div class="field-card ${e.rested || fighter.buddyCalled ? "rested" : ""}"><img src="${e.isFaceDown ? "Sprite/Sleeves/s0.png" : bc.img}" alt="${escapeHtml(bc.name)}" /></div>`;
+    }
+    const visible = entries.slice(0, 4);
+    const n = visible.length;
+    const stepPct = n === 2 ? 46 : n === 3 ? 34 : 26;
+    const totalShift = stepPct * (n - 1);
+    const startLeft = -Math.floor(totalShift / 2);
+    return `
+      <div class="slot-fan-stack buddy-fan-stack buddy-count-${n}" title="${entries.length} Cards in Buddy Zone — Click to Buddy Call or Inspect">
+        ${visible.map((e, idx) => {
+          const bc = CARD_MAP.get(e.id);
+          if (!bc) return "";
+          const offsetPct = startLeft + idx * stepPct;
+          const clickHandler = side === "plr"
+            ? `event.stopPropagation(); battle.onBuddyZoneClick(${e.id})`
+            : `event.stopPropagation(); battle.openBuddyZoneViewer('${side}')`;
+          return `<div class="fan-card-slot buddy-fan-card" style="--fan-offset:${offsetPct}%; z-index:${idx + 2};" onclick="${clickHandler}"><div class="field-card ${e.rested ? "rested" : ""}"><img src="${e.isFaceDown ? "Sprite/Sleeves/s0.png" : bc.img}" alt="${escapeHtml(bc.name)}" /></div></div>`;
+        }).join("")}
+      </div>
+    `;
   },
 
   renderGaugeStackHtml(gaugeArr) {
@@ -8785,12 +9106,18 @@ const battle = {
     if (list.length === 1) {
       return renderOneSet(list[0], 0);
     }
-    const i1 = list.length - 2;
-    const i2 = list.length - 1;
+    const visible = list.slice(-5);
+    const startIdx = list.length - visible.length;
+    const n = visible.length;
+    const stepPct = Math.min(26, Math.floor(64 / Math.max(1, n - 1)));
+    const totalShift = stepPct * (n - 1);
+    const startLeft = -Math.floor(totalShift / 2);
     return `
-      <div class="chaos-pair" title="Click to inspect all ${list.length} [Set] cards">
-        <div class="chaos-half">${renderOneSet(list[i1], i1)}</div>
-        <div class="chaos-half">${renderOneSet(list[i2], i2)}</div>
+      <div class="slot-fan-stack set-fan-stack chaos-pair" title="Click to inspect all ${list.length} [Set] cards">
+        ${visible.map((sp, i) => {
+          const offsetPct = startLeft + i * stepPct;
+          return `<div class="fan-card-slot chaos-half" style="--fan-offset:${offsetPct}%; z-index:${i + 2};">${renderOneSet(sp, startIdx + i)}</div>`;
+        }).join("")}
       </div>
     `;
   },
@@ -8809,8 +9136,7 @@ const battle = {
     const bothPresent = Boolean(f.monsters.center && f.monsters.center2);
     if (!bothPresent && !pendingChaosCall) return this.renderFieldCardHtml(f, f.monsters.center, side, "center");
     const half = (pos, inner, sideClass) => `<div class="chaos-half ${sideClass}" onclick="event.stopPropagation(); battle.onZoneClick('${side}','${pos}')">${inner}</div>`;
-    const linkBadge = `<div class="chaos-connector-badge" title="[CHAOS Territory] Connected Dual-Center">${bothPresent ? "⚡CHAOS⚡" : "⚡+1"}</div>`;
-    return `<div class="chaos-pair chaos-connected ${bothPresent ? "both-active" : "calling-second"}">${half("center", this.renderFieldCardHtml(f, f.monsters.center, side, "center"), "chaos-left-half")}${linkBadge}${half("center2", f.monsters.center2 ? this.renderFieldCardHtml(f, f.monsters.center2, side, "center2") : '<div class="chaos-empty">⚡ CALL HERE<br>(CHAOS Territory)</div>', "chaos-right-half")}</div>`;
+    return `<div class="chaos-pair chaos-connected ${bothPresent ? "both-active" : "calling-second"}">${half("center", this.renderFieldCardHtml(f, f.monsters.center, side, "center"), "chaos-left-half")}${half("center2", f.monsters.center2 ? this.renderFieldCardHtml(f, f.monsters.center2, side, "center2") : '<div class="chaos-empty">⚡ CALL HERE<br>(CHAOS Territory)</div>', "chaos-right-half")}</div>`;
   },
 
   renderBattle() {
@@ -8862,19 +9188,8 @@ const battle = {
     document.getElementById("z-opp-set-slot").innerHTML = this.renderSetZoneSlotHtml("opp");
     document.getElementById("z-plr-set-slot").innerHTML = this.renderSetZoneSlotHtml("plr");
 
-    const oppBuddy = CARD_MAP.get(this.opp.buddyId);
-    document.getElementById("z-opp-buddy-slot").innerHTML = oppBuddy
-      ? (isYamigedoHalfId(oppBuddy.id)
-        ? `<div class="field-card yamigedo-connected-card ${this.opp.buddyCalled ? "rested" : ""}">${renderYamigedoDualStackHtml()}</div>`
-        : `<div class="field-card ${this.opp.buddyCalled ? "rested" : ""}"><img src="${oppBuddy.img}" /></div>`)
-      : "";
-
-    const plrBuddy = CARD_MAP.get(this.plr.buddyId);
-    document.getElementById("slot-plr-buddy").innerHTML = plrBuddy
-      ? (isYamigedoHalfId(plrBuddy.id)
-        ? `<div class="field-card yamigedo-connected-card ${this.plr.buddyCalled ? "rested" : ""}">${renderYamigedoDualStackHtml()}</div>`
-        : `<div class="field-card ${this.plr.buddyCalled ? "rested" : ""}"><img src="${plrBuddy.img}" /></div>`)
-      : "";
+    document.getElementById("z-opp-buddy-slot").innerHTML = this.renderBuddyZoneHtml(this.opp, "opp");
+    document.getElementById("slot-plr-buddy").innerHTML = this.renderBuddyZoneHtml(this.plr, "plr");
 
     document.getElementById("z-opp-item-slot").innerHTML = this.renderFlagZoneHtml(this.opp);
     document.getElementById("slot-plr-item").innerHTML = this.renderFlagZoneHtml(this.plr);
