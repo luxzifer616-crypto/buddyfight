@@ -843,6 +843,7 @@
   ABX.canUseAct = function (side, card, ab, unit) {
     const f = F(side), e = F(otherSide(side));
     const ctx = { side, f, e, card, unit, ab, bind: { chosen: [], revealed: [], looked: [] }, lastDone: true, auto: true, log: [], hostArea: "field" };
+    if (ABX.syncFrontNullify) ABX.syncFrontNullify();
     if (unit && unit.abxNullified === B.turnCount) return { ok: false, reason: "Abilities are nullified this turn" };
     if (onceUsed(f, card, ab, unit)) return { ok: false, reason: "Already used this turn" };
     if (!(ab.conds || []).every(c => evalCond(c, ctx))) return { ok: false, reason: "Timing / condition not met" };
@@ -913,10 +914,37 @@
   ABX.queue = (fn) => { chain = chain.then(fn).catch(e => { if (ABX.debug) console.error(e); }); return chain; };
 
   // All trigger sources on a side: field units, item, set spells.
+  // Static "Nullify the abilities of your opponent's monsters in front of this card." (#5107): kept in sync as a flag on the victims.
+  ABX.syncFrontNullify = function () {
+    const FRONT = { left: "left", center: "center", right: "right", center2: "center2" };
+    ["plr", "opp"].forEach(side => {
+      const o = F(otherSide(side)); if (!o) return;
+      Object.keys(FRONT).forEach(pos => { const v = o.monsters && o.monsters[pos]; if (v && v.abxFrontNull && v.abxFrontNull.turn === B.turnCount && v.abxFrontNull.by) { const by = v.abxFrontNull.by; const src = F(side).monsters[pos]; if (src !== by || by.abxNullified === B.turnCount) { v.abxNullified = v.abxFrontNull.prev; v.abxFrontNull = null; } } });
+      Object.keys(FRONT).forEach(pos => {
+        const u = F(side).monsters && F(side).monsters[pos], v = o.monsters && o.monsters[pos];
+        if (!u || !u.card || !v || !v.card || u.abxNullified === B.turnCount || v.abxFrontNull) return;
+        const has = abilitiesOf(u.card, a => a.kind === "static").some(a => (a.steps || []).some(x => x.op === "nullifyAbilities" && x.np && (x.np.frontOf || (x.np.filter && x.np.filter.frontOf))));
+        if (!has || v.abxNullified === B.turnCount) return;
+        if (core.isProtected && core.isProtected(v, otherSide(side), "nullified", { side, card: u.card, f: F(side), e: o, bind: {} })) return;
+        v.abxFrontNull = { turn: B.turnCount, by: u, prev: v.abxNullified }; v.abxNullified = B.turnCount;
+      });
+    });
+  };
   function sources(side) {
+    if (ABX.syncFrontNullify) ABX.syncFrontNullify();
     const f = F(side), out = fieldUnits(f, true).map(x => ({ unit: x.unit, card: x.unit.card, hostArea: "field" }));
     (f.setSpells || []).forEach(c => out.push({ unit: null, card: c, hostArea: "field" }));
+    // cards in the drop zone whose turn / phase trigger only works from there ("At the start of your main phase, if this card is in your drop zone, ...")
+    const seen = new Set();
+    (f.drop || []).forEach((id, idx) => {
+      if (seen.has(id)) return; seen.add(id);
+      const c = cardOf(id);
+      if (c && abilitiesOf(c, a => a.kind === "triggered" && dropOnlyTrigger(a)).length) out.push({ unit: null, card: c, hostArea: "drop", selfRef: { k: "zone", side, area: "drop", idx: f.drop.lastIndexOf(id), id, card: c } });
+    });
     return out;
+  }
+  function dropOnlyTrigger(a) {
+    return !!(a && a.trigger && ["phaseStart", "turnStart", "turnEnd"].includes(a.trigger.event) && /"t":"selfIn"[^}]*"area":"drop( zone)?"/.test(JSON.stringify([a.conds, a.steps])));
   }
   core.sources = sources;
   core.fireTriggers = (match, info) => fireTriggers(match, info);
@@ -927,7 +955,8 @@
     const order = [activeAtFire, otherSide(activeAtFire)];
     for (const side of order) {
       for (const src of sources(side)) {
-        for (const ab of abilitiesOf(src.card, a => a.kind === "triggered" && a.trigger && ABX.isExecutable(a))) {
+        for (const ab of abilitiesOf(src.card, a => (a.kind === "triggered" || (a.kind === "modal" && a.trigger && a.trigger.event)) && a.trigger && ABX.isExecutable(a))) {
+          if (src.hostArea === "drop" && !dropOnlyTrigger(ab)) continue;
           if (!match(ab.trigger, src, side)) continue;
           const f = F(side);
           if (src.unit && core.posOfUnit(f, src.unit) === null && !(src.unit === f.item)) continue;
@@ -1136,13 +1165,15 @@
   // "When this card is destroyed / leaves the field": the card is already gone, so run with no unit.
   ABX.fireLeave = function (side, card, byAttack) {
     return ABX.queue(async () => {
-      for (const ab of abilitiesOf(card, a => a.kind === "triggered" && a.trigger && ((a.trigger.event === "leave" && a.trigger.self && !a.trigger.byOpp && !(a.trigger.byEffect && byAttack) && !(a.trigger.byAttackOnly && !byAttack)) || (a.trigger.event === "attack" && a.trigger.also === "leave")) && ABX.isExecutable(a))) {
+      for (const ab of abilitiesOf(card, a => (a.kind === "triggered" || (a.kind === "modal" && a.trigger && a.trigger.event)) && a.trigger && ((a.trigger.event === "leave" && a.trigger.self && !a.trigger.byOpp && !(a.trigger.byEffect && byAttack) && !(a.trigger.byAttackOnly && !byAttack)) || (a.trigger.event === "attack" && a.trigger.also === "leave")) && ABX.isExecutable(a))) {
         const f = F(side);
         if (onceUsed(f, card, ab, null)) continue;
-        const probe = { side, f, e: F(otherSide(side)), card, unit: null, ab, bind: { chosen: [], revealed: [], looked: [] }, lastDone: true, auto: true, log: [], hostArea: "drop", event: { name: "leave" } };
+        const dIdx = f.drop.lastIndexOf(card.id);   // the card just landed in the drop zone: "return this card to hand" moves it from there
+        const selfRef = dIdx >= 0 ? { k: "zone", side, area: "drop", idx: dIdx, id: card.id, card } : null;
+        const probe = { side, f, e: F(otherSide(side)), card, unit: null, ab, bind: { chosen: [], revealed: [], looked: [] }, lastDone: true, auto: true, log: [], hostArea: "drop", event: { name: "leave" }, selfRef };
         if (!(ab.conds || []).every(c => evalCond(c, probe))) continue;
         markOnce(f, card, ab, null);
-        await runAbility(side, card, ab, null, { event: { name: "leave" }, hostArea: "drop" });
+        await runAbility(side, card, ab, null, { event: { name: "leave" }, hostArea: "drop", selfRef });
       }
     });
   };
@@ -1209,6 +1240,7 @@
     const out = [];
     abilitiesOf(card, a => a.kind === "cost").forEach(a => (a.parts || []).forEach(p => {
       if (p.soulFrom || p.discard || p.destroy) { out.push(p); return; }
+      if (p.allHandToSoul) { out.push(p); return; }
       const txt = String(p.text || "");
       const mChooseSoul = txt.match(/^choose a card from your hand,\s*deck,?\s*or drop zone/i);
       if (mChooseSoul) {
@@ -1263,6 +1295,7 @@
   ABX.canPayExtras = function (side, card, exclHandIdx) {
     if (ABX.onTopCost(card) && !ABX.onTopHosts(side, card).length) return false;
     return extraParts(card).every(p => {
+      if (p.allHandToSoul) return true;   // "if you have one or more hand cards": nothing to pay with an empty hand
       if (p.chooseSoulFromAny) return partCands(p, side, card, exclHandIdx).length >= 1;
       return partCands(p, side, card, exclHandIdx).length >= ((p.soulFrom || p.discard || p.destroy).n || 1);
     });
@@ -1272,6 +1305,11 @@
   ABX.payExtras = async function (side, card, unit) {
     const f = F(side);
     for (const part of extraParts(card)) {
+      if (part.allHandToSoul) {   // every remaining hand card goes face down into the new card's soul
+        const ids = f.hand.splice(0);
+        ids.forEach(id => { const entry = typeof root.createSoulEntry === "function" ? root.createSoulEntry(id, true) : { id, isFaceDown: true }; if (unit && Array.isArray(unit.soul)) unit.soul.push(entry); else f.drop.push(id); });
+        continue;
+      }
       if (part.chooseSoulFromAny) {
         const ctx = { side, f, e: F(otherSide(side)), card, unit, bind: {}, auto: true };
         const cands = partCands(part, side, card, -1);

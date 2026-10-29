@@ -1493,6 +1493,12 @@ function evaluateCardConditions(card, fighter, enemy, isAbilityCall = false) {
   // [Equip/Call Cost] that only applies "when you have no monsters on your field" (Laevateinn #3728, #4759): cannot be used otherwise
   if (costNeedsNoMonsters(card, fighter)) reasons.push(`You can only use "${card.name}" when you have no monsters on your field.`);
 
+  // "[Call Cost] [When a <World> monster is put from your field into the drop zone, pay N gauge]": it can only be called at that timing, not from your hand during the main phase
+  if (!isAbilityCall && window.ABX && ABX.timingCallInfo && card.type === "Monster") {
+    const tci = ABX.timingCallInfo(card);
+    if (tci) reasons.push(`"${card.name}" can only be called when a <${tci.world}> monster is put from your field into the drop zone (it is offered to you then).`);
+  }
+
   // "The Chaos Upgrade" needs "Infinity the Chaos" face down under the flag (it must be unlocked in the deck first)
   if (Number(card.id) === 4072 && !(fighter.flagUnder || []).includes(3941)) {
     reasons.push(`"Infinity the Chaos" is not unlocked in your deck (or already flipped), so "${card.name}" cannot be cast.`);
@@ -1578,10 +1584,17 @@ function evaluateCardConditions(card, fighter, enemy, isAbilityCall = false) {
     reasons.push("Requires an [Omni Lord] on your field");
   }
 
-  const attrCastMatch = s.match(/only\s+(?:cast|call)\s+this\s+card\s+if\s+(?:you\s+have\s+)?(?:a|an|two\s+or\s+more)\s+«([^»]+)»/i);
+  const attrCastMatch = s.match(/only\s+(?:cast|call)\s+this\s+card\s+if\s+(?:you\s+have\s+)?(a|an|two\s+or\s+more|three\s+or\s+more|four\s+or\s+more|five\s+or\s+more)\s+«([^»]+)»([^.,]*)/i);
   if (attrCastMatch) {
-    if (!fighterHasFieldCardMatching(fighter, attrCastMatch[1])) {
-      reasons.push(`Requires «${attrCastMatch[1]}» on your field`);
+    const need = { two: 2, three: 3, four: 4, five: 5 }[String(attrCastMatch[1]).split(/\s+/)[0].toLowerCase()] || 1;
+    const inDrop = /in your drop zone/i.test(attrCastMatch[3] || "");
+    const sub = normalizeSearchToken(attrCastMatch[2]);
+    let have;
+    if (inDrop) have = fighter.drop.filter(id => { const c = CARD_MAP.get(id); return c && (normalizeSearchToken(c.name || "").includes(sub) || normalizeSearchToken((c.attrs || []).join(" ")).includes(sub)); }).length;
+    else if (need === 1) have = fighterHasFieldCardMatching(fighter, attrCastMatch[2]) ? 1 : 0;
+    else have = getAllFieldUnits(fighter).filter(u => normalizeSearchToken(u.card.name || "").includes(sub) || normalizeSearchToken((u.card.attrs || []).join(" ")).includes(sub)).length;
+    if (have < need) {
+      reasons.push(`Requires ${need > 1 ? need + "+ " : ""}«${attrCastMatch[2]}» ${inDrop ? "in your drop zone" : "on your field"} (Current: ${have})`);
     }
   }
 
@@ -4571,6 +4584,11 @@ const battle = {
 
   executeLostWorldBelost(side, handIdx, onContinue = null) {
     const f = this.getFighter(side);
+    if (f.belostUsed) {
+      if (!f.isBot) alert(`You may only use "Belost" once per fight.`);
+      if (onContinue) onContinue();
+      return;
+    }
     if (f.gauge.length < 2) {
       if (!f.isBot) alert(`"Belost" costs 2 Gauge (you have ${f.gauge.length}).`);
       if (onContinue) onContinue();
@@ -4583,6 +4601,7 @@ const battle = {
       f.drop.push(f.gauge.pop());
     }
 
+    f.belostUsed = true;
     f.flagId = lostFlag.id;
     f.world = "Lost World";
     f.isLostWorldActive = true;
@@ -7462,7 +7481,7 @@ const battle = {
       }
     }
 
-    const soulCount = Math.max(cost.soul, c.sg ? 1 : 0);
+    const soulCount = this.abxFreeCall ? 0 : Math.max(cost.soul, c.sg ? 1 : 0);
     const soulArr = [];
     for (let i = 0; i < soulCount; i++) {
       if (f.deck.length > 0) soulArr.push(f.deck.shift());

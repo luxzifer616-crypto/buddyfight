@@ -875,6 +875,7 @@
   // --- hand / life / turn-flow ---
   ar(/^(?:you )?(?:discard|drop) (?:your entire hand|all (?:your )?hand cards)$/i, () => ({ op: "discard", all: true }));
   ar(/^(?:you )?(?:discard|drop) (\w+) hand cards?$/i, (m) => ({ op: "discard", n: toNum(m[1]) || 1 }));
+  ar(/^your opponent chooses and (?:drops|discards) (two|three|four|five|\d+) hand cards$/i, (m) => ({ op: "oppDiscard", n: WORDNUM[m[1].toLowerCase()] || parseInt(m[1], 10) || 1 }));
   ar(/^your opponent chooses (?:a|one) (?:card )?(?:from their hand )?and (?:discards|drops) it$|^your opponent chooses and (?:drops|discards) (?:a|one) hand card$|^your opponent chooses a card from their hand and discards it$/i, () => ({ op: "oppDiscard", n: 1 }));
   ar(/^your life becomes (\d+)$/i, (m) => ({ op: "setLife", who: "you", n: +m[1] }));
   ar(/^(?:you )?take (\d+|one|two|three) damage$/i, (m) => ({ op: "damage", who: "you", n: toNum(m[1]) }));
@@ -1396,6 +1397,8 @@
     if ((m = t.match(/^(?:discard|drop) (?:a|an|one|(\w+)) (.+?)(?: from your hand)?$/i))) return { ok: true, text: t, discard: { n: toNum(m[1] || "a") || 1, np: parseNP(m[2]) } };
     if ((m = t.match(/^destroy (?:a|an|one|(\w+)) (.+)$/i))) return { ok: true, text: t, destroy: { n: toNum(m[1] || "a") || 1, np: parseNP(m[2]) } };
     if ((m = t.match(/^\[rest\] (?:a|an|one|(\w+)) (.+)$/i))) return { ok: true, text: t, rest: { n: toNum(m[1] || "a") || 1, np: parseNP(m[2]) } };
+    if (/^if you have one or more hand cards,? put all of them face down into (?:its|this card's) soul$/i.test(t)) return { ok: true, text: t, allHandToSoul: true };
+    if ((m = t.match(/^when an? <([^>]+)> monster is put from your field into the drop zone,? pay (\d+|a|one|two|three|four|five) gauge$/i))) return { ok: true, text: t, gauge: toNum(m[2]), timing: m[1] };   // a timing call: handled by r41 (ABX.timingCallInfo)
     const act = parseAction(t);
     if (act) return { ok: true, text: t, step: act };
     return { ok: false, text: t };

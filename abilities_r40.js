@@ -394,12 +394,10 @@
       const flagId = hi >= 0 ? f.hand.splice(hi, 1)[0] : (ctx.card ? ctx.card.id : 4569);
       f.flagId = flagId;
       f.flagCard = cardOf(flagId) || ctx.card;
-      f.life += 2;
       if (Array.isArray(f.lostDeck) && f.lostDeck.length > 0) {
         f.removedDeck = f.deck.splice(0);
         f.deck = f.lostDeck.slice();
         if (B.shuffleFighterDeck) B.shuffleFighterDeck(ctx.side);
-        f.hand.push(...f.deck.splice(0, 2));
       }
       fresh();
       return true;

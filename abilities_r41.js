@@ -1031,6 +1031,25 @@
     // #4091: only a called «Demon Lord» becomes size 0
     [4091, /size 0 until it leaves the field|becomes a size 0/i, (ab) => ({ kind: ab.kind, trigger: ab.trigger, conds: ab.conds, steps: (ab.steps || []).map(x => x.op === "setSize0" ? Object.assign({}, x, { onlyAttr: "DemonLord" }) : x) })],
 
+    // #5047 Katathlubach: "you gain 1 life and deal 1 damage to your opponent for each «Lostvader» on your field": the "for each" counts both halves
+    [5047, /for each .?lostvader/i, (ab) => {
+      const st = (ab.steps || []).map(x => Object.assign({}, x));
+      const di = st.findIndex(x => x.op === "damage" && x.n && x.n.each);
+      const li = st.findIndex(x => x.op === "life" && x.who === "you" && x.n === 1);
+      if (di < 0 || li < 0) return null;
+      st[li] = Object.assign({}, st[li], { n: { each: st[di].n.each, per: 1 } });
+      return { kind: ab.kind, trigger: ab.trigger, conds: ab.conds, steps: st };
+    }],
+
+    // #6435 Dimension Slayer: the draw only happens if you [Stand] three or more cards (it was unconditional, plus a duplicate conditional draw)
+    [6435, /stand\] all cards on your field/i, (ab) => {
+      const st = (ab.steps || []).filter(x => x.op !== "r40StructuredExec").map(x => Object.assign({}, x));
+      const di = st.findIndex(x => x.op === "draw");
+      if (di < 0) return null;
+      st[di] = Object.assign({}, st[di], { cond: { t: "xLastCount", n: 3 } });
+      return { kind: ab.kind, conds: ab.conds, steps: st };
+    }],
+
     // 3. Real-World Calendar Month (#4430 Summer With Ace of Games! Yuga & Garga "SD")
     [4430, /if this month is july or august, this card gets power\+3000/i, () => ({
       kind: "static",
@@ -1074,6 +1093,65 @@
         }
       } catch (e) { if (ABX.debug) console.error(e); }
       return false;
+    };
+  }
+
+  // "Your opponent cannot draw cards by monster effects" (#5012) / "... by the effect of cards" (#548): the draw ability of the opposing side does nothing
+  if (OPS.draw && OPS.draw.run) {
+    const NODRAW = { 548: "any", 5012: "monster" };
+    const drawPrev = OPS.draw.run;
+    OPS.draw.run = function (s, ctx) {
+      try {
+        const drawer = s && s.who === "opp" ? otherSide(ctx.side) : ctx.side;
+        const blockerSide = otherSide(drawer);
+        if (blockerSide !== drawer && ctx.card) {
+          const bf = F(blockerSide);
+          const units = fieldUnits(bf, true).map(x => x.unit);
+          const blocked = units.some(u => u && u.card && NODRAW[u.card.id] && u.abxNullified !== B.turnCount && (NODRAW[u.card.id] === "any" || ctx.card.type === "Monster"));
+          if (blocked) { say(`🚫 ${F(drawer).name || "The player"} cannot draw cards by this effect!`); return false; }
+        }
+      } catch (e) { if (ABX.debug) console.error(e); }
+      return drawPrev.apply(this, arguments);
+    };
+  }
+
+  // "[Call Cost] [When a <Lost World> monster is put from your field into the drop zone, pay 2 gauge]" (#4941, #5013, #6440): the card can ONLY be called at that
+  // timing, by paying the gauge. Offered right after one of your monsters of that world goes from the field to the drop zone.
+  const TIMING_CALL = /\[Call Cost\]\s*\[When an? <([^>]+)> monster is put from your field into the drop zone,\s*pay (\d+) gauge\]/i;
+  ABX.timingCallInfo = (card) => { const m = card && TIMING_CALL.exec(String(card.cost || "") + " " + String(card.skill || "")); return m ? { world: m[1], gauge: Number(m[2]) } : null; };
+  if (ABX.fireLeave) {
+    const flPrev = ABX.fireLeave;
+    ABX.fireLeave = function (side, card) {
+      const p = flPrev.apply(this, arguments);
+      try {
+        if (card && card.type === "Monster") {
+          ABX.queue(async () => {
+            const f = F(side);
+            if (!f.drop.includes(card.id)) return;
+            const worlds = card.worlds && card.worlds.length ? card.worlds : [card.world];
+            for (let hi = 0; hi < f.hand.length; hi++) {
+              const c = cardOf(f.hand[hi]); const info = c && ABX.timingCallInfo(c);
+              if (!info || !worlds.includes(info.world) || f.gauge.length < info.gauge) continue;
+              const pos = ["center", "left", "right"].find(q => !f.monsters[q]);
+              if (!pos) return;
+              let yes = true;
+              if (!isAuto({ side, auto: false })) {
+                const i = await ABX.ui.pickOption({ title: `Call "${c.name}"?`, subtitle: `A <${info.world}> monster was put into your drop zone: pay ${info.gauge} gauge to call it.`, options: [{ label: `✅ Call it (pay ${info.gauge} gauge)` }, { label: "No" }] });
+                yes = i === 0;
+              }
+              if (!yes) continue;
+              for (let g = 0; g < info.gauge; g++) f.drop.push(f.gauge.pop());
+              const before = f.hand.length;
+              B.abxFreeCall = true;
+              try { B.completeMonsterCall(side, pos, hi, false, true); } finally { B.abxFreeCall = false; }
+              if (f.hand.length === before) { for (let g = 0; g < info.gauge; g++) f.gauge.push(f.drop.pop()); }   // the call did not happen: refund
+              fresh();
+              return;
+            }
+          });
+        }
+      } catch (e) { if (ABX.debug) console.error(e); }
+      return p;
     };
   }
 

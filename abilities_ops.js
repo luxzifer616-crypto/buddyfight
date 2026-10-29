@@ -127,10 +127,14 @@
   OPS.oppDiscard = {
     async run(s, ctx) {
       const e = ctx.e; if (!e.hand.length) return false;
-      const cands = e.hand.map((id, i) => ({ k: "zone", side: otherSide(ctx.side), area: "hand", idx: i, id, card: cardOf(id) }));
-      const ch = await pick(cands, { qty: { n: 1 } }, ctx, { chooserSide: otherSide(ctx.side), intent: "cost", title: "Choose a card to drop" });
-      ch.forEach(r => { const id = detach(r); if (id != null) { e.drop.push(id); ABX.fireDiscarded && ABX.fireDiscarded(otherSide(ctx.side), cardOf(id)); } });
-      fresh(); return ch.length > 0;
+      let did = 0;
+      for (let k = 0; k < (s.n || 1) && e.hand.length; k++) {   // "chooses and drops two hand cards": one choice at a time
+        const cands = e.hand.map((id, i) => ({ k: "zone", side: otherSide(ctx.side), area: "hand", idx: i, id, card: cardOf(id) }));
+        const ch = await pick(cands, { qty: { n: 1 } }, ctx, { chooserSide: otherSide(ctx.side), intent: "cost", title: "Choose a card to drop" });
+        ch.forEach(r => { const id = detach(r); if (id != null) { e.drop.push(id); did++; ABX.fireDiscarded && ABX.fireDiscarded(otherSide(ctx.side), cardOf(id)); } });
+        if (!ch.length) break;
+      }
+      fresh(); return did > 0;
     }
   };
 
@@ -441,10 +445,13 @@
         f.life -= cost.life;
         let underIds = null;
         if (under) { underIds = (under.soul || []).concat([under.card.id]); f.monsters[pos] = null; }
-        B.completeMonsterCall(ctx.side, pos, hi, false, true);
+        B.abxFreeCall = !s.pay;   // "without paying its [Call Cost]": the soul part of the cost is skipped too
+        try { B.completeMonsterCall(ctx.side, pos, hi, false, true); } finally { B.abxFreeCall = false; }
         if (!f.monsters[pos]) { if (underIds) { f.drop.push(...underIds); } continue; }
         if (underIds) { f.monsters[pos].soul.unshift(...underIds); topHost = null; }
         ctx.calledPos = pos;
+        // "Call a monster ... and that monster gets critical+2": nothing was chosen, so "that monster" is the one just called
+        if (!(ctx.bind.chosen || []).some(x => x && x.unit)) ctx.bind.chosen = [{ k: "unit", side: ctx.side, pos, unit: f.monsters[pos], card: f.monsters[pos].card, id: f.monsters[pos].card.id }];
         if (s.pay && ABX.hasExtras(r.card)) await ABX.payExtras(ctx.side, r.card, f.monsters[pos]);
         n++;
       }
