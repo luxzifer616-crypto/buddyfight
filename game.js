@@ -8053,6 +8053,11 @@ const battle = {
         if (s.includes("attacks a monster on your left") && targetPos !== "left") {
           return;
         }
+        // "You may only cast this card if a monster on your center is being attacked" (#3820, #2886): the attacked zone must match
+        const attackedZone = s.match(/only cast this card (?:if|when|during) [^.]*?monster on your (center|left|right)[^.]*?(?:is|are) being attacked/);
+        if (attackedZone && (attackedZone[1] === "center" ? !["center", "center2"].includes(targetPos) : targetPos !== attackedZone[1])) {
+          return;
+        }
         if ((s.includes("you are being attacked") || s.includes("attacking you")) && targetPos !== "fighter") {
           return;
         }

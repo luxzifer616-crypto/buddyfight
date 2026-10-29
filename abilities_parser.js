@@ -306,6 +306,7 @@
     q = q.replace(/\bwith (power|defense|critical) (less than or equal to|equal to or less than|equal to or lower than|lower than or equal to) (?:the )?(power|defense|critical) of (?:the )?(?:chosen|that) (?:card|monster)\b/ig, (mm, stat, cw, st2) => { (np.filter.statCmp = np.filter.statCmp || []).push({ stat: lc(stat), cmp: "le", ref: "chosen", stat2: lc(st2) }); return " "; });
     q = q.replace(/\bbuddy (?=monsters?)/ig, () => { np.filter.buddy = true; return ""; });
     q = q.replace(/\b(all|each|every|a|the) buddy\b/ig, (mm, w) => { np.filter.buddy = true; return w + " card"; });
+    q = q.replace(/^buddy(?= on (?:your|the) |$)/i, () => { np.filter.buddy = true; return "card"; });   // article already stripped: "buddy on your field"
     q = q.replace(/\bwith ([\d,]+) or (less|more|greater) power or (?:with )?(?:([\d,]+) or (?:less|more|greater) )?defense\b/ig, (mm, v, cmp) => { np.filter.powerOrDef = { n: +v.replace(/,/g, ""), cmp: /less/i.test(cmp) ? "le" : "ge" }; return " "; });
     // "a hand card" / "two hand cards" = card(s) in your hand
     if (!/^this\b/i.test(q)) q = q.replace(/\bhand (cards?)\b/ig, (mm, w) => { if (!np.zone) np.zone = { owner: "you", area: "hand" }; return w; });
@@ -727,7 +728,8 @@
     let subj = m[1].replace(/^(?:the )?abilit(?:y|ies) of /i, "");
     if (/^(?:for this turn|for that turn)$/i.test(subj)) return null;
     const mods = parseStatMods(m[2]); if (!mods) return null;
-    const each = m[2].match(/for each (.+)$/i);
+    const each = m[2].match(/(?:for each|equal to the number of) (?:the )?(.+)$/i);   // "critical+1 equal to the number of monsters from among them"
+    if (each) each[1] = each[1].replace(/\bfrom among\b/i, "among");
     let alsoSelf = false;
     const sm = subj.match(/^(.+?) and this card(?: on your field)?$/i);
     if (sm) { subj = sm[1]; alsoSelf = true; }
@@ -915,7 +917,7 @@
     const mods = parseStatMods(m[2]); if (!mods) return null;
     return { op: "boost", np: { ref: "chosen", qty: { all: true, n: 99 }, filter: {}, raw: m[1] }, mods };
   });
-  ar(/^give (.+?) (.*(?:power|defense|critical)\s*[+\-]\s*\d.*)$/i, (m) => { const np = parseNP(m[1]); const mods = parseStatMods(m[2]); return np && mods ? { op: "boost", np, mods } : null; });
+  ar(/^give (.+?) ((?:power|defense|critical)\s*[+\-]\s*\d.*|\[[^\]]+\].*)$/i, (m) => { const np = parseNP(m[1]); const mods = parseStatMods(m[2]); return np && mods ? { op: "boost", np, mods } : null; });   // the np ends where the stats / keyword start ("give all «X» monsters on your field power+4000 and [Move]")
   ar(/^for (?:this|that) (?:turn|battle|fight),? (.+)$/i, () => null);
 
 

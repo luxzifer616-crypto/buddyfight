@@ -981,6 +981,24 @@
       kind: "act", name: "Zap Takobeam!", tags: ["counter", "act"], counter: true, once: "turn", conds: [], steps: [C("r41Takosuke6479")]
     })],
 
+    // 4. Chaos review fixes: "destroy A and B" is two destroys, "two monsters and a spell" is two moves
+    [2189, /destroy a size 2 or less monster and a spell on your opponent's field/i, () => ({
+      kind: "spell", conds: [], steps: [
+        { op: "destroy", np: ABX.parseNP("a size 2 or less monster on your opponent's field"), src: "Destroy a size 2 or less monster on your opponent's field" },
+        { op: "r41DestroyOneSet", src: "and a spell on your opponent's field" }]
+    })],
+    [4089, /destroy a monster with 5000 or greater power and a spell on your opponent's field/i, () => ({
+      kind: "spell", conds: [], steps: [
+        { op: "destroy", np: ABX.parseNP("a monster with 5000 or greater power on your opponent's field"), src: "Destroy a monster with 5000 or greater power on your opponent's field" },
+        { op: "r41DestroyOneSet", src: "and a spell on your opponent's field" }]
+    })],
+    [3754, /put two monsters and a spell from your drop zone on the bottom of your deck/i, (ab) => ({
+      kind: "triggered", trigger: ab.trigger, conds: ab.conds, once: ab.once, steps: [
+        { op: "move", np: ABX.parseNP("two monsters from your drop zone"), to: { area: "deck", owner: "you", end: "bottom" }, order: "any", optional: true, src: "put two monsters from your drop zone on the bottom of your deck in any order" },
+        { op: "move", np: ABX.parseNP("a spell from your drop zone"), to: { area: "deck", owner: "you", end: "bottom" }, order: "any", gate: "ifYouDo", src: "and a spell from your drop zone on the bottom of your deck" }
+      ].concat((ab.steps || []).slice(1))
+    })],
+
     // 3. Real-World Calendar Month (#4430 Summer With Ace of Games! Yuga & Garga "SD")
     [4430, /if this month is july or august, this card gets power\+3000/i, () => ({
       kind: "static",
@@ -997,6 +1015,24 @@
   const isWeaponry = (id) => { const c = cardOf(getCid(id)); return !!(c && (c.attrs || []).some(a => lc(a).replace(/\s+/g, "") === "weaponry")); };
   (ABX.extraCond = ABX.extraCond || {}).xSoulHasWeaponry = (c, ctx) => !!(ctx && ctx.unit && Array.isArray(ctx.unit.soul) && ctx.unit.soul.some(isWeaponry));
   if (ABX.COND_OK) ABX.COND_OK.add("xSoulHasWeaponry");
+  // "destroy ... and a spell on your opponent's field": a spell on the field is a [Set] spell; destroy ONE of them (not all like destroySet)
+  OPS.r41DestroyOneSet = {
+    async run(s, ctx) {
+      const es = otherSide(ctx.side), e = F(es), sets = e.setSpells || [];
+      if (!sets.length) return false;
+      let idx = 0;
+      if (sets.length > 1 && !isAuto(ctx)) {
+        const cands = sets.map((c, i) => ({ k: "zone", side: es, area: "set", idx: i, id: c.id, card: c }));
+        const ch = await core.pick(cands, { qty: { n: 1 }, raw: "a spell on your opponent's field" }, ctx, { intent: "harm", title: `${ctx.card.name} - destroy a spell` });
+        if (ch && ch[0] && typeof ch[0].idx === "number") idx = ch[0].idx;
+      }
+      const c = e.setSpells.splice(idx, 1)[0];
+      if (c) e.drop.push(c.id);
+      fresh();
+      return !!c;
+    },
+    check: () => true
+  };
   OPS.r41Purge = {
     async run(s, ctx) {
       const f = ctx.f, u = ctx.unit;

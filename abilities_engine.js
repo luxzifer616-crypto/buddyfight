@@ -1142,9 +1142,11 @@
     });
   };
 
-  ABX.fireOtherDestroyed = function (side, card, unit) {
+  // pos = the zone the destroyed monster was in ("monster on your center" -> center / center2 only; "left or right" -> those two)
+  const posOK = (want, pos) => !want || !pos || String(want).split(",").map(x => x.trim()).includes(pos === "center2" ? "center" : pos);
+  ABX.fireOtherDestroyed = function (side, card, unit, pos) {
     return ABX.queue(() => fireTriggers((t, src, s) => t.event === "otherDestroyed" && src.unit !== unit && !(t.np && t.np.self) &&
-      ((t.opp ? s !== side : s === side)) && (!t.np || matchFilter(card, t.np.filter || {}, { unit: null, side }, { f: F(side) })), { name: "otherDestroyed" }));
+      ((t.opp ? s !== side : s === side)) && posOK(t.np && t.np.zone && t.np.zone.pos, pos) && (!t.np || matchFilter(card, t.np.filter || {}, { unit: null, side }, { f: F(side) })), { name: "otherDestroyed" }));
   };
   // Spell / impact resolution (kind "spell", no trigger).
   // A spell's own text: a plain spell ability, or "Choose and use one of the following ..." (a modal with no trigger
