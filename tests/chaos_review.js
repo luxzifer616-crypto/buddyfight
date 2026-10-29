@@ -54,5 +54,34 @@ const settle = async () => { for (let i = 0; i < 40; i++) { env.flush(); await n
   const other = J(`getUnitEffectiveCombatStats(battle.plr, battle.plr.monsters.left)`);
   ok(soul.crit === noSoul.crit + 1 && soul.pen === true && noSoul.pen !== true && other.crit === 1, `#3933 gets critical+1 and [Penetrate] only while it has souls (${noSoul.crit}->${soul.crit}, pen ${noSoul.pen}->${soul.pen})`);
 
+
+  // #3441 Soul Reset: ALL souls from a card on the opponent's field, then draw
+  run(`clear(); battle.plr.deck=Array(30).fill(46); battle.plr.monsters.left=mku(46); battle.plr.monsters.center=mku(46); battle.plr.monsters.right=mku(46); battle.opp.monsters.center=mku(46); battle.opp.monsters.center.soul=[46,46,46]; globalThis.__h=battle.plr.hand.length; globalThis.__d=battle.opp.drop.length;`);
+  run(`{ const c=CARD_MAP.get(3441); const ab=ABX.get(c).abilities.find(a=>a.kind==='spell'); ABX.runAbility('plr',c,ab,null,{preApproved:true,auto:true}); }`); await settle();
+  ok(J(`battle.opp.monsters.center.soul.length`) === 0 && J(`battle.opp.drop.length`) === J(`__d`) + 3 && J(`battle.plr.hand.length`) === J(`__h`) + 1, "#3441 Soul Reset drops ALL 3 souls, then you draw");
+
+  // #3195 / #3373: "when this card enters the field on your left or right, if you have a monster on your center ..."
+  const enterAt = async (id, pos) => { run(`clear(); battle.plr.deck=Array(30).fill(46); battle.plr.monsters.center=mku(46); ${pos !== "center" ? `battle.plr.monsters.${pos}=mku(${id});` : `battle.plr.monsters.center=mku(${id}); battle.plr.monsters.center2=mku(46);`} globalThis.__h=battle.plr.hand.length; ABX.fireEnter('plr', CARD_MAP.get(${id}), battle.plr.monsters.${pos});`); await settle(); return J(`battle.plr.hand.length`) - J(`__h`); };
+  ok(await enterAt(3195, "left") === 1, "#3195 enters on the LEFT with a center monster: draws a card");
+  ok(await enterAt(3195, "center") === 0, "#3195 enters on the CENTER: does nothing");
+
+  // #3409 Chaos Ejecter: power+2000 for each monster on your center
+  const pw = (n) => { run(`clear(); battle.plr.deck=Array(30).fill(46); battle.plr.item=mku(3409); ${n >= 1 ? "battle.plr.monsters.center=mku(46);" : ""} ${n >= 2 ? "battle.plr.monsters.center2=mku(46);" : ""}`); return J(`getUnitEffectiveCombatStats(battle.plr, battle.plr.item).power`); };
+  const base = pw(0);
+  ok(pw(1) === base + 2000 && pw(2) === base + 4000, `#3409 power+2000 per center monster (${base} / ${pw(1)} / ${pw(2)})`);
+
+  // #3850 / #3852 Mini Geargod: paying is optional and moving itself to the drop zone only happens if you paid
+  for (const [id, target] of [[3852, "item"], [3850, "set"]]) {
+    for (const gauge of [0, 3]) {
+      run(`clear(); battle.plr.deck=Array(30).fill(46); battle.plr.gauge=battle.plr.deck.splice(0,${gauge}); battle.plr.monsters.left=mku(${id}); ${target === "item" ? "battle.opp.item=mku(3409);" : `battle.opp.setSpells=[CARD_MAP.get(${spellSet})];`} battle.activeSide='plr'; battle.phase='main';
+        { const c=CARD_MAP.get(${id}); const ab=ABX.get(c).abilities.find(a=>a.kind==='act'); ABX.runAbility('plr',c,ab,battle.plr.monsters.left,{preApproved:true,auto:true}); }`); await settle();
+      const stayed = J(`!!battle.plr.monsters.left`), destroyed = J(target === "item" ? `!battle.opp.item` : `battle.opp.setSpells.length===0`);
+      if (gauge === 0) ok(stayed && !destroyed, `#${id} cannot pay: it stays on the field and destroys nothing`);
+      else ok(!stayed && destroyed, `#${id} pays 1 gauge: it goes to the drop zone and destroys the chosen card`);
+    }
+  }
+  const s51 = J(`(function(){const st=ABX.get(CARD_MAP.get(3851)).abilities.find(a=>a.kind==='triggered').steps;return {pay:st.find(x=>x.op==='pay'),mv:st.find(x=>x.op==='move')}})()`);
+  ok(s51.pay.optional === true && s51.pay.gate === "ifYouDo" && s51.mv.gate === "ifYouDo", "#3851 pay is optional and the self-move only follows a payment");
+
   console.log(fail ? "FAILED " + fail : "ALL PASSED"); process.exit(fail ? 1 : 0);
 })();

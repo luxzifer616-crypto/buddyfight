@@ -303,6 +303,11 @@
         if (i === 1) { core.applyDamage(otherSide(ctx.side), s.orDamage, { kind: "effect" }); fresh(); return true; }
       }
       for (const r of targets) {
+        if (r.k === "set") {   // a [Set] spell on the field: destroying it sends it to its owner's drop zone
+          const sf = F(r.side), si = (sf.setSpells || []).indexOf(r.card);
+          if (si >= 0) { sf.setSpells.splice(si, 1); sf.drop.push(r.card.id); did++; }
+          continue;
+        }
         if (r.k !== "unit" && r.k !== "item") continue;
         if (s.orReturn) {
           // "destroy or return to hand": the player decides (once for an "all" group); bots / auto-play destroy

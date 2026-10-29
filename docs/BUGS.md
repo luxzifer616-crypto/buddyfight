@@ -41,3 +41,10 @@ The test already exists. Check the test's expectation against the real card text
 - [x] (Opus review of Chaos) parser: "give all «X» monsters on your field power+N and [kw]" lost the target (np "all"/"a"/"one"; 15 cards incl. 4017 4388 5233 3939 5340 5666-5669), "buddy on your field" junk, boost "equal to the number of monsters from among them" (3370) -> abilities_parser.js
 - [x] (Opus review of Chaos) 2189 / 4089 destroyed only one of "a monster and a spell"; 3754 moved 2 of "two monsters and a spell" -> abilities_r41.js (r41DestroyOneSet). Tests tests/chaos_review.js
 - [ ] Opus review claims NOT yet verified (see report in session): 3441 Soul Reset all souls, 3737 Gravity Rest target, 4019 Arabone bind, 3850-3852 optional package, 3409/3195/3373/3741/3369/3915/4050/4092 conditions, 5357 Overkill, 5710 flag cond, 4091 Demon Lord size 0, 4114 OR filter, 3464 Nine-headed sword
+
+## Chaos review, wave 2 (fixed, tests/chaos_review.js)
+- #3441 Soul Reset: "all souls" now drops every soul (parser n:99 was ignored by the r38 dropSoul override) and sets lastCount so the "draw a card" step runs.
+- #3195 / #3373: "enters the field on your left or right" trigger now parses its position (was firing on any position).
+- #3409: "power +2000 for each monster on your center" (equals-to-number-of boost) parses correctly.
+- #3850 / #3851 / #3852 Mini Geargod: payment is optional; moving itself to the drop zone and destroying the chosen card only happen if you paid ("if you do").
+- Generic destroy now destroys a chosen [Set] spell (previously silently skipped).

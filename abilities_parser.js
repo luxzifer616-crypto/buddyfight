@@ -652,7 +652,7 @@
   ar(/^look at (?:your|your opponent's) hand$/i, () => ({ op: "noop" }));
   ar(/^reveal the top (\d+|one|two|three|four|five|six|seven) cards? of your deck$/i, (m) => ({ op: "reveal", n: toNum(m[1]) }));
 
-  ar(/^(?:you may )?(?:drop|put) (?:(up to) )?(\w+) souls? from (.+?)(?: into (?:the |your |its owner's |their )?drop zone)?$/i, (m) => {
+  ar(/^(?:you may )?(?:drop|put) (?:(up to) )?(?!all\b)(\w+) souls? from (.+?)(?: into (?:the |your |its owner's |their )?drop zone)?$/i, (m) => {
     const np = /^this card$/i.test(m[3]) ? { self: true, qty: { n: 1 }, filter: {}, raw: "this card" } : parseNP(m[3]);
     if (!np) return null;
     return { op: "dropSoul", n: toNum(m[2]) || 1, upTo: !!m[1], hostNP: np };
@@ -728,7 +728,7 @@
     let subj = m[1].replace(/^(?:the )?abilit(?:y|ies) of /i, "");
     if (/^(?:for this turn|for that turn)$/i.test(subj)) return null;
     const mods = parseStatMods(m[2]); if (!mods) return null;
-    const each = m[2].match(/(?:for each|equal to the number of) (?:the )?(.+)$/i);   // "critical+1 equal to the number of monsters from among them"
+    const each = m[2].match(/(?:for each|equals? to (?:the )?number of) (?:the )?(.+)$/i);   // "critical+1 equal to the number of monsters from among them"
     if (each) each[1] = each[1].replace(/\bfrom among\b/i, "among");
     let alsoSelf = false;
     const sm = subj.match(/^(.+?) and this card(?: on your field)?$/i);
@@ -1178,7 +1178,7 @@
   tr(/^(?:when|whenever|each time) (?:you|your opponent) \[(station|transform|ride)\]$/i, (m) => ({ event: "kwUsed", kw: lc(m[1]) }));
   tr(/^(?:when|whenever|each time) (?:a|an) (.+?) enters (?:the opponent's field|your opponent's field)$/i, (m) => ({ event: "otherEnter", opp: true, np: parseNP(m[1] + " on your opponent's field") }));
   tr(/^(?:when|whenever|each time) (?:a|an) (.+?) enters your field$/i, (m) => ({ event: "otherEnter", np: parseNP(m[1] + " on your field") }));
-  tr(new RegExp("^(?:when|whenever|each time) " + SUBJ_THIS + " enters the field on the (left|right|center)(?: or (left|right|center))?$", "i"), (m) => ({ event: "enter", self: true, pos: [m[1], m[2]].filter(Boolean).map(lc) }));
+  tr(new RegExp("^(?:when|whenever|each time) " + SUBJ_THIS + " enters the field on (?:the|your) (left|right|center)(?: or (left|right|center))?$", "i"), (m) => ({ event: "enter", self: true, pos: [m[1], m[2]].filter(Boolean).map(lc) }));
   // replacement-style ("would") triggers
   tr(new RegExp("^if " + SUBJ_THIS + " would (?:leave the field|be destroyed|be put into the drop zone|be returned to hand)$", "i"), (m) => ({ event: "wouldLeave", self: true, destroyed: /destroyed/i.test(m[0]) }));
   tr(/^if your life would become 0$|^when your life would become 0$/i, () => ({ event: "wouldDie" }));

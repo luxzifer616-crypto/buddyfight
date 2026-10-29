@@ -357,26 +357,30 @@
       const pool = core.refsFor(s.from || { zone: "field", side: "opp", type: "any" }, ctx).filter(r => r.unit && (r.unit.soul || []).length);
       if (!pool.length) return false;
       const picked = s.all ? pool : await core.pick(pool, s.from, ctx, { intent: "harm", title: `${ctx.card.name} — drop soul` });
+      let dropped = 0;
       picked.forEach(r => {
         const tf = F(r.side);
-        if (s.count === "all") {
+        if (s.count === "all" || (s.count == null && s.n >= 99)) {
           const removed = r.unit.soul.splice(0);
           removed.forEach(se => {
+            dropped++;
             const scid = getCid(se);
             tf.drop.push(scid);
             if (isFD(se)) triggerAmbushFromSoul(r.side, scid, se);
           });
         } else {
-          for (let i = 0; i < (s.count || 1) && r.unit.soul.length; i++) {
+          for (let i = 0; i < (s.count || s.n || 1) && r.unit.soul.length; i++) {
             const se = r.unit.soul.pop();
+            dropped++;
             const scid = getCid(se);
             tf.drop.push(scid);
             if (isFD(se)) triggerAmbushFromSoul(r.side, scid, se);
           }
         }
       });
+      ctx.lastCount = dropped;
       fresh();
-      return picked.length > 0;
+      return dropped > 0;
     };
   }
 

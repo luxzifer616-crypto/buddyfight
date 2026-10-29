@@ -999,6 +999,18 @@
       ].concat((ab.steps || []).slice(1))
     })],
 
+    // "you may pay 1 gauge, and put this card from the field into the drop zone. If you do, destroy the chosen card": the pay and the self-move are one optional package
+    ...[3850, 3851, 3852].map(id => [id, /put this card from the field into the drop zone/i, (ab) => {
+      const st = (ab.steps || []).map(x => Object.assign({}, x));
+      const pi = st.findIndex(x => x.op === "pay");
+      if (pi < 0) return null;
+      st[pi].optional = true;
+      if (id === 3851) st[pi].gate = "ifYouDo";          // "you may choose an attacking monster, pay ..." : choose first, then pay
+      const mi = st.findIndex((x, i) => i > pi && x.op === "move" && x.np && x.np.self);
+      if (mi >= 0) st[mi].gate = "ifYouDo";
+      return { kind: ab.kind, steps: st, trigger: ab.trigger, conds: ab.conds };
+    }]),
+
     // 3. Real-World Calendar Month (#4430 Summer With Ace of Games! Yuga & Garga "SD")
     [4430, /if this month is july or august, this card gets power\+3000/i, () => ({
       kind: "static",
