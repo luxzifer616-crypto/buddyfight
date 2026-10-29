@@ -776,6 +776,11 @@
     ABX.stats.runs++;
     const f = F(side), e = F(otherSide(side));
     const ctx = { side, f, e, card, unit: unit || null, ab, bind: { chosen: [], revealed: [], looked: [] }, lastDone: true, event: opts.event || null, auto: !!opts.auto, log: [], hostArea: opts.hostArea || (unit ? "field" : null), soulHost: opts.soulHost || null, selfRef: opts.selfRef || null, preApproved: !!opts.preApproved };
+    // "When a monster enters your opponent's field ... [Rest] that monster": the entering monster is "that monster"
+    if (ctx.event && ctx.event.name === "otherEnter" && ctx.event.unit) {
+      const eu = ctx.event.unit, es = ctx.event.enterSide || side;
+      ctx.bind.chosen = [{ k: "unit", side: es, pos: core.posOfUnit(F(es), eu), unit: eu, card: eu.card, id: eu.card.id }];
+    }
     // "This card cannot be nullified, and its damage cannot be reduced" / "This damage cannot be reduced" (written after the damage)
     if ((ab.steps || []).some(x => x.op === "static" && !x.cond && (x.kind === "unreducible" || (x.kind === "unnullifiable" && x.noReduce)))) ctx.unreducible = true;
     // hook: [G.BOOST] used this turn, [G.EVO] calls (abilities_gkw.js)
@@ -1051,7 +1056,7 @@
   };
   ABX.fireOtherEnter = function (side, unit) {
     return ABX.queue(() => fireTriggers((t, src, s) => t.event === "otherEnter" && src.unit !== unit &&
-      ((!t.opp && s === side) || (t.opp && s !== side)) && matchFilter(unit.card, (t.np && t.np.filter) || {}, { unit, side }, { f: F(side) }), { name: "otherEnter" }));
+      ((!t.opp && s === side) || (t.opp && s !== side)) && matchFilter(unit.card, (t.np && t.np.filter) || {}, { unit, side }, { f: F(side) }), { name: "otherEnter", unit, enterSide: side }));
   };
   ABX.fireCast = function (side, card) {
     if (card) { const S = turnStats(F(side)); S.castThisTurn++; S.castCards.push(card.id); }
@@ -1400,7 +1405,7 @@
           if (st.op !== "static" || st.kind !== "unnullifiable") continue;
           const ctx = { side: bc.attSide, f: F(bc.attSide), e: F(bc.defSide), card: u.card, unit: u, bind: {} };
           if (!(ab.conds || []).every(c => condExecutable(c) && evalCond(c, ctx))) continue;
-          if (st.cond === "alone" && bc.attUnits.length > 1) continue;
+          if ((st.cond === "alone" || /attacking alone/i.test((st.src || "") + " " + (ab.raw || ""))) && bc.attUnits.length > 1) continue;
           if (st.cond && st.cond !== "alone" && typeof st.cond === "object" && !evalCond(st.cond, ctx)) continue;
           return true;
         }

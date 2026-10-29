@@ -1011,6 +1011,26 @@
       return { kind: ab.kind, steps: st, trigger: ab.trigger, conds: ab.conds };
     }]),
 
+    // Overkill acts: "... and its attack cannot be nullified if it is attacking alone" was dropped (only the stat / keyword half ran)
+    [3915, /critical\+4/i, (ab) => ({ kind: ab.kind, conds: ab.conds, steps: (ab.steps || []).concat([{ op: "unnullSelf", alone: true }]) })],
+    [4092, /cannot be nullified if it is attacking alone/i, (ab) => ({ kind: ab.kind, conds: ab.conds, steps: (ab.steps || []).concat([{ op: "unnullChosen", alone: true }]) })],
+
+    // #5357 Overkill: "[Stand] all Chaos on your field, and for this turn all Chaos get critical+1, and you get another attack phase": the [Stand] was dropped
+    [5357, /\[stand\] all chaos/i, (ab) => {
+      const st = (ab.steps || []).map(x => Object.assign({}, x));
+      const bi = st.findIndex(x => x.op === "boost");
+      if (bi < 0) return null;
+      // "all Chaos on your field" (no «») parsed with an empty filter, so it hit every monster: restrict to the Chaos attribute
+      const np = Object.assign({}, st[bi].np, { raw: "all Chaos on your field", qty: Object.assign({}, st[bi].np.qty, { all: true }), filter: { tribes: ["Chaos"] } });
+      st[bi] = Object.assign({}, st[bi], { np });
+      st.unshift({ op: "stand", np, src: "[Stand] all Chaos on your field" });
+      return { kind: ab.kind, conds: ab.conds, steps: st };
+    }],
+    // #5710: the "If your flag is "Dungeon World"" condition was lost on the size reduction
+    [5710, /size of all other .*demon lord/i, (ab) => ({ kind: "static", conds: [{ t: "flagIs", names: ["dungeon world"] }], steps: ab.steps })],
+    // #4091: only a called «Demon Lord» becomes size 0
+    [4091, /size 0 until it leaves the field|becomes a size 0/i, (ab) => ({ kind: ab.kind, trigger: ab.trigger, conds: ab.conds, steps: (ab.steps || []).map(x => x.op === "setSize0" ? Object.assign({}, x, { onlyAttr: "DemonLord" }) : x) })],
+
     // 3. Real-World Calendar Month (#4430 Summer With Ace of Games! Yuga & Garga "SD")
     [4430, /if this month is july or august, this card gets power\+3000/i, () => ({
       kind: "static",
@@ -1022,6 +1042,40 @@
       }]
     })]
   ];
+
+  /* ==================== 5b. Chaos review wave 3 hooks ==================== */
+  // #4091: "If you call a «Demon Lord», that card becomes size 0": only when the called card is a Demon Lord
+  if (OPS.setSize0 && OPS.setSize0.run) {
+    const s0Prev = OPS.setSize0.run;
+    OPS.setSize0.run = function (s, ctx) {
+      if (s && s.onlyAttr) {
+        const u = ctx && ctx.calledPos && ctx.f.monsters[ctx.calledPos];
+        if (!u || !(u.card.attrs || []).includes(s.onlyAttr)) return false;
+      }
+      return s0Prev.apply(this, arguments);
+    };
+  }
+  // #3741 CHAOS Death Tallica: when it would leave the field, you may put three monsters or «Deep» from your drop zone on the bottom of your deck; it stays
+  if (ABX.wouldLeaveSave) {
+    const wlsPrev = ABX.wouldLeaveSave;
+    ABX.wouldLeaveSave = function (side, pos, unit, byAttack) {
+      if (wlsPrev.apply(this, arguments)) return true;
+      try {
+        if (unit && unit.card && unit.card.id === 3741 && unit.abxNullified !== B.turnCount) {
+          const f = F(side);
+          const ok = (id) => { const c = cardOf(id); return !!c && (c.type === "Monster" || (c.attrs || []).includes("Deep")); };
+          const idx = []; f.drop.forEach((id, i) => { if (idx.length < 3 && ok(id)) idx.push(i); });
+          if (idx.length === 3) {
+            const moved = idx.slice().reverse().map(i => f.drop.splice(i, 1)[0]).reverse();
+            f.deck.push(...moved);
+            fresh();
+            return true;
+          }
+        }
+      } catch (e) { if (ABX.debug) console.error(e); }
+      return false;
+    };
+  }
 
   /* ==================== 6. [Purge] (9 cards): [Counter] put a «Weaponry» from this card's soul into the gauge. Once per turn. ==================== */
   const isWeaponry = (id) => { const c = cardOf(getCid(id)); return !!(c && (c.attrs || []).some(a => lc(a).replace(/\s+/g, "") === "weaponry")); };

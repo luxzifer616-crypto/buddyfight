@@ -18,6 +18,7 @@
     if (typeof n === "number") return n;
     if (!n) return 0;
     if (n.lastCount) return (n.per || 1) * (ctx.lastCount || 0) + (n.plus || 0);   // "equal to the number of cards destroyed / put"
+    if (n.each && n.each.junk && /^(?:destroyed|returned|dropped|put|called)$/i.test(n.each.junk) && ctx.lastCount != null) return (n.per || 1) * ctx.lastCount + (n.plus || 0);   // "gain life equal to the number of cards destroyed"
     if (n.each) {
       let k;
       if (n.each.perReversal) k = getFighterReversalCount(ctx.f);
@@ -31,7 +32,7 @@
     if (n.fromSelf) return ctx.card ? (ctx.card[n.fromSelf === "critical" ? "crit" : n.fromSelf] || 0) : 0;
     if (n.fromItem) { const it = ctx.f.item; return it && it.card ? (it.card[n.fromItem === "critical" ? "crit" : n.fromItem] || 0) + (n.fromItem === "critical" ? (it.tempCrit || 0) : 0) : 0; }
     if (n.refStat) {   // "equal to that card's critical / power / size"
-      const r = [].concat(ctx.bind.lastMoved || [], ctx.bind.chosen || [], ctx.bind.revealed || []).filter(x => x && x.card).shift() || (ctx.event && ctx.event.card ? { card: ctx.event.card } : null);
+      const r = [].concat(ctx.bind.lastMoved || [], ctx.bind.chosen || [], ctx.bind.revealed || [], ctx.bind.lastDestroyed || []).filter(x => x && x.card).shift() || (ctx.event && ctx.event.card ? { card: ctx.event.card } : null);
       return r && r.card ? (r.card[n.refStat === "critical" ? "crit" : n.refStat] || 0) : 0;
     }
     return 0;
@@ -331,6 +332,7 @@
         if (B.destroyMonster(r.side, pos) !== false) did++;
       }
       ctx.lastCount = did;
+      if (did > 0) ctx.bind.lastDestroyed = targets.filter(r => r && r.card);   // "deal damage equal to that card's critical"
       fresh();
       return did > 0;
     },
@@ -511,6 +513,7 @@
     async run(s, ctx) {
       const refs = s.np.ref ? (ctx.bind.chosen || []).filter(r => r.unit) : s.np.self ? refsFor(s.np, ctx) : refsFor(s.np, ctx, { owner: "any", area: "field" }).filter(r => r.unit);
       const ch = s.np.ref || s.np.self || s.np.qty.all ? refs : await pick(refs, s.np, ctx, { intent: "harm", title: `${ctx.card.name} — nullify abilities of`, subtitle: ABX.clean(s.np.raw) });
+      if (!s.np.ref && ch.length) ctx.bind.chosen = ch.slice();   // "Nullify ... a card, and destroy it": "it" is the card just chosen
       let n = 0;
       for (const r of ch) {
         if (r.side !== ctx.side && isProtected(r.unit, r.side, "nullified", ctx)) continue;

@@ -93,7 +93,7 @@
       for (const ab of abilitiesOf(u.card, a => a.kind === "static" && !(a.unparsed && a.unparsed.length))) {
         for (const st of ab.steps || []) {
           if (st.op !== "static" || !(st.kind === "unreducible" || (st.kind === "unnullifiable" && st.noReduce))) continue;
-          if (st.cond === "alone" && us.length > 1) continue;
+          if ((st.cond === "alone" || /attacking alone/i.test((st.src || "") + " " + (ab.raw || ""))) && us.length > 1) continue;
           const ctx = { side: attSide, f: F(attSide), e: F(otherSide(attSide)), card: u.card, unit: u, bind: {} };
           if (!(ab.conds || []).every(c => ABX.condExecutable(c) && evalCond(c, ctx))) continue;
           if (st.cond && st.cond !== "alone" && typeof st.cond === "object" && !(ABX.condExecutable(st.cond) && evalCond(st.cond, ctx))) continue;
@@ -117,9 +117,13 @@
   };
 
   /* ---------- cannot be nullified (cast side) ---------- */
-  ABX.castUnnullifiable = function (card) {
+  ABX.castUnnullifiable = function (card, casterSide) {
     if (!card) return false;
-    if (/this card(?:'s cast)? cannot be nullified|this (?:spell|impact) cannot be nullified/i.test(card.skill || "")) return true;
+    // "If you have two or more «Chaos» on your field, this card cannot be nullified" (a conditional no-op marker on the spell)
+    if (casterSide && abilitiesOf(card, a => a.kind === "spell").some(a => (a.steps || []).some(x => x.op === "noop" && x.note === "unnullifiable-ok" && x.cond && ABX.condExecutable(x.cond) &&
+        evalCond(x.cond, { side: casterSide, f: F(casterSide), e: F(otherSide(casterSide)), card, bind: {} })))) return true;
+    // sentences that start with "If ..." are conditional (handled by the cond-checked marker above), so they do not make the card unconditionally un-nullifiable
+    if (String(card.skill || "").split(/(?<=[.!?])\s+/).some(t => !/^\s*(?:\(|if\b|when\b)/i.test(t) && /this card(?:'s cast)? cannot be nullified|this (?:spell|impact) cannot be nullified/i.test(t))) return true;
     return abilitiesOf(card, a => a.kind === "spell").some(a => (a.steps || []).some(x => x.op === "static" && x.kind === "unnullifiable" && !x.cond));
   };
 
@@ -130,7 +134,7 @@
       const cc = ABX.castCtx;
       if (!cc || !cc.active || cc.side === ctx.side) return false;
       if (!kindOk(s.what, cc.kind)) return false;
-      if (ABX.castUnnullifiable(cc.card)) { say(`⚠️ "${cc.card.name}" cannot be nullified!`); return false; }
+      if (ABX.castUnnullifiable(cc.card, cc.side)) { say(`⚠️ "${cc.card.name}" cannot be nullified!`); return false; }
       cc.nullified = true;
       say(`🚫 "${ctx.card.name}" nullified ${cc.kind === "call" ? "the call of" : ""} "${cc.card.name}"!`);
       return true;
@@ -224,7 +228,7 @@
   ABX.castWindow = async function (casterSide, card, kind) {
     if (!card || ABX.enabled === false || B.matchOver) return false;
     const rSide = otherSide(casterSide);
-    if (ABX.castUnnullifiable(card)) return false;
+    if (ABX.castUnnullifiable(card, casterSide)) return false;
     if (B.mode === "online_p2p" && rSide === "opp") return askOnlineFriend(casterSide, card, kind);
     let opts;
     try { opts = responseOptions(rSide, card, kind); } catch (e) { if (ABX.debug) console.error(e); return false; }

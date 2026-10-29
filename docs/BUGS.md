@@ -48,3 +48,16 @@ The test already exists. Check the test's expectation against the real card text
 - #3409: "power +2000 for each monster on your center" (equals-to-number-of boost) parses correctly.
 - #3850 / #3851 / #3852 Mini Geargod: payment is optional; moving itself to the drop zone and destroying the chosen card only happen if you paid ("if you do").
 - Generic destroy now destroys a chosen [Set] spell (previously silently skipped).
+
+## Chaos review, wave 3 (fixed, tests/chaos_review2.js)
+- "...cannot be nullified / reduced if it is attacking alone": the "alone" part was dropped when the ability also had an "If you have ..." condition (#3369, #4050). Overkill acts #3915 and #4092 never gave the unnullifiable-when-alone effect at all (now added).
+- #5357 Overkill: [Stand] all Chaos was missing, and "all Chaos" (no «») parsed with an empty filter so critical+1 hit every monster. Now stands and boosts only Chaos.
+- #5710: "If your flag is "Dungeon World"" condition was lost on the Demon Lord size reduction (it applied under every flag). Same loss exists on #4503, #5337, #5628, #6214 (other worlds, not fixed yet).
+- #4091: only a called Demon Lord becomes size 0 (a called Chaos monster no longer does).
+- #4019: Overkill "nullify a card ... and destroy it" never destroyed anything (the chosen card was not remembered).
+- #3737 Gravity Rest: "[Rest] that monster" did nothing (the entering monster is now bound as "that monster" for other-enter triggers).
+- #3741: Death Tallica's leave-the-field save (3 monsters/«Deep» from drop to deck bottom) was never wired.
+- #3643: "damage equal to that card's critical" after destroying it dealt 0. #3743: "gain life equal to the number destroyed" gained 1.
+- Spells with a conditional "this card cannot be nullified" (#3929, #1948, #2313, #2375, #2440, #3015, #2356, #6039) were ALWAYS un-nullifiable; the condition is now evaluated.
+- Verified OK without changes: #3594, #3595, #3769, #3976, #5344, #4046, #3464, #4114 (parse only), #5710 call.
+- Pre-existing failures found while regressing (not from these changes): tests/round20.js ("drop a soul" skips #6214), tests/round22.js (#99 Champion Wrestler Asmodai).
