@@ -48,3 +48,6 @@ The test already exists. Check the test's expectation against the real card text
 - #3409: "power +2000 for each monster on your center" (equals-to-number-of boost) parses correctly.
 - #3850 / #3851 / #3852 Mini Geargod: payment is optional; moving itself to the drop zone and destroying the chosen card only happen if you paid ("if you do").
 - Generic destroy now destroys a chosen [Set] spell (previously silently skipped).
+
+## Thunder Empire (attr ThunderEmpire, 317 cards)
+- [x] TE1 #3631 attack-based gauge cost cut, #3812 "put all field cards into drop" cost, #4070 "cannot be called" - fixed in abilities_r41.js, test: tests/thunder_empire.js. Scan: 310 done, 0 partly, 0 none, 7 no effect text.

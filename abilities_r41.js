@@ -1094,5 +1094,67 @@
     return r;
   };
 
+  /* ==================== Thunder Empire fixes (#3631, #3812, #4070) ==================== */
+  const TE = core;
+  // #3631: "[Cast Cost] [Pay 12 gauge. The gauge cost is reduced by the number of times your cards attacked during this turn]"
+  const ATK_CUT = /the gauge cost is reduced by the number of times your cards attacked during this turn/i;
+  if (typeof root.parseCardCost === "function") {
+    const pccTE = root.parseCardCost;
+    root.parseCardCost = function (costStr, skill, fighter, card) {
+      const r = pccTE.apply(this, arguments);
+      try {
+        if (!r || !fighter || !card || !(r.gauge > 0) || !ATK_CUT.test(card.skill || "")) return r;
+        const cut = TE.turnStats(fighter).attacks || 0;
+        if (cut > 0) return Object.assign({}, r, { gauge: Math.max(0, r.gauge - cut), abxAttackCut: cut });
+      } catch (e) { if (ABX.debug) console.error(e); }
+      return r;
+    };
+  }
+  // #3812: "[Cast Cost] [If you have one or more cards on your field, put all of them into the drop zone]"
+  const FIELD_DROP_COST = /\[cast cost\][^\n]*if you have one or more cards on your field, put all of them into the drop zone/i;
+  const fieldDropCost = (card) => !!card && FIELD_DROP_COST.test(card.skill || "");
+  const sid = (x) => (x && typeof x === "object" ? x.id : x);
+  const dropWholeField = (f) => {
+    ["left", "center", "center2", "right"].forEach(p => {
+      const u = f.monsters && f.monsters[p];
+      if (!u) return;
+      (u.soul || []).forEach(x => f.drop.push(sid(x)));
+      f.drop.push(u.card.id); f.monsters[p] = null;
+    });
+    ["item", "item2"].forEach(slot => {
+      const it = f[slot];
+      if (!it || it.isEndrulerFlag) return;
+      (it.soul || []).forEach(x => f.drop.push(sid(x)));
+      f.drop.push(it.card.id); f[slot] = null;
+    });
+    if (Array.isArray(f.extraItems)) f.extraItems.splice(0).forEach(it => { (it.soul || []).forEach(x => f.drop.push(sid(x))); f.drop.push(it.card.id); });
+    if (Array.isArray(f.setSpells)) f.setSpells.splice(0).forEach(sp => { (sp.soul || []).forEach(x => f.drop.push(sid(x))); f.drop.push(sp.id); });
+  };
+  const heTE = ABX.hasExtras, cpeTE = ABX.canPayExtras, peTE = ABX.payExtras;
+  ABX.hasExtras = function (card) { return fieldDropCost(card) || heTE.apply(this, arguments); };
+  ABX.canPayExtras = function (side, card) { return fieldDropCost(card) || cpeTE.apply(this, arguments); };   // an empty field is fine
+  ABX.payExtras = async function (side, card, unit) {
+    if (!fieldDropCost(card)) return peTE.apply(this, arguments);
+    dropWholeField(F(side));
+    try { B.renderBattle(); } catch (e) { /* ignore */ }
+  };
+  // the parser leaves the two cost lines (and "cannot be called") unread; they are handled above / by ABX.callBlock
+  const pcTE = ABX.parseCard;
+  ABX.parseCard = function (card) {
+    const r = pcTE.apply(this, arguments);
+    try {
+      (r && r.abilities || []).forEach(ab => {
+        const raw = String(ab.raw || ab.cleaned || "");
+        if (ab.kind === "cost" && (ATK_CUT.test(raw) || FIELD_DROP_COST.test("[Cast Cost] " + raw.replace(/^\[cast cost\]\s*/i, "")) || /^(?:\[cast cost\]\s*)?\[?if you have one or more cards on your field, put all of them into the drop zone\]?$/i.test(raw.trim()))) {
+          ab.unparsed = []; ab.r41 = true;
+        }
+        if (card && card.id === 4070 && /^this card cannot be called\.?$/i.test(raw.trim())) {
+          ab.kind = "rule"; ab.steps = [{ op: "static", kind: "noCallSelf" }]; ab.unparsed = []; ab.parsed = true; ab.r41 = true;
+        }
+      });
+    } catch (e) { if (ABX.debug) console.error(e); }
+    return r;
+  };
+
   if (ABX.resetCaches) ABX.resetCaches();
 })(typeof window !== "undefined" ? window : globalThis);
