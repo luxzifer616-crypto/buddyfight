@@ -7291,8 +7291,13 @@ const battle = {
       let handIdx = pa.handIdx;
       if (pa.cardId !== undefined && f.hand[handIdx] !== pa.cardId) handIdx = f.hand.indexOf(pa.cardId);
       const callingCard = handIdx !== -1 ? CARD_MAP.get(f.hand[handIdx]) : null;
-      // "center2" is the second center area, open while a [CHAOS Territory] monster is on your center OR being called to your center!
-      if (zoneSide === mySide && (["left", "center", "right"].includes(zonePos) || (zonePos === "center2" && canPlaceSecondCenter(f, callingCard)))) {
+      const isOnTopCall = Boolean(callingCard && window.ABX && ABX.onTopCost && ABX.onTopCost(callingCard));
+      // [CHAOS Territory]: when calling to the Center while a second Center slot is available, shift the existing Center monster left and call into "center2" on the right half!
+      if (zoneSide === mySide && zonePos === "center" && canPlaceSecondCenter(f, callingCard) && !isOnTopCall) {
+        zonePos = "center2";
+      }
+      const canReplaceCenter2 = Boolean(f.monsters.center2 && (hasChaosTerritory(f) || cardHasChaosTerritory(callingCard)));
+      if (zoneSide === mySide && (["left", "center", "right"].includes(zonePos) || (zonePos === "center2" && (canPlaceSecondCenter(f, callingCard) || canReplaceCenter2)))) {
         if (handIdx === -1) {
           this.pendingAction = null;
           this.setPrompt("That card is no longer in your hand, so the call was cancelled.");
@@ -8686,21 +8691,22 @@ const battle = {
     `;
   },
 
-  // [CHAOS Territory]: the center zone shows both center monsters connected together, or an empty second half while there is room for one.
+  // [CHAOS Territory]: when a single monster is in the center (even with [CHAOS Territory]), it fits the slot normally like left/right.
+  // Only when the player is calling a second monster to the center (or 2 monsters are on the center) does the first card shift left (right edge/corner aligned with slot center) and connect with the second card on the right half!
   renderCenterPairHtml(side) {
     const f = this.getFighter(side);
     if (!f.monsters.center && f.monsters.center2) { f.monsters.center = f.monsters.center2; f.monsters.center2 = null; }   // the first one left: the second moves up
     let pendingChaosCall = false;
     if (this.pendingAction && this.pendingAction.type === "call" && this.pendingAction.side === side) {
       const c = CARD_MAP.get(this.pendingAction.cardId !== undefined ? this.pendingAction.cardId : f.hand[this.pendingAction.handIdx]);
-      if (canPlaceSecondCenter(f, c)) pendingChaosCall = true;
+      const isOnTopCall = Boolean(c && window.ABX && ABX.onTopCost && ABX.onTopCost(c));
+      if (canPlaceSecondCenter(f, c) && !isOnTopCall) pendingChaosCall = true;
     }
-    const room = f.monsters.center && (hasChaosTerritory(f) || pendingChaosCall);
-    if (!f.monsters.center2 && !room) return this.renderFieldCardHtml(f, f.monsters.center, side, "center");
-    const half = (pos, inner) => `<div class="chaos-half" onclick="event.stopPropagation(); battle.onZoneClick('${side}','${pos}')">${inner}</div>`;
     const bothPresent = Boolean(f.monsters.center && f.monsters.center2);
+    if (!bothPresent && !pendingChaosCall) return this.renderFieldCardHtml(f, f.monsters.center, side, "center");
+    const half = (pos, inner, sideClass) => `<div class="chaos-half ${sideClass}" onclick="event.stopPropagation(); battle.onZoneClick('${side}','${pos}')">${inner}</div>`;
     const linkBadge = `<div class="chaos-connector-badge" title="[CHAOS Territory] Connected Dual-Center">${bothPresent ? "⚡CHAOS⚡" : "⚡+1"}</div>`;
-    return `<div class="chaos-pair chaos-connected ${bothPresent ? "both-active" : ""}">${half("center", this.renderFieldCardHtml(f, f.monsters.center, side, "center"))}${linkBadge}${half("center2", f.monsters.center2 ? this.renderFieldCardHtml(f, f.monsters.center2, side, "center2") : '<div class="chaos-empty">⚡ CHAOS<br>Territory</div>')}</div>`;
+    return `<div class="chaos-pair chaos-connected ${bothPresent ? "both-active" : "calling-second"}">${half("center", this.renderFieldCardHtml(f, f.monsters.center, side, "center"), "chaos-left-half")}${linkBadge}${half("center2", f.monsters.center2 ? this.renderFieldCardHtml(f, f.monsters.center2, side, "center2") : '<div class="chaos-empty">⚡ CALL HERE<br>(CHAOS Territory)</div>', "chaos-right-half")}</div>`;
   },
 
   renderBattle() {

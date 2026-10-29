@@ -2280,13 +2280,55 @@ body {
 
 /* [CHAOS Territory]: two monsters side by side in the center zone (visually connected pair, separate interactive cards) */
 .chaos-pair { display: flex; gap: 3px; width: 100%; height: 100%; position: relative; align-items: center; }
+/* When 2 center monsters are active (or calling the 2nd monster to center):
+   shift the 1st card left so its right edge/corner aligns with the exact 50% center of the slot,
+   and place the 2nd card on the right half connected edge-to-edge along the center seam! */
+.chaos-pair.chaos-connected {
+  width: 136%;
+  height: 92%;
+  left: -18%;
+  gap: 0;
+  padding: 0;
+  justify-content: center;
+  align-items: stretch;
+  z-index: 8;
+}
 .chaos-pair.chaos-connected.both-active {
-  gap: 2px;
-  padding: 2px;
-  border-radius: 8px;
-  border: 1.5px solid rgba(192, 132, 252, 0.85);
-  box-shadow: 0 0 14px rgba(168, 85, 247, 0.65), inset 0 0 8px rgba(168, 85, 247, 0.35);
-  background: linear-gradient(90deg, rgba(88, 28, 135, 0.32), rgba(59, 7, 100, 0.45), rgba(88, 28, 135, 0.32));
+  border-radius: 7px;
+  border: 1.5px solid rgba(192, 132, 252, 0.9);
+  box-shadow: 0 0 14px rgba(168, 85, 247, 0.7), inset 0 0 8px rgba(168, 85, 247, 0.35);
+  background: rgba(59, 7, 100, 0.35);
+}
+.chaos-pair.chaos-connected .chaos-half {
+  flex: 0 0 50%;
+  width: 50%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+.chaos-pair.chaos-connected .chaos-left-half {
+  justify-content: flex-end;
+  border-right: 1px solid rgba(245, 208, 254, 0.85);
+}
+.chaos-pair.chaos-connected .chaos-right-half {
+  justify-content: flex-start;
+}
+.chaos-pair.chaos-connected .chaos-half .field-card {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+.chaos-pair.chaos-connected .chaos-left-half .field-card,
+.chaos-pair.chaos-connected .chaos-left-half .field-card img {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  object-fit: fill;
+}
+.chaos-pair.chaos-connected .chaos-right-half .field-card,
+.chaos-pair.chaos-connected .chaos-right-half .field-card img {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  object-fit: fill;
 }
 .chaos-connector-badge {
   position: absolute;
@@ -2308,6 +2350,6 @@ body {
 }
 .chaos-half { flex: 1 1 0; min-width: 0; height: 100%; position: relative; cursor: pointer; }
 .chaos-half > * { max-width: 100%; }
-.chaos-empty { height: 100%; display: grid; place-items: center; text-align: center; font-size: 9.5px; font-weight: 800; line-height: 1.15; color: #e9d5ff; border: 1.5px dashed rgba(192, 132, 252, 0.85); background: rgba(88, 28, 135, 0.22); border-radius: 6px; opacity: 0.92; }
-.chaos-empty:hover { background: rgba(147, 51, 234, 0.38); box-shadow: 0 0 10px rgba(192, 132, 252, 0.7); }
-.chaos-half .field-stat-overlay { font-size: 7px; padding: 1px 3px; letter-spacing: -0.2px; white-space: nowrap; max-width: 100%; overflow: hidden; }
+.chaos-empty { width: 100%; height: 100%; display: grid; place-items: center; text-align: center; font-size: 9px; font-weight: 800; line-height: 1.15; color: #e9d5ff; border: 1.5px dashed rgba(192, 132, 252, 0.9); border-left: none; background: rgba(88, 28, 135, 0.28); border-radius: 0 6px 6px 0; opacity: 0.95; }
+.chaos-empty:hover { background: rgba(147, 51, 234, 0.42); box-shadow: 0 0 10px rgba(192, 132, 252, 0.7); }
+.chaos-half .field-stat-overlay { font-size: 7.5px; padding: 1px 3px; letter-spacing: -0.2px; white-space: nowrap; max-width: 100%; overflow: hidden; }
