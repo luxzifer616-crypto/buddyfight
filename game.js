@@ -36,7 +36,10 @@ const OFFICIAL_MONSTER_SIZE_FIXES = {
   // Size 10000
   4071: 10000
 };
+// Typos in the card data ("Guage" #3193 #4733, "Destory" #3705 #3710, "oponent" #847 #2725 #2726 #5426 #6354) broke cost / ability parsing.
+const CARD_TEXT_TYPOS = [[/\bGuage\b/g, "Gauge"], [/\bguage\b/g, "gauge"], [/\bDestory\b/g, "Destroy"], [/\bdestory\b/g, "destroy"], [/\bOponent\b/g, "Opponent"], [/\boponent\b/g, "opponent"]];
 ALL_CARDS.forEach(c => {
+  for (const k of ["skill", "cost"]) if (typeof c[k] === "string") for (const [re, to] of CARD_TEXT_TYPOS) c[k] = c[k].replace(re, to);
   if (Number(c.id) === 3941) c.type = "Flag"; // Treat "Infinity the Chaos" (#3941) as a Flag
   if (OFFICIAL_MONSTER_SIZE_FIXES[c.id] !== undefined) c.size = OFFICIAL_MONSTER_SIZE_FIXES[c.id];
   CARD_MAP.set(c.id, c);
@@ -1476,12 +1479,19 @@ function spellCastLimitReached(fighter, card) {
   return limit === "game" ? used != null : used === battle.turnCount;
 }
 
+function costNeedsNoMonsters(card, fighter) {
+  return !!(card && fighter && fighter.monsters && /\[(?:equip|call|cast) cost\][^\n]*no monsters on your field/i.test((card.cost || "") + "\n" + (card.skill || "")) &&
+    ["left", "center", "center2", "right"].some(p => fighter.monsters[p]));
+}
 function evaluateCardConditions(card, fighter, enemy, isAbilityCall = false) {
   const s = card.skill || "";
   const sLower = s.toLowerCase();
   const cost = parseCardCost(card.cost, card.skill, fighter, card);
   const reasons = [];
   const revCnt = getFighterReversalCount(fighter);
+
+  // [Equip/Call Cost] that only applies "when you have no monsters on your field" (Laevateinn #3728, #4759): cannot be used otherwise
+  if (costNeedsNoMonsters(card, fighter)) reasons.push(`You can only use "${card.name}" when you have no monsters on your field.`);
 
   // "The Chaos Upgrade" needs "Infinity the Chaos" face down under the flag (it must be unlocked in the deck first)
   if (Number(card.id) === 4072 && !(fighter.flagUnder || []).includes(3941)) {
@@ -7502,6 +7512,11 @@ const battle = {
 
     if (f.item && f.item.isEndrulerFlag) {
       if (!f.isBot) alert(`Your Flag/Item slot is held by "${f.item.card.name}", so you can't ${modeLabel.toLowerCase()} "${c.name}" right now.`);
+      return;
+    }
+
+    if (costNeedsNoMonsters(c, f)) {
+      if (!f.isBot) alert(`You can only ${modeLabel.toLowerCase()} "${c.name}" when you have no monsters on your field.`);
       return;
     }
 
