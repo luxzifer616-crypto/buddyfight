@@ -16,6 +16,7 @@
   if (typeof battle === "undefined" || typeof CARD_MAP === "undefined") return;   // parser-only environment (Node audit)
   const B = battle;
   const SLOTS = ["center", "left", "right"];
+  const ALL_SLOTS = ["center", "center2", "left", "right"];   // "center2": the second center under [CHAOS Territory] (never an "open area")
   const core = (ABX.core = ABX.core || {});
   const OPS = (ABX.OPS = ABX.OPS || {});
 
@@ -49,16 +50,18 @@
   function uid(unit) { if (unit && !unit.abxId) unit.abxId = unitSeq++; return unit ? unit.abxId : 0; }
 
   function posOfUnit(f, unit) {
-    for (const p of SLOTS) if (f.monsters[p] === unit) return p;
+    for (const p of ALL_SLOTS) if (f.monsters[p] === unit) return p;
     if (f.item === unit) return "item";
+    if (f.item2 && f.item2 === unit) return "item2";
     return null;
   }
   core.posOfUnit = posOfUnit;
 
   function fieldUnits(f, withItem) {
     const out = [];
-    SLOTS.forEach(p => { if (f.monsters[p]) out.push({ unit: f.monsters[p], pos: p }); });
+    ALL_SLOTS.forEach(p => { if (f.monsters[p]) out.push({ unit: f.monsters[p], pos: p }); });
     if (withItem && f.item && !f.item.isEndrulerFlag) out.push({ unit: f.item, pos: "item" });
+    if (withItem && f.item2) out.push({ unit: f.item2, pos: "item2" });   // second item (game.js hasMultiItems)
     return out;
   }
   core.fieldUnits = fieldUnits;
@@ -301,7 +304,7 @@
         const wantMon = !flt.types || !flt.types.length || flt.types.some(x => x === "monster" || x === "character" || x === "impactMonster" || x === "card");
         const wantItem = !flt.types || !flt.types.length || flt.types.some(x => x === "item" || x === "character" || x === "card");
         const wantSet = !flt.types || !flt.types.length || flt.types.some(x => x === "spell" || x === "card");
-        if (wantMon) SLOTS.forEach(p => { if ((!z.pos || (Array.isArray(z.pos) ? z.pos.includes(p) : z.pos === p)) && f.monsters[p]) { const u = f.monsters[p]; push({ k: "unit", side, pos: p, unit: u, card: u.card, id: u.card.id }); } });
+        if (wantMon) ALL_SLOTS.forEach(p => { const zp = p === "center2" ? "center" : p; if ((!z.pos || (Array.isArray(z.pos) ? z.pos.includes(zp) : z.pos === zp)) && f.monsters[p]) { const u = f.monsters[p]; push({ k: "unit", side, pos: p, unit: u, card: u.card, id: u.card.id }); } });
         if (wantItem && !z.pos && f.item && !f.item.isEndrulerFlag) push({ k: "item", side, pos: "item", unit: f.item, card: f.item.card, id: f.item.card.id });
         if (wantSet && !z.pos) (f.setSpells || []).forEach((c, i) => push({ k: "set", side, idx: i, card: c, id: c.id, unit: null }));
         return;
@@ -353,14 +356,14 @@
       case "turn": return c.who === "you" ? B.activeSide === ctx.side : B.activeSide !== ctx.side;
       case "phase": return B.phase === c.phase && (!c.who || (c.who === "you" ? B.activeSide === ctx.side : B.activeSide !== ctx.side));
       case "underAttack": { const bc = ABX.battleCtx; return !!(bc && bc.active && bc.defSide === ctx.side) || (!!B.pendingDefenseContext && B.pendingDefenseContext.defSide === ctx.side); }
-      case "selfPos": return !!ctx.unit && posOfUnit(f, ctx.unit) === c.pos;
+      case "selfPos": return !!ctx.unit && (posOfUnit(f, ctx.unit) || "").replace("center2", "center") === c.pos;
       case "selfOnField": return !!ctx.unit && posOfUnit(f, ctx.unit) !== null || (ctx.card && (f.setSpells || []).includes(ctx.card));
       case "selfIn": return ctx.hostArea === (c.area === "drop zone" ? "drop" : c.area);
       case "selfInSoulOf": { if (!ctx.soulHost) return false; const refs = refsFor(c.np, ctx, { owner: "you", area: "field" }); return refs.some(r => r.unit === ctx.soulHost); }
       case "selfStat": { if (!ctx.unit) return false; const e2 = getUnitEffectiveCombatStats(f, ctx.unit); const v = c.stat === "power" ? e2.power : c.stat === "defense" ? e2.defense : c.stat === "critical" ? e2.crit : getEffectiveCardSize(f, ctx.card); return cmpN(v, c); }
       case "refType": { const r = (ctx.bind.revealed || []).concat(ctx.bind.looked || [], ctx.bind.chosen || []).filter(x => x && x.card).pop(); if (!r) return false; const k = r.card.type; return c.type === "monster" ? isMonsterCard(r.card) : c.type === "spell" ? k === "Spell" : c.type === "item" ? k === "Item" : k === "Impact"; }
       case "refTribe": { const r = (ctx.bind.revealed || []).concat(ctx.bind.looked || [], ctx.bind.chosen || []).filter(x => x && x.card).pop(); return !!r && tribeEq(r.card, c.tribe); }
-      case "selfPosAny": return !!ctx.unit && c.pos.includes(posOfUnit(f, ctx.unit));
+      case "selfPosAny": return !!ctx.unit && c.pos.includes((posOfUnit(f, ctx.unit) || "").replace("center2", "center"));
       case "selfRested":      case "selfRested": return !!ctx.unit && (!!ctx.unit.rested === c.v);
       case "selfSoul": return !!ctx.unit && cmpN((ctx.unit.soul || []).length, c);
       case "selfSoulName": return !!ctx.unit && (ctx.unit.soul || []).some(id => lc((cardOf(id) || {}).name).includes(c.name));

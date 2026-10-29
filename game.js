@@ -867,12 +867,28 @@ function parseCardCost(costStr, skillStr, fighter = null, cardObj = null) {
   return { gauge, life, soul };
 }
 
+// [CHAOS Territory]: while a monster with it is on your center, your center holds two monsters ("center" and "center2").
+const MONSTER_POSITIONS = ["left", "center", "center2", "right"];
+function hasChaosTerritory(fighter) {
+  return !!fighter && ["center", "center2"].some(p => { const u = fighter.monsters[p]; return u && u.card && /\[chaos territory\]/i.test(u.card.skill || "") && u.abxNullified !== battle.turnCount; });
+}
+
+// More than one item: while "you may equip any number of items" is active (#3728 on your field, #6512 in your buddy zone)
+// a second item goes to "item2". shortcut: two item slots, not "any number"; add more slots if a deck needs them
+function hasMultiItems(fighter) {
+  if (!fighter) return false;
+  const items = [fighter.item, fighter.item2].filter(u => u && u.card);
+  return items.some(u => u.card.id === 3728) || (fighter.buddyId === 6512 && !items.some(u => u.card.id === 6512));
+}
+function unitAt(fighter, zone) { return zone === "item" ? fighter.item : zone === "item2" ? fighter.item2 : fighter.monsters[zone]; }
+
 function getAllFieldUnits(fighter) {
   const units = [];
-  ["left", "center", "right"].forEach(pos => {
+  MONSTER_POSITIONS.forEach(pos => {
     if (fighter.monsters[pos]) units.push(fighter.monsters[pos]);
   });
   if (fighter.item) units.push(fighter.item);
+  if (fighter.item2) units.push(fighter.item2);
   return units;
 }
 
@@ -1097,7 +1113,7 @@ function checkReleaseClause(clause, fighter) {
   if ((m = t.match(/^you have (\d+) life or less$/))) return out(true, fighter.life <= parseInt(m[1], 10));
   if ((m = t.match(/^you have (\d+) life or more$/))) return out(true, fighter.life >= parseInt(m[1], 10));
 
-  const fieldMons = ["left", "center", "right"].map(p => fighter.monsters[p]).filter(Boolean);
+  const fieldMons = MONSTER_POSITIONS.map(p => fighter.monsters[p]).filter(Boolean);
   const sizeOf = (u) => (typeof getEffectiveCardSize === "function" ? getEffectiveCardSize(fighter, u.card, u) : (u.card.size || 0));
 
   // "You have X or Y equipped"
@@ -4106,7 +4122,7 @@ const battle = {
 
   getCurrentSizeUsed(fighter) {
     let total = 0;
-    ["left", "center", "right"].forEach(pos => {
+    MONSTER_POSITIONS.forEach(pos => {
       const m = fighter.monsters[pos];
       if (m && m.card) total += getEffectiveCardSize(fighter, m.card, m);
     });
@@ -4223,7 +4239,7 @@ const battle = {
 
   findTimeRulerMonsterForGodclockReversal(fighter) {
     // Check field first
-    for (const pos of ["left", "center", "right"]) {
+    for (const pos of MONSTER_POSITIONS) {
       const m = fighter.monsters[pos];
       if (m && m.card && (m.card.name || "").toLowerCase().includes("time ruler")) {
         return { source: "field", pos, card: m.card };
@@ -4573,7 +4589,7 @@ const battle = {
       // Clock-II ends the battle immediately!
       const attFighter = this.getFighter(ctx.attSide);
       ctx.attackerZones.forEach(zp => {
-        const u = zp === "item" ? attFighter.item : attFighter.monsters[zp];
+        const u = unitAt(attFighter, zp);
         if (u) {
           u.attacksLeft -= 1;
           if (u.attacksLeft <= 0) u.rested = true;
@@ -4737,7 +4753,7 @@ const battle = {
     }
 
     enemy.timeStoppedThisTurn = true;
-    ["left", "center", "right"].forEach(pos => {
+    MONSTER_POSITIONS.forEach(pos => {
       if (enemy.monsters[pos]) {
         enemy.monsters[pos].defenseZeroTurn = true;
       }
@@ -4869,10 +4885,11 @@ const battle = {
       const card = known(u.card);
       return card ? Object.assign(u, { card }) : null;
     };
-    ["left", "center", "right"].forEach(pos => {
+    MONSTER_POSITIONS.forEach(pos => {
       if (f.monsters) f.monsters[pos] = fixUnit(f.monsters[pos]);
     });
     f.item = fixUnit(f.item);
+    f.item2 = fixUnit(f.item2);
     f.setSpells = (f.setSpells || []).map(known).filter(Boolean);
     ["hand", "deck", "drop", "gauge", "lostDeck"].forEach(k => {
       f[k] = (Array.isArray(f[k]) ? f[k] : []).map(Number).filter(id => CARD_MAP.has(id));
@@ -4928,7 +4945,7 @@ const battle = {
     }
     const attackerZones = msg.attackerZones || ["center"];
     const targetPos = msg.targetPos || "fighter";
-    const units = attackerZones.map(zp => zp === "item" ? this.opp.item : this.opp.monsters[zp]).filter(Boolean);
+    const units = attackerZones.map(zp => unitAt(this.opp, zp)).filter(Boolean);
     const isLink = units.length > 1;
     const defOptions = this.getAvailableDefenseCards("plr", isLink, targetPos, units);
     const canDefUseGodclock = !this.plr.timeStoppedThisTurn && !this.plr.timeStoppedThisBattle && this.plr.godclock && !this.plr.godclock.awakened && !this.plr.godclock.horaryDominationUsedThisTurn && this.plr.hand.length > 0;
@@ -5002,7 +5019,7 @@ const battle = {
     if (this.plr.godclock) this.plr.godclock.horaryDominationUsedThisTurn = false;
     if (this.opp.godclock) this.opp.godclock.horaryDominationUsedThisTurn = false;
 
-    ["left", "center", "right"].forEach(pos => {
+    MONSTER_POSITIONS.forEach(pos => {
       const m = f.monsters[pos];
       if (m) {
         if (m.abxNo && m.abxNo.stand === true) { m.abxNo.stand = false; } else m.rested = false;
@@ -5046,16 +5063,18 @@ const battle = {
       u.tempPen = false;
     };
     [f, enemy].forEach(fighter => {
-      ["left", "center", "right"].forEach(pos => clearTurnBoosts(fighter.monsters[pos]));
+      MONSTER_POSITIONS.forEach(pos => clearTurnBoosts(fighter.monsters[pos]));
       clearTurnBoosts(fighter.item);
+      clearTurnBoosts(fighter.item2);
       fighter.tempDamageReduce = 0;
     });
 
-    if (f.item) {
-      f.item.rested = false;
-      f.item.attacksLeft = f.item.card.atk_max || 1;
-      f.item.actUsed = false;
-    }
+    [f.item, f.item2].forEach(it => {
+      if (!it) return;
+      it.rested = false;
+      it.attacksLeft = it.card.atk_max || 1;
+      it.actUsed = false;
+    });
 
     this.phase = "main";
     this.setPrompt(`🔄 Turn ${this.turnCount}: ${f.name}'s Start Phase — Drawing 1 card from Deck...`);
@@ -5194,7 +5213,7 @@ const battle = {
       return;
     }
 
-    const readyZones = ["left", "center", "right"].filter(p => f.monsters[p] && !f.monsters[p].rested && f.monsters[p].attacksLeft > 0);
+    const readyZones = MONSTER_POSITIONS.filter(p => f.monsters[p] && !f.monsters[p].rested && f.monsters[p].attacksLeft > 0);
     const canItemLink = f.item && !f.item.rested && f.item.attacksLeft > 0 && (!f.monsters.center || f.item.isEndrulerFlag || (f.item.card.skill || "").toLowerCase().includes("even if you have a monster in the center") || !!(window.ABX && ABX.canAttackThrough && ABX.canAttackThrough(this.activeSide, f.item, "own")));
     if (canItemLink) readyZones.push("item");
 
@@ -5215,10 +5234,10 @@ const battle = {
 
   toggleLinkAttackerZone(side, zonePos) {
     const f = this.getFighter(side);
-    const unit = zonePos === "item" ? f.item : f.monsters[zonePos];
+    const unit = unitAt(f, zonePos);
     if (!unit || unit.rested || unit.attacksLeft <= 0) return;
 
-    if (zonePos === "item" && f.monsters.center && !unit.isEndrulerFlag && !(unit.card.skill || "").toLowerCase().includes("even if you have a monster in the center") && !(window.ABX && ABX.canAttackThrough && ABX.canAttackThrough(side, unit, "own"))) {
+    if ((zonePos === "item" || zonePos === "item2") && f.monsters.center && !unit.isEndrulerFlag && !(unit.card.skill || "").toLowerCase().includes("even if you have a monster in the center") && !(window.ABX && ABX.canAttackThrough && ABX.canAttackThrough(side, unit, "own"))) {
       alert("Your equipped Item cannot join a Link Attack while you have a monster in your Center zone!");
       return;
     }
@@ -5231,7 +5250,7 @@ const battle = {
     }
 
     const totalPow = this.linkAttackers.reduce((sum, zp) => {
-      const u = zp === "item" ? f.item : f.monsters[zp];
+      const u = unitAt(f, zp);
       return sum + (u ? getUnitEffectiveCombatStats(f, u).power : 0);
     }, 0);
 
@@ -5926,7 +5945,7 @@ const battle = {
         unit.attacksLeft = Math.max(1, (unit.attacksLeft || 0) + 1);
       }
     } else if (pMatch || dMatch || cMatch || grantsCA || grantsPen || grantsStand) {
-      ["left", "center", "right"].forEach(pos => {
+      MONSTER_POSITIONS.forEach(pos => {
         const m = f.monsters[pos];
         if (m) {
           if (pMatch) m.tempPower = (m.tempPower || 0) + parseInt(pMatch[1], 10);
@@ -6520,7 +6539,7 @@ const battle = {
     const maxAllowedSize = f.maxSize || 3;
     const newSize = getEffectiveCardSize(f, c);
     if (this.getCurrentSizeUsed(f) + newSize > maxAllowedSize) {
-      ["left", "center", "right"].forEach(pos => {
+      MONSTER_POSITIONS.forEach(pos => {
         if (pos !== zonePos && f.monsters[pos] && this.getCurrentSizeUsed(f) + newSize > maxAllowedSize) {
           this.sendMonsterToDropWithAnimation(side, pos, true);
         }
@@ -6647,7 +6666,8 @@ const battle = {
     for (let i = 0; i < cost.gauge; i++) f.drop.push(f.gauge.pop());
     if (cost.life > 0) f.life = Math.max(1, f.life - cost.life);
 
-    if (f.item && !f.item.isEndrulerFlag) {
+    const toSecond = !!(f.item && !f.item.isEndrulerFlag && !f.item2 && hasMultiItems(f));   // the old item stays: this one goes to "item2"
+    if (f.item && !f.item.isEndrulerFlag && !toSecond) {
       // The old item's soul goes to the Drop Zone (before, those cards were lost from the game).
       if (f.item.soul && f.item.soul.length) f.drop.push(...f.item.soul);
       if (c.eqc) {
@@ -6663,19 +6683,20 @@ const battle = {
     const toItemZone = side === "plr" ? "z-plr-item" : "z-opp-fighter";
 
     this.animateCardFlight(fromHandId, toItemZone, c.img, `🗡️ ${modeLabel.toUpperCase()}!`, 0, () => {
-      f.item = {
+      const newItem = {
         card: c,
         rested: false,
         attacksLeft: c.atk_max || 1,
         soul: c.sg && f.deck.length > 0 ? [f.deck.shift()] : []
       };
+      if (toSecond) f.item2 = newItem; else f.item = newItem;
 
       if (modeLabel !== "Equip") {
         this.showCutin(`${modeLabel.toUpperCase()}!`, c.name, c.img);
       }
       this.setPrompt(`🗡️ Equipped "${c.name}" (Pow ${c.power || 0} / Crit ${c.crit || 1})!`);
       this.renderBattle();
-      if (window.ABX && ABX.fireEquipped) ABX.fireEquipped(side, c, f.item);
+      if (window.ABX && ABX.fireEquipped) ABX.fireEquipped(side, c, toSecond ? f.item2 : f.item);
     });
   },
 
@@ -6801,7 +6822,7 @@ const battle = {
     else enemy.life -= dmg;
 
     if ((c.skill || "").toLowerCase().includes("destroy all monsters")) {
-      ["left", "center", "right"].forEach(pos => {
+      MONSTER_POSITIONS.forEach(pos => {
         const es = side === "plr" ? "opp" : "plr";
         if (enemy.monsters[pos] && !this.isEffectProtected(es, pos, "destroyed", side)) this.destroyMonster(es, pos);
       });
@@ -6836,7 +6857,8 @@ const battle = {
     const f = this.getFighter(mySide);
 
     if (this.pendingAction && this.pendingAction.type === "call") {
-      if (zoneSide === mySide && ["left", "center", "right"].includes(zonePos)) {
+      // "center2" is the second center area, open only while a [CHAOS Territory] monster is on your center
+      if (zoneSide === mySide && (["left", "center", "right"].includes(zonePos) || (zonePos === "center2" && f.monsters.center && hasChaosTerritory(f)))) {
         // The hand may have changed since "Call" was pressed (e.g. a spell was cast), so find the card again
         // instead of trusting the old position — otherwise the wrong card could be put on the field.
         const pa = this.pendingAction;
@@ -6881,11 +6903,11 @@ const battle = {
     }
 
     if (this.pendingAction && this.pendingAction.type === "link_select") {
-      if (zoneSide === mySide && ["left", "center", "right", "item"].includes(zonePos)) {
+      if (zoneSide === mySide && [...MONSTER_POSITIONS, "item", "item2"].includes(zonePos)) {
         this.toggleLinkAttackerZone(mySide, zonePos);
         return;
       }
-      if (zoneSide !== mySide && ["left", "center", "right"].includes(zonePos)) {
+      if (zoneSide !== mySide && MONSTER_POSITIONS.includes(zonePos)) {
         if (this.linkAttackers.length === 0) {
           alert("Select at least 1 of your standing Monsters/Item first!");
           return;
@@ -6903,7 +6925,7 @@ const battle = {
     }
 
     if (this.pendingAction && this.pendingAction.type === "attack") {
-      if (zoneSide !== mySide && ["left", "center", "right"].includes(zonePos)) {
+      if (zoneSide !== mySide && MONSTER_POSITIONS.includes(zonePos)) {
         const enemy = this.getFighter(zoneSide);
         if (enemy.monsters[zonePos]) {
           this.initiateAttackWithDefenseCheck(mySide, [this.pendingAction.attackerZone], zonePos);
@@ -6927,7 +6949,7 @@ const battle = {
     }
 
     const clickedFighter = this.getFighter(zoneSide);
-    const unit = zonePos === "item" ? clickedFighter.item : clickedFighter.monsters[zonePos];
+    const unit = unitAt(clickedFighter, zonePos);
     if (!unit) {
       if (zonePos === "item") {
         const flagC = CARD_MAP.get(clickedFighter.flagId);
@@ -6956,7 +6978,7 @@ const battle = {
       if (attackerZones.length === 0) return;
 
       const allHaveShadowDive = attackerZones.every(zp => {
-        const u = zp === "item" ? attFighter.item : attFighter.monsters[zp];
+        const u = unitAt(attFighter, zp);
         return u && (u.card.sd || (window.ABX && ABX.canAttackThrough && ABX.canAttackThrough(mySide, u, "opp")));
       });
 
@@ -6983,11 +7005,11 @@ const battle = {
     }
     const f = this.getFighter(side);
     const enemy = this.getEnemy(side);
-    const unit = attackerZone === "item" ? f.item : f.monsters[attackerZone];
+    const unit = unitAt(f, attackerZone);
     if (!unit) return;
 
     const canAttackWithCenter = unit.isEndrulerFlag || (unit.card.skill || "").toLowerCase().includes("even if you have a monster in the center") || (unit.card.skill || "").toLowerCase().includes("even if you have monsters on your center") || (unit.card.skill || "").toLowerCase().includes("even if a «") || !!(window.ABX && ABX.canAttackThrough && ABX.canAttackThrough(side, unit, "own"));
-    if (attackerZone === "item" && f.monsters.center && !canAttackWithCenter) {
+    if ((attackerZone === "item" || attackerZone === "item2") && f.monsters.center && !canAttackWithCenter) {
       alert("Buddyfight Rule: Your equipped Item cannot attack while you have a monster in your Center zone! (Use [Move] to shift your Center monster to Left/Right first, or attack with your monsters.)");
       return;
     }
@@ -7166,7 +7188,7 @@ const battle = {
       if (this.matchOver) return;
       // the ability may have removed every attacker (e.g. "destroy a monster on your opponent's field")
       const attF = this.getFighter(attSide);
-      const left = attackerZones.some(z => (z === "item" ? attF.item : attF.monsters[z]));
+      const left = attackerZones.some(z => (unitAt(attF, z)));
       if (!left) {
         this.setPrompt("🛡️ The attacking card left the field — the attack ends.");
         this.renderBattle();
@@ -7198,7 +7220,7 @@ const battle = {
     const defSide = attSide === "plr" ? "opp" : "plr";
     const defFighter = this.getFighter(defSide);
 
-    const units = attackerZones.map(zp => zp === "item" ? attFighter.item : attFighter.monsters[zp]).filter(Boolean);
+    const units = attackerZones.map(zp => unitAt(attFighter, zp)).filter(Boolean);
     if (units.length === 0) return;
     if (window.ABX && ABX.core && units.some(u => ABX.core.isRestricted && ABX.core.isRestricted(u, "attack"))) {
       this.pendingAction = null; this.linkAttackers = [];
@@ -7473,7 +7495,7 @@ const battle = {
 
     const units = attackerZones.map(zp => ({
       zone: zp,
-      unit: zp === "item" ? attFighter.item : attFighter.monsters[zp]
+      unit: unitAt(attFighter, zp)
     })).filter(x => x.unit && x.unit.attacksLeft > 0);
 
     if (units.length === 0) return;
@@ -7553,7 +7575,7 @@ const battle = {
     this.animateAttackStrike(attSide, units[0].zone, defSide, targetPos, leadAttacker.card.img, () => {
       if (this.matchOver) return;
       defFighter.timeStoppedThisBattle = false;
-      const targetMonster = ["left", "center", "right"].includes(targetPos) ? defFighter.monsters[targetPos] : null;
+      const targetMonster = MONSTER_POSITIONS.includes(targetPos) ? defFighter.monsters[targetPos] : null;
       const outcome = { destroyedMonster: false, dealtDamage: false };
 
       if (targetMonster) {
@@ -7660,6 +7682,14 @@ const battle = {
 
   destroyMonster(side, pos) {
     const f = this.getFighter(side);
+    if (pos === "item2") {   // the second item (see hasMultiItems)
+      const it = f.item2;
+      if (!it) return false;
+      f.drop.push(...(it.soul || []), it.card.id);
+      f.item2 = null;
+      this.renderBattle();
+      return true;
+    }
     const m = f.monsters[pos];
     if (!m) return false;
 
@@ -7763,7 +7793,7 @@ const battle = {
     const c = unit ? unit.card : fallbackCard;
     this.showCutin(`${tag}!`, `${c.name} — Turn the Tide!`, c.img);
 
-    ["left", "center", "right"].forEach(pos => {
+    MONSTER_POSITIONS.forEach(pos => {
       const m = f.monsters[pos];
       if (m) {
         m.rested = false;
@@ -7772,10 +7802,11 @@ const battle = {
         m.tempCrit = (m.tempCrit || 0) + 1;
       }
     });
-    if (f.item) {
-      f.item.rested = false;
-      f.item.attacksLeft = (f.item.attacksLeft || 0) + 1;
-    }
+    [f.item, f.item2].forEach(it => {
+      if (!it) return;
+      it.rested = false;
+      it.attacksLeft = (it.attacksLeft || 0) + 1;
+    });
     this.chargeDeckToGaugeWithAnimation(side, 1);
     this.setPrompt(`🔥 [${tag}] Stood all cards on the field with +5000 Power, +1 Critical, and +1 Gauge!`);
     this.renderBattle();
@@ -7912,7 +7943,7 @@ const battle = {
         this.phase = "attack";
         this.renderBattle();
 
-        const attackers = ["left", "center", "right"].filter(p => bot.monsters[p]);
+        const attackers = MONSTER_POSITIONS.filter(p => bot.monsters[p]);
         if (bot.item && (!bot.monsters.center || bot.item.isEndrulerFlag)) attackers.push("item");
 
         let step = 0;
@@ -7957,7 +7988,7 @@ const battle = {
           }
 
           const attZone = attackers[step];
-          const unit = attZone === "item" ? bot.item : bot.monsters[attZone];
+          const unit = unitAt(bot, attZone);
           if (unit && unit.attacksLeft > 0 && !unit.rested) {
             const target = this.plr.monsters.center ? "center" : "fighter";
             this.oppContinueCallback = () => {
@@ -7995,7 +8026,7 @@ const battle = {
     f.flagKey = "dragon_drei";
     f.world = "Dragon Drei";
 
-    ["left", "center", "right"].forEach(pos => {
+    MONSTER_POSITIONS.forEach(pos => {
       if (f.monsters[pos]) {
         if (f.monsters[pos].soul) f.drop.push(...f.monsters[pos].soul);
         f.drop.push(f.monsters[pos].card.id);
@@ -8139,6 +8170,11 @@ const battle = {
       `;
     }
 
+    if (fighter.item && fighter.item2) {   // two items: side by side, each clickable
+      const side = fighter === this.plr ? "plr" : "opp";
+      const half = (zone, u) => `<div class="chaos-half" onclick="event.stopPropagation(); battle.onZoneClick('${side}','${zone}')">${this.renderFieldCardHtml(fighter, u)}</div>`;
+      return `<div class="chaos-pair">${half("item", fighter.item)}${half("item2", fighter.item2)}</div>`;
+    }
     if (fighter.item) {
       return this.renderFieldCardHtml(fighter, fighter.item);
     }
@@ -8156,6 +8192,16 @@ const battle = {
     return html;
   },
 
+  // [CHAOS Territory]: the center zone shows both center monsters, or an empty second half while there is room for one.
+  renderCenterPairHtml(side) {
+    const f = this.getFighter(side);
+    if (!f.monsters.center && f.monsters.center2) { f.monsters.center = f.monsters.center2; f.monsters.center2 = null; }   // the first one left: the second moves up
+    const room = f.monsters.center && hasChaosTerritory(f);
+    if (!f.monsters.center2 && !room) return this.renderFieldCardHtml(f, f.monsters.center);
+    const half = (pos, inner) => `<div class="chaos-half" onclick="event.stopPropagation(); battle.onZoneClick('${side}','${pos}')">${inner}</div>`;
+    return `<div class="chaos-pair">${half("center", this.renderFieldCardHtml(f, f.monsters.center))}${half("center2", f.monsters.center2 ? this.renderFieldCardHtml(f, f.monsters.center2) : '<div class="chaos-empty">CHAOS<br>Territory</div>')}</div>`;
+  },
+
   renderBattle() {
     if (!this.plr || !this.opp) return;
 
@@ -8170,7 +8216,7 @@ const battle = {
     document.getElementById("bt-plr-life").textContent = this.plr.life;
     document.getElementById("bt-plr-gauge").textContent = this.plr.gauge.length;
     document.getElementById("bt-plr-size").textContent = this.getCurrentSizeUsed(this.plr);
-    document.getElementById("bt-plr-max-size").textContent = this.plr.maxSize || 3;
+    document.getElementById("bt-plr-max-size").textContent = this.plr.maxSize >= 1e9 ? "∞" : (this.plr.maxSize || 3);
     document.getElementById("bt-plr-hand-cnt").textContent = this.plr.hand.length;
 
     document.getElementById("bt-turn-label").textContent = `TURN ${this.turnCount} — ${this.activeSide === "plr" ? "YOUR TURN" : this.opp.name.toUpperCase() + "'S TURN"}`;
@@ -8228,9 +8274,9 @@ const battle = {
       ? (this.plr.godclock.overgodActive ? "👑 Overgod \"0\" (Click for Banner)" : this.plr.godclock.awakened ? "👑 Endruler (Click for Banner)" : "⏳ Godclock (2x2)")
       : "Flag / Item";
 
-    ["left", "center", "right"].forEach(pos => {
-      document.getElementById(`slot-opp-${pos}`).innerHTML = this.renderFieldCardHtml(this.opp, this.opp.monsters[pos]);
-      document.getElementById(`slot-plr-${pos}`).innerHTML = this.renderFieldCardHtml(this.plr, this.plr.monsters[pos]);
+    ["left", "center", "right"].forEach(pos => {   // the second center ("center2") is drawn inside the center zone
+      document.getElementById(`slot-opp-${pos}`).innerHTML = pos === "center" ? this.renderCenterPairHtml("opp") : this.renderFieldCardHtml(this.opp, this.opp.monsters[pos]);
+      document.getElementById(`slot-plr-${pos}`).innerHTML = pos === "center" ? this.renderCenterPairHtml("plr") : this.renderFieldCardHtml(this.plr, this.plr.monsters[pos]);
 
       const plrZoneEl = document.getElementById(`z-plr-${pos}`);
       const oppZoneEl = document.getElementById(`z-opp-${pos}`);
