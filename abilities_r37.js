@@ -27,9 +27,7 @@
       const f = cfs.apply(this, arguments);
       try {
         if (f && f.flagId === 3337) {
-          f.flagUnder = [3941];
-          // shortcut: "The Chaos Upgrade" is shuffled into the deck (not the hand); move it to the hand if games feel too slow
-          if (!f.deck.includes(4072)) { f.deck.splice(Math.floor(Math.random() * (f.deck.length + 1)), 0, 4072); }
+          f.flagUnder = deckDef && deckDef.infinityChaos ? [3941] : [];   // only when unlocked in the deck; never part of the play deck
         }
       } catch (e) { /* ignore */ }
       return f;
@@ -40,6 +38,7 @@
       const f = ctx.f;
       if (f.drop.length < 10) return false;
       const i = (f.flagUnder || []).indexOf(3941);
+      if (i < 0) return false;   // not unlocked / already flipped
       if (i >= 0) {
         f.flagUnder.splice(i, 1);
         f.flagBefore = f.flagId; f.flagId = 3941; f.maxSize = INFINITE;

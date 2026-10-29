@@ -330,6 +330,7 @@ function sanitizeImportedDeck(raw) {
     flagId: flag.id,
     buddyId: buddy ? buddy.id : cards.find(id => CARD_MAP.get(id).type === "Monster") || 46,
     cards,
+    infinityChaos: flag.id === 3337 && !!raw.infinityChaos,
     lostDeck: toIds(raw.lostDeck, 30)
   };
 }
@@ -1482,6 +1483,11 @@ function evaluateCardConditions(card, fighter, enemy, isAbilityCall = false) {
   const reasons = [];
   const revCnt = getFighterReversalCount(fighter);
 
+  // "The Chaos Upgrade" needs "Infinity the Chaos" face down under the flag (it must be unlocked in the deck first)
+  if (Number(card.id) === 4072 && !(fighter.flagUnder || []).includes(3941)) {
+    reasons.push(`"Infinity the Chaos" is not unlocked in your deck (or already flipped), so "${card.name}" cannot be cast.`);
+  }
+
   if (spellCastLimitReached(fighter, card)) {
     reasons.push(`You may only cast "${card.name}" once per ${getSpellCastLimit(card) === "game" ? "fight" : "turn"}.`);
   }
@@ -1988,6 +1994,11 @@ function generateLostDeck() {
 
 const DECK_SIZE = 50; // Buddyfight main decks require at least 50 cards (50+)
 
+// "The Chaos" decks: "The Chaos Upgrade" (#4072) must be in the deck to flip the flag (generated decks get one copy).
+function chaosDeckCards(flagCard, cards) {
+  if (Number(flagCard.id) !== 3337 || cards.includes(4072)) return cards;
+  const out = cards.slice(); out[out.length - 1] = 4072; return out;
+}
 function generateFlagDeck(flagId, customTitle, preferredBuddyId, includeLostWorld = false) {
   const flagCard = CARD_MAP.get(flagId) || ALL_CARDS.find(c => c.type === "Flag" && c.worlds.includes("Dragon World")) || ALL_CARDS[0];
   const cfg = getFlagConfig(flagCard);
@@ -2068,7 +2079,8 @@ function generateFlagDeck(flagId, customTitle, preferredBuddyId, includeLostWorl
     world: cfg.world,
     flagId: flagCard.id,
     buddyId: buddyCard ? buddyCard.id : 46,
-    cards,
+    cards: chaosDeckCards(flagCard, cards),
+    infinityChaos: Number(flagCard.id) === 3337,
     lostDeck: includeLostWorld ? generateLostDeck() : []
   };
 }
@@ -2210,7 +2222,8 @@ function generateSmartDeck(flagId, customTitle, preferredBuddyId, includeLostWor
     world: cfg.world,
     flagId: flagCard.id,
     buddyId: buddyCard ? buddyCard.id : 46,
-    cards,
+    cards: chaosDeckCards(flagCard, cards),
+    infinityChaos: Number(flagCard.id) === 3337,
     lostDeck: includeLostWorld ? generateLostDeck() : []
   };
 }
@@ -2327,6 +2340,7 @@ const app = {
       d.flagId = CARD_MAP.has(Number(d.flagId)) ? Number(d.flagId) : (ALL_CARDS[0] ? ALL_CARDS[0].id : 1);
       d.cards = (Array.isArray(d.cards) ? d.cards : []).map(Number).filter(id => CARD_MAP.has(id));
       d.lostDeck = (Array.isArray(d.lostDeck) ? d.lostDeck : []).map(Number).filter(id => CARD_MAP.has(id));
+      d.infinityChaos = d.flagId === 3337 && !!d.infinityChaos;   // "Infinity the Chaos" unlocked in this deck (only with "The Chaos")
       if (!CARD_MAP.has(Number(d.buddyId))) d.buddyId = 46;
       d.buddyId = Number(d.buddyId);
       if (typeof d.name !== "string" || !d.name.trim()) d.name = "Custom Deck";
@@ -3241,6 +3255,13 @@ const app = {
     }
   },
 
+  toggleInfinityChaos(on) {
+    const deck = this.state.decks[this.state.activeDeckIndex];
+    if (!deck) return;
+    deck.infinityChaos = deck.flagId === 3337 && !!on;
+    this.saveState();
+  },
+
   switchDeckEditTab(tab) {
     this.deckEditTab = tab;
     this.renderCurrentDeckPane();
@@ -3336,6 +3357,8 @@ const app = {
     const hasLostWorldFlag = deck.cards.some(cid => [4569, 5760].includes(cid));
     const lostTabBtn = document.getElementById("tab-lost-deck");
     lostTabBtn.classList.toggle("hidden", !hasLostWorldFlag);
+    const infRow = document.getElementById("dk-infinity-row"), infChk = document.getElementById("dk-infinity-check");
+    if (infRow && infChk) { infRow.classList.toggle("hidden", deck.flagId !== 3337); infChk.checked = deck.flagId === 3337 && !!deck.infinityChaos; }
     if (!hasLostWorldFlag && this.deckEditTab === "lost") {
       this.deckEditTab = "main";
     }
