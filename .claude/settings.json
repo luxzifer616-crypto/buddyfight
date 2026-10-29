@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(./cards_data.js)",
+      "Read(./CardSprite/**)",
+      "Read(./Sprite/**)",
+      "Read(./audio/**)",
+      "Read(./missing_abilities_by_world.md)",
+      "Read(./remaining_abilities.csv)",
+      "Read(./buddyfight-fixes/**)"
+    ]
+  }
+}
