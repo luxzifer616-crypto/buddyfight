@@ -7507,7 +7507,8 @@ const battle = {
     const canKeepExisting = eqCount > 0 && eqCount < maxItems;
     if (f.item && !f.item.isEndrulerFlag && !canKeepExisting) {
       if (f.item.soul && f.item.soul.length) f.drop.push(...f.item.soul.map(getSoulCardId));
-      if (c.eqc) {
+      if (c.eqc && f.eqcTurn !== this.turnCount) {   // [Equipment Change]: only once per turn, otherwise the old item is dropped
+        f.eqcTurn = this.turnCount;
         f.hand.push(f.item.card.id);
       } else {
         f.drop.push(f.item.card.id);

@@ -993,11 +993,32 @@
     })]
   ];
 
+  /* ==================== 6. [Purge] (9 cards): [Counter] put a «Weaponry» from this card's soul into the gauge. Once per turn. ==================== */
+  const isWeaponry = (id) => { const c = cardOf(getCid(id)); return !!(c && (c.attrs || []).some(a => lc(a).replace(/\s+/g, "") === "weaponry")); };
+  (ABX.extraCond = ABX.extraCond || {}).xSoulHasWeaponry = (c, ctx) => !!(ctx && ctx.unit && Array.isArray(ctx.unit.soul) && ctx.unit.soul.some(isWeaponry));
+  if (ABX.COND_OK) ABX.COND_OK.add("xSoulHasWeaponry");
+  OPS.r41Purge = {
+    async run(s, ctx) {
+      const f = ctx.f, u = ctx.unit;
+      if (!u || !Array.isArray(u.soul)) return false;
+      const idxs = u.soul.map((x, i) => (isWeaponry(x) ? i : -1)).filter(i => i >= 0);
+      if (!idxs.length) return false;
+      const pick = idxs[0];
+      f.gauge.push(getCid(u.soul.splice(pick, 1)[0]));
+      fresh();
+      return true;
+    },
+    check: (s, ctx) => !ctx || !!(ctx.unit && Array.isArray(ctx.unit.soul) && ctx.unit.soul.some(isWeaponry))
+  };
+
   const pcPrev41 = ABX.parseCard;
   ABX.parseCard = function (card) {
     const r = pcPrev41.apply(this, arguments);
     try {
       if (!card || !r || !Array.isArray(r.abilities)) return r;
+      if (/\[purge\]/i.test(card.skill || "") && !r.abilities.some(a => a.purge41)) {
+        r.abilities.push({ kind: "act", name: "Purge", tags: ["counter", "act"], counter: true, once: "turn", conds: [{ t: "xSoulHasWeaponry" }], steps: [C("r41Purge")], unparsed: [], optional: false, raw: "[Purge] [Counter] Put a «Weaponry» from this card's soul into the gauge. Once per turn.", cleaned: "[Counter] Put a «Weaponry» from this card's soul into the gauge. Once per turn.", idx: r.abilities.length, cardId: card.id, purge41: true });
+      }
       r.abilities.forEach(ab => {
         const raw = String(ab.cleaned || ab.raw || "").replace(/^\s*(?:\[[^\]]+\]\s*)*(?:"[^"]+"\s*)?/, "");
         const full = String(ab.raw || "");
