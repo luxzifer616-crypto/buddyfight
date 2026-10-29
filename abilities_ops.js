@@ -348,17 +348,27 @@
   OPS.stand = setRest(false);
 
   /* ---------- boosts ---------- */
+  // "give it power+3000, defense+3000, and [Counterattack]": the parser can leave the numbers in np.refTail and only the keyword in mods.
+  ABX.effectiveBoostMods = function (s) {
+    const m = s.mods || {};
+    if (!m.power && !m.defense && !m.critical && s.np && s.np.refTail && ABX.parseStatMods) {
+      const t = ABX.parseStatMods(s.np.refTail);
+      if (t && (t.power || t.defense || t.critical)) return Object.assign({}, m, { power: t.power, defense: t.defense, critical: t.critical });
+    }
+    return m;
+  };
   OPS.boost = {
     async run(s, ctx) {
+      const mods = ABX.effectiveBoostMods(s);
       const refs = s.np.ref ? (ctx.bind.chosen || []).filter(r => r.unit) : s.np.self ? refsFor(s.np, ctx) : refsFor(s.np, ctx, { owner: "you", area: "field" }).filter(r => r.unit);
       const ch = s.np.ref || s.np.self || s.np.qty.all ? refs : await pick(refs, s.np, ctx, { intent: "help", title: `${ctx.card.name} — choose` });
       const mult = s.each ? (s.each.perReversal ? getFighterReversalCount(ctx.f) : refsFor(s.each, ctx, { owner: "you", area: "field" }).length) : 1;
       if (s.alsoSelf && ctx.unit && !ch.some(r => r.unit === ctx.unit)) ch.push({ k: "unit", side: ctx.side, unit: ctx.unit, card: ctx.card, id: ctx.card.id });
       ch.forEach(r => {
-        r.unit.tempPower = (r.unit.tempPower || 0) + (s.mods.power || 0) * mult;
-        r.unit.tempDef = (r.unit.tempDef || 0) + (s.mods.defense || 0) * mult;
-        r.unit.tempCrit = (r.unit.tempCrit || 0) + (s.mods.critical || 0) * mult;
-        (s.mods.kws || []).forEach(k => { if (k === "penetrate") r.unit.tempPen = true; if (k === "counterattack") r.unit.tempCA = true; if (k === "double attack") { r.unit.tempDA = true; r.unit.attacksLeft = Math.max(r.unit.attacksLeft || 0, 2); } if (k === "triple attack") { r.unit.tempTA = true; r.unit.attacksLeft = Math.max(r.unit.attacksLeft || 0, 3); } if (k === "quadruple attack") { r.unit.tempQA = true; r.unit.attacksLeft = Math.max(r.unit.attacksLeft || 0, 4); } if (k === "hextuple attack") { r.unit.tempHA = true; r.unit.attacksLeft = Math.max(r.unit.attacksLeft || 0, 6); } if (k === "soulguard") r.unit.tempSG = true; if (k === "move") r.unit.tempMove = true; });
+        r.unit.tempPower = (r.unit.tempPower || 0) + (mods.power || 0) * mult;
+        r.unit.tempDef = (r.unit.tempDef || 0) + (mods.defense || 0) * mult;
+        r.unit.tempCrit = (r.unit.tempCrit || 0) + (mods.critical || 0) * mult;
+        (mods.kws || []).forEach(k => { if (k === "penetrate") r.unit.tempPen = true; if (k === "counterattack") r.unit.tempCA = true; if (k === "double attack") { r.unit.tempDA = true; r.unit.attacksLeft = Math.max(r.unit.attacksLeft || 0, 2); } if (k === "triple attack") { r.unit.tempTA = true; r.unit.attacksLeft = Math.max(r.unit.attacksLeft || 0, 3); } if (k === "quadruple attack") { r.unit.tempQA = true; r.unit.attacksLeft = Math.max(r.unit.attacksLeft || 0, 4); } if (k === "hextuple attack") { r.unit.tempHA = true; r.unit.attacksLeft = Math.max(r.unit.attacksLeft || 0, 6); } if (k === "soulguard") r.unit.tempSG = true; if (k === "move") r.unit.tempMove = true; });
       });
       fresh(); return ch.length > 0;
     },

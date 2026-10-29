@@ -1152,7 +1152,7 @@
   tr(/^at the end of (your|your opponent's|each player's|the) turn$/i, (m) => ({ event: "turnEnd", who: ownerOf(m[1]) }));
   tr(/^at (?:the )?end of (?:the )?turn$/i, () => ({ event: "turnEnd", who: "any" }));
   tr(/^at the end of (?:your|each player's) (?:attack|main|final) phase$/i, (m) => ({ event: "phaseEnd" }));
-  tr(/^at the end of (?:the|a) battle(?: that (?:this card|a monster) attacked)?$/i, () => ({ event: "battleEnd", self: /this card/i.test("") }));
+  tr(/^at the end of (?:the|a) battle(?: that (?:this card|a monster) attacked)?$/i, (m) => ({ event: "battleEnd", self: /this card/i.test(m[0]) }));
   tr(new RegExp("^at the end of the battle (?:that|in which) " + SUBJ_THIS + " attacked$", "i"), () => ({ event: "battleEnd", self: true }));
   tr(/^at the end of the battle of this card$/i, () => ({ event: "battleEnd", self: true }));
   tr(/^at the end of the (?:final|attack|main) phase$/i, () => ({ event: "phaseEnd" }));
@@ -1297,7 +1297,7 @@
         ab.unparsed.push(sent);
       }
       // "If you do" at sentence start gates the whole sentence on the previous optional step
-      const startsIfYouDo = /^(?:then,?\s*)?if you do(?!\s+not\s+(?:have|control|own)\b)/i.test(sent);
+      const startsIfYouDo = /^(?:then,?\s*)?if you do(?!\s+not\b)/i.test(sent);   // "if you do not, ..." is the opposite gate (ifNotDone)
       r.steps.forEach((st, i) => { if (startsIfYouDo && i === 0) st.gate = "ifYouDo"; ab.steps.push(st); });
     }
     ab.kind = ab.tags.includes("act") ? "act" : (ab.trigger ? "triggered" : "spell");
