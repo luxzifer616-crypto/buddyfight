@@ -114,7 +114,7 @@
     (f.setSpells || []).forEach((c, si) => srcs.push({ unit: null, card: c, area: "set", idx: si }));
     (f.drop || []).forEach((id, di) => { const c = cardOf(id); if (c && /drop zone/i.test(c.skill || "") && /\[counter\]/i.test(c.skill || "")) srcs.push({ unit: null, card: c, area: "drop", idx: di }); });
     const prev = ABX.battleCtx;
-    ABX.battleCtx = battleCtxFor(defSide, info);
+    ABX.battleCtx = info.free ? null : battleCtxFor(defSide, info);   // free: used on the opponent's turn outside an attack
     try {
       const seen = new Set();
       for (const src of srcs) {
@@ -150,6 +150,19 @@
     } catch (err) { if (ABX.debug) console.error(err); }
     finally { ABX.battleCtx = prev; }
     return out;
+  };
+
+  // [Counter] [Act] abilities of field / soul / [Set] / drop cards that do NOT need an attack (destroy, draw, call, life, gauge ...),
+  // used on the opponent's turn from the card's banner. Attack-stoppers stay in the defense window.
+  ABX.freeFieldCounterOptions = function (side) {
+    return ABX.fieldCounterOptions(side, { free: true, attUnits: [], targetPos: null }).filter(o => !o.nullifies);
+  };
+  ABX.useFreeFieldCounter = async function (side, key) {
+    const opt = ABX.freeFieldCounterOptions(side).find(o => o.key === key);
+    if (!opt) return false;
+    try { await opt.run(); } catch (e) { if (ABX.debug) console.error(e); }
+    fresh();
+    return true;
   };
 
   // Run the option with this key. Resolves to { nullified, targetPos }.

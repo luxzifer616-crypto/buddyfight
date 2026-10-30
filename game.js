@@ -5849,6 +5849,22 @@ const battle = {
       actionsEl.appendChild(bCounter);
     }
 
+    // Opponent's turn: a monster / item on my field whose [Counter] [Act] does not need an attack can be used from here.
+    if (context === "field" && unit && side !== this.activeSide && !this.matchOver && !this.pendingDefenseContext
+        && !f.isBot && (this.mode !== "online_p2p" || side === "plr")
+        && window.ABX && ABX.freeFieldCounterOptions) {
+      ABX.freeFieldCounterOptions(side).filter(o => o.unit === unit).forEach(o => {
+        const b = document.createElement("button");
+        b.className = "primary-cta-btn";
+        b.textContent = `⚡ [Counter] ${o.sub ? o.sub.slice(0, 70) : card.name}`;
+        b.onclick = () => {
+          this.closeCardBanner();
+          ABX.useFreeFieldCounter(side, o.key).then(() => { if (!this.matchOver) this.renderBattle(); });
+        };
+        actionsEl.appendChild(b);
+      });
+    }
+
     if (context === "hand" && side === this.activeSide && this.isLocalTurn()) {
       if (this.phase === "main" && !f.chargedThisTurn) {
         const bCharge = document.createElement("button");
