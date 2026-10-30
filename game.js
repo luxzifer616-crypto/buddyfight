@@ -1550,32 +1550,38 @@ function evaluateCardConditions(card, fighter, enemy, isAbilityCall = false) {
     reasons.push(`Needs >${cost.life} Life`);
   }
 
-  if (sLower.includes("only cast") && sLower.includes("flags [reversal] four times or more") && revCnt < 4) {
+  // Cast requirements live in the "You may only cast / call this card ..." sentence. Reading the whole skill text mixed in
+  // effect branches ("... if you have 2 life or less, draw a card", "... if your flag [Reversal] ...") and negative
+  // requirements ("do not have a monster in the center").
+  const castSent = (sLower.match(/only cast[^.]*\./g) || []).join(" ");
+  const castOrCallSent = (sLower.match(/only (?:cast|call)[^.]*\./g) || []).join(" ");
+
+  if (castSent.includes("flags [reversal] four times or more") && revCnt < 4) {
     reasons.push(`Requires 4+ Flag [Reversal] flips (Current: ${revCnt})`);
-  } else if (sLower.includes("only cast") && sLower.includes("flags [reversal] two times or more") && revCnt < 2) {
+  } else if (castSent.includes("flags [reversal] two times or more") && revCnt < 2) {
     reasons.push(`Requires 2+ Flag [Reversal] flips (Current: ${revCnt})`);
-  } else if (sLower.includes("only cast") && (sLower.includes("flag is in [reversal]") || sLower.includes("flag [reversal]") || sLower.includes("flags [reversal]")) && revCnt < 1) {
+  } else if (castSent && (castSent.includes("flag is in [reversal]") || castSent.includes("flag [reversal]") || castSent.includes("flags [reversal]")) && revCnt < 1) {
     reasons.push(`Requires your Flag to have used [Reversal] (Current: ${revCnt})`);
   }
 
-  const oppLifeLessMatch = sLower.match(/opponent's\s+life\s+is\s+(\d+)\s+or\s+less/i);
-  if (oppLifeLessMatch && sLower.includes("only cast") && enemy) {
+  const oppLifeLessMatch = castSent.match(/opponent's\s+life\s+is\s+(\d+)\s+or\s+less/i);
+  if (oppLifeLessMatch && enemy) {
     const reqOppL = parseInt(oppLifeLessMatch[1], 10);
     if (enemy.life > reqOppL) {
       reasons.push(`Requires Opponent's Life to be ${reqOppL} or less (Opponent: ${enemy.life})`);
     }
   }
 
-  const lifeLessMatch = sLower.match(/if\s+you\s+have\s+(\d+)\s+(?:or\s+less\s+life|life\s+or\s+less)/i);
-  if (lifeLessMatch && sLower.includes("only cast")) {
+  const lifeLessMatch = castSent.match(/if\s+you\s+have\s+(\d+)\s+(?:or\s+less\s+life|life\s+or\s+less)/i);
+  if (lifeLessMatch) {
     const reqLife = parseInt(lifeLessMatch[1], 10);
     if (fighter.life > reqLife) {
       reasons.push(`Requires ${reqLife} Life or less (Current: ${fighter.life})`);
     }
   }
 
-  const dropCountMatch = sLower.match(/(three|four|five|six|seven|eight|ten|\d+)\s+or\s+more\s+[^\.\n]+\s+in\s+(?:your\s+|the\s+)?drop\s+zone/i);
-  if (dropCountMatch && sLower.includes("only cast")) {
+  const dropCountMatch = castSent.match(/(three|four|five|six|seven|eight|ten|\d+)\s+or\s+more\s+[^\.\n]+\s+in\s+(?:your\s+|the\s+)?drop\s+zone/i);
+  if (dropCountMatch) {
     const wordMap = { three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, ten: 10 };
     const raw = dropCountMatch[1].toLowerCase();
     const reqDrop = wordMap[raw] || parseInt(raw, 10) || 3;
@@ -1584,11 +1590,12 @@ function evaluateCardConditions(card, fighter, enemy, isAbilityCall = false) {
     }
   }
 
-  if ((sLower.includes("do not have a monster in the center") || sLower.includes("no monster in the center") || sLower.includes("have no monsters on your center") || sLower.includes("no monster on your center")) && fighter.monsters.center) {
+  const needsCenterOpen = /(?:do not have|no|don't have) (?:a )?monsters? (?:in|on) (?:the|your) center|have no monsters on your center/.test(castOrCallSent);
+  if (needsCenterOpen && fighter.monsters.center) {
     reasons.push("Requires your Center zone to be open (no monster in Center)");
   }
 
-  if (sLower.includes("in the center") && sLower.includes("only cast this card if you have") && !fighter.monsters.center) {
+  if (!needsCenterOpen && castSent.includes("in the center") && castSent.includes("only cast this card if you have") && !fighter.monsters.center) {
     reasons.push("Requires a monster in your Center");
   }
 
@@ -8182,6 +8189,8 @@ const battle = {
 
       const cond = evaluateCardConditions(c, defFighter, attFighter);
       if (!cond.met) return;
+      // the engine's own cast conditions (a tribe on the field, an item equipped, ...) also apply to the known categories
+      if (c.type === "Spell" && window.ABX && ABX.counterSpellOption && ABX.ownsCounter && ABX.ownsCounter(c) && !ABX.counterSpellOption(defSide, c, { targetPos, attUnits })) return;
 
       const s = (c.skill || "").toLowerCase();
 
@@ -8224,7 +8233,7 @@ const battle = {
         if (attackedZone && (attackedZone[1] === "center" ? !["center", "center2"].includes(targetPos) : targetPos !== attackedZone[1])) {
           return;
         }
-        if ((s.includes("you are being attacked") || s.includes("attacking you")) && targetPos !== "fighter") {
+        if ((s.includes("you are being attacked") || /attacking you(?![a-z])/.test(s)) && targetPos !== "fighter") {
           return;
         }
         if (isLinkAttack && s.includes("not a link attack")) {
