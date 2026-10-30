@@ -6223,6 +6223,21 @@ const battle = {
           actionsEl.appendChild(bSetAct);
         }
       }
+      // Opponent's turn: a [Set] spell on my field whose [Counter] [Act] does not need an attack can be used from here.
+      if (side !== this.activeSide && !this.matchOver && !this.pendingDefenseContext
+          && !f.isBot && (this.mode !== "online_p2p" || side === "plr")
+          && window.ABX && ABX.freeFieldCounterOptions) {
+        ABX.freeFieldCounterOptions(side).filter(o => o.area === "set" && o.card === card).forEach(o => {
+          const b = document.createElement("button");
+          b.className = "primary-cta-btn";
+          b.textContent = `⚡ [Counter] ${o.sub ? o.sub.slice(0, 70) : card.name}`;
+          b.onclick = () => {
+            this.closeCardBanner();
+            ABX.useFreeFieldCounter(side, o.key).then(() => { if (!this.matchOver) this.renderBattle(); });
+          };
+          actionsEl.appendChild(b);
+        });
+      }
       const bBackSet = document.createElement("button");
       bBackSet.className = "action-btn";
       bBackSet.textContent = `🔮 Back to [Set] Zone List (${f.setSpells.length})`;
