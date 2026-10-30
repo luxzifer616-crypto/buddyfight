@@ -5766,17 +5766,30 @@ const battle = {
     this.renderBattle();
   },
 
+  // Hotseat shows ONE hand on the shared screen: the active player's. "Peek" shows the waiting player's hand instead
+  // (for the opponent's-turn [Counter] button); it only lasts for the current turn.
+  handViewSide() {
+    if (this.mode !== "hotseat") return "plr";
+    const peeking = this.hotseatPeek === `${this.activeSide}:${this.turnCount}`;
+    return peeking ? (this.activeSide === "opp" ? "plr" : "opp") : this.activeSide;
+  },
+  togglePeekHand() {
+    const key = `${this.activeSide}:${this.turnCount}`;
+    this.hotseatPeek = this.hotseatPeek === key ? null : key;
+    this.renderBattle();
+  },
+
   onHandCardClick(handIdx) {
     // Not your turn (bot / online friend / match over): you can still open your own hand cards to read their skill,
     // but the banner is read-only (openCardBanner only adds action buttons on a local turn).
     const localTurn = this.isLocalTurn();
-    const side = localTurn ? this.activeSide : ((this.mode === "hotseat" && this.activeSide === "opp") ? "opp" : "plr");
+    const side = this.mode === "hotseat" ? this.handViewSide() : (localTurn ? this.activeSide : "plr");
     const f = this.getFighter(side);
     const cid = f.hand[handIdx];
     const c = CARD_MAP.get(cid);
     if (!c) return;
 
-    if (localTurn && this.pendingAction && this.pendingAction.type === "charge") {
+    if (localTurn && side === this.activeSide && this.pendingAction && this.pendingAction.type === "charge") {
       this.executeChargeAndDraw(side, handIdx);
       return;
     }
@@ -9553,7 +9566,7 @@ const battle = {
     document.getElementById("z-opp-fighter").classList.toggle("attack-target", Boolean(canHitFighterDirect));
     document.getElementById("hud-opp-target").classList.toggle("attack-target", Boolean(canHitFighterDirect));
 
-    const handOwner = (this.mode === "hotseat" && this.activeSide === "opp") ? this.opp : this.plr;
+    const handOwner = this.getFighter(this.handViewSide());
     const handEl = document.getElementById("bt-plr-hand");
     const handFrag = document.createDocumentFragment();
     handOwner.hand.forEach((cid, idx) => {
@@ -9573,6 +9586,15 @@ const battle = {
       `;
       handFrag.appendChild(div);
     });
+    // Hotseat: switch between the active player's hand and the waiting player's hand (to use a [Counter] on their opponent's turn)
+    if (this.mode === "hotseat" && !this.matchOver) {
+      const peeking = this.handViewSide() !== this.activeSide;
+      const bPeek = document.createElement("button");
+      bPeek.className = "secondary-btn";
+      bPeek.textContent = peeking ? "🔄 Back to my hand" : "🔄 Other player's hand (⚡ Counter)";
+      bPeek.onclick = () => this.togglePeekHand();
+      handFrag.appendChild(bPeek);
+    }
     handEl.replaceChildren(handFrag);
 
     if (this.mode === "online_p2p" && !this.isReceivingP2P && this.activeSide === "plr") {

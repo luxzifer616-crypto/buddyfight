@@ -1,0 +1,25 @@
+// Hotseat: the player whose turn it is NOT can open their own hand (peek toggle) to use the opponent's-turn Counter button.
+const { createEnv } = require("./headless.js");
+const { run } = createEnv();
+let pass = 0, fail = 0;
+const ck = (n, ok) => { ok ? pass++ : fail++; console.log((ok ? "PASS " : "FAIL ") + n); };
+const val = (js) => JSON.parse(run(`JSON.stringify((function(){${js}})())`));
+run(`ABX.fast=true; ABX.autoPlay=true;
+ battle.start('hotseat', generateFlagDeck(447,'T',571,true), generateFlagDeck(447,'O',571,true)); battle.renderBattle=function(){};
+ const mon = ALL_CARDS.find(x=>x.type==='Monster'&&x.size===1&&!x.skill);
+ const me = battle.plr; me.gauge=me.deck.splice(0,8); me.life=10; me.hand=[8]; me.drop=me.deck.splice(0,8);
+ battle.opp.monsters.center={card:mon,rested:false,attacksLeft:1,soul:[],tempPower:0,tempDef:0,tempCrit:0};
+ battle.activeSide='opp'; battle.turn='opp'; battle.phase='main';
+ globalThis.__opened=[]; battle.openCardBanner=function(o){ __opened.push(o); };`);
+ck("hotseat, opponent's turn: the hand shown is the active player's (opp)", val(`return battle.handViewSide();`) === "opp");
+run(`battle.togglePeekHand();`);
+ck("peek toggle shows the waiting player's hand (plr)", val(`return battle.handViewSide();`) === "plr");
+run(`battle.onHandCardClick(0);`);
+ck("clicking a card while peeking opens the banner on side plr", val(`return __opened.length===1 && __opened[0].side==='plr' && __opened[0].context==='hand';`));
+ck("that card (8 Bastin Caps) can be cast as a free counter", val(`return ABX.freeCounterOption('plr', CARD_MAP.get(8));`));
+run(`battle.activeSide='plr'; battle.turn='plr';`);
+ck("peek resets when the turn changes", val(`return battle.handViewSide();`) === "plr" && val(`return !battle.hotseatPeek || battle.hotseatPeek.indexOf('plr')!==0;`));
+run(`battle.hotseatPeek=null; battle.activeSide='opp'; battle.turn='opp'; battle.togglePeekHand(); battle.togglePeekHand();`);
+ck("toggling twice goes back to the active player's hand", val(`return battle.handViewSide();`) === "opp");
+console.log(`\npass ${pass} fail ${fail}`);
+process.exit(fail ? 1 : 0);
