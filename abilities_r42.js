@@ -35,6 +35,29 @@
       dr.gate = "ifYouDo";
       return { kind: "act", steps: st, once: "turn" };
     }],
+    // #6394 Gazley: "you may pay 1 gauge, and [Rest] this card. If you do" - both costs, so an unpaid gauge skips the rest
+    [6394, /choose up to two/i, (ab) => {
+      const st = clone(ab.steps || []), rs = st.find(x => x.op === "restSelf");
+      if (!rs) return null;
+      rs.gate = "ifYouDo";
+      return { kind: "act", steps: st };
+    }],
+    // #5706 Ranma: the drop-instead-of-destroy and the destroy are one "if you do" result (a failed cond of one must not cancel the other)
+    [5706, /choose a card on your opponent's field/i, (ab) => {
+      const st = clone(ab.steps || []);
+      const ch = st.find(x => x.op === "choose"), di = st.find(x => x.op === "discard"), de = st.find(x => x.op === "destroy"), mv = st.find(x => x.op === "move");
+      if (!ch || !di || !de || !mv) return null;
+      delete de.cond; delete de.gate; delete mv.cond; delete mv.instead;
+      return { kind: "act", steps: [ch, di, { op: "r42RanmaResolve", gate: "ifYouDo", destroy: de, move: mv }] };
+    }],
+    // #4667 Odio: the 2 life is part of the "if you do" cost; the chosen card is shuffled out of the way, then put on top of the deck
+    [4667, /put another/i, (ab) => {
+      const st = clone(ab.steps || []);
+      const mv = st[0], pay = st.find(x => x.op === "pay"), ch = st.find(x => x.op === "choose");
+      if (!mv || !pay || !ch || mv.op !== "move") return null;
+      pay.gate = "ifYouDo"; ch.gate = "ifYouDo";
+      return { kind: "act", steps: [mv, pay, ch, { op: "r42OdioFetch", gate: "ifYouDo" }] };
+    }],
     // #6458 Deily: "If your flag is Lost World, choose and use three times instead" = repeat the modal choice, not a leftover step
     [6458, /choose and use one of the following three/i, () => ({ kind: "modal", steps: [], once: "turn", repeatLW: 3 })],
 
@@ -221,6 +244,25 @@
 
   // Zorune: the looked-at cards go back on top of the deck (any order = the order they were in), BEFORE the following draw
   OPS.r42LookBack = { run(s, ctx) { const l = (ctx.bind.looked || []).filter(x => x && x.pending); for (let i = l.length - 1; i >= 0; i--) { F(l[i].side).deck.unshift(l[i].id); l[i].pending = false; } return true; }, check: () => true };
+
+  // Ranma: Lost World -> put the chosen card into the drop zone instead of destroying it
+  OPS.r42RanmaResolve = { run(s, ctx) { return core.evalCond({ t: "flagIs", names: ["lost world"] }, ctx) ? OPS.move.run(s.move, ctx) : OPS.destroy.run(s.destroy, ctx); }, check: () => true };
+  // Odio: the chosen deck card goes into the drop zone, the deck is shuffled, then that card is put on top of the deck
+  OPS.r42OdioFetch = {
+    async run(s, ctx) {
+      const r = (ctx.bind.chosen || []).find(x => x && x.id != null && x.area === "deck");
+      if (!r) return false;
+      const f = F(r.side || ctx.side), i = f.deck.indexOf(r.id);
+      if (i < 0) return false;
+      f.deck.splice(i, 1);
+      f.drop.push(r.id);
+      await OPS.shuffle.run({ op: "shuffle", who: "you" }, ctx);
+      const j = f.drop.lastIndexOf(r.id);
+      if (j >= 0) f.drop.splice(j, 1);
+      f.deck.unshift(r.id);
+      return true;
+    }, check: () => true
+  };
 
   // #5538: remember that Sector Collapse is active this turn (the attack hook below applies it)
   OPS.r42SectorCollapse = { run(s, ctx) { ctx.f.abxSectorCollapse = battle.turnCount; return true; }, check: () => true };

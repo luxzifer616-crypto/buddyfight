@@ -5,7 +5,7 @@ const ck = (n, ok, extra) => { ok ? pass++ : fail++; console.log(ok ? "PASS" : "
 const env = createEnv(); const run = env.run; const J = (c) => JSON.parse(run(`JSON.stringify(${c})`));
 run(`battle.start("hotseat", generateFlagDeck(3337,"T",3338,false), generateFlagDeck(447,"O",571,false)); battle.renderBattle=function(){}; ABX.autoPlay=true; ABX.fast=true;
  globalThis.mku=(id)=>({card:CARD_MAP.get(id),rested:false,attacksLeft:1,soul:[],tempPower:0,tempDef:0,tempCrit:0});
- globalThis.clear=()=>{ for (const f of [battle.plr,battle.opp]) { ["left","center","center2","right"].forEach(p=>f.monsters[p]=null); f.item=null; f.setSpells=[]; f.hand=[]; f.drop=[]; f.life=10; f.deck=Array.from({length:30},(_,i)=>[46,4619,4621,4626,4628,4569][i%6]); f.gauge=[46,46,46,46,46,46]; } battle.activeSide="plr"; battle.phase="main"; battle.matchOver=false; battle.turnCount++; };`);
+ globalThis.clear=()=>{ for (const f of [battle.plr,battle.opp]) { ["left","center","center2","right"].forEach(p=>f.monsters[p]=null); f.item=null; f.setSpells=[]; f.hand=[]; f.drop=[]; f.life=10; f.deck=Array.from({length:30},(_,i)=>[46,4619,4621,4626,4628,4569][i%6]); f.gauge=[46,46,46,46,46,46]; } battle.plr.flagId=3337; battle.activeSide="plr"; battle.phase="main"; battle.matchOver=false; battle.turnCount++; };`);
 const settle = async () => { for (let i = 0; i < 60; i++) { env.flush(); await new Promise(r => setTimeout(r, 2)); } };
 const S = () => J(`({hand:battle.plr.hand,gauge:battle.plr.gauge.length,drop:battle.plr.drop,deck:battle.plr.deck.length,deckTop:battle.plr.deck.slice(0,6),deckBottom:battle.plr.deck.slice(-6),life:battle.plr.life,field:["left","center","right"].map(p=>battle.plr.monsters[p]&&battle.plr.monsters[p].card.id),oppField:["left","center","right"].map(p=>battle.opp.monsters[p]&&battle.opp.monsters[p].card.id),oppLife:battle.opp.life})`);
 // run the ability of card `id` whose step ops include `op` (or the nth with kind)
@@ -63,6 +63,31 @@ const hasLook = `a=>(a.steps||[]).some(s=>s.op==='look')`;
   run(`clear(); battle.plr.flagId=4569; battle.plr.monsters.center=mku(6458); battle.plr.monsters.left=mku(4619); battle.plr.monsters.left.rested=true; battle.phase='attack'; globalThis.__st=0;`);
   await ab(6458, "center", `a=>a.kind==='modal'`);
   ck("g3 Deily with Lost World: three effects", run(`__st`) === 3, run(`__st`));
+  // ---- group 4: Gazley 6394, Ranma 5706, Odio 4667
+  run(`clear(); battle.plr.monsters.center=mku(6394); battle.plr.drop=[4619,4621]; battle.plr.gauge=[]; battle.plr.hand=[];`);
+  await ab(6394, "center", `a=>a.kind==='act'`);
+  s = S(); ck("g4 Gazley: cost unpaid (no gauge) -> nothing to hand, not rested", s.hand.length === 0 && !J(`battle.plr.monsters.center.rested`), s);
+  run(`clear(); battle.plr.monsters.center=mku(6394); battle.plr.drop=[4619,4621]; battle.plr.hand=[];`);
+  await ab(6394, "center", `a=>a.kind==='act'`);
+  s = S(); ck("g4 Gazley: paid -> cards to hand", s.hand.length >= 1 && s.gauge === 5, s);
+  run(`clear(); battle.plr.monsters.center=mku(5706); battle.plr.hand=[46]; battle.opp.monsters.left=mku(46);`);
+  await ab(5706, "center", `a=>a.kind==='act'`);
+  ck("g4 Ranma: no DD dropped (no LW) -> chosen card stays", S().oppField[0] === 46, S());
+  run(`clear(); battle.plr.flagId=4569; battle.plr.monsters.center=mku(5706); battle.plr.hand=[46]; battle.opp.monsters.left=mku(46); battle.opp.drop=[];`);
+  await ab(5706, "center", `a=>a.kind==='act'`);
+  ck("g4 Ranma: LW but nothing dropped -> chosen card stays", S().oppField[0] === 46, S());
+  run(`clear(); battle.plr.flagId=4569; battle.plr.monsters.center=mku(5706); battle.plr.hand=[4619]; battle.opp.monsters.left=mku(46); battle.opp.drop=[];`);
+  await ab(5706, "center", `a=>a.kind==='act'`);
+  ck("g4 Ranma: LW + DD dropped -> chosen card put into the drop zone", S().oppField[0] === null && J(`battle.opp.drop.includes(46)`), S());
+  run(`clear(); battle.plr.monsters.center=mku(5706); battle.plr.hand=[4619]; battle.opp.monsters.left=mku(46); battle.opp.drop=[];`);
+  await ab(5706, "center", `a=>a.kind==='act'`);
+  ck("g4 Ranma: no LW + DD dropped -> destroyed", S().oppField[0] === null && J(`battle.opp.drop.includes(46)`), S());
+  run(`clear(); battle.plr.monsters.center=mku(4667); battle.plr.deck=[4621,4626,46,46,46,46];`);
+  await ab(4667, "center", `a=>a.kind==='act'`);
+  s = S(); ck("g4 Odio alone: no cost paid, nothing happens", s.life === 10 && s.drop.length === 0 && s.deck === 6, s);
+  run(`clear(); battle.plr.monsters.center=mku(4667); battle.plr.monsters.left=mku(4619); battle.plr.deck=[46,46,4621,4626,46,46];`);
+  await ab(4667, "center", `a=>a.kind==='act'`);
+  s = S(); ck("g4 Odio: paid 2 life, other DD dropped, the chosen card ends on top of the deck (not in drop)", s.life === 8 && s.drop.length === 1 && s.drop[0] === 4619 && s.deck === 6 && [4621, 4626, 46].includes(s.deckTop[0]) && s.deckTop.includes(s.deckTop[0]), s);
   // ---- END
   console.log("pass", pass, "fail", fail); process.exit(fail ? 1 : 0);
 })();
