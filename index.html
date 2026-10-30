@@ -339,6 +339,7 @@
             <input type="text" id="dk-search" class="search-input" placeholder="Search card name, tribe (Time Dragon, Hundred Demons, Guardians...), or 'Overgod'..." oninput="app.renderDeckCatalog(1)" />
             <select id="dk-world" class="styled-select" onchange="app.renderDeckCatalog(1)">
               <option value="">Legal For Current Flag</option>
+              <option value="NEEDED">🛒 Cards Needed For This Deck (Unowned)</option>
               <option value="FLAGS_ONLY">🏳️ Show All Flags</option>
               <option value="DRAGOD_ONLY">🐉 Show All [Dragod] (All Flags — Max 4)</option>
               <option value="OMNI_LORDS">👑 Show All [Omni Lord] (Off-World — Max 1)</option>
@@ -876,7 +877,7 @@
   <!-- PeerJS WebRTC for Real Online Multiplayer on GitHub Pages -->
   <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
   <script src="cards_data.js?v=20261029m"></script>
-  <script src="game.js?v=20261030d"></script>
+  <script src="game.js?v=20261030e"></script>
   <script src="impact_monsters.js?v=20261030a"></script>
   <script src="abilities_parser.js?v=20261030b"></script>
   <script src="abilities_ui.js?v=20261029a"></script>

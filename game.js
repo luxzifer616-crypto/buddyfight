@@ -3228,6 +3228,8 @@ const app = {
     this.state.activeDeckIndex = idx;
     this.deckEditTab = "main";
     this.isEditingDeck = true;
+    const dkWorld = document.getElementById("dk-world");
+    if (dkWorld && dkWorld.value === "NEEDED") dkWorld.value = "";
     this.saveState();
     this.renderDeckScreen();
   },
@@ -3281,9 +3283,35 @@ const app = {
       this.state.activeDeckIndex = this.state.decks.length - 1;
       this.saveState();
       this.openDeckEditor(this.state.activeDeckIndex);
+      // Unowned cards in the imported deck: jump straight to the "Cards Needed" list in the card search.
+      if (this.getDeckMissingCardCount(imported) > 0) this.showNeededCardsInSearch();
     } catch (e) {
       alert("Invalid Deck Code! Please make sure you copied the complete code.");
     }
+  },
+
+  // Card search (deck edit page) -> only the cards this deck still needs to own.
+  showNeededCardsInSearch() {
+    const sel = document.getElementById("dk-world");
+    if (!sel) return;
+    sel.value = "NEEDED";
+    const search = document.getElementById("dk-search");
+    if (search) search.value = "";
+    this.renderDeckCatalog(1);
+  },
+
+  // Blocks play while the deck uses cards the player doesn't own. Returns true when blocked.
+  blockIfDeckMissingCards(deck) {
+    const missing = this.getDeckMissingCardCount(deck);
+    if (missing <= 0) return false;
+    alert(`You can't play with this deck yet: you are missing ${missing} card cop${missing === 1 ? "y" : "ies"}. Open the deck editor and check "Cards Needed" in the card search to see what to get (Open Packs or Unlock Sandbox).`);
+    const idx = this.state.decks.indexOf(deck);
+    if (idx >= 0) {
+      this.showScreen("deck");
+      this.openDeckEditor(idx);
+      this.showNeededCardsInSearch();
+    }
+    return true;
   },
 
   toggleInfinityChaos(on) {
@@ -3470,10 +3498,14 @@ const app = {
     const typeFilter = document.getElementById("dk-type").value;
     const skillFilter = document.getElementById("dk-skill").value;
     const isLostTab = this.deckEditTab === "lost";
+    const neededCounts = new Map();
+    if (worldFilter === "NEEDED") (deck.cards || []).forEach(cid => neededCounts.set(cid, (neededCounts.get(cid) || 0) + 1));
 
     const filtered = ALL_CARDS.filter(c => {
       if (isLostTab) {
         if (!checkCardLegalityForFlag(c, flagCard, true).allowed) return false;
+      } else if (worldFilter === "NEEDED") {
+        if ((neededCounts.get(c.id) || 0) <= (this.state.owned[c.id] || 0)) return false;
       } else if (worldFilter === "FLAGS_ONLY") {
         if (c.type !== "Flag") return false;
       } else if (worldFilter === "DRAGOD_ONLY") {
@@ -4142,9 +4174,11 @@ const app = {
       }
     }
     const deck = this.state.decks[this.state.activeDeckIndex] || this.state.decks[0];
+    if (this.blockIfDeckMissingCards(deck)) return;
     if (deck.cards.length < DECK_SIZE) {
       if (confirm(`Buddyfight Rule: Your Main Deck has ${deck.cards.length} cards (it needs at least ${DECK_SIZE} cards). Fill the rest up to ${DECK_SIZE} automatically and start? Your chosen cards are kept.`)) {
         this.completeCurrentDeck();
+        if (this.blockIfDeckMissingCards(deck)) return; // auto-fill may add cards the player doesn't own
       } else {
         return;
       }
