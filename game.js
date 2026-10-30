@@ -5873,7 +5873,7 @@ const battle = {
     // Opponent's turn: a hand [Counter] spell that is not an attack-nullifier (destroy / draw / call / life / gauge ...)
     // can be cast from here, as long as no defense prompt is open. Attack-nullifiers stay in the defense window.
     if (context === "hand" && side !== this.activeSide && !this.matchOver && !this.pendingDefenseContext
-        && window.ABX && ABX.freeCounterOption && ABX.freeCounterOption(side, card)) {
+        && this.mode !== "online_p2p" && window.ABX && ABX.freeCounterOption && ABX.freeCounterOption(side, card)) {
       const bCounter = document.createElement("button");
       bCounter.className = "primary-cta-btn";
       bCounter.textContent = "⚡ Counter";
@@ -5886,7 +5886,7 @@ const battle = {
 
     // Opponent's turn: a monster / item on my field whose [Counter] [Act] does not need an attack can be used from here.
     if (context === "field" && unit && side !== this.activeSide && !this.matchOver && !this.pendingDefenseContext
-        && !f.isBot && (this.mode !== "online_p2p" || side === "plr")
+        && !f.isBot && this.mode !== "online_p2p"
         && window.ABX && ABX.freeFieldCounterOptions) {
       ABX.freeFieldCounterOptions(side).filter(o => o.unit === unit).forEach(o => {
         const b = document.createElement("button");
@@ -6245,7 +6245,7 @@ const battle = {
       }
       // Opponent's turn: a [Set] spell on my field whose [Counter] [Act] does not need an attack can be used from here.
       if (side !== this.activeSide && !this.matchOver && !this.pendingDefenseContext
-          && !f.isBot && (this.mode !== "online_p2p" || side === "plr")
+          && !f.isBot && this.mode !== "online_p2p"
           && window.ABX && ABX.freeFieldCounterOptions) {
         ABX.freeFieldCounterOptions(side).filter(o => o.area === "set" && o.card === card).forEach(o => {
           const b = document.createElement("button");

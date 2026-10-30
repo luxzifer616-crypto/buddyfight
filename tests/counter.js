@@ -6,7 +6,7 @@ console.log("executable nullify-attack counters:", ids.length);
 (async()=>{ let ok=0, bad=[];
  for (const id of ids) {
   run(`(function(){ battle.start('hotseat', generateFlagDeck(447,'T',571,true), generateFlagDeck(447,'O',571,true)); battle.renderBattle=function(){}; globalThis.__res=null;
-   const c=CARD_MAP.get(${id}); const me=battle.opp; me.gauge=me.deck.splice(0,5); me.life=10; me.hand=[c.id]; me.drop=me.deck.splice(0,5);
+   const c=CARD_MAP.get(${id}); const me=battle.opp; me.gauge=me.deck.splice(0,5); me.life=10; me.hand=[c.id]; me.drop=me.deck.splice(0,5); me.deck.unshift(ALL_CARDS.find(x=>x.type==='Monster').id);
    const att=battle.plr; att.monsters.center={card:ALL_CARDS.find(x=>x.type==='Monster'),rested:false,attacksLeft:1,soul:[],tempPower:0,tempDef:0,tempCrit:0};
    battle.executeAttackResolution=function(a,z,t,n){ globalThis.__res=n; };
    battle.applyDefensiveCounterCard("opp",0,"plr",["center"],"fighter"); })()`);
