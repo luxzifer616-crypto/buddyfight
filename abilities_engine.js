@@ -1232,7 +1232,9 @@
   // Can this hand [Counter] spell be offered right now while defending? At least one spell body's conditions must pass
   // (runCounter silently skips bodies whose conditions fail, which would waste the cost). Returns {nullifies} or null.
   ABX.counterSpellOption = function (defSide, card, info) {
-    if (card.type !== "Spell" || !ABX.ownsCounter(card)) return null;
+    // Impact [Counter] spells: only in the Final Phase (same rule as the spell response window); impact monsters are not spells
+    const okType = card.type === "Spell" || (card.type === "Impact" && B.phase === "final" && !(window.IMX && IMX.isImpactMonster && IMX.isImpactMonster(card)));
+    if (!okType || !ABX.ownsCounter(card)) return null;
     const attSide = otherSide(defSide), attF = F(attSide), defF = F(defSide);
     const zones = (info && info.attackerZones) || [];
     const prev = ABX.battleCtx;

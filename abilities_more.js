@@ -226,7 +226,7 @@
   // [Counter] spell cast from the hand on the OPPONENT'S turn, outside any attack (destroy / draw / call / life / gauge ...).
   // Attack-nullifying spells stay in the defense window. Returns true when the card can be cast right now.
   ABX.freeCounterOption = function (side, c) {
-    if (!c || c.type !== "Spell" || ABX.enabled === false || B.matchOver || !ABX.ownsCounter || !ABX.ownsCounter(c)) return false;
+    if (!c || (c.type !== "Spell" && c.type !== "Impact") || ABX.enabled === false || B.matchOver || !ABX.ownsCounter || !ABX.ownsCounter(c)) return false;
     const f = F(side), e = F(otherSide(side));
     if (f.timeStoppedThisTurn || f.timeStoppedThisBattle) return false;
     const cs = ABX.counterSpellOption(side, c, { free: true });

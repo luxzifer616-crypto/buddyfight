@@ -8178,7 +8178,7 @@ const battle = {
       // Hand [Counter] spells the ability engine owns (destroy / draw / call / life / gauge ...) that the old text
       // classifier does not know: offer them when their conditions and cost are met. Known categories keep their
       // zone / link checks below.
-      if (!info && c.type === "Spell" && window.ABX && ABX.counterSpellOption) {
+      if (!info && (c.type === "Spell" || c.type === "Impact") && window.ABX && ABX.counterSpellOption) {
         const cs = ABX.counterSpellOption(defSide, c, { targetPos, attUnits });
         if (cs && evaluateCardConditions(c, defFighter, attFighter).met) {
           valid.push({ card: c, handIdx, info: { category: "abx_counter_spell", nullifies: cs.nullifies } });
