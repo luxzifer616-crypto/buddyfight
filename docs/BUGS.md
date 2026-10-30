@@ -106,3 +106,5 @@ Open: Belost is still activated via the game's draw/hand-click prompt rather tha
   - Checked OK: #4071 Overkill:REBOOT (calls from drop, life becomes 10 only at 3 or less), #3915/#4092/#5357 and the r37 Overkills (3728/6512/4115).
   - Not verified in a real attack: #4086 (trigger "when a Duel Golem attacks, destroy a card + 1 damage"), #5341 REB00T (nullify + end turn), #3934 call-from-soul.
 - [x] #4625 Agonia (and 39 other monsters whose "look at the top N / search" line is a leave trigger, [Act], [Counter] or [Auto]): the legacy text prompt "Use ...'s Ability?" popped up when the card entered the field (game.js afterMonsterCallLanded fallback via parseDeckSearchCriteria). New guard `deckSearchIsNotEnterTimed`. Test: tests/dimension_dragon.js g6.
+
+- FIXED 2026-10-31: #2920 Vermolt destroyed on any enter (now center only). #402/#405/#2068 Fenrir/Managarmr were still locked by Gleipnir's "cannot attack" (immunity now applied in OPS.restrict, abilities_r42.js). Test: tests/catalog_cards.js
