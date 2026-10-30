@@ -22,6 +22,8 @@
   const DRAGOD_BUDDIES = np({ tribes: ["Dragod"] }, "buddy zone");
   const ANY_BUDDY_CARD = np({}, "buddy zone");
 
+  const buddyCallRow = (name) => ({ kind: "triggered", trigger: { event: "enter", self: true }, conds: [{ t: "enterByBuddyCall" }], steps: [{ op: "r42BuddyCall", name }] });
+
   const OV42 = [
     /* ---- wave 1 ---- */
     [6138, /if a «?fire»? is on your field/i, () => ({
@@ -45,6 +47,19 @@
       kind: "triggered", trigger: { event: "attack", self: true }, once: "turn", conds: [{ t: "buddyCalledEver" }],
       steps: [{ op: "boost", np: { self: true, selfTail: "" }, mods: { power: 0, defense: 0, critical: 0, kws: ["triple attack"] } }]
     })],
+
+    /* ---- wave 3: Double / Triple Buddy chains (Thunder -> Ice -> Flame, Legendary set, One Wing set) ---- */
+    [5717, /you may buddy call/i, () => buddyCallRow("Ice Deity, Freeza Horus")],
+    [5419, /you may buddy call/i, () => buddyCallRow("Flame Deity, Magma Horus")],
+    [5418, /by the effect of/i, () => ({ kind: "triggered", trigger: { event: "enter", self: true }, conds: [{ t: "calledByCard", id: 5419 }],
+      steps: [{ op: "destroy", np: Object.assign(np({}, "field", null, "opp"), { qty: { n: 2, upTo: true, all: false, any: false, each: false } }) }, { op: "draw", who: "you", n: 2 }] })],
+    [5717, /cannot \[?stand\]?/i, () => ({ kind: "static", steps: [{ op: "restrict", np: np({}, "field", null, "opp"), kinds: ["stand"], byEffect: true }] })],
+    [5717, /cannot be destroyed/i, (ab) => { const st = clone(ab.steps); const pr = st.find(x => x.kind === "protect"); if (pr) pr.np.filter = { exactNames: ["flame deity, magma horus", "ice deity, freeza horus"] }; return { kind: "static", steps: st }; }],
+    [5749, /you may buddy call/i, () => buddyCallRow("Legendary Ice Deity, Freeza Horus")],
+    [5517, /you may buddy call/i, () => buddyCallRow("Legendary Flame Deity, Magma Horus")],
+    [5523, /by the effect of/i, () => ({ kind: "triggered", trigger: { event: "enter", self: true }, conds: [{ t: "calledByCard", id: 5517 }], steps: [{ op: "r42DestroyAllDamage", scope: "monsters" }] })],
+    [5511, /you may buddy call/i, () => buddyCallRow("One Wing of the King, Magma Horus")],
+    [5513, /by the effect of/i, () => ({ kind: "triggered", trigger: { event: "enter", self: true }, conds: [{ t: "calledByCard", id: 5511 }], steps: [{ op: "r42DestroyAllDamage", scope: "spellsItems" }] })],
 
     /* ---- wave 2: buddy zone counts ---- */
     [5544, /for each card in your buddy zone/i, (ab) => { const st = clone(ab.steps); st[0].each = clone(ANY_BUDDY_CARD); return { kind: "static", steps: st }; }],
@@ -99,6 +114,97 @@
   ];
 
   /* ---- ops ---- */
+  const B = typeof battle !== "undefined" ? battle : root.battle;
+  const fresh = () => { try { B.renderBattle && B.renderBattle(); } catch (e) { /* ignore */ } };
+  // "you may buddy call <exact card name> from your hand without paying its [Call Cost]": a REAL buddy call (buddy gift +1 life, buddy zone entry rested)
+  // and the called unit remembers which card called it (for "enters the field by the effect of <card>").
+  OPS.r42BuddyCall = {
+    async run(s, ctx) {
+      const f = ctx.f, want = lc(s.name);
+      const cands = [];
+      f.hand.forEach((id, i) => {
+        const c = core.cardOf(id);
+        if (!c || lc(c.name) !== want || c.type !== "Monster") return;
+        if (typeof canFighterBuddyCallCard === "function" && !canFighterBuddyCallCard(f, id)) return;
+        const sz = typeof getEffectiveCardSize === "function" ? getEffectiveCardSize(f, c) : (c.size || 0);
+        if (sz > (f.maxSize || 3)) return;
+        cands.push({ k: "zone", side: ctx.side, area: "hand", idx: i, id, card: c, unit: null });
+      });
+      if (!cands.length) return false;
+      const ch = await core.pick(cands, { qty: { n: 1, upTo: true }, raw: `buddy call ${s.name}` }, ctx, { intent: "help", title: `${ctx.card.name} — buddy call`, subtitle: `You may buddy call "${s.name}" from your hand without paying its [Call Cost]` });
+      if (!ch || !ch.length) return false;
+      const card = ch[0].card;
+      const hi = f.hand.indexOf(card.id);
+      let pos = ["left", "right", "center"].find(p => !f.monsters[p]);
+      if (!pos && typeof canPlaceSecondCenter === "function" && canPlaceSecondCenter(f, card)) pos = "center2";
+      if (!pos) pos = "center";
+      f.abxPendingCallBy = { by: ctx.card.id, target: card.id };
+      B.completeMonsterCall(ctx.side, pos, hi, true, true);
+      const u = f.monsters[pos];
+      if (!u || u.card.id !== card.id) { delete f.abxPendingCallBy; return false; }
+      ctx.calledPos = pos;
+      fresh();
+      return true;
+    },
+    check: () => true
+  };
+  // "destroy all monsters (or all spells and items) on your opponent's field, and deal 1 damage to your opponent for each card destroyed"
+  OPS.r42DestroyAllDamage = {
+    async run(s, ctx) {
+      const flt = s.scope === "monsters" ? { types: ["monster"] } : { types: ["spell", "item"] };
+      const step = { op: "destroy", np: Object.assign(np(flt, "field", null, "opp"), { qty: { n: 99, upTo: false, all: true, any: false, each: false } }) };
+      await OPS.destroy.run(step, ctx);
+      const n = ctx.lastCount || 0;
+      if (n > 0) core.applyDamage(otherSide(ctx.side), n, { kind: "effect" });
+      fresh();
+      return n > 0;
+    },
+    check: () => true
+  };
+  // Static "cards cannot [Stand] by card effects" (#5717 Thunder Deity): any card effect that would [Stand] a locked card leaves it rested.
+  function standLocked(unit, unitSide) {
+    for (const srcSide of ["plr", "opp"]) {
+      const sf = F(srcSide);
+      for (const src of core.fieldUnits(sf, true)) {
+        if (!src.unit || !src.unit.card || src.unit.abxNullified === B.turnCount) continue;
+        for (const ab of (ABX.get(src.unit.card).abilities || [])) {
+          if (ab.kind !== "static") continue;
+          for (const st of (ab.steps || [])) {
+            if (st.op !== "restrict" || !(st.kinds || []).includes("stand") || !st.np || !st.np.zone || !st.np.zone.owner) continue;
+            if ((st.np.zone.owner === "opp" ? otherSide(srcSide) : srcSide) !== unitSide) continue;
+            if (st.cond && !core.evalCond(st.cond, { side: srcSide, f: sf, e: F(otherSide(srcSide)), unit: src.unit, card: src.unit.card, bind: { chosen: [], revealed: [], looked: [] }, hostArea: "field" })) continue;
+            if (core.matchFilter(unit.card, st.np.filter || {}, { unit, side: unitSide }, { f: F(unitSide) })) return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
+  core.standLocked = standLocked;
+  if (OPS.stand && OPS.stand.run) {
+    const origStand = OPS.stand.run;
+    OPS.stand.run = async function (s, ctx) {
+      const locked = [];
+      ["plr", "opp"].forEach(sd => core.fieldUnits(F(sd), true).forEach(x => { if (x.unit.rested && standLocked(x.unit, sd)) locked.push(x.unit); }));
+      if (!locked.length) return origStand.apply(this, arguments);
+      const r = await origStand.apply(this, arguments);
+      locked.forEach(u => { u.rested = true; });
+      return r;
+    };
+  }
+  // the unit that lands from r42BuddyCall remembers its caller before its [enter] abilities fire
+  if (B && typeof B.afterMonsterCallLanded === "function") {
+    const prevLanded = B.afterMonsterCallLanded;
+    B.afterMonsterCallLanded = function (side, c, unit) {
+      try {
+        const f = this.getFighter(side), p = f && f.abxPendingCallBy;
+        if (p && unit && c && p.target === c.id) { unit.abxCalledBy = p.by; delete f.abxPendingCallBy; }
+      } catch (e) { /* ignore */ }
+      return prevLanded.apply(this, arguments);
+    };
+  }
+
+
   // #5538: remember that Sector Collapse is active this turn (the attack hook below applies it)
   OPS.r42SectorCollapse = { run(s, ctx) { ctx.f.abxSectorCollapse = battle.turnCount; return true; }, check: () => true };
 

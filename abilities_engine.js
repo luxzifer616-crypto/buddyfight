@@ -383,6 +383,8 @@
       case "turn": { const curSide = (ctx.event && ctx.event.activeSide) || B.activeSide; return c.who === "you" ? curSide === ctx.side : curSide !== ctx.side; }
       case "phase": return B.phase === c.phase && (!c.who || (c.who === "you" ? B.activeSide === ctx.side : B.activeSide !== ctx.side));
       case "underAttack": { const bc = ABX.battleCtx; return !!(bc && bc.active && bc.defSide === ctx.side) || (!!B.pendingDefenseContext && B.pendingDefenseContext.defSide === ctx.side); }
+      case "enterByBuddyCall": return !!(ctx.unit && ctx.unit.isBuddyGift);                              // "when this card enters the field by a buddy call"
+      case "calledByCard": return !!(ctx.unit && Number(ctx.unit.abxCalledBy) === Number(c.id));        // "... by the effect of <card>"
       case "buddyCalledEver": return !!f.buddyCallEver;   // "if you buddy called during this fight" (fight = whole game)
       case "selfPos": return !!ctx.unit && (posOfUnit(f, ctx.unit) || "").replace("center2", "center") === c.pos;
       case "selfOnField": return !!ctx.unit && posOfUnit(f, ctx.unit) !== null || (ctx.card && (f.setSpells || []).includes(ctx.card));

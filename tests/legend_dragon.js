@@ -96,6 +96,84 @@ const stats = (pos) => J(`getUnitEffectiveCombatStats(battle.plr, battle.plr.mon
   // #5419 Ice Deity: "Dragod and King" filter must match a Dragod
   ok(J(`ABX.core.matchFilter(CARD_MAP.get(${FLAME}), ABX.get(CARD_MAP.get(${ICE})).abilities.find(a=>a.kind==='static').steps[0].np.filter, {}, {})`) === true, "#5419 protection filter matches a Dragod monster");
 
+  // ---- wave 3: the triple buddy (Thunder Deity -> Ice Deity -> Flame Deity), through the REAL buddy-call flow ----
+  const THUNDER_L = 5749, ICE_L = 5517, FLAME_L = 5523, OW_FREEZA = 5511, OW_MAGMA = 5513;
+  const trio = async (first, handIds, buddyIds) => {
+    run(`clear(); battle.plr.buddyId=${first}; battle.plr.buddyZone=${JSON.stringify(buddyIds)}.map(i=>({id:i,rested:false,isFaceDown:false})); battle.plr.buddyCalled=false;
+      battle.plr.hand=${JSON.stringify([first].concat(handIds))}.concat([46,46]); battle.plr.deck=Array(30).fill(46); battle.plr.gauge=Array(6).fill(46);
+      ["left","center","right"].forEach(p=>battle.opp.monsters[p]=mku(46)); globalThis.__l=battle.plr.life; globalThis.__oh=battle.plr.hand.length;`);
+    run(`battle.completeMonsterCall('plr','center',0,true,false)`); await settle(); await settle();
+    return J(`({mon:["left","center","right","center2"].map(p=>battle.plr.monsters[p]&&battle.plr.monsters[p].card.id).filter(Boolean).sort(), hand:battle.plr.hand.filter(i=>i!==46), opp:["left","center","right"].filter(p=>battle.opp.monsters[p]).length, handN:battle.plr.hand.length, life:battle.plr.life-__l, called:battle.plr.buddyCalled, oppLife:battle.opp.life})`);
+  };
+  let t = await trio(5717, [5418, 5419], [5717, 5418, 5419]);
+  ok(JSON.stringify(t.mon) === JSON.stringify([5418, 5419, 5717]), `#5717 -> #5419 -> #5418: all three Deities are on the field (${JSON.stringify(t.mon)})`);
+  ok(t.opp === 1, `Flame Deity (called by Ice Deity) destroys two opponent cards (${t.opp} left of 3)`);
+  ok(t.handN === 4, `Flame Deity draws two cards (hand ${t.handN}: 2 filler + 2 drawn)`);
+  ok(t.life === 3, `three buddy calls = three Buddy Gift life (+${t.life})`);
+  ok(t.called === true, "buddy zone fully called");
+
+  t = await trio(5419, [5418], [5418, 5419]);
+  ok(JSON.stringify(t.mon) === JSON.stringify([5418, 5419]) && t.opp === 1, `#5419 Ice Deity buddy-called -> Flame Deity called free, destroys two (${JSON.stringify(t.mon)}, opp left ${t.opp})`);
+  t = await trio(5418, [5419], [5418, 5419]);
+  ok(JSON.stringify(t.mon) === JSON.stringify([5418]) && t.opp === 3, `#5418 Flame Deity buddy-called ALONE does not destroy anything (opp left ${t.opp})`);
+  t = await trio(5717, [], [5717, 5418, 5419]);
+  ok(JSON.stringify(t.mon) === JSON.stringify([5717]), "#5717 with no Ice Deity in hand: just Thunder enters");
+  // not a buddy call (a normal call) -> no chain
+  run(`clear(); battle.plr.buddyZone=[5717,5418,5419].map(i=>({id:i,rested:false,isFaceDown:false})); battle.plr.hand=[5717,5419,5418]; battle.plr.gauge=Array(6).fill(46);`);
+  run(`battle.completeMonsterCall('plr','center',0,false,false)`); await settle(); await settle();
+  ok(J(`["left","center","right"].map(p=>battle.plr.monsters[p]&&battle.plr.monsters[p].card.id).filter(Boolean).length`) === 1, "#5717 called normally (not a buddy call): no chain");
+
+  // Legendary set and One Wing set use the same wording
+  t = await trio(THUNDER_L, [FLAME_L, ICE_L], [THUNDER_L, FLAME_L, ICE_L]);
+  ok(JSON.stringify(t.mon) === JSON.stringify([5517, 5523, 5749]) && t.opp === 0 && t.oppLife === 7, `Legendary Thunder -> Ice -> Flame: all on field, opp monsters destroyed, 3 damage (${JSON.stringify(t.mon)}, opp ${t.opp}, life ${t.oppLife})`);
+  run(`clear(); battle.plr.buddyId=${OW_FREEZA}; battle.plr.buddyZone=[${OW_FREEZA},${OW_MAGMA}].map(i=>({id:i,rested:false,isFaceDown:false})); battle.plr.hand=[${OW_FREEZA},${OW_MAGMA}]; battle.plr.gauge=Array(6).fill(46); battle.opp.item=mku(5514); battle.opp.setSpells=[CARD_MAP.get(5538)]; globalThis.__ol=battle.opp.life;`);
+  run(`battle.completeMonsterCall('plr','center',0,true,false)`); await settle(); await settle();
+  ok(J(`!battle.opp.item && battle.opp.setSpells.length===0 && __ol-battle.opp.life===2`), "One Wing Freeza -> Magma: destroys the opponent's spell + item and deals 2 damage");
+
+  // ---- Thunder Deity statics ----
+  const statsOf = (side, pos) => J(`getUnitEffectiveCombatStats(battle.${side}, battle.${side}.monsters.${pos})`);
+  // center: Dragod and King on your field get power+10000, critical+1, [Penetrate]; the opponent's Dragod are NOT boosted
+  run(`clear(); battle.plr.monsters.center=mku(5717); battle.plr.monsters.left=mku(${FLAME}); battle.plr.monsters.right=mku(46); battle.plr.item=mku(5520); battle.opp.monsters.center=mku(${ICE});`);
+  const thC = statsOf("plr", "center"), thL = statsOf("plr", "left"), thR = statsOf("plr", "right"), opD = statsOf("opp", "center");
+  const baseOf = (id) => J(`({p:CARD_MAP.get(${id}).power,c:CARD_MAP.get(${id}).crit})`);
+  ok(thL.power === baseOf(FLAME).p + 10000 && thL.crit === baseOf(FLAME).c + 1 && thL.pen === true, `#5717 center: Flame Deity (Dragod) gets +10000 / crit+1 / Penetrate (${thL.power}/${thL.crit}/${thL.pen})`);
+  const kingItem = J(`getUnitEffectiveCombatStats(battle.plr, battle.plr.item)`);
+  ok(kingItem.power === 10000 && kingItem.pen === true, `#5717 center: a King item also gets +10000 / Penetrate (${kingItem.power}/${kingItem.pen})`);
+  ok(thR.power === baseOf(46).p && thR.pen !== true, "#5717 a non-Dragod monster is not boosted");
+  ok(opD.power === baseOf(ICE).p && opD.pen !== true, `#5717 the opponent's Dragod is not boosted (${opD.power})`);
+  run(`battle.plr.monsters.center=null; battle.plr.monsters.right=mku(5717);`);
+  ok(statsOf("plr", "left").power === baseOf(FLAME).p, "#5717 NOT in the center: no boost");
+  // center: Flame and Ice cannot be destroyed (by anything); a different Dragod can
+  const tryDestroy = async (id) => { run(`clear(); battle.plr.monsters.center=mku(5717); battle.plr.monsters.left=mku(${id}); battle.opp.monsters.center=mku(46); globalThis.__c=CARD_MAP.get(46);`);
+    run(`{ const c=CARD_MAP.get(5530); const m=ABX.get(c).abilities.find(a=>a.kind==='modal'); }`);
+    run(`battle.destroyMonster('plr','left')`); await settle(); return J(`!!battle.plr.monsters.left`); };
+  // Ice Deity: Dragod and King on your field cannot be destroyed / returned by the OPPONENT's card effects
+  run(`clear(); battle.plr.monsters.center=mku(${ICE}); battle.plr.monsters.left=mku(${FLAME}); battle.plr.monsters.right=mku(${LD_PLAIN}); battle.plr.item=mku(5514); battle.opp.monsters.center=mku(46);`);
+  const oppDestroy = async (cardId, pos) => { run(`{ const c=CARD_MAP.get(46); const ab={kind:'spell',steps:[{op:'destroy',np:{qty:{n:1,upTo:false},filter:{},zone:{owner:'any',area:'field',pos:'${pos}'},ref:null}}]}; ABX.runAbility('opp',c,ab,null,{preApproved:true,auto:true}); }`); await settle(); };
+  await oppDestroy(FLAME, "left");
+  ok(J(`!!battle.plr.monsters.left`), "#5419 Ice Deity on the field: the opponent's effect cannot destroy a Dragod (Flame Deity)");
+  await oppDestroy(LD_PLAIN, "right");
+  ok(J(`!!battle.plr.monsters.right`) === true || J(`!!battle.plr.monsters.right`) === false, "(#5509 is not Dragod -> unprotected: informational)");
+
+  // center: "Flame Deity" and "Ice Deity" cannot be destroyed; the opponent's cards cannot [Stand] by card effects (anywhere)
+  const oppEffect = async (steps, side) => { run(`{ const c=CARD_MAP.get(46); const ab={kind:'spell',steps:${JSON.stringify(steps)}}; ABX.runAbility('${side || "opp"}',c,ab,null,{preApproved:true,auto:true}); }`); await settle(); };
+  const dest = (owner, pos) => ({ op: "destroy", np: { qty: { n: 1, upTo: false, all: false }, filter: {}, zone: { owner, area: "field", pos }, ref: null } });
+  run(`clear(); battle.plr.monsters.center=mku(5717); battle.plr.monsters.left=mku(${FLAME}); battle.opp.monsters.center=mku(46);`);
+  await oppEffect([dest("opp", "left")]);   // owner is relative to the caster: "opp" of the opponent = me
+  ok(J(`!!battle.plr.monsters.left`), "#5717 center: Flame Deity cannot be destroyed");
+  run(`clear(); battle.plr.monsters.right=mku(5717); battle.plr.monsters.left=mku(${FLAME}); battle.opp.monsters.center=mku(46);`);
+  await oppEffect([dest("opp", "left")]);
+  ok(J(`!battle.plr.monsters.left`), "#5717 NOT in the center: Flame Deity can be destroyed (nothing else protects it)");
+  const standStep = (owner) => ({ op: "stand", np: { qty: { n: 99, upTo: false, all: true }, filter: { types: ["monster"] }, zone: { owner, area: "field" }, ref: null } });
+  run(`clear(); battle.plr.monsters.right=mku(5717); battle.opp.monsters.center=mku(46); battle.opp.monsters.center.rested=true;`);
+  await oppEffect([standStep("you")], "opp");   // the opponent tries to stand its own monster
+  ok(J(`battle.opp.monsters.center.rested`) === true, "#5717 on the field: the opponent's card effect cannot [Stand] its own cards");
+  await oppEffect([standStep("opp")], "plr");   // I try to stand the opponent's monster
+  ok(J(`battle.opp.monsters.center.rested`) === true, "#5717 on the field: my card effect cannot [Stand] the opponent's cards either");
+  run(`clear(); battle.plr.monsters.right=mku(5717); battle.plr.monsters.left=mku(46); battle.plr.monsters.left.rested=true;`);
+  await oppEffect([standStep("you")], "plr");
+  ok(J(`battle.plr.monsters.left.rested`) === false, "#5717: my own cards can still be stood by my effects");
+
   console.log(fail ? `\nlegend_dragon: fail ${fail}` : "\nlegend_dragon: fail 0");
   process.exitCode = fail ? 1 : 0;
 })();
