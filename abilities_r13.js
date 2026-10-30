@@ -621,7 +621,7 @@
     const f = ctx.f; if (!f.deck.length) return false;
     const c = cardOf(f.deck[0]);
     let bottom = false;
-    if (!ctx.auto && !f.isBot && ABX.ui && ABX.ui.pickOption) {
+    if (!ctx.auto && !f.isBot && !ABX.autoPlay && ABX.ui && ABX.ui.pickOption) {
       const i = await ABX.ui.pickOption({ title: `${ctx.card.name} — top card of your deck: "${c ? c.name : "?"}"`, options: [{ label: "Keep it on top" }, { label: "Put it on the bottom" }] });
       bottom = i === 1;
     } else bottom = !!(c && c.type === "Flag");
