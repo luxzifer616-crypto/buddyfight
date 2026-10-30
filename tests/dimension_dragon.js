@@ -117,6 +117,10 @@ const hasLook = `a=>(a.steps||[]).some(s=>s.op==='look')`;
     s = S();
     ck("g5 Ire: rest goes on the " + label, label === "top" ? (s.deckTop[0] === 4621 || s.deckTop[0] === 4628 || s.deckTop[0] === 4626) && s.deckTop.slice(0, 3).every(x => [4621, 4626, 4628].includes(x)) : s.deckBottom.slice(-3).every(x => [4621, 4626, 4628].includes(x)), s);
   }
+  // ---- group 6: Agonia must NOT show the legacy "use ability" prompt when it enters the field (its look is a leave trigger)
+  run(`clear(); battle.plr.hand=[4625]; battle.plr.gauge=[46,46,46,46,46]; globalThis.__legacy=0; battle.promptOptionalAbility=function(){ globalThis.__legacy++; };`);
+  run(`battle.completeMonsterCall("plr","left",0,false)`); await settle();
+  ck("g6 Agonia enters the field: no legacy enter prompt", run(`__legacy`) === 0 && run(`battle.plr.monsters.left&&battle.plr.monsters.left.card.id`) === 4625, run(`__legacy`));
   // ---- END
   console.log("pass", pass, "fail", fail); process.exit(fail ? 1 : 0);
 })();

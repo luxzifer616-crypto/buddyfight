@@ -1671,6 +1671,13 @@ function canUseMove(side, unit) {
 }
 
 /* ==================== UNIVERSAL DECK SEARCH & TOP-DECK LOOK PARSER ==================== */
+// The matched "look at the top N / search" line belongs to a non-enter ability (e.g. "When this card is put from the field into the drop zone", [Act], [Counter]),
+// so it must not pop up when the card enters the field.
+function deckSearchIsNotEnterTimed(card) {
+  const crit = parseDeckSearchCriteria(card);
+  return !!(crit && /when this card (?:is put from|is destroyed|leaves|is put into|is discarded)|\[(?:act|counter|auto)\]/i.test(crit.rawText || ""));
+}
+
 function parseDeckSearchCriteria(card) {
   if (!card || !card.skill) return null;
   const s = card.skill || "";
@@ -7693,7 +7700,7 @@ const battle = {
       if (window.ABX && ABX.fireOtherEnter) ABX.fireOtherEnter(side, unit);
       if (window.ABX && ABX.ownsEnter && ABX.ownsEnter(c)) {
         ABX.fireEnter(side, c, unit);
-      } else if (s.includes("when this card enters the field") || parseDeckSearchCriteria(c)) {
+      } else if (s.includes("when this card enters the field") || (parseDeckSearchCriteria(c) && !deckSearchIsNotEnterTimed(c))) {
         this.promptOptionalAbility(side, c, unit);
       }
     }
