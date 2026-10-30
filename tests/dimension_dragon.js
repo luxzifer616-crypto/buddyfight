@@ -35,6 +35,15 @@ const hasLook = `a=>(a.steps||[]).some(s=>s.op==='look')`;
   run(`clear(); battle.plr.deck=[4621,4621,4621,4621,4621,4626,4626]; battle.plr.monsters.center=mku(4606);`);
   await ab(4606, "center", hasLook);
   s = S(); ck("g1 Whistle nothing picked: rest to bottom", s.deck >= 6 && s.deckTop[0] === 4626, s);
+  // ---- group 2: 4625 Agonia triggers on every field -> drop route, not only destroy
+  run(`globalThis.__n=930000; globalThis.mk=(type,extra)=>{ const id=++__n; const c=Object.assign({id,name:'B'+id,type,skill:'',cost:'',attrs:[],worlds:[],world:'Dragon World',img:'',size:1,power:5000,defense:5000,crit:1},extra||{}); CARD_MAP.set(id,c); return c; };`);
+  run(`clear(); battle.plr.monsters.left=mku(4625); battle.plr.hand=[4619]; battle.plr.deck=[46,4619,4621,4626,46,46,46,46]; battle.plr.monsters.center=mku(4667);`);
+  await ab(4667, "center", `a=>a.kind==='act'`);
+  s = S(); ck("g2 Agonia put to drop by Odio's cost: look 4, 2 to hand, rest to gauge", !s.field.includes(4625) && s.drop.includes(4625) && s.gauge === 8, s);
+  run(`clear(); battle.plr.monsters.left=mku(4625); battle.plr.hand=[4619]; battle.plr.deck=[46,4619,4621,4626,46,46,46,46]; battle.plr.gauge=[46,46,46]; globalThis.__m2=mk('Monster'); battle.plr.hand.push(__m2.id);`);
+  run(`battle.plr.monsters.center=mku(46); battle.plr.monsters.right=mku(46); battle.completeMonsterCall('plr','left',battle.plr.hand.indexOf(__m2.id),false);`);
+  await settle(); s = S();
+  ck("g2 Agonia retired by a call over it triggers", s.drop.includes(4625) && s.gauge === 5, s);
   // ---- END
   console.log("pass", pass, "fail", fail); process.exit(fail ? 1 : 0);
 })();

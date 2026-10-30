@@ -1177,9 +1177,9 @@
   })();
 
   // "When this card is destroyed / leaves the field": the card is already gone, so run with no unit.
-  ABX.fireLeave = function (side, card, byAttack) {
+  ABX.fireLeave = function (side, card, byAttack, notDestroyed) {   // notDestroyed: retired / put into the drop zone by an effect or cost
     return ABX.queue(async () => {
-      for (const ab of abilitiesOf(card, a => (a.kind === "triggered" || (a.kind === "modal" && a.trigger && a.trigger.event)) && a.trigger && ((a.trigger.event === "leave" && a.trigger.self && !a.trigger.byOpp && !(a.trigger.byEffect && byAttack) && !(a.trigger.byAttackOnly && !byAttack)) || (a.trigger.event === "attack" && a.trigger.also === "leave")) && ABX.isExecutable(a))) {
+      for (const ab of abilitiesOf(card, a => (a.kind === "triggered" || (a.kind === "modal" && a.trigger && a.trigger.event)) && a.trigger && ((a.trigger.event === "leave" && a.trigger.self && !a.trigger.byOpp && !(a.trigger.byEffect && byAttack) && !(a.trigger.byAttackOnly && !byAttack) && !(notDestroyed && a.trigger.destroyedOnly)) || (a.trigger.event === "attack" && a.trigger.also === "leave")) && ABX.isExecutable(a))) {
         const f = F(side);
         if (onceUsed(f, card, ab, null)) continue;
         const dIdx = f.drop.lastIndexOf(card.id);   // the card just landed in the drop zone: "return this card to hand" moves it from there

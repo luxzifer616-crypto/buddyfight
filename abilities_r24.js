@@ -114,14 +114,16 @@
     if (!OPS[op] || !OPS[op].run) return;
     const orun = OPS[op].run;
     OPS[op].run = async function (s, ctx) {
-      const snap = ["plr", "opp"].map(side => ({ side, units: fieldUnits(F(side), true).map(x => ({ u: x.unit, pos: x.pos })) }));
+      const snap = ["plr", "opp"].map(side => ({ side, units: fieldUnits(F(side), true).map(x => ({ u: x.unit, pos: x.pos, nDrop: F(side).drop.filter(d => d === x.unit.card.id).length })) }));
       const r = await orun.apply(this, arguments);
       try {
         snap.forEach(({ side, units }) => {
           const f = F(side), now = new Set(fieldUnits(f, true).map(x => x.unit));
-          units.forEach(({ u, pos }) => {
+          units.forEach(({ u, pos, nDrop }) => {
             if (!u || !u.card || now.has(u)) return;
             const kind = f.hand.includes(u.card.id) ? "hand" : f.deck.includes(u.card.id) ? "deck" : null;
+            // put from the field into the drop zone by an effect / cost ("When this card is put from the field into the drop zone")
+            if (!kind && f.drop.filter(d => d === u.card.id).length > nDrop && ABX.fireLeave && u.card.type === "Monster") { ABX.fireLeave(side, u.card, false, true); return; }
             if (kind) ABX.fireEv("leave", { side, card: u.card, unit: u, pos, kind, byAttack: false, effSide: ctx && ctx.side });
           });
         });

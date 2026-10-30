@@ -7585,13 +7585,17 @@ const battle = {
     if (onTopHost && f.monsters[zonePos] === onTopHost) {
       f.monsters[zonePos] = null;   // goes under the new card (into its soul), not to the drop zone
     } else if (f.monsters[zonePos]) {
+      const retC = f.monsters[zonePos].card, retO = f.monsters[zonePos].oppressedBy || side;
       this.sendMonsterToDropWithAnimation(side, zonePos, true);
+      if (window.ABX && ABX.fireLeave) ABX.fireLeave(retO, retC, false, true);
     }
 
     if (this.getCurrentSizeUsed(f) + newSize > maxAllowedSize) {
       MONSTER_POSITIONS.forEach(pos => {
         if (pos !== zonePos && f.monsters[pos] && this.getCurrentSizeUsed(f) + newSize > maxAllowedSize) {
+          const retC = f.monsters[pos].card, retO = f.monsters[pos].oppressedBy || side;
           this.sendMonsterToDropWithAnimation(side, pos, true);
+          if (window.ABX && ABX.fireLeave) ABX.fireLeave(retO, retC, false, true);
         }
       });
     }
