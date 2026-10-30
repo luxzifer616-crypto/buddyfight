@@ -81,8 +81,8 @@
     ["drop soul",           "Life",     { ops: ["dropSoul"] }],
     // --- Board ---
     ["call",                "Board",    { ops: ["call"] }],
-    ["destroy",             "Board",    { ops: ["destroy"] }],
-    ["move",                "Board",    { ops: ["move", "moveSelf", "moveZone"] }],
+    ["destroy",             "Board",    { ops: ["destroy"], text: /\bdestroy (?:a|an|all|up to|one|two)\b/i }],
+    ["move",                "Board",    { ops: ["move", "moveSelf", "moveZone"], text: /^move a\b|to the open (?:left|right)/i }],
     ["stand",               "Board",    { ops: ["stand"] }],
     ["rest",                "Board",    { ops: ["rest", "restSelf"] }],
     ["set size 0",          "Board",    { ops: ["setSize0"] }],
@@ -105,25 +105,41 @@
     ["rock-paper-scissors", "Keyword",  { ops: ["rps"] }],
     // --- Timing (trigger) ---
     ["on enter",            "Timing",   { trigger: ["enter", "otherEnter"] }],
-    ["on attack",           "Timing",   { trigger: ["attack", "otherAttack", "oppAttack", "attacked"] }],
+    ["on attack",           "Timing",   { trigger: ["attack", "otherAttack", "oppAttack", "attacked"], text: /when you are being attacked/i }],
     ["on leave/destroyed",  "Timing",   { trigger: ["leave", "otherDestroyed", "attackDestroys"] }],
     ["on damage",           "Timing",   { trigger: ["dealsDamage", "damaged", "lifeGain"] }],
     ["on cast",             "Timing",   { trigger: ["youCast", "oppCast"] }],
     ["phase start/end",     "Timing",   { trigger: ["phaseStart", "phaseEnd", "turnEnd", "battleEnd"] }],
     // --- Rules / static ---
-    ["flag",                "Rule",     { text: /^you may use <[^>]+>/i }],
     ["deck rule",           "Rule",     { text: /\bin your deck\b|\byour deck (?:can|may)\b|\bcards? in your deck\b/i }],
     ["cost reduce",         "Rule",     { text: /cost\]? (?:of [^.]*)?is reduced|reduce[sd]? [^.]*cost/i }],
     ["call condition",      "Rule",     { text: /\bmay only (?:be )?call|\bcan only be called|only be called to|this card can only enter/i }],
     ["call restriction",    "Rule",     { text: /\bcannot call\b|\bcan't call\b|\bcannot be called\b/i }],
     ["attack rule",         "Rule",     { text: /\bcan attack with this card\b|\bcannot (?:link )?attack\b|\bcan(?:not)? attack (?:even|from|while)/i }],
-    ["cannot be destroyed", "Rule",     { text: /cannot be (?:destroyed|affected|returned|chosen|rested)/i }],
+    ["cannot be destroyed", "Rule",     { text: /cannot be (?:destroyed|affected|returned|chosen|rested)|\bis unaffected by\b/i }],
     ["stays on field (set)","Rule",     { text: /\[set\]|remains on the field/i }],
     ["mission",             "Rule",     { text: /mission card|\bmission\b/i }],
+    ["cast condition",      "Rule",     { text: /\bmay only (?:cast|equip)\b|\bonly be cast\b|\bmay (?:cast|equip) this card without/i }],
+    ["once per turn",       "Rule",     { text: /\bonce per turn\b|\bonly activates once\b/i }],
+    ["flag",                "Rule",     { text: /^you may use (?:<|cards?|monsters?|card with|«)|initial hand becomes|initial gauge/i }],
+    ["ride",                "Keyword",  { text: /\[ride\]/i }],
+    ["d-share / dragod",    "Keyword",  { text: /\[d-share\]|\[dragod\]|double buddy|\[evil deity\]|release condition/i }],
+    ["on destroyed by effect","Timing", { text: /destroyed (?:by|due to) (?:an? |the )?(?:monster |card )?effect|destroyed by (?:an |the )?effect/i }],
+    ["on put into drop",    "Timing",   { text: /\b(?:put|dropped) (?:in)?to (?:your |the |his or her )?drop zone|\bdropped from your hand|put from (?:your )?(?:field|deck) into/i }],
+    ["on destroys",         "Timing",   { text: /attacks and destroys|destroyed by an attack|attack destroys|is destroyed\b|\bdestoryed\b/i }],
+    ["on enter (text)","Timing",{ text: /enters? the field|is put on the field|enters your field/i }],
+    ["on battle end",       "Timing",   { text: /at the end of (?:this card's|the) battle/i }],
+    ["on attack nullified", "Timing",   { text: /attack[^.]{0,30}is nullified|cannot be nullified/i }],
+    ["on opponent draws/damaged","Timing",{ text: /opponent (?:draws|is dealt damage)|deal[st]? damage to your opponent|cannot draw/i }],
+    ["on rest/discard/deck","Timing",   { text: /\[rest\]|is discarded|bottom of the deck|returned from the drop zone|opponent's deck into/i }],
+    ["on call named",       "Timing",   { text: /when you (?:call|use) a|when another monster with|when a «[^»]+» on your field/i }],
+    ["named-card synergy",  "Rule",     { text: /"[^"]+" in its card name|with "[^"]+" in its|«[^»]+»|effect of "[^"]+"/i }],
+    ["size / stat change",  "Combat",   { text: /\bsize of this card\b|\bgets critical\b|attacks all of|change the target|damage dealt to you[^.]*reduced|\bfor this turn, all\b/i }],
+    ["no ability (flavor)", "Rule",     { text: /^\s*(?:no ability text|thank you|you've become|\(.*\)\s*$)/i }],
     ["link attack",         "Combat",   { text: /\blink attack/i }],
     ["gauge charge",        "Life",     { text: /into (?:your |the )?gauge/i }],
     ["soul",                "Life",     { text: /\bsoul\b/i }],
-    ["return to hand",      "Board",    { text: /return[^.]{0,50}to (?:its owner's |your |the )?hand/i }],
+    ["return to hand",      "Board",    { text: /return[^.]{0,50}to (?:its owner's |your |the )?hand|returned to your deck or hand/i }],
     ["vanilla (cost only)", "Rule",     {}]   // card-level: set in CardEntry when every ability is just a cost
   ].map(a => new KeywordDef(a[0], a[1], a[2]));
 
@@ -158,6 +174,7 @@
       if (card.ll && registry.has("lifelink")) set.add("lifelink");
       if (card.ca && registry.has("counterattack")) set.add("counterattack");
       if (registry.has("vanilla (cost only)") && card.skill && abilities.length && abilities.every(a => a.kind === "cost" || /^\s*\[(?:call|cast|equip) cost\]/i.test(a.raw))) set.add("vanilla (cost only)");
+      if (!set.size && card.skill && registry.has("no ability (flavor)") && !abilities.some(a => a.raw && !/^\s*\(/.test(a.raw))) set.add("no ability (flavor)");
       this.keywordSet = set;
     }
     get id() { return this.card.id; }
