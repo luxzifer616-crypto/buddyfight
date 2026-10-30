@@ -55,12 +55,12 @@
     ["nullifies cast",      "Negation", { ops: ["nullifyCast"] }],
     ["nullifies keyword",   "Negation", { ops: ["nullifyKeyword"] }],
     ["no counter",          "Negation", { ops: ["noCounter"] }],
-    ["restrict",            "Negation", { ops: ["restrict"] }],
+    ["restrict",            "Negation", { ops: ["restrict"], text: /\bcannot \[(?:move|stand|rest)\]/i }],
     // --- Defense ---
     ["counter",             "Defense",  { tag: ["counter"], text: /^\s*\[counter\]/i }],
     ["soulguard",           "Defense",  { text: /\bsoulguard\b/i }],
     ["redirect attack",     "Defense",  { ops: ["redirectAttack"] }],
-    ["shield",              "Defense",  { ops: ["shield"] }],
+    ["shield",              "Defense",  { ops: ["shield", "minShield"], text: /damage is reduced by/i }],
     ["prevent leave",       "Defense",  { ops: ["preventLeave"] }],
     ["save once",           "Defense",  { ops: ["saveOnce"] }],
     // --- Deck ---
@@ -102,7 +102,7 @@
     ["overturn/overkill",   "Keyword",  { text: /\b(overturn|overkill|overthrow)\b/i }],
     ["shadow dive",         "Keyword",  { text: /\bshadow dive\b/i }],
     ["reversal",            "Keyword",  { text: /\breversal\b/i }],
-    ["rock-paper-scissors", "Keyword",  { ops: ["rps"] }],
+    ["rock-paper-scissors", "Keyword",  { ops: ["rps"], text: /rock-paper-scissors/i }],
     // --- Timing (trigger) ---
     ["on enter",            "Timing",   { trigger: ["enter", "otherEnter"] }],
     ["on attack",           "Timing",   { trigger: ["attack", "otherAttack", "oppAttack", "attacked"], text: /when you are being attacked/i }],
@@ -112,7 +112,7 @@
     ["phase start/end",     "Timing",   { trigger: ["phaseStart", "phaseEnd", "turnEnd", "battleEnd"] }],
     // --- Rules / static ---
     ["deck rule",           "Rule",     { text: /\bin your deck\b|\byour deck (?:can|may)\b|\bcards? in your deck\b/i }],
-    ["cost reduce",         "Rule",     { text: /cost\]? (?:of [^.]*)?is reduced|reduce[sd]? [^.]*cost/i }],
+    ["cost reduce",         "Rule",     { ops: ["freeCost"], text: /without paying (?:its|their) \[|cost\]? (?:of [^.]*)?is reduced|reduce[sd]? [^.]*cost/i }],
     ["call condition",      "Rule",     { text: /\bmay only (?:be )?call|\bcan only be called|only be called to|this card can only enter/i }],
     ["call restriction",    "Rule",     { text: /\bcannot call\b|\bcan't call\b|\bcannot be called\b/i }],
     ["attack rule",         "Rule",     { text: /\bcan attack with this card\b|\bcannot (?:link )?attack\b|\bcan(?:not)? attack (?:even|from|while)/i }],
@@ -134,7 +134,7 @@
     ["on rest/discard/deck","Timing",   { text: /\[rest\]|is discarded|bottom of the deck|returned from the drop zone|opponent's deck into/i }],
     ["on call named",       "Timing",   { text: /when you (?:call|use) a|when another monster with|when a «[^»]+» on your field/i }],
     ["named-card synergy",  "Rule",     { text: /"[^"]+" in its card name|with "[^"]+" in its|«[^»]+»|effect of "[^"]+"/i }],
-    ["size / stat change",  "Combat",   { text: /\bsize of this card\b|\bgets critical\b|attacks all of|change the target|damage dealt to you[^.]*reduced|\bfor this turn, all\b/i }],
+    ["size / stat change",  "Combat",   { text: /\bsize of this card\b|\bgets critical\b|\bgets power[+-]|attacks all of|change the target|damage dealt to you[^.]*reduced|\bfor this turn, all\b/i }],
     ["no ability (flavor)", "Rule",     { text: /^\s*(?:no ability text|thank you|you've become|\(.*\)\s*$)/i }],
     ["link attack",         "Combat",   { text: /\blink attack/i }],
     ["gauge charge",        "Life",     { text: /into (?:your |the )?gauge/i }],
