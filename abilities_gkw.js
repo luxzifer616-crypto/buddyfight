@@ -215,7 +215,7 @@
   OPS.unnullSelf = {
     run(s, ctx) {
       const u = ctx.unit; if (!u) return false;
-      u.abxUnnull = { turn: B.turnCount, cond: s.alone ? "alone" : null };
+      u.abxUnnull = { turn: B.turnCount, cond: s.alone ? "alone" : s.link ? "link" : null };
       if (s.noReduce) u.abxUnreducible = { turn: B.turnCount, alone: !!s.alone };
       return true;
     },

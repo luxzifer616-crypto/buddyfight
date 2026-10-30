@@ -147,7 +147,7 @@
   // --- set spells ---
   cr(/^(?:a|an) («[^»]+»|"[^"]+") is \[set\] on your field$|^you have (?:a|an) («[^»]+»|"[^"]+") \[set\]$/i, (m) => ({ t: "xSetHas", np: ABX.parseNP(m[1] || m[2]) }));
   // --- fight history ---
-  cr(/^you (?:have )?used \[overturn\](?: or \[overthrow\]| or \[overkill\])* during this fight$/i, () => ({ t: "xOverturnUsed" }));
+  cr(/^you (?:have )?used \[(?:overturn|overkill|overthrow)\](?: or \[(?:overturn|overkill|overthrow)\])*(?: during)? this (?:fight|game)$/i, (m) => ({ t: "xOverturnUsed", kinds: (m[0].match(/overturn|overkill|overthrow/gi) || []).map(x => x.toLowerCase()) }));
   // --- on field or in a soul ---
   cr(/^this card is on (?:your|the) field or in the soul of (.+)$/i, (m) => { const np = ABX.parseNP(m[1]); return np && !np.junk ? { t: "or", list: [{ t: "selfOnField" }, { t: "selfInSoulOf", np }] } : null; });
   cr(/^there (?:is|are) («[^»]+»|"[^"]+")(?: monsters?)? on your left and right$/i, (m) => { const a = ABX.parseNP(m[1] + " on your left"), b = ABX.parseNP(m[1] + " on your right"); return a && b ? { t: "and", list: [{ t: "has", owner: "you", np: a, n: 1 }, { t: "has", owner: "you", np: b, n: 1 }] } : null; });
@@ -232,7 +232,11 @@
   XC.xBuddyName = (c, ctx) => { const f = ctx.f; const bc = f.buddyId != null ? cardOf(f.buddyId) : null; return !!bc && lc(bc.name).includes(c.name); };
   XC.xInSoulOfBuddy = (c, ctx) => { const bu = buddyUnit(ctx.f); return !!bu && ctx.soulHost === bu; };
   XC.xSetHas = (c, ctx) => (ctx.f.setSpells || []).some(sp => !c.np || matchFilter(sp, c.np.filter || {}, null, ctx));
-  XC.xOverturnUsed = (c, ctx) => !!ctx.f.overturnUsed;
+  XC.xOverturnUsed = (c, ctx) => {
+    const f = ctx.f, u = f.overUsed;
+    if (c.kinds && c.kinds.length && u) return c.kinds.some(k => u[k]);   // only the [Over...] kinds the card names count
+    return !!f.overturnUsed;
+  };
   XC.xDamageTaken = (c, ctx) => { const S = core.st(ctx.f); return S.dmgTurn === B.turnCount && (S.dmgTaken || 0) >= c.n; };
   XC.xLastCount = (c, ctx) => (ctx.lastCount || 0) >= c.n;
   XC.xAmong = (c, ctx) => [].concat(ctx.bind.looked || [], ctx.bind.revealed || []).some(r => r && r.card && matchFilter(r.card, c.np.filter || {}, r, ctx));

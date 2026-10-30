@@ -211,7 +211,7 @@
       else call.parts.push(part);
     });
     const red = clean(card.skill || "").match(/gauge cost of this card's \[Call Cost\] is reduced by (\d+) if you used \[(Overturn|Overkill|Overthrow)\]/i);
-    if (red) call.reduced = { n: +red[1], ifUsedSpecial: true };
+    if (red) call.reduced = { n: +red[1], ifUsedSpecial: true, kind: red[2].toLowerCase() };
     return call;
   };
 
@@ -514,7 +514,7 @@
       }
       if (!opts.free) {
         let gauge = d.call.gauge;
-        if (d.call.reduced && f.overturnUsed) gauge = Math.max(0, gauge - d.call.reduced.n);
+        if (d.call.reduced && (f.overUsed ? f.overUsed[d.call.reduced.kind] : f.overturnUsed)) gauge = Math.max(0, gauge - d.call.reduced.n);
         if (f.gauge.length < gauge) reasons.push(`Needs ${gauge} Gauge (you have ${f.gauge.length})`);
         if (d.call.life > 0 && f.life <= d.call.life) reasons.push(`Needs more than ${d.call.life} Life`);
         d.call.parts.forEach(p => {
@@ -694,7 +694,7 @@
 
         // ---- PAY ----
         let gaugeCost = d.call.gauge;
-        if (d.call.reduced && f.overturnUsed) gaugeCost = Math.max(0, gaugeCost - d.call.reduced.n);
+        if (d.call.reduced && (f.overUsed ? f.overUsed[d.call.reduced.kind] : f.overturnUsed)) gaugeCost = Math.max(0, gaugeCost - d.call.reduced.n);
         for (let i = 0; i < gaugeCost; i++) f.drop.push(f.gauge.pop());
         if (d.call.life > 0) f.life = Math.max(1, f.life - d.call.life);
         f.hand.splice(hIdx, 1);

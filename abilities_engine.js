@@ -826,7 +826,17 @@
   core.runSteps = runSteps;
 
   /* once-per-turn / once-per-game bookkeeping */
-  function onceKey(card, ab, unit) { return ab.name ? "n:" + lc(ab.name) : "c:" + card.id + ":" + ab.idx + ":" + (unit ? uid(unit) : 0); }
+  /* which [Overturn]/[Overkill]/[Overthrow] an ability is (null for anything else) */
+  function overKind(ab) {
+    for (const t of (ab && ab.tags) || []) { const m = /(?:^|:)(overturn|overkill|overthrow)/.exec(String(t)); if (m) return m[1]; }
+    return null;
+  }
+  core.overKind = overKind;
+  function onceKey(card, ab, unit) {
+    if (ab.name) return "n:" + lc(ab.name);
+    // an [Over...] is once per GAME, not once per copy on the field (re-calling the card must not reset it)
+    return "c:" + card.id + ":" + ab.idx + ":" + (unit && !(ab.once === "game" && overKind(ab)) ? uid(unit) : 0);
+  }
   function onceUsed(f, card, ab, unit) {
     if (!ab.once) return false;
     const S = st(f), k = onceKey(card, ab, unit);
@@ -835,6 +845,8 @@
     return S.onceTurn[k] === B.turnCount;
   }
   function markOnce(f, card, ab, unit) {
+    const ok = overKind(ab);
+    if (ok) { f.overturnUsed = true; (f.overUsed = f.overUsed || {})[ok] = true; } // "if you used [Overturn] ..." cards read these
     if (!ab.once) return;
     const S = st(f), k = onceKey(card, ab, unit);
     if (ab.once === "game") S.onceGame[k] = true;
@@ -1483,7 +1495,7 @@
 
   ABX.attackUnnullifiable = function (bc) {
     for (const u of bc.attUnits || []) {
-      if (u.abxUnnull && u.abxUnnull.turn === B.turnCount && !(u.abxUnnull.cond === "alone" && bc.attUnits.length > 1)) return true;
+      if (u.abxUnnull && u.abxUnnull.turn === B.turnCount && !(u.abxUnnull.cond === "alone" && bc.attUnits.length > 1) && !(u.abxUnnull.cond === "link" && bc.attUnits.length < 2)) return true;
       for (const ab of abilitiesOf(u.card, a => a.kind === "static")) {
         for (const st of ab.steps || []) {
           if (st.op !== "static" || st.kind !== "unnullifiable") continue;

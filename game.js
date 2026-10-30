@@ -1033,6 +1033,12 @@ function parseCardCost(costStr, skillStr, fighter = null, cardObj = null) {
     }
   }
 
+  // "[Call Cost] is reduced by N gauge if you used [Overturn] ..." on a normal Monster (#4764); Impact Monsters are handled in impact_monsters.js
+  if (fighter && cardObj && cardObj.type !== "Impact" && gauge > 0) {
+    const rm = combined.match(/\[Call Cost\] is reduced by (\d+) gauge if you (?:have )?used \[(Overturn|Overkill|Overthrow)\]/i);
+    if (rm && (fighter.overUsed ? fighter.overUsed[rm[2].toLowerCase()] : fighter.overturnUsed)) gauge = Math.max(0, gauge - parseInt(rm[1], 10));
+  }
+
   return { gauge, life, soul };
 }
 
@@ -4332,7 +4338,7 @@ const battle = {
       timeStoppedThisTurn: false,
       buddyCalled: false,
       chargedThisTurn: false,
-      overturnUsed: false,
+      overturnUsed: false, overUsed: {},
       dreiUsed: false,
       monsters: {
         left: null,
@@ -8976,6 +8982,7 @@ const battle = {
     const f = this.getFighter(side);
     if (f.overturnUsed) return;
     f.overturnUsed = true;
+    (f.overUsed = f.overUsed || {})[String(tag).toLowerCase()] = true;
 
     const c = unit ? unit.card : fallbackCard;
     this.showCutin(`${tag}!`, `${c.name} — Turn the Tide!`, c.img);

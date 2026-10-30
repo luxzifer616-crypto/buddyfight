@@ -916,6 +916,36 @@
 
   const C = (op, extra) => Object.assign({ op }, extra || {});
 
+  // #4179 Overturn: "Call up to one impact monster from your deck by paying its [Call Cost]". The generic call step only knows type "Monster"
+  // (impact monsters are type "Impact"), so it never called anything. Paid with gauge / life only: an impact whose cost needs a choice
+  // (discard / put on top of a monster) is not offered here.
+  OPS.r41CallImpactPay = {
+    async run(s, ctx) {
+      const f = ctx.f, side = ctx.side;
+      if (!(root.IMX && B.imCallInfo && B.imCallFromZone)) return false;
+      const cands = [];
+      f.deck.forEach((cid) => {
+        const c = cardOf(cid); if (!c || !IMX.isImpactMonster(c)) return;
+        const info = B.imCallInfo(side, c, { byEffect: true, ignorePhase: true }); const d = info && info.data;
+        if (!info || !info.ok || !d || (d.call.parts || []).length) return;
+        const sz = getEffectiveCardSize(f, c);
+        if (!MONSTER_POSITIONS.some(p => !f.monsters[p]) || B.getCurrentSizeUsed(f) + sz > (f.maxSize || 3)) return;
+        cands.push({ k: "zone", area: "deck", card: c, d });
+      });
+      if (!cands.length) return false;
+      const ch = await core.pick(cands, { qty: { n: 1, upTo: true }, raw: "an impact monster from your deck", filter: {} }, ctx, { intent: "help", title: `${ctx.card.name} - call an impact monster` });
+      const r = ch && ch[0]; if (!r) return false;
+      const d = r.d || (cands.find(x => x.card === r.card) || {}).d; if (!d) return false;
+      let gauge = d.call.gauge;
+      if (d.call.reduced && (f.overUsed ? f.overUsed[d.call.reduced.kind] : f.overturnUsed)) gauge = Math.max(0, gauge - d.call.reduced.n);
+      for (let i = 0; i < gauge; i++) f.drop.push(f.gauge.pop());
+      if (d.call.life > 0) f.life = Math.max(1, f.life - d.call.life);
+      const idx = f.deck.indexOf(r.card.id);
+      return !!B.imCallFromZone(side, "deck", idx, {}, null);
+    },
+    check: () => true
+  };
+
   const OV41 = [
     // 1. Rock-Paper-Scissors (10 cards / 11 ability blocks)
     [171, /when you are attacked directly and this card is on the left or right/i, () => ({
@@ -1013,6 +1043,9 @@
 
     // Overkill acts: "... and its attack cannot be nullified if it is attacking alone" was dropped (only the stat / keyword half ran)
     [3915, /critical\+4/i, (ab) => ({ kind: ab.kind, conds: ab.conds, steps: (ab.steps || []).concat([{ op: "unnullSelf", alone: true }]) })],
+    // #3822 Overturn: "for this turn, link attacks of this card cannot be nullified" parsed as a restrict on nothing (never took effect)
+    [3822, /link attacks of this card cannot be nullified/i, (ab) => ({ kind: ab.kind, conds: ab.conds, steps: [{ op: "unnullSelf", link: true }] })],
+    [4179, /call up to one impact monster from your deck by paying/i, (ab) => ({ kind: ab.kind, conds: ab.conds, steps: [C("r41CallImpactPay")] })],
     [4092, /cannot be nullified if it is attacking alone/i, (ab) => ({ kind: ab.kind, conds: ab.conds, steps: (ab.steps || []).concat([{ op: "unnullChosen", alone: true }]) })],
 
     // #5357 Overkill: "[Stand] all Chaos on your field, and for this turn all Chaos get critical+1, and you get another attack phase": the [Stand] was dropped
@@ -1200,6 +1233,15 @@
         r.abilities.push({ kind: "act", name: "Purge", tags: ["counter", "act"], counter: true, once: "turn", conds: [{ t: "xSoulHasWeaponry" }], steps: [C("r41Purge")], unparsed: [], optional: false, raw: "[Purge] [Counter] Put a «Weaponry» from this card's soul into the gauge. Once per turn.", cleaned: "[Counter] Put a «Weaponry» from this card's soul into the gauge. Once per turn.", idx: r.abilities.length, cardId: card.id, purge41: true });
       }
       r.abilities.forEach(ab => {
+        // "put up to N cards from your deck face down into ...": face down is HOW the card is put there, not a filter on the deck
+        // cards (a face-down filter matched nothing, so e.g. #4112 Gedomaru's [Overkill] did nothing)
+        (ab.steps || []).forEach((st, i) => {
+          if (st && st.op === "move" && st.np && st.np.filter && st.np.filter.faceDown && st.np.zone && /^(?:deck|hand|drop)$/.test(st.np.zone.area || "")) {
+            const np = Object.assign({}, st.np, { filter: Object.assign({}, st.np.filter) });
+            delete np.filter.faceDown;
+            ab.steps[i] = Object.assign({}, st, { np, faceDown: true });
+          }
+        });
         const raw = String(ab.cleaned || ab.raw || "").replace(/^\s*(?:\[[^\]]+\]\s*)*(?:"[^"]+"\s*)?/, "");
         const full = String(ab.raw || "");
         for (const [id, re, build] of OV41) {
@@ -1283,6 +1325,21 @@
         // "[Counter] [Act] ... during your opponent's turn" (#1086 Damage Control): the timing words were dropped by the parser, so it was usable on your own turn
         if (ab.kind === "act" && /during your opponent'?s turn/i.test(raw) && !(ab.conds || []).some(c => c && c.t === "turn")) {
           ab.conds = (ab.conds || []).concat([{ t: "turn", who: "opp" }]); ab.r41 = true;
+        }
+        // [Overturn]/[Overkill]/[Overkill:REBOOT] acts: the timing lives in the cost bracket ("[Pay 1 gauge during your main phase]",
+        // "[During your turn, ...]", "[... during an attack on your opponent's turn]") and was dropped, so they could be used in any phase / turn
+        if (ab.kind === "act" && core.overKind && core.overKind(ab) && !(ab.conds || []).some(c => c && (c.t === "turn" || c.t === "phase"))) {
+          const cb = (/^\s*\[over[^\]]*\]\s*\[([^\]]*)\]/i.exec(raw) || [])[1];
+          if (cb) {
+            const t = cb.toLowerCase(); let add = null, m;
+            if (/during an attack on your opponent'?s turn/.test(t)) add = [{ t: "turn", who: "opp" }, { t: "underAttack" }];
+            else if (/(?:during|at the (?:beginning|start) of) your opponent'?s attack phase/.test(t)) add = [{ t: "phase", phase: "attack", who: "opp" }];
+            else if (/during your opponent'?s turn/.test(t)) add = [{ t: "turn", who: "opp" }];
+            else if ((m = /(?:during|at the (?:beginning|start) of) your (main|attack|final) phase/.exec(t))) add = [{ t: "phase", phase: m[1], who: "you" }];
+            else if (/during (?:the|an|each player'?s) attack phase/.test(t)) add = [{ t: "phase", phase: "attack" }];
+            else if (/during your turn/.test(t)) add = [{ t: "turn", who: "you" }];
+            if (add) { ab.conds = (ab.conds || []).concat(add); ab.r41 = true; }
+          }
         }
         if (card && card.id === 4070 && /^this card cannot be called\.?$/i.test(raw.trim())) {
           ab.kind = "rule"; ab.steps = [{ op: "static", kind: "noCallSelf" }]; ab.unparsed = []; ab.parsed = true; ab.r41 = true;

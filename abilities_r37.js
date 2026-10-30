@@ -189,10 +189,10 @@
     [3941, /^all size 30 or greater monsters on your field cannot be destroyed/i, () => ({ kind: "rule", steps: [] })],          // core.isProtected above
     [3728, /you cannot put monsters on the field, and you may equip any number of items/i, () => ({ kind: "static", steps: [{ op: "static", kind: "protect", kinds: ["destroyed"], self: true }] })],
     [3728, /all items in your hand get an additional "\[equip cost\] \[pay 1 gauge\]"/i, () => ({ kind: "rule", steps: [] })],   // parseCardCost above
-    [3728, /put the top five cards of your deck into the drop zone, and equip up to three items/i, () => ({ kind: "act", once: "game", steps: [C("r37Overkill3728")] })],
+    [3728, /put the top five cards of your deck into the drop zone, and equip up to three items/i, () => ({ kind: "act", tags: ["kw:overkill", "act"], once: "game", steps: [C("r37Overkill3728")] })],
     [6512, /if this card is in your buddy zone, you cannot put monsters on the field, and you may equip any number of items/i, () => ({ kind: "rule", steps: [] })],
-    [6512, /equip any number of «hero» items from your drop zone without paying/i, () => ({ kind: "act", once: "game", steps: [C("r37Overkill6512")] })],
-    [4115, /equip up to two items from your deck by paying their \[equip cost\]/i, () => ({ kind: "act", once: "game", steps: [C("r37Overkill4115")] })],
+    [6512, /equip any number of «hero» items from your drop zone without paying/i, () => ({ kind: "act", tags: ["kw:overkill", "act"], once: "game", steps: [C("r37Overkill6512")] })],
+    [4115, /equip up to two items from your deck by paying their \[equip cost\]/i, () => ({ kind: "act", tags: ["kw:overkill", "act"], once: "game", steps: [C("r37Overkill4115")] })],
   ];
   const pcPrev = ABX.parseCard;
   ABX.parseCard = function (card) {
