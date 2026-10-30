@@ -25,6 +25,8 @@
   const buddyCallRow = (name) => ({ kind: "triggered", trigger: { event: "enter", self: true }, conds: [{ t: "enterByBuddyCall" }], steps: [{ op: "r42BuddyCall", name }] });
 
   const OV42 = [
+    /* ---- catalog check: #2920 Vermolt only triggers when it enters the CENTER ---- */
+    [2920, /when this card enters your center/i, (ab) => ({ kind: "triggered", trigger: { event: "enter", self: true }, conds: [{ t: "selfPos", pos: "center" }], steps: clone(ab.steps || []) })],
     /* ---- Dimension Dragon review ---- */
     // #4633 Zorune: the looked cards go back on top (any order) and ONLY then, if a DD was dropped, a card is drawn
     [4633, /look at the top three cards of your deck/i, (ab) => {
@@ -310,6 +312,26 @@
   OPS.r42SectorCollapse = { run(s, ctx) { ctx.f.abxSectorCollapse = battle.turnCount; return true; }, check: () => true };
 
   const prev = ABX.parseCard;
+  /* catalog check: "unaffected by / not affected by the effects of \"<Name>\"" (#402 #405 #2068 vs Gleipnir).
+   * A restriction coming from that named card is undone for the immune unit. */
+  const immuneTo = (unit, srcName) => {
+    if (!unit || !unit.card || !srcName) return false;
+    const m = String(unit.card.skill || "").match(/(?:unaffected by|not affected by) the effects? of "([^"]+)"/i);
+    return !!m && lc(m[1]) === lc(srcName);
+  };
+  if (OPS.restrict && !OPS.restrict._r42Immune) {
+    const prevRun = OPS.restrict.run;
+    OPS.restrict.run = async function (s, ctx) {
+      const units = ["plr", "opp"].flatMap(sd => core.fieldUnits(F(sd), true)).map(x => x.unit).filter(u => immuneTo(u, ctx && ctx.card && ctx.card.name));
+      const before = units.map(u => [u, JSON.stringify(u.abxNo || null), u.tempIndestructible]);
+      const r = await prevRun.call(this, s, ctx);
+      before.forEach(([u, no, ti]) => { u.abxNo = JSON.parse(no) || undefined; if (u.abxNo === undefined) delete u.abxNo; u.tempIndestructible = ti; });
+      return r;
+    };
+    OPS.restrict._r42Immune = true;
+  }
+  ABX.immuneTo = immuneTo;
+
   ABX.parseCard = function (card) {
     const r = prev.apply(this, arguments);
     try {
