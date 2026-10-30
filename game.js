@@ -2984,7 +2984,10 @@ const app = {
     }
     grid.innerHTML = shown.map(c => {
       const n = ownedCount(c.id);
-      const badge = n > 0
+      const lim = c.type === "Flag" ? 1 : 4;
+      const badge = n >= lim
+        ? `<span class="pp-badge owned">MAX x${n}</span>`
+        : n > 0
         ? `<span class="pp-badge owned">${isTh ? "มี" : "Owned"} x${n}</span>`
         : `<span class="pp-badge missing">${isTh ? "ยังไม่มี" : "New"}</span>`;
       const sizeTxt = c.size !== null && c.size !== undefined ? ` • ${isTh ? "ไซส์" : "Size"} ${c.size}` : "";
@@ -3020,6 +3023,16 @@ const app = {
     }
     const { price } = getPackPriceAndRarity(pool.length);
 
+    // Collection limit: max 4 copies per card (Flags = 1). Maxed cards no longer drop.
+    const ownLimit = c => (c.type === "Flag" ? 1 : 4);
+    const canDrop = c => (this.state.owned[c.id] || 0) < ownLimit(c);
+    if (!pool.some(canDrop)) {
+      alert(this.lang === "th"
+        ? `คุณมีการ์ดในแพ็ค ${setCode} ครบลิมิตแล้ว (ไม่เสีย BP)`
+        : `You already own every card in ${setCode} at the max limit. No BP spent.`);
+      return;
+    }
+
     if (this.state.coins < price) {
       alert(this.lang === "th"
         ? `BP ไม่พอ! แพ็คนี้ใช้ ${price} BP (คุณมี ${this.state.coins} BP) กดปุ่ม '🎁 รับฟรี +500 BP' ด้านขวาบนของร้านค้าได้เลย!`
@@ -3031,7 +3044,9 @@ const app = {
 
     const pulled = [];
     for (let i = 0; i < 5; i++) {
-      const pick = pool[Math.floor(Math.random() * pool.length)] || ALL_CARDS[Math.floor(Math.random() * ALL_CARDS.length)];
+      const avail = pool.filter(canDrop);
+      if (avail.length === 0) break;
+      const pick = avail[Math.floor(Math.random() * avail.length)];
       pulled.push(pick);
       this.state.owned[pick.id] = (this.state.owned[pick.id] || 0) + 1;
     }
