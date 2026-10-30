@@ -26,7 +26,7 @@
   const lc = (s) => String(s || "").toLowerCase();
   const otherSide = (s) => (s === "plr" ? "opp" : "plr");
   const F = (s) => B.getFighter(s);
-  const cardOf = (id) => CARD_MAP.get(id);
+  const cardOf = (id) => CARD_MAP.get(id && typeof id === "object" ? Number(id.id !== undefined ? id.id : id.cardId) : id);   // soul entries can be face-down objects
   const isImpactMon = (c) => !!(root.IMX && c && IMX.isImpactMonster(c));
   const isMonsterCard = (c) => !!c && (c.type === "Monster" || isImpactMon(c));
   const norm = (s) => (typeof normalizeSearchToken === "function" ? normalizeSearchToken(s) : lc(s).replace(/[^a-z0-9]/g, ""));
