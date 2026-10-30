@@ -120,29 +120,41 @@
   // and the called unit remembers which card called it (for "enters the field by the effect of <card>").
   OPS.r42BuddyCall = {
     async run(s, ctx) {
-      const f = ctx.f, want = lc(s.name);
-      const cands = [];
-      f.hand.forEach((id, i) => {
+      const f = ctx.f, side = ctx.side, want = lc(s.name);
+      const hi0 = f.hand.findIndex(id => {
         const c = core.cardOf(id);
-        if (!c || lc(c.name) !== want || c.type !== "Monster") return;
-        if (typeof canFighterBuddyCallCard === "function" && !canFighterBuddyCallCard(f, id)) return;
-        const sz = typeof getEffectiveCardSize === "function" ? getEffectiveCardSize(f, c) : (c.size || 0);
-        if (sz > (f.maxSize || 3)) return;
-        cands.push({ k: "zone", side: ctx.side, area: "hand", idx: i, id, card: c, unit: null });
+        return c && lc(c.name) === want && c.type === "Monster" && !(typeof canFighterBuddyCallCard === "function" && !canFighterBuddyCallCard(f, id));
       });
-      if (!cands.length) return false;
-      const ch = await core.pick(cands, { qty: { n: 1, upTo: true }, raw: `buddy call ${s.name}` }, ctx, { intent: "help", title: `${ctx.card.name} — buddy call`, subtitle: `You may buddy call "${s.name}" from your hand without paying its [Call Cost]` });
-      if (!ch || !ch.length) return false;
-      const card = ch[0].card;
-      const hi = f.hand.indexOf(card.id);
-      let pos = ["left", "right", "center"].find(p => !f.monsters[p]);
-      if (!pos && typeof canPlaceSecondCenter === "function" && canPlaceSecondCenter(f, card)) pos = "center2";
-      if (!pos) pos = "center";
+      if (hi0 < 0) return false;
+      const card = core.cardOf(f.hand[hi0]);
+      // Which zones can it legally go to? The TOTAL size on the field may not exceed the limit once it lands (a monster it replaces goes to the drop zone first).
+      const max = f.maxSize || 3, sizeOf = (c, u) => (typeof getEffectiveCardSize === "function" ? getEffectiveCardSize(f, c, u) : (c.size || 0));
+      const used = B.getCurrentSizeUsed(f), sz = sizeOf(card);
+      const zones = [];
+      ["left", "center", "right"].forEach(p => {
+        const m = f.monsters[p];
+        if (m && m.oppressedBy && m.oppressedBy !== side) return;   // an Oppressed Area controlled by the opponent
+        if (used - (m ? sizeOf(m.card, m) : 0) + sz > max) return;
+        zones.push({ pos: p, replaces: m || null });
+      });
+      if (f.monsters.center && !f.monsters.center2 && typeof canPlaceSecondCenter === "function" && canPlaceSecondCenter(f, card) && used + sz <= max) zones.push({ pos: "center2", replaces: null });
+      if (!zones.length) return false;
+      let pick;
+      const auto = ctx.auto || f.isBot || ABX.autoPlay === true || ABX.remoteAutoSide === side;
+      if (auto) {
+        pick = ["left", "right", "center", "center2"].map(p => zones.find(z => z.pos === p && !z.replaces)).find(Boolean);   // never overwrites one of its own monsters on its own
+        if (!pick) return false;
+      } else {
+        const label = (z) => (z.pos === "center2" ? "Second center" : z.pos[0].toUpperCase() + z.pos.slice(1)) + (z.replaces ? ` — replaces ${z.replaces.card.name} (it goes to the drop zone)` : " — open");
+        const i = await ABX.ui.pickOption({ title: `${ctx.card.name} — buddy call`, subtitle: `You may buddy call "${card.name}" from your hand without paying its [Call Cost]. Choose a zone, or don't call.`, options: zones.map(z => ({ label: label(z) })).concat([{ label: "Don't call" }]) });
+        if (!(i >= 0 && i < zones.length)) return false;
+        pick = zones[i];
+      }
       f.abxPendingCallBy = { by: ctx.card.id, target: card.id };
-      B.completeMonsterCall(ctx.side, pos, hi, true, true);
-      const u = f.monsters[pos];
+      B.completeMonsterCall(side, pick.pos, f.hand.indexOf(card.id), true, true);
+      const u = f.monsters[pick.pos];
       if (!u || u.card.id !== card.id) { delete f.abxPendingCallBy; return false; }
-      ctx.calledPos = pos;
+      ctx.calledPos = pick.pos;
       fresh();
       return true;
     },
@@ -181,17 +193,6 @@
     return false;
   }
   core.standLocked = standLocked;
-  if (OPS.stand && OPS.stand.run) {
-    const origStand = OPS.stand.run;
-    OPS.stand.run = async function (s, ctx) {
-      const locked = [];
-      ["plr", "opp"].forEach(sd => core.fieldUnits(F(sd), true).forEach(x => { if (x.unit.rested && standLocked(x.unit, sd)) locked.push(x.unit); }));
-      if (!locked.length) return origStand.apply(this, arguments);
-      const r = await origStand.apply(this, arguments);
-      locked.forEach(u => { u.rested = true; });
-      return r;
-    };
-  }
   // the unit that lands from r42BuddyCall remembers its caller before its [enter] abilities fire
   if (B && typeof B.afterMonsterCallLanded === "function") {
     const prevLanded = B.afterMonsterCallLanded;
@@ -254,5 +255,48 @@
       }
     } catch (e) { /* ignore */ }
     return r;
+  };
+
+  /* ==================== Stand lock coverage ==================== */
+  // Ruling note: no official Q&A on Voltic Ra vs. Double Attack was found. Q1192 (Gojinmaru) calls the keyword's re-stand a "[Stand]", so a "cannot [Stand]"
+  // lock stops [Double/Triple/Quadruple Attack] here. Set ABX.standLockStopsMultiAttack = false to allow them again.
+  ABX.standLockStopsMultiAttack = true;
+  const lockSrcCache = new Map();
+  const isLockSrc = (card) => {
+    if (!lockSrcCache.has(card.id)) lockSrcCache.set(card.id, (ABX.get(card).abilities || []).some(ab => ab.kind === "static" && (ab.steps || []).some(st => st.op === "restrict" && (st.kinds || []).includes("stand") && st.np && st.np.zone && st.np.zone.owner)));
+    return lockSrcCache.get(card.id);
+  };
+  const anyLockSource = () => ["plr", "opp"].some(sd => core.fieldUnits(F(sd), true).some(x => x.unit && x.unit.card && isLockSrc(x.unit.card)));
+  const lockedRested = () => {
+    const out = [];
+    ["plr", "opp"].forEach(sd => core.fieldUnits(F(sd), true).forEach(x => { if (x.unit.rested && standLocked(x.unit, sd)) out.push({ u: x.unit, attacksLeft: x.unit.attacksLeft }); }));
+    return out;
+  };
+  // Every ability step (OPS.stand and the older round files that set rested=false directly) leaves a locked, rested card rested.
+  const guardOp = (op) => {
+    if (!op || typeof op.run !== "function" || op._r42Guard) return op;
+    const orig = op.run;
+    op.run = function () {
+      if (!anyLockSource()) return orig.apply(this, arguments);
+      const snap = lockedRested();
+      if (!snap.length) return orig.apply(this, arguments);
+      const restore = () => snap.forEach(x => { if (!x.u.rested) { x.u.rested = true; x.u.attacksLeft = x.attacksLeft; } });
+      const r = orig.apply(this, arguments);
+      if (r && typeof r.then === "function") return r.then(v => { restore(); return v; }, e => { restore(); throw e; });
+      restore();
+      return r;
+    };
+    op._r42Guard = true;
+    return op;
+  };
+  core.guardStandLock = guardOp;
+  Object.keys(OPS).forEach(name => guardOp(OPS[name]));
+  // [Double / Triple / Quadruple Attack] stand the card again after its attack: a locked card stays rested after its first attack.
+  const prevBattleEnd = ABX.fireBattleEnd;
+  ABX.fireBattleEnd = function (attSide, units) {
+    try {
+      if (ABX.standLockStopsMultiAttack) (units || []).forEach(x => { const u = x && x.unit; if (u && u.attacksLeft > 0 && standLocked(u, attSide)) { u.attacksLeft = 0; u.rested = true; } });
+    } catch (e) { /* ignore */ }
+    return prevBattleEnd.apply(this, arguments);
   };
 })(typeof window !== "undefined" ? window : globalThis);

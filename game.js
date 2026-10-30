@@ -147,6 +147,17 @@ function canFighterBuddyCallCard(fighter, cardId) {
   return entries.some(e => !e.rested && (Number(e.id) === Number(cardId) || (isYamigedoHalfId(e.id) && isYamigedoHalfId(cardId))));
 }
 
+// A card EFFECT [Stand]s a card (not the stand phase). Returns false and leaves the card rested when a static "cannot [Stand]" (Thunder Deity, Voltic Ra) locks it.
+function effectStand(unit) {
+  if (!unit) return false;
+  try {
+    const side = [["plr", battle.plr], ["opp", battle.opp]].find(([, f]) => f && (f.item === unit || f.item2 === unit || Object.values(f.monsters || {}).includes(unit)));
+    if (unit.rested && side && window.ABX && ABX.core && ABX.core.standLocked && ABX.core.standLocked(unit, side[0])) return false;
+  } catch (e) { /* no lock info: stand normally */ }
+  unit.rested = false;
+  return true;
+}
+
 function markFighterBuddyCalled(fighter, cardId) {
   if (!fighter) return;
   const entries = getFighterBuddyZoneEntries(fighter);
@@ -6501,8 +6512,7 @@ const battle = {
       if (cMatch) unit.tempCrit = (unit.tempCrit || 0) + parseInt(cMatch[1], 10);
       if (grantsCA) unit.tempCA = true;
       if (grantsPen) unit.tempPen = true;
-      if (grantsStand) {
-        unit.rested = false;
+      if (grantsStand && effectStand(unit)) {
         unit.attacksLeft = Math.max(1, (unit.attacksLeft || 0) + 1);
       }
     } else if (pMatch || dMatch || cMatch || grantsCA || grantsPen || grantsStand) {
@@ -6514,8 +6524,7 @@ const battle = {
           if (cMatch) m.tempCrit = (m.tempCrit || 0) + parseInt(cMatch[1], 10);
           if (grantsCA) m.tempCA = true;
           if (grantsPen) m.tempPen = true;
-          if (grantsStand) {
-            m.rested = false;
+          if (grantsStand && effectStand(m)) {
             m.attacksLeft = Math.max(1, (m.attacksLeft || 0) + 1);
           }
         }
@@ -8844,16 +8853,14 @@ const battle = {
     MONSTER_POSITIONS.forEach(pos => {
       const m = f.monsters[pos];
       if (m) {
-        m.rested = false;
-        m.attacksLeft = (m.attacksLeft || 0) + 1;
+        if (effectStand(m)) m.attacksLeft = (m.attacksLeft || 0) + 1;
         m.tempPower = (m.tempPower || 0) + 5000;
         m.tempCrit = (m.tempCrit || 0) + 1;
       }
     });
     [f.item, f.item2].forEach(it => {
       if (!it) return;
-      it.rested = false;
-      it.attacksLeft = (it.attacksLeft || 0) + 1;
+      if (effectStand(it)) it.attacksLeft = (it.attacksLeft || 0) + 1;
     });
     this.chargeDeckToGaugeWithAnimation(side, 1);
     this.setPrompt(`🔥 [${tag}] Stood all cards on the field with +5000 Power, +1 Critical, and +1 Gauge!`);

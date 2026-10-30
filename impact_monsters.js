@@ -997,13 +997,13 @@
         const names = new Set(f.drop.map(cid => CARD_MAP.get(cid)).filter(c => c && IMX.isImpactMonster(c)).map(c => c.name));
         ctx.unit.tempCrit = (ctx.unit.tempCrit || 0) + names.size * +m[1]; return finish();
       }
-      if (/^\[stand\] this card/.test(lc)) { ctx.unit.rested = false; ctx.unit.attacksLeft = Math.max(1, (ctx.unit.attacksLeft || 0) + 1); ctx.unit.canAttackFinal = true; return finish(); }
+      if (/^\[stand\] this card/.test(lc)) { if (effectStand(ctx.unit)) { ctx.unit.attacksLeft = Math.max(1, (ctx.unit.attacksLeft || 0) + 1); ctx.unit.canAttackFinal = true; } return finish(); }
       if ((m = s.match(/^\[Stand\] (?:up to (\w+) |another |all |a |your |the )?(.+?) on your field(?:, and,? for this turn, (?:it|that card|those cards|all [^ ]+ [^ ]+ monsters) can attack during (?:the|your) final phase)?/i)) || (m = s.match(/^\[Stand\] (?:another |a )?(.+?) on your field/i))) {
         const flt = IMX.parseFilter((m[2] || m[1] || "").replace(/with .* in its attributes/, ""));
         const own = []; SLOTS.forEach(p => { const u = f.monsters[p]; if (u && u !== (/another/i.test(s) ? ctx.unit : null) && IMX.matchCard(u.card, flt)) own.push(u); });
         if (f.item && IMX.matchCard(f.item.card, flt)) own.push(f.item);
         const lim = m[1] && /^\w+$/.test(m[1]) && num(m[1]) ? num(m[1]) : 99;
-        own.slice(0, lim).forEach(u => { u.rested = false; u.attacksLeft = Math.max(1, (u.attacksLeft || 0) + 1); if (/final phase/i.test(s + " " + sentRaw)) u.canAttackFinal = true; });
+        own.slice(0, lim).forEach(u => { if (!effectStand(u)) return; u.attacksLeft = Math.max(1, (u.attacksLeft || 0) + 1); if (/final phase/i.test(s + " " + sentRaw)) u.canAttackFinal = true; });
         return finish(own.length > 0);
       }
 
@@ -1040,9 +1040,9 @@
     imGrantKeywords(u, text) {
       const t = (text || "").toLowerCase();
       if (/\[penetrate\]/.test(t)) u.tempPen = true;
-      if (/\[double attack\]/.test(t) && !u._imDa) { u._imDa = true; u.attacksLeft = (u.attacksLeft || 0) + 1; u.rested = false; }
-      if (/\[triple attack\]/.test(t) && !u._imTa) { u._imTa = true; u.attacksLeft = (u.attacksLeft || 0) + 2; u.rested = false; }
-      if (/\[quadruple attack\]/.test(t) && !u._imQa) { u._imQa = true; u.attacksLeft = (u.attacksLeft || 0) + 3; u.rested = false; }
+      if (/\[double attack\]/.test(t) && !u._imDa) { u._imDa = true; if (effectStand(u)) u.attacksLeft = (u.attacksLeft || 0) + 1; }
+      if (/\[triple attack\]/.test(t) && !u._imTa) { u._imTa = true; if (effectStand(u)) u.attacksLeft = (u.attacksLeft || 0) + 2; }
+      if (/\[quadruple attack\]/.test(t) && !u._imQa) { u._imQa = true; if (effectStand(u)) u.attacksLeft = (u.attacksLeft || 0) + 3; }
       if (/counterattack/.test(t)) u.tempCA = true;
     },
 

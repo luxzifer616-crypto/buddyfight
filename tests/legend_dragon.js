@@ -174,6 +174,68 @@ const stats = (pos) => J(`getUnitEffectiveCombatStats(battle.plr, battle.plr.mon
   await oppEffect([standStep("you")], "plr");
   ok(J(`battle.plr.monsters.left.rested`) === false, "#5717: my own cards can still be stood by my effects");
 
+  // ---- buddy call: size limit and zone choice ----
+  const SIZE2 = 74, DA_MON = 1117;
+  const bzSetup = (monsters, hand) => run(`clear(); battle.plr.maxSize=3; battle.plr.buddyId=5717; battle.plr.buddyZone=[5717,5418,5419].map(i=>({id:i,rested:false,isFaceDown:false})); battle.plr.buddyZone[0].rested=true; battle.plr.hand=${JSON.stringify(hand)}; battle.plr.deck=Array(30).fill(46);
+    ${Object.entries(monsters).map(([p, id]) => `battle.plr.monsters.${p}=mku(${id}${id === 5717 ? ",true" : ""});`).join(" ")} battle.opp.monsters.center=mku(46);`);
+  const field = () => J(`["left","center","right"].map(p=>battle.plr.monsters[p]&&battle.plr.monsters[p].card.id)`);
+  const used = () => J(`battle.getCurrentSizeUsed(battle.plr)`);
+  const callStep = async (human, choose) => {
+    run(`globalThis.__opts=null; ABX.hooks=ABX.hooks||{}; ABX.hooks.pickOption=(o)=>{ __opts=o.options.map(x=>x.label); return ${choose === undefined ? 0 : choose}; }; ABX.autoPlay=${human ? "false" : "true"};`);
+    run(`{ const f=battle.plr; const ctx={side:"plr",f,e:battle.opp,card:CARD_MAP.get(5717),unit:f.monsters.center,bind:{chosen:[],revealed:[],looked:[]},auto:${human ? "false" : "true"},log:[]}; globalThis.__r=null; ABX.OPS.r42BuddyCall.run({op:'r42BuddyCall',name:'Ice Deity, Freeza Horus'}, ctx).then(r=>{__r=r},e=>{__r='ERR '+e}); }`);
+    await settle(); run(`ABX.autoPlay=true; delete ABX.hooks.pickOption;`);
+    return { r: J(`__r`), opts: J(`__opts`) };
+  };
+  // size-2 monster on the left + Thunder in the center = 3 already: an open right zone is NOT legal (total would be 4)
+  bzSetup({ left: SIZE2, center: 5717 }, [5419, 46]);
+  let c = await callStep(false);
+  ok(c.r === false && used() === 3 && J(`battle.plr.hand.includes(5419)`), `size: size-2 + Thunder (3) -> Ice Deity is NOT called into the open right zone (auto; total ${used()})`);
+  bzSetup({ left: SIZE2, center: 5717 }, [5419, 46]);
+  c = await callStep(true, 99);
+  ok(c.opts && c.opts.length === 3 && !c.opts.some(l => /^Right/.test(l)) && /^Left — replaces/.test(c.opts[0]) && /^Center — replaces/.test(c.opts[1]) && c.opts[2] === "Don't call", `size: the human prompt offers only Left (replaces) / Center (replaces) / Don't call: ${JSON.stringify(c.opts)}`);
+  ok(field()[0] === SIZE2 && field()[1] === 5717 && J(`battle.plr.hand.includes(5419)`), "size: picking an invalid option / Don't call changes nothing");
+  bzSetup({ left: SIZE2, center: 5717 }, [5419, 46]);
+  c = await callStep(true, 0);
+  ok(field()[0] === 5419 && field()[1] === 5717 && used() <= 3 && J(`battle.plr.drop.includes(${SIZE2})`), `size: choosing Left replaces the size-2 monster (it goes to the drop zone); Thunder stays; total ${used()}`);
+  // full field: auto never overwrites Thunder or anything else
+  bzSetup({ left: 46, center: 5717, right: 46 }, [5419, 46]);
+  c = await callStep(false);
+  ok(c.r === false && field()[1] === 5717 && J(`battle.plr.hand.includes(5419) && battle.plr.drop.length===0`), "zone: no open zone -> auto does not call Ice Deity over Thunder or anything else");
+  bzSetup({ left: 46, center: 5717, right: 46 }, [5419, 46]);
+  c = await callStep(true, 3);
+  ok(c.opts && c.opts.length === 4 && c.opts[3] === "Don't call" && field()[1] === 5717 && J(`battle.plr.hand.includes(5419)`), `zone: the player is asked (3 replace-zones + Don't call) and "Don't call" keeps everything: ${JSON.stringify(c.opts)}`);
+  bzSetup({ left: 46, center: 5717, right: 46 }, [5419, 46]);
+  c = await callStep(true, 2);
+  ok(field()[0] === 46 && field()[1] === 5717 && field()[2] === 5419, "zone: the player may choose Right (replacing that monster) and Thunder is untouched");
+  bzSetup({ left: 46, center: 5717 }, [5419, 46]);
+  c = await callStep(false);
+  ok(field()[2] === 5419 || field()[0] === 5419 || field().includes(5419), "zone: with an open zone and room, auto still calls it normally");
+
+  // ---- stand lock: every path ----
+  const lockedSetup = () => run(`clear(); battle.plr.monsters.right=mku(5717); battle.opp.monsters.center=mku(${DA_MON}); battle.opp.monsters.center.rested=true; battle.opp.monsters.center.attacksLeft=1;`);
+  lockedSetup();
+  ok(J(`effectStand(battle.opp.monsters.center)`) === false && J(`battle.opp.monsters.center.rested`) === true, "effectStand(): a locked rested card stays rested");
+  run(`clear(); battle.opp.monsters.center=mku(${DA_MON}); battle.opp.monsters.center.rested=true;`);
+  ok(J(`effectStand(battle.opp.monsters.center)`) === true && J(`battle.opp.monsters.center.rested`) === false, "effectStand(): no lock -> it stands");
+  // any ability op that sets rested=false itself (the older round files do) is guarded: a stub op that does exactly that
+  const stub = ABX_guard();
+  function ABX_guard() { return J(`(globalThis.__stubOp = ABX.core.guardStandLock({ run(){ const u=battle.opp.monsters.center; u.rested=false; u.attacksLeft=2; return true; } }), true)`); }
+  lockedSetup();
+  run(`__stubOp.run()`);
+  ok(J(`battle.opp.monsters.center.rested`) === true && J(`battle.opp.monsters.center.attacksLeft`) === 1, "an op that sets rested=false directly is undone while Thunder Deity is on the field");
+  run(`clear(); battle.opp.monsters.center=mku(${DA_MON}); battle.opp.monsters.center.rested=true;`); run(`__stubOp.run()`);
+  ok(J(`battle.opp.monsters.center.rested`) === false && J(`battle.opp.monsters.center.attacksLeft`) === 2, "the same op stands the card when no lock is on the field");
+  // [Double Attack]: after its first attack the card is not stood again
+  const afterFirstAttack = async (flag, withThunder) => { run(`clear(); ${withThunder ? "battle.plr.monsters.right=mku(5717);" : ""} battle.opp.monsters.center=mku(${DA_MON}); battle.opp.monsters.center.attacksLeft=1; ABX.standLockStopsMultiAttack=${flag};`);
+    run(`ABX.fireBattleEnd('opp',[{unit:battle.opp.monsters.center}])`); await settle(); return J(`[battle.opp.monsters.center.attacksLeft, battle.opp.monsters.center.rested]`); };
+  let r2 = await afterFirstAttack(true, true);
+  ok(r2[0] === 0 && r2[1] === true, `[Double Attack] under Thunder Deity: no second attack (attacksLeft ${r2[0]}, rested ${r2[1]})`);
+  r2 = await afterFirstAttack(true, false);
+  ok(r2[0] === 1 && r2[1] === false, "[Double Attack] without Thunder Deity: still attacks twice");
+  r2 = await afterFirstAttack(false, true);
+  ok(r2[0] === 1 && r2[1] === false, "switch ABX.standLockStopsMultiAttack=false keeps Double Attack working under Thunder Deity");
+  run(`ABX.standLockStopsMultiAttack=true;`);
+
   console.log(fail ? `\nlegend_dragon: fail ${fail}` : "\nlegend_dragon: fail 0");
   process.exitCode = fail ? 1 : 0;
 })();
