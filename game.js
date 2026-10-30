@@ -6187,7 +6187,7 @@ const battle = {
         actionsEl.appendChild(bCnz);
       }
 
-      const abxActs = (window.ABX && ABX.actAbilities) ? ABX.actAbilities(card) : [];
+      const abxActs = (window.ABX && ABX.actAbilities) ? ABX.actAbilities(card).filter(a => !ABX.canUseAct || ABX.canUseAct(side, card, a, unit).reason !== "Timing / condition not met") : [];
       if (!unit.isEndrulerFlag && (card.act || abxActs.length || ((parseDeckSearchCriteria(card) || (card.skill || "").toLowerCase().includes("you may")) && !abxOwnsOptionalLines(card))) && !unit.actUsed) {
         const bAct = document.createElement("button");
         bAct.className = "action-btn";
@@ -6227,7 +6227,7 @@ const battle = {
     } else if (context === "set") {
       const setHost = unit || card;
       if (side === this.activeSide && this.isLocalTurn()) {
-        const abxActs = (window.ABX && ABX.actAbilities) ? ABX.actAbilities(card) : [];
+        const abxActs = (window.ABX && ABX.actAbilities) ? ABX.actAbilities(card).filter(a => !ABX.canUseAct || ABX.canUseAct(side, card, a, setHost).reason !== "Timing / condition not met") : [];
         if (abxActs.length > 0 || card.act) {
           const bSetAct = document.createElement("button");
           bSetAct.className = "primary-cta-btn";

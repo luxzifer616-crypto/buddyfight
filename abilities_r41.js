@@ -1280,6 +1280,10 @@
         if (ab.kind === "cost" && (ATK_CUT.test(raw) || FIELD_DROP_COST.test("[Cast Cost] " + raw.replace(/^\[cast cost\]\s*/i, "")) || /^(?:\[cast cost\]\s*)?\[?if you have one or more cards on your field, put all of them into the drop zone\]?$/i.test(raw.trim()))) {
           ab.unparsed = []; ab.r41 = true;
         }
+        // "[Counter] [Act] ... during your opponent's turn" (#1086 Damage Control): the timing words were dropped by the parser, so it was usable on your own turn
+        if (ab.kind === "act" && /during your opponent'?s turn/i.test(raw) && !(ab.conds || []).some(c => c && c.t === "turn")) {
+          ab.conds = (ab.conds || []).concat([{ t: "turn", who: "opp" }]); ab.r41 = true;
+        }
         if (card && card.id === 4070 && /^this card cannot be called\.?$/i.test(raw.trim())) {
           ab.kind = "rule"; ab.steps = [{ op: "static", kind: "noCallSelf" }]; ab.unparsed = []; ab.parsed = true; ab.r41 = true;
         }
