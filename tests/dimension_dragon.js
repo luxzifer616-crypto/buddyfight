@@ -44,6 +44,25 @@ const hasLook = `a=>(a.steps||[]).some(s=>s.op==='look')`;
   run(`battle.plr.monsters.center=mku(46); battle.plr.monsters.right=mku(46); battle.completeMonsterCall('plr','left',battle.plr.hand.indexOf(__m2.id),false);`);
   await settle(); s = S();
   ck("g2 Agonia retired by a call over it triggers", s.drop.includes(4625) && s.gauge === 5, s);
+  // ---- group 3: Zorune 4633, Deugaine 4668, Deily 6458
+  run(`clear(); battle.plr.monsters.center=mku(4633); battle.plr.hand=[4619]; battle.plr.deck=[4621,4626,4628,46,46,46,46,46];`);
+  await ab(4633, "center", `a=>a.kind==='act'`);
+  s = S(); ck("g3 Zorune: looked 3 return on top, then the TOP card is drawn", s.hand.length === 1 && s.hand[0] === 4621 && s.deck === 7 && s.deckTop[0] === 4626 && s.deckTop[1] === 4628, s);
+  run(`clear(); battle.plr.monsters.center=mku(4633); battle.plr.hand=[46]; battle.plr.deck=[4621,4626,4628,46,46,46,46,46];`);
+  await ab(4633, "center", `a=>a.kind==='act'`);
+  s = S(); ck("g3 Zorune: nothing dropped -> no look, no draw", s.hand.length === 1 && s.deck === 8, s);
+  run(`clear(); battle.plr.hand=[4668]; battle.plr.monsters.left=mku(4619); battle.activeSide='opp'; battle.opp.monsters.center=mku(46);
+    ABX.runHandAct('plr',0,{attSide:'opp',attackerZones:['center'],targetPos:'fighter'}).then(r=>globalThis.__r=r);`);
+  await settle();
+  s = J(`[globalThis.__r, ["left","center","right"].map(p=>battle.plr.monsters[p]&&battle.plr.monsters[p].card.id)]`);
+  ck("g3 Deugaine from hand redirects the attack to itself", JSON.stringify(s[0]).includes("center") || JSON.stringify(s[0]).includes("right"), s);
+  run(`globalThis.__st=0; const O=ABX.OPS.stand; if(!O.__cnt){ const o=O.run; O.run=function(){ globalThis.__st++; return o.apply(this,arguments); }; O.__cnt=1; }`);
+  run(`clear(); battle.plr.monsters.center=mku(6458); battle.plr.monsters.left=mku(4619); battle.plr.monsters.left.rested=true; battle.phase='attack'; globalThis.__st=0;`);
+  await ab(6458, "center", `a=>a.kind==='modal'`);
+  ck("g3 Deily without Lost World: one effect", run(`__st`) === 1, run(`__st`));
+  run(`clear(); battle.plr.flagId=4569; battle.plr.monsters.center=mku(6458); battle.plr.monsters.left=mku(4619); battle.plr.monsters.left.rested=true; battle.phase='attack'; globalThis.__st=0;`);
+  await ab(6458, "center", `a=>a.kind==='modal'`);
+  ck("g3 Deily with Lost World: three effects", run(`__st`) === 3, run(`__st`));
   // ---- END
   console.log("pass", pass, "fail", fail); process.exit(fail ? 1 : 0);
 })();

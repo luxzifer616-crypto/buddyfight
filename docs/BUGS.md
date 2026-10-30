@@ -92,3 +92,5 @@ Open: Belost is still activated via the game's draw/hand-click prompt rather tha
 ## Dimension Dragon review (49 cards, tests/dimension_dragon.js)
 - [x] «Dimension Dragon» or "Lost World" filter was AND-matched (#4606 #4620 #4909 #4655 #5807 never found a card): parser now emits filter.anyOf. "Put the rest" no longer skipped when an "up to one" pick took nothing (runSteps `lookRan`).
 - [x] #4625 Agonia: "put from the field into the drop zone" now fires for effects/costs (OPS.move wrapper in r24) and retires (call over a card, size limit in game.js); `ABX.fireLeave(..., notDestroyed)` skips destroyed-only triggers for those.
+- [x] #4633 Zorune (looked cards go back on top before the draw, draw gated on the drop), #4668 Deugaine (hand [Counter][Act] redirect used ctx.unit = null, now the called zone), #6458 Deily (modal `repeatLW`: Lost World = choose 3 times, else once).
+- Note (not fixed): look-and-return at the end of runAbility (`unshift` loop in abilities_engine.js runAbility) puts unmoved looked cards back in reversed order. Legal ("any order") but surprising.

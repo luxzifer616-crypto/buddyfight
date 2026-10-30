@@ -25,6 +25,19 @@
   const buddyCallRow = (name) => ({ kind: "triggered", trigger: { event: "enter", self: true }, conds: [{ t: "enterByBuddyCall" }], steps: [{ op: "r42BuddyCall", name }] });
 
   const OV42 = [
+    /* ---- Dimension Dragon review ---- */
+    // #4633 Zorune: the looked cards go back on top (any order) and ONLY then, if a DD was dropped, a card is drawn
+    [4633, /look at the top three cards of your deck/i, (ab) => {
+      const st = clone(ab.steps || []);
+      const dis = st.find(x => x.op === "discard"), mv = st.find(x => x.op === "move"), dr = st.find(x => x.op === "draw");
+      if (!dis || !mv || !dr) return null;
+      st[st.indexOf(mv)] = { op: "r42LookBack", gate: "ifYouDo", src: mv.src };
+      dr.gate = "ifYouDo";
+      return { kind: "act", steps: st, once: "turn" };
+    }],
+    // #6458 Deily: "If your flag is Lost World, choose and use three times instead" = repeat the modal choice, not a leftover step
+    [6458, /choose and use one of the following three/i, () => ({ kind: "modal", steps: [], once: "turn", repeatLW: 3 })],
+
     /* ---- wave 1 ---- */
     [6138, /if a «?fire»? is on your field/i, () => ({
       kind: "spell", once: "turn", steps: [
@@ -206,6 +219,9 @@
   }
 
 
+  // Zorune: the looked-at cards go back on top of the deck (any order = the order they were in), BEFORE the following draw
+  OPS.r42LookBack = { run(s, ctx) { const l = (ctx.bind.looked || []).filter(x => x && x.pending); for (let i = l.length - 1; i >= 0; i--) { F(l[i].side).deck.unshift(l[i].id); l[i].pending = false; } return true; }, check: () => true };
+
   // #5538: remember that Sector Collapse is active this turn (the attack hook below applies it)
   OPS.r42SectorCollapse = { run(s, ctx) { ctx.f.abxSectorCollapse = battle.turnCount; return true; }, check: () => true };
 
@@ -230,6 +246,7 @@
           if (o.options) ab.options = o.options;
           if (o.action) ab.action = o.action;
           if (o.once) ab.once = o.once;
+          if (o.repeatLW) ab.repeatLW = o.repeatLW;
           if (o.trigger) ab.trigger = o.trigger;
           if (o.conds !== undefined) ab.conds = o.conds;
           // #5757: the same effect also happens when it is dropped from the hand

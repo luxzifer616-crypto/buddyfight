@@ -803,13 +803,17 @@
       await runSteps(ab.steps || [], ctx);
       if (!ctx.lastDone) return ctx;
       const options = ab.options.filter(o => (o.conds || []).every(c => evalCond(c, ctx)));
-      let idx = 0;
-      if (options.length > 1) {
-        if (ctx.auto || sideIsAuto(side)) idx = Math.max(0, options.findIndex(o => o.steps.every(s => !s.cost)));
-        else idx = await ABX.ui.pickOption({ title: `${card.name} — choose one`, options: options.map(o => ({ label: ABX.clean(o.raw).replace(/^-\s*/, "").slice(0, 160) })) });
+      // "If your flag is Lost World, choose and use three times instead" (ab.repeatLW)
+      const times = ab.repeatLW && evalCond({ t: "flagIs", names: ["lost world"] }, ctx) ? ab.repeatLW : 1;
+      for (let rep = 0; rep < times; rep++) {
+        let idx = 0;
+        if (options.length > 1) {
+          if (ctx.auto || sideIsAuto(side)) idx = Math.max(0, options.findIndex(o => o.steps.every(s => !s.cost)));
+          else idx = await ABX.ui.pickOption({ title: `${card.name} — choose one${times > 1 ? ` (${rep + 1}/${times})` : ""}`, options: options.map(o => ({ label: ABX.clean(o.raw).replace(/^-\s*/, "").slice(0, 160) })) });
+        }
+        if (idx < 0 || !options[idx]) return ctx;
+        await runSteps(options[idx].steps, ctx);
       }
-      if (idx < 0 || !options[idx]) return ctx;
-      await runSteps(options[idx].steps, ctx);
     } else {
       await runSteps(ab.steps, ctx);
     }

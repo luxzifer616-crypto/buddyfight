@@ -93,7 +93,7 @@
     if (!s.toFighter && !s.toSelf) return rdRun.apply(this, arguments);
     const bc = ABX.battleCtx;
     if (!bc || !bc.active) return false;
-    const pos = s.toFighter ? "fighter" : core.posOfUnit(ctx.f, ctx.unit);
+    const pos = s.toFighter ? "fighter" : (ctx.calledPos && ctx.f.monsters[ctx.calledPos] ? ctx.calledPos : core.posOfUnit(ctx.f, ctx.unit));   // hand act: the card was just called (no ctx.unit)
     if (!pos || pos === "item") return false;
     bc.redirectTo = pos;
     try { B.setPrompt(`🎯 The attack's target was changed to ${pos === "fighter" ? "the fighter" : `"${ctx.card.name}"`}!`); } catch (e) { /* ignore */ }
