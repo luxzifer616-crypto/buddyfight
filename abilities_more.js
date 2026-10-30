@@ -223,6 +223,26 @@
     if (ABX.fireCast) ABX.fireCast(side, c);
   }
 
+  // [Counter] spell cast from the hand on the OPPONENT'S turn, outside any attack (destroy / draw / call / life / gauge ...).
+  // Attack-nullifying spells stay in the defense window. Returns true when the card can be cast right now.
+  ABX.freeCounterOption = function (side, c) {
+    if (!c || c.type !== "Spell" || ABX.enabled === false || B.matchOver || !ABX.ownsCounter || !ABX.ownsCounter(c)) return false;
+    const f = F(side), e = F(otherSide(side));
+    if (f.timeStoppedThisTurn || f.timeStoppedThisBattle) return false;
+    const cs = ABX.counterSpellOption(side, c, { free: true });
+    if (!cs || cs.nullifies) return false;
+    const cost = typeof parseCardCost === "function" ? parseCardCost(c.cost, c.skill, f, c) : { gauge: 0, life: 0 };
+    if (f.gauge.length < cost.gauge || (cost.life > 0 && f.life <= cost.life)) return false;
+    return typeof evaluateCardConditions !== "function" || evaluateCardConditions(c, f, e).met;
+  };
+  ABX.castFreeCounter = async function (side, c) {
+    if (!ABX.freeCounterOption(side, c)) return false;
+    const f = F(side);
+    const cost = typeof parseCardCost === "function" ? parseCardCost(c.cost, c.skill, f, c) : { gauge: 0, life: 0 };
+    await runCounterSpell(side, c, cost);
+    return true;
+  };
+
   // Called by game.js before a spell / impact resolves and when a monster is called from the hand.
   // Resolves to true when the other player nullified it.
   ABX.castWindow = async function (casterSide, card, kind) {

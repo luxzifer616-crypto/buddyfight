@@ -436,7 +436,8 @@
 
   function autoPick(cands, n, ctx, intent) {
     const arr = cands.slice();
-    if (intent === "harm") arr.sort((a, b) => valueOf(b.card) - valueOf(a.card));
+    // "harm" (destroy / damage / rest ...): hit the opponent's cards first, never your own while an enemy card is a candidate
+    if (intent === "harm") arr.sort((a, b) => ((a.side === ctx.side) - (b.side === ctx.side)) || (valueOf(b.card) - valueOf(a.card)));
     else if (intent === "cost") arr.sort((a, b) => valueOf(a.card) - valueOf(b.card));
     else arr.sort((a, b) => valueOf(b.card) - valueOf(a.card));
     return arr.slice(0, n);
@@ -1228,6 +1229,30 @@
 
   // [Counter] spells cast while defending. Returns {nullified}.
   ABX.ownsCounter = function (card) { return !!card.cnt && ABX.ownsSpell(card); };
+  // Can this hand [Counter] spell be offered right now while defending? At least one spell body's conditions must pass
+  // (runCounter silently skips bodies whose conditions fail, which would waste the cost). Returns {nullifies} or null.
+  ABX.counterSpellOption = function (defSide, card, info) {
+    if (card.type !== "Spell" || !ABX.ownsCounter(card)) return null;
+    const attSide = otherSide(defSide), attF = F(attSide), defF = F(defSide);
+    const zones = (info && info.attackerZones) || [];
+    const prev = ABX.battleCtx;
+    // info.free: cast outside any attack (opponent's turn, no battle) - battle-only text must then fail its conditions
+    if (!(info && info.free)) ABX.battleCtx = {
+      active: true, attSide, defSide, nullified: false, link: zones.length > 1,
+      attUnits: (info && info.attUnits) || zones.map(z => z === "item" ? attF.item : attF.monsters[z]).filter(Boolean),
+      defUnit: ["left", "center", "right"].includes(info && info.targetPos) ? defF.monsters[info.targetPos] : null
+    };
+    try {
+      const bodies = abilitiesOf(card, isSpellBody);
+      const ok = bodies.some(ab => {
+        const probe = { side: defSide, f: defF, e: attF, card, unit: null, ab, bind: { chosen: [], revealed: [], looked: [] }, lastDone: true, auto: true, log: [], event: { name: "counter" } };
+        return (ab.conds || []).every(c => evalCond(c, probe));
+      });
+      if (!ok) return null;
+      return { nullifies: bodies.some(ab => (ab.steps || []).some(s => s.op === "nullifyAttack")) };
+    } catch (e) { if (ABX.debug) console.error(e); return null; }
+    finally { ABX.battleCtx = prev; }
+  };
   ABX.runCounter = async function (defSide, card, info) {
     const attSide = info.attSide, attF = F(attSide), defF = F(defSide);
     const bc = ABX.battleCtx = {

@@ -5835,6 +5835,20 @@ const battle = {
     const actionsEl = document.getElementById("bnr-actions");
     actionsEl.innerHTML = "";
 
+    // Opponent's turn: a hand [Counter] spell that is not an attack-nullifier (destroy / draw / call / life / gauge ...)
+    // can be cast from here, as long as no defense prompt is open. Attack-nullifiers stay in the defense window.
+    if (context === "hand" && side !== this.activeSide && !this.matchOver && !this.pendingDefenseContext
+        && window.ABX && ABX.freeCounterOption && ABX.freeCounterOption(side, card)) {
+      const bCounter = document.createElement("button");
+      bCounter.className = "primary-cta-btn";
+      bCounter.textContent = "⚡ Counter";
+      bCounter.onclick = () => {
+        this.closeCardBanner();
+        ABX.castFreeCounter(side, card).then(() => { if (!this.matchOver) this.renderBattle(); });
+      };
+      actionsEl.appendChild(bCounter);
+    }
+
     if (context === "hand" && side === this.activeSide && this.isLocalTurn()) {
       if (this.phase === "main" && !f.chargedThisTurn) {
         const bCharge = document.createElement("button");
@@ -8094,7 +8108,17 @@ const battle = {
         const hu = ABX.counterHandUseActs(c).find(ab => ABX.canUseHandAct(defSide, handIdx, ab).ok);
         if (hu) { valid.push({ card: c, handIdx, info: { category: "abx_hand_use", ab: hu } }); return; }
       }
-      const info = classifyDefensiveCounterCard(c);
+      let info = classifyDefensiveCounterCard(c);
+      // Hand [Counter] spells the ability engine owns (destroy / draw / call / life / gauge ...) that the old text
+      // classifier does not know: offer them when their conditions and cost are met. Known categories keep their
+      // zone / link checks below.
+      if (!info && c.type === "Spell" && window.ABX && ABX.counterSpellOption) {
+        const cs = ABX.counterSpellOption(defSide, c, { targetPos, attUnits });
+        if (cs && evaluateCardConditions(c, defFighter, attFighter).met) {
+          valid.push({ card: c, handIdx, info: { category: "abx_counter_spell", nullifies: cs.nullifies } });
+        }
+        return;
+      }
       if (!info) return;
 
       const cond = evaluateCardConditions(c, defFighter, attFighter);

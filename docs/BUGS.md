@@ -68,3 +68,9 @@ Open: Belost is still activated via the game's draw/hand-click prompt rather tha
 
 ## Thunder Empire (attr ThunderEmpire, 317 cards)
 - [x] TE1 #3631 attack-based gauge cost cut, #3812 "put all field cards into drop" cost, #4070 "cannot be called" - fixed in abilities_r41.js, test: tests/thunder_empire.js. Scan: 310 done, 0 partly, 0 none, 7 no effect text.
+
+## [Counter] spells on the opponent's turn
+- [x] Hand [Counter] spells the engine owns (ABX.ownsCounter) were never offered in the defense window (only the old text classifier was used): now offered via ABX.counterSpellOption when conditions + cost pass (sweep: 415 -> 1019 of 1794 counter cards offered; the rest need an equipped item / tribe / soulguard attacker etc.). Test: tests/counter_free.js.
+- [x] Non-attack [Counter] spells (destroy, draw, call, life, gauge) can be cast from the hand banner ("Counter" button) on the opponent's turn when no defense prompt is open (ABX.freeCounterOption / castFreeCounter).
+- [x] Bot / auto-play "harm" picks no longer destroy the caster's own cards while an enemy card is a candidate (autoPick).
+- Open: no pass/priority window at each phase change, attack declaration and resolution (the Counter button is only reachable by tapping a hand card). Impact [Counter] cards (70) are still only offered in the final phase response window. Hand-banner Counter button is not yet usable for online P2P opponents' turns (local engine only).
