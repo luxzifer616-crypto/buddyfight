@@ -1151,7 +1151,32 @@
   // "[Call Cost] [When a <Lost World> monster is put from your field into the drop zone, pay 2 gauge]" (#4941, #5013, #6440): the card can ONLY be called at that
   // timing, by paying the gauge. Offered right after one of your monsters of that world goes from the field to the drop zone.
   const TIMING_CALL = /\[Call Cost\]\s*\[When an? <([^>]+)> monster is put from your field into the drop zone,\s*pay (\d+) gauge\]/i;
-  ABX.timingCallInfo = (card) => { const m = card && TIMING_CALL.exec(String(card.cost || "") + " " + String(card.skill || "")); return m ? { world: m[1], gauge: Number(m[2]) } : null; };
+  // "[Call Cost] [When a «Genesis Dragon» monster on your field is put to drop zone, put three cards from your drop zone into its soul]" (#6145 Rightes, #6146 Leftes):
+  // same timing call, but the cost is cards from the drop zone into the new monster's soul; it may only be called on its own side, and while "Bigbang Dragon" is on the field.
+  const TIMING_SOUL = /\[Call Cost\]\s*\[When an? «([^»]+)» monsters? on your field is put (?:to|into) (?:the )?drop zone,\s*put (\w+) cards? from your drop zone into (?:its|this card's) soul\]/i;
+  const NUMW = { a: 1, one: 1, two: 2, three: 3, four: 4, five: 5 };
+  const tribeKey = (s) => lc(s).replace(/[^a-z0-9]/g, "");
+  ABX.timingCallInfo = (card) => {
+    if (!card) return null;
+    const txt = String(card.cost || "") + " " + String(card.skill || "");
+    const m = TIMING_CALL.exec(txt);
+    if (m) return { world: m[1], gauge: Number(m[2]) };
+    const t = TIMING_SOUL.exec(txt);
+    if (!t) return null;
+    const pm = /you may only call this card on the (left|center|right)\b/i.exec(txt), nm = /\bif "([^"]+)" is on your field/i.exec(txt);
+    return { world: t[1], tribe: t[1], soulFromDrop: NUMW[lc(t[2])] || Number(t[2]) || 1, pos: pm ? lc(pm[1]) : null, needName: nm ? nm[1] : null };
+  };
+  // the cost part inside the brackets: "When a «T» monster on your field is put to drop zone, <cost>" -> the plain cost part (soul from drop zone ...)
+  const GEN_TIMING = /^when an? «([^»]+)» monsters? on your field is put (?:to|into) (?:the )?drop zone,?\s*(.+)$/i;
+  if (ABX.parseCostPart) {
+    const cpPrev = ABX.parseCostPart;
+    ABX.parseCostPart = function (p) {
+      const t = String(p || "").trim(), m = GEN_TIMING.exec(t);
+      if (m) { const inner = cpPrev.call(this, m[2]); if (inner && inner.ok) return Object.assign({}, inner, { text: t, timingTribe: m[1] }); }
+      return cpPrev.apply(this, arguments);
+    };
+    if (ABX.resetCaches) ABX.resetCaches();
+  }
   if (ABX.fireLeave) {
     const flPrev = ABX.fireLeave;
     ABX.fireLeave = function (side, card) {
@@ -1164,6 +1189,25 @@
             const worlds = card.worlds && card.worlds.length ? card.worlds : [card.world];
             for (let hi = 0; hi < f.hand.length; hi++) {
               const c = cardOf(f.hand[hi]); const info = c && ABX.timingCallInfo(c);
+              if (info && info.tribe) {   // soul-from-drop timing call (#6145 / #6146)
+                if (!(card.attrs || []).some(a => tribeKey(a) === tribeKey(info.tribe))) continue;
+                const spos = info.pos || ["center", "left", "right"].find(q => !f.monsters[q]);
+                if (!spos || f.monsters[spos]) continue;
+                if (info.needName && !["left", "center", "right"].some(q => f.monsters[q] && f.monsters[q].card && f.monsters[q].card.name === info.needName)) continue;
+                if (!ABX.canPayExtras(side, c, hi)) continue;
+                let ok = true;
+                if (!isAuto({ side, auto: false })) {
+                  const i = await ABX.ui.pickOption({ title: `Call "${c.name}"?`, subtitle: `A «${info.tribe}» monster was put into your drop zone: put ${info.soulFromDrop} cards from your drop zone into its soul to call it.`, options: [{ label: "✅ Call it" }, { label: "No" }] });
+                  ok = i === 0;
+                }
+                if (!ok) continue;
+                const before = f.hand.length;
+                B.abxFreeCall = true;
+                try { B.completeMonsterCall(side, spos, hi, false, true); } finally { B.abxFreeCall = false; }
+                if (f.hand.length !== before && f.monsters[spos]) await ABX.payExtras(side, c, f.monsters[spos]);
+                fresh();
+                return;
+              }
               if (!info || !worlds.includes(info.world) || f.gauge.length < info.gauge) continue;
               const pos = ["center", "left", "right"].find(q => !f.monsters[q]);
               if (!pos) return;
