@@ -411,6 +411,10 @@
         else { np.junk = left; }
       }
     }
+    if (f.names && f.tribes && /«[^»]+»[^"]*\bor\s+"[^"]+"/i.test(np.raw)) {
+      const sub1 = Object.assign({}, f); delete sub1.names;   // «Tribe» ... or "Name" is a choice, not both at once
+      np.filter = { anyOf: [sub1, { names: f.names }] };
+    }
     return np;
   }
   ABX.parseNP = parseNP;

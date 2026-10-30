@@ -769,7 +769,8 @@
   async function runSteps(steps, ctx) {
     for (const s of steps) {
       if (B.matchOver) break;
-      if (s.gate === "ifYouDo" && !ctx.lastDone) continue;
+      // "put the rest ..." follows the look/reveal that ran, not an "up to one" pick that took 0 cards
+      if (s.gate === "ifYouDo" && !ctx.lastDone && !(s.np && s.np.ref === "rest" && ctx.lookRan)) continue;
       if (s.gate === "ifNotDone" && ctx.lastDone) continue;
       if (s.cond && !evalCond(s.cond, ctx)) { ctx.lastDone = false; continue; }
       const op = OPS[s.op];
@@ -779,6 +780,7 @@
       try { ok = await op.run(s, ctx); }
       catch (err) { ctx.log.push("error:" + s.op + ":" + (err && err.message)); if (ABX.debug) console.error(err); ok = false; }
       ctx.lastDone = ok !== false;
+      if (ok !== false && (s.op === "look" || s.op === "reveal")) ctx.lookRan = true;
     }
   }
 

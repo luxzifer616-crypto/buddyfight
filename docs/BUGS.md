@@ -88,3 +88,6 @@ Open: Belost is still activated via the game's draw/hand-click prompt rather tha
 - [x] "About 50 counter spells the engine can't run": there are 50 [Set] counter spells and all 50 abilities are executable (0 not executable); 33 are offered from the [Set] zone on some board. The other 17 are passive [Set] effects that merely mention [Counter], or acts with their own timing (e.g. #1421 "during the main phase of your opponent's turn", #3324 "during your attack phase"). Not an engine gap.
 
 - FIXED #1086 Damage Control (and 3825, 4112, 5343, 5677): `[Counter] [Act]` / Overkill-type acts whose text says "during your opponent's turn" lost that timing in the parser (no cond), so the own-turn "Use [Set] Card Ability / [Act]" offered them in the main and attack phases. `abilities_r41.js` now adds `{t:"turn",who:"opp"}` at parse time; the [Set] and field banners hide the act button when only the timing blocks it. Test: `tests/counter_timing.js`.
+
+## Dimension Dragon review (49 cards, tests/dimension_dragon.js)
+- [x] «Dimension Dragon» or "Lost World" filter was AND-matched (#4606 #4620 #4909 #4655 #5807 never found a card): parser now emits filter.anyOf. "Put the rest" no longer skipped when an "up to one" pick took nothing (runSteps `lookRan`).
