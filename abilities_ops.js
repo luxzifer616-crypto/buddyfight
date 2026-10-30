@@ -26,7 +26,7 @@
       return (n.per || 1) * k + (n.plus || 0);
     }
     if (n.fromRef) {
-      const r = (ctx.bind.chosen || [])[0] || (ctx.bind.revealed || [])[0];
+      const r = (ctx.bind.chosen || [])[0] || (ctx.bind.revealed || [])[0] || (ctx.bind.lastDestroyed || [])[0];   // "destroy a monster. If you do, gain life equal to that card's size"
       return r && r.card ? (r.card.size || 0) : 0;
     }
     if (n.fromSelf) return ctx.card ? (ctx.card[n.fromSelf === "critical" ? "crit" : n.fromSelf] || 0) : 0;
@@ -492,8 +492,13 @@
         const idxs = await ABX.ui.pickCards({ title: `${ctx.card.name} — order the rest`, subtitle: `Pick the order (first = placed first) for the bottom of your deck.`, cards: left.map(r => ({ card: r.card, badge: "" })), min: left.length, max: left.length, ordered: true });
         if (idxs && idxs.length === left.length) order = idxs.map(i => left[i]);
       }
+      let restEnd = s.rest.end;
+      if (s.rest.area === "deck" && s.rest.topOrBottom && left.length && !ctx.auto && !f.isBot && !ABX.autoPlay && ABX.ui && ABX.ui.pickOption) {
+        const i = await ABX.ui.pickOption({ title: `${ctx.card.name} — put the rest on the top or the bottom of your deck?`, options: [{ label: "On the top" }, { label: "On the bottom" }] });
+        restEnd = i === 0 ? "top" : "bottom";
+      }
       if (s.rest.area === "deck") {
-        if (s.rest.end === "bottom") order.forEach(r => f.deck.push(r.id)); else order.slice().reverse().forEach(r => f.deck.unshift(r.id));
+        if (restEnd === "bottom") order.forEach(r => f.deck.push(r.id)); else order.slice().reverse().forEach(r => f.deck.unshift(r.id));
       } else order.forEach(r => dest(s.rest).push(r.id));
       if (s.gainLife) f.life += s.gainLife;
       afterChange();

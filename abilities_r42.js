@@ -58,6 +58,22 @@
       pay.gate = "ifYouDo"; ch.gate = "ifYouDo";
       return { kind: "act", steps: [mv, pay, ch, { op: "r42OdioFetch", gate: "ifYouDo" }] };
     }],
+    // #5118 D. Aura Burst, option 2: a turn-long "cannot be destroyed" on the left/right DD monsters (the parsed static was a no-op inside a spell)
+    [5118, /choose and use one of the following two/i, (ab) => {
+      const opts = clone(ab.options || []);
+      const o2 = opts[1];
+      if (!o2 || !o2.steps || !o2.steps[0] || o2.steps[0].op !== "static") return null;
+      const old = o2.steps[0];
+      o2.steps = [{ op: "restrict", kinds: ["destroyed"], src: old.src, np: Object.assign(np({ tribes: ["Dimension Dragon"], types: ["monster"] }, "field", ["left", "right"]), { qty: { n: 99, upTo: false, all: true, any: false, each: false } }) }];
+      return { kind: "modal", steps: ab.steps, options: opts };
+    }],
+    // #4626 Ire: "put the rest on the top or bottom of your deck" - the r26 rewrite made it bottom only; the player chooses (auto / bots: bottom)
+    [4626, /put the rest on the (?:top or )?bottom of your deck/i, (ab) => {
+      const st = clone(ab.steps || []), lp = st.find(x => x.op === "lookPick");
+      if (!lp) return null;
+      lp.rest.topOrBottom = true;
+      return { kind: ab.kind, steps: st, trigger: ab.trigger, conds: ab.conds };
+    }],
     // #6458 Deily: "If your flag is Lost World, choose and use three times instead" = repeat the modal choice, not a leftover step
     [6458, /choose and use one of the following three/i, () => ({ kind: "modal", steps: [], once: "turn", repeatLW: 3 })],
 
@@ -263,6 +279,32 @@
       return true;
     }, check: () => true
   };
+
+  // #4669 D. Scapegoat: "[Cast Cost] Destroy any number of «Dimension Dragon» monsters on your field" (0 is allowed);
+  // "You gain 1 life and draw a card for each card destroyed by this card's [Cast Cost]"
+  const isScapegoat = (card) => !!card && card.id === 4669;
+  const ddOnField = (side) => core.fieldUnits(F(side), false).filter(x => x.unit && x.unit.card && core.matchFilter(x.unit.card, { tribes: ["Dimension Dragon"], types: ["monster"] }, { unit: x.unit, side }, { f: F(side) }));
+  [["hasExtras", () => true], ["canPayExtras", () => true]].forEach(([n, fn]) => { const p = ABX[n]; ABX[n] = function (side, card) { return isScapegoat(card) ? fn() : p.apply(this, arguments); }; });
+  const prevPay42 = ABX.payExtras;
+  ABX.payExtras = function (side, card) { return isScapegoat(card) ? undefined : prevPay42.apply(this, arguments); };   // the cost is paid when the spell resolves (r42ScapegoatGain)
+  OPS.r42ScapegoatGain = {
+    async run(s, ctx) {
+      const side = ctx.side, f = ctx.f, cands = ddOnField(side);
+      if (!cands.length || f.isBot) return false;
+      let picks = cands;
+      if (!ABX.autoPlay) {
+        const idxs = await ABX.ui.pickCards({ title: `${ctx.card.name} — destroy any number of «Dimension Dragon» monsters (cost)`, subtitle: "Pick 0 or more.", cards: cands.map(x => ({ card: x.unit.card, badge: "" })), min: 0, max: cands.length });
+        picks = (idxs || []).map(i => cands[i]).filter(Boolean);
+      }
+      let n = 0;
+      for (const x of picks) { if (f.monsters[x.pos] === x.unit && B.destroyMonster(side, x.pos) !== false) n++; }
+      if (!n) return false;
+      await OPS.life.run({ op: "life", who: "you", n }, ctx);
+      await OPS.draw.run({ op: "draw", who: "you", n }, ctx);
+      return true;
+    }, check: () => true
+  };
+  OV42.push([4669, /you gain 1 life and draw a card/i, () => ({ kind: "spell", steps: [{ op: "r42ScapegoatGain" }], once: "turn" })]);
 
   // #5538: remember that Sector Collapse is active this turn (the attack hook below applies it)
   OPS.r42SectorCollapse = { run(s, ctx) { ctx.f.abxSectorCollapse = battle.turnCount; return true; }, check: () => true };

@@ -1395,7 +1395,9 @@
     r = { abs: [], lines: new Set() };
     ABX.get(card).abilities.forEach(a => {
       const soulOnly = a.kind === "spell" && card.type === "Spell" && a.steps && a.steps.length && a.steps.every(x => x.op === "boost" && x.np && x.np.ref === "host");   // a Spell sitting in a soul: "A card with this card in its soul gets …"
-      if ((a.kind !== "static" && !soulOnly) || (a.unparsed && a.unparsed.length) || !a.steps || !a.steps.length) return;
+      // a [Set] spell whose body is a permanent aura ("... on your field get power+2000"): it works while the spell is set
+      const setAura = a.kind === "spell" && card.type === "Spell" && /\[Set\]/i.test(card.skill || "") && a.steps && a.steps.length && !a.trigger && a.steps.every(x => x.op === "boost" || x.op === "static");
+      if ((a.kind !== "static" && !soulOnly && !setAura) || (a.unparsed && a.unparsed.length) || !a.steps || !a.steps.length) return;
       if (SPECIAL_LEGACY.test(a.raw || a.cleaned || "")) return;
       // "If this card is in the soul of X, that card gets A. Then, that card gets B": B keeps the soul condition
       // (before, B also applied while this card was on the field, to itself). e.g. 6142 / 6227.

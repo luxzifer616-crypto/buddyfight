@@ -88,6 +88,35 @@ const hasLook = `a=>(a.steps||[]).some(s=>s.op==='look')`;
   run(`clear(); battle.plr.monsters.center=mku(4667); battle.plr.monsters.left=mku(4619); battle.plr.deck=[46,46,4621,4626,46,46];`);
   await ab(4667, "center", `a=>a.kind==='act'`);
   s = S(); ck("g4 Odio: paid 2 life, other DD dropped, the chosen card ends on top of the deck (not in drop)", s.life === 8 && s.drop.length === 1 && s.drop[0] === 4619 && s.deck === 6 && [4621, 4626, 46].includes(s.deckTop[0]) && s.deckTop.includes(s.deckTop[0]), s);
+  // ---- group 5
+  run(`clear(); battle.plr.setSpells=[CARD_MAP.get(4920)]; battle.plr.monsters.left=mku(4619);`);
+  s = J(`[CARD_MAP.get(4619).power, 0, 0, ABX.staticBonus(battle.plr,battle.plr.monsters.left)]`);
+  ck("g5 Lost Stone [Set]: DD on field get power+2000 / defense+2000", s[3].power === 2000 && s[3].defense === 2000, s);
+  run(`clear(); battle.plr.setSpells=[]; battle.plr.monsters.left=mku(4619);`);
+  ck("g5 Lost Stone not on the field: no bonus", J(`ABX.staticBonus(battle.plr,battle.plr.monsters.left).power`) === 0);
+  run(`clear(); battle.plr.hand=[4669]; battle.plr.monsters.left=mku(4619); battle.plr.monsters.right=mku(4621); battle.plr.deck=[46,46,46,46,46,46]; battle.plr.life=5; battle.castSpellFromHand('plr',0);`);
+  await settle(); s = S();
+  ck("g5 Scapegoat: destroyed N DD as cost -> gain N life and draw N", s.life === 5 + s.drop.filter(x => x === 4619 || x === 4621).length && s.hand.length === 2 && s.life === 7, s);
+  run(`clear(); battle.plr.hand=[4669]; battle.plr.deck=[46,46,46,46,46,46]; battle.plr.life=5; battle.castSpellFromHand('plr',0);`);
+  await settle(); s = S();
+  ck("g5 Scapegoat: destroyed none -> no life, no draw", s.life === 5 && s.hand.length === 0, s);
+  run(`clear(); battle.plr.life=5; battle.plr.monsters.center=mku(5025); globalThis.__big=mk('Monster',{size:3}); battle.opp.monsters.left={card:__big,rested:false,attacksLeft:1,soul:[],tempPower:0,tempDef:0,tempCrit:0}; battle.destroyMonster('plr','center');`);
+  await settle(); s = S();
+  ck("g5 Katathli destroyed: destroys an opp monster and gains life = its size", s.life === 8 && s.oppField[0] === null, s);
+  run(`clear(); battle.plr.monsters.left=mku(4619); battle.plr.monsters.center=mku(4621); battle.plr.monsters.right=mku(4619); battle.plr.setSpells=[]; ABX.autoPlay=false; ABX.hooks.pickOption=()=>Promise.resolve(1);`);
+  run(`{ const c=CARD_MAP.get(5118); const a=ABX.get(c).abilities.find(x=>x.kind==='modal'); ABX.runAbility('plr',c,a,null,{}).then(x=>globalThis.__ctx=x); }`);
+  await settle();
+  run(`ABX.autoPlay=true; ABX.hooks.pickOption=null; battle.activeSide='opp'; ABX.curEffectSide='opp';`);
+  s = J(`["left","center","right"].map(p=>battle.isEffectProtected('plr',p,'destroyed','opp'))`);
+  ck("g5 Aura Burst option 2: DD on left/right cannot be destroyed, center can", s[0] === true && s[1] === false && s[2] === true, s);
+  for (const [label, choice] of [["top", 0], ["bottom", 1]]) {
+    run(`clear(); battle.plr.monsters.center=mku(4626); battle.plr.deck=[4621,4626,4628,46,46,46,46]; ABX.autoPlay=false; ABX.hooks.pickCards=()=>Promise.resolve([]); ABX.hooks.pickOption=()=>Promise.resolve(${choice});`);
+    run(`{ const c=CARD_MAP.get(4626); const a=ABX.get(c).abilities.find(x=>x.kind==='triggered'); ABX.runAbility('plr',c,a,battle.plr.monsters.center,{}).then(x=>globalThis.__ctx=x); }`);
+    await settle();
+    run(`ABX.autoPlay=true; ABX.hooks.pickCards=null; ABX.hooks.pickOption=null;`);
+    s = S();
+    ck("g5 Ire: rest goes on the " + label, label === "top" ? (s.deckTop[0] === 4621 || s.deckTop[0] === 4628 || s.deckTop[0] === 4626) && s.deckTop.slice(0, 3).every(x => [4621, 4626, 4628].includes(x)) : s.deckBottom.slice(-3).every(x => [4621, 4626, 4628].includes(x)), s);
+  }
   // ---- END
   console.log("pass", pass, "fail", fail); process.exit(fail ? 1 : 0);
 })();
