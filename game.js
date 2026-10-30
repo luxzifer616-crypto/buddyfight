@@ -9052,6 +9052,13 @@ const battle = {
     return true;
   },
 
+  // Counter window while the bot plays: pause so a human with a usable free [Counter] can use it or pass, then continue.
+  botPriority(label, cont) {
+    if (this.mode === "online_p2p" || this.plr.isBot || !(window.ABX && ABX.priorityWindow)) { cont(); return; }
+    const gen = this.matchGen;
+    ABX.priorityWindow("plr", label).catch(() => {}).then(() => { if (gen === this.matchGen && !this.matchOver) cont(); });
+  },
+
   runBotTurn() {
     if (this.matchOver || this.activeSide !== "opp" || !this.opp.isBot) return;
     const bot = this.opp;
@@ -9119,7 +9126,7 @@ const battle = {
 
       this.renderBattle();
 
-      setTimeout(() => {
+      setTimeout(() => this.botPriority("the opponent's Main Phase ends", () => {
         if (!stillThisMatch() || this.activeSide !== "opp") return;
         this.phase = "attack";
         this.renderBattle();
@@ -9155,7 +9162,7 @@ const battle = {
             if (this.plr.godclock && !this.plr.godclock.awakened && [0, 1, 3].every(i => this.plr.godclock.quadrants[i].reversed) && this.findTimeRulerMonsterForGodclockReversal(this.plr)) {
               this.awakenEndrulerDragon("plr");
             }
-            setTimeout(() => {
+            setTimeout(() => this.botPriority("the opponent's turn is ending", () => {
               if (stillThisMatch() && this.activeSide === "opp") {
                 if (this.imTurnEnd) this.imTurnEnd("opp");
                 if (window.ABX && ABX.fireTurnEvent) ABX.fireTurnEvent("turnEnd");
@@ -9164,7 +9171,7 @@ const battle = {
                 if (window.ABX && ABX.takeExtraTurn && ABX.takeExtraTurn("opp")) { this.startTurn("opp"); return; }
                 this.startTurn("plr");
               }
-            }, 600);
+            }), 600);
             return;
           }
 
@@ -9184,7 +9191,7 @@ const battle = {
         };
 
         runNextBotAttack();
-      }, 750);
+      }), 750);
     };
 
     if (!bot.chargedThisTurn && bot.hand.length > 2) {

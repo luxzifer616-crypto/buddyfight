@@ -243,6 +243,26 @@
     return true;
   };
 
+  // Priority window: while the bot plays its turn, a human with a usable free [Counter] (hand spell / impact, field / [Set] ability)
+  // gets a short "use it or pass" prompt at the end of the bot's Main Phase and before its turn ends. No prompt when nothing is usable.
+  ABX.priorityWindow = async function (side, label) {
+    const f = F(side);
+    if (!f || f.isBot || ABX.autoPlay === true || B.matchOver || B.mode === "online_p2p" || !ABX.ui || typeof ABX.ui.pickOption !== "function") return;
+    for (let round = 0; round < 6; round++) {
+      const opts = [];
+      f.hand.forEach(id => {
+        const c = cardOf(id);
+        if (c && !opts.some(o => o.card === c) && ABX.freeCounterOption(side, c)) opts.push({ card: c, label: `⚡ Cast "${c.name}"`, run: () => ABX.castFreeCounter(side, c) });
+      });
+      ABX.freeFieldCounterOptions(side).forEach(o => opts.push({ card: o.card, label: `⚡ ${o.card.name}: ${(o.sub || "").slice(0, 60)}`, run: () => ABX.useFreeFieldCounter(side, o.key) }));
+      if (!opts.length) return;
+      const i = await ABX.ui.pickOption({ title: `⚡ Counter window — ${label}`, options: opts.map(o => ({ label: o.label })).concat([{ label: "Pass" }]) });
+      if (typeof i !== "number" || i < 0 || i >= opts.length) return;
+      await opts[i].run();
+      if (B.matchOver) return;
+    }
+  };
+
   // Called by game.js before a spell / impact resolves and when a monster is called from the hand.
   // Resolves to true when the other player nullified it.
   ABX.castWindow = async function (casterSide, card, kind) {
