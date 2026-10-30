@@ -109,7 +109,22 @@
     ["on leave/destroyed",  "Timing",   { trigger: ["leave", "otherDestroyed", "attackDestroys"] }],
     ["on damage",           "Timing",   { trigger: ["dealsDamage", "damaged", "lifeGain"] }],
     ["on cast",             "Timing",   { trigger: ["youCast", "oppCast"] }],
-    ["phase start/end",     "Timing",   { trigger: ["phaseStart", "phaseEnd", "turnEnd", "battleEnd"] }]
+    ["phase start/end",     "Timing",   { trigger: ["phaseStart", "phaseEnd", "turnEnd", "battleEnd"] }],
+    // --- Rules / static ---
+    ["flag",                "Rule",     { text: /^you may use <[^>]+>/i }],
+    ["deck rule",           "Rule",     { text: /\bin your deck\b|\byour deck (?:can|may)\b|\bcards? in your deck\b/i }],
+    ["cost reduce",         "Rule",     { text: /cost\]? (?:of [^.]*)?is reduced|reduce[sd]? [^.]*cost/i }],
+    ["call condition",      "Rule",     { text: /\bmay only (?:be )?call|\bcan only be called|only be called to|this card can only enter/i }],
+    ["call restriction",    "Rule",     { text: /\bcannot call\b|\bcan't call\b|\bcannot be called\b/i }],
+    ["attack rule",         "Rule",     { text: /\bcan attack with this card\b|\bcannot (?:link )?attack\b|\bcan(?:not)? attack (?:even|from|while)/i }],
+    ["cannot be destroyed", "Rule",     { text: /cannot be (?:destroyed|affected|returned|chosen|rested)/i }],
+    ["stays on field (set)","Rule",     { text: /\[set\]|remains on the field/i }],
+    ["mission",             "Rule",     { text: /mission card|\bmission\b/i }],
+    ["link attack",         "Combat",   { text: /\blink attack/i }],
+    ["gauge charge",        "Life",     { text: /into (?:your |the )?gauge/i }],
+    ["soul",                "Life",     { text: /\bsoul\b/i }],
+    ["return to hand",      "Board",    { text: /return[^.]{0,50}to (?:its owner's |your |the )?hand/i }],
+    ["vanilla (cost only)", "Rule",     {}]   // card-level: set in CardEntry when every ability is just a cost
   ].map(a => new KeywordDef(a[0], a[1], a[2]));
 
   /* ---------- Ability: one parsed skill line + its keywords ---------- */
@@ -142,6 +157,7 @@
       if (card.ta && registry.has("triple attack")) set.add("triple attack");
       if (card.ll && registry.has("lifelink")) set.add("lifelink");
       if (card.ca && registry.has("counterattack")) set.add("counterattack");
+      if (registry.has("vanilla (cost only)") && card.skill && abilities.length && abilities.every(a => a.kind === "cost" || /^\s*\[(?:call|cast|equip) cost\]/i.test(a.raw))) set.add("vanilla (cost only)");
       this.keywordSet = set;
     }
     get id() { return this.card.id; }
