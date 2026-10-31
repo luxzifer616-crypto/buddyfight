@@ -294,7 +294,7 @@
     if (np.ref === "rest") return [].concat(ctx.bind.looked || [], ctx.bind.revealed || []).filter((r, i, a) => r.pending && a.indexOf(r) === i);
     if (np.ref) return (ctx.bind[np.ref === "chosen" ? "chosen" : np.ref] || []).slice();
     if (np.self) {
-      if (np.zone && np.zone.area === "soul") return soulRefs(ctx.unit, ctx.side);
+      if (np.zone && np.zone.area === "soul") return soulRefs(ctx.unit || setHostOf(ctx), ctx.side);
       if (ctx.unit) {
         const up = posOfUnit(F(ctx.side), ctx.unit);
         return [{ k: (up && up.startsWith("item")) ? "item" : "unit", side: ctx.side, pos: up, unit: ctx.unit, card: ctx.card, id: ctx.card.id }];
@@ -312,7 +312,7 @@
     if (np.soulOf || area === "soul") {
       let hosts = [];
       if (np.soulOf) hosts = refsFor(np.soulOf, ctx, { owner: "you", area: "field" }).filter(r => r.unit);
-      else if (ctx.unit) hosts = [{ unit: ctx.unit, side: ctx.side }];
+      else if (ctx.unit || setHostOf(ctx)) hosts = [{ unit: ctx.unit || setHostOf(ctx), side: ctx.side }];
       hosts.forEach(h => (h.unit.soul || []).forEach((id, i) => push({ k: "soul", side: h.side, host: h.unit, idx: i, id, card: cardOf(id), unit: null })));
       return out;
     }
@@ -352,6 +352,8 @@
   }
   core.refsFor = refsFor;
 
+  // "this card's soul" for a [Set] card staying in the set zone: its soul lives on the set card itself
+  function setHostOf(ctx) { return ctx && ctx.card && Array.isArray(ctx.card.soul) && ctx.f && (ctx.f.setSpells || []).includes(ctx.card) ? ctx.card : null; }
   function soulRefs(unit, side) {
     if (!unit) return [];
     return (unit.soul || []).map((id, i) => ({ k: "soul", side, host: unit, idx: i, id, card: cardOf(id), unit: null }));
@@ -391,7 +393,7 @@
       case "selfPos": return !!ctx.unit && (posOfUnit(f, ctx.unit) || "").replace("center2", "center") === c.pos;
       case "selfOnField": return !!ctx.unit && posOfUnit(f, ctx.unit) !== null || (ctx.card && (f.setSpells || []).includes(ctx.card));
       case "selfIn": return ctx.hostArea === (c.area === "drop zone" ? "drop" : c.area);
-      case "selfInSoulOf": { if (!ctx.soulHost) return false; const refs = refsFor(c.np, ctx, { owner: "you", area: "field" }); return refs.some(r => r.unit === ctx.soulHost); }
+      case "selfInSoulOf": { if (!ctx.soulHost) return false; const refs = refsFor(c.np, ctx, { owner: "you", area: "field" }); return refs.some(r => r.unit === ctx.soulHost || (r.k === "set" && r.card === ctx.soulHost)); }
       case "selfStat": { if (!ctx.unit) return false; const e2 = getUnitEffectiveCombatStats(f, ctx.unit); const v = c.stat === "power" ? e2.power : c.stat === "defense" ? e2.defense : c.stat === "critical" ? e2.crit : getEffectiveCardSize(f, ctx.card); return cmpN(v, c); }
       case "refType": { const r = (ctx.bind.revealed || []).concat(ctx.bind.looked || [], ctx.bind.chosen || []).filter(x => x && x.card).pop(); if (!r) return false; const k = r.card.type; return c.type === "monster" ? isMonsterCard(r.card) : c.type === "spell" ? k === "Spell" : c.type === "item" ? k === "Item" : k === "Impact"; }
       case "refTribe": { const r = (ctx.bind.revealed || []).concat(ctx.bind.looked || [], ctx.bind.chosen || []).filter(x => x && x.card).pop(); return !!r && tribeEq(r.card, c.tribe); }
@@ -969,7 +971,19 @@
   function sources(side) {
     if (ABX.syncFrontNullify) ABX.syncFrontNullify();
     const f = F(side), out = fieldUnits(f, true).map(x => ({ unit: x.unit, card: x.unit.card, hostArea: "field" }));
-    (f.setSpells || []).forEach(c => out.push({ unit: null, card: c, hostArea: "field" }));
+    (f.setSpells || []).forEach(c => {
+      out.push({ unit: null, card: c, hostArea: "field" });
+      // cards in a [Set] card's soul whose trigger works from there ("if this card is in the soul of "Secret Sword, Lethal Formation", you may cast it")
+      // "This card gets all "Thunder Mine" of cards in its soul" (soulShareNamed, #1406): the named triggered abilities of its soul cards work for it
+      const shared = [];
+      abilitiesOf(c, a => a.kind === "static").forEach(a => (a.steps || []).forEach(st => { if (st.op === "static" && st.kind === "soulShareNamed" && st.name) shared.push(lc(st.name)); }));
+      (Array.isArray(c.soul) ? c.soul : []).forEach(e => {
+        const sc = cardOf(typeof root.getSoulCardId === "function" ? root.getSoulCardId(e) : e);
+        if (!sc) return;
+        if (abilitiesOf(sc, a => a.kind === "triggered" && /\bif this card is in the soul\b/i.test(a.raw || "")).length) out.push({ unit: null, card: sc, hostArea: "soul", soulHost: c });
+        shared.forEach(nm => { if (abilitiesOf(sc, a => a.kind === "triggered" && a.name && lc(a.name) === nm).length) out.push({ unit: null, card: sc, hostArea: "field", soulHost: c, onlyNamed: nm }); });
+      });
+    });
     // cards in the drop zone whose turn / phase trigger only works from there ("At the start of your main phase, if this card is in your drop zone, ...")
     const seen = new Set();
     (f.drop || []).forEach((id, idx) => {
@@ -993,17 +1007,18 @@
       for (const src of sources(side)) {
         for (const ab of abilitiesOf(src.card, a => (a.kind === "triggered" || (a.kind === "modal" && a.trigger && a.trigger.event)) && a.trigger && ABX.isExecutable(a))) {
           if (src.hostArea === "drop" && !dropOnlyTrigger(ab)) continue;
+          if (src.onlyNamed && !(ab.name && lc(ab.name) === src.onlyNamed)) continue;
           if (!match(ab.trigger, src, side)) continue;
           const f = F(side);
           if (src.unit && core.posOfUnit(f, src.unit) === null && !(src.unit === f.item)) continue;
           if (src.unit && src.unit.abxNullified === B.turnCount) continue;
           if (onceUsed(f, src.card, ab, src.unit)) continue;
           const hostArea = src.hostArea || "field";
-          const probe = { side, f, e: F(otherSide(side)), card: src.card, unit: src.unit, ab, bind: { chosen: [], revealed: [], looked: [] }, lastDone: true, auto: true, log: [], hostArea, selfRef: src.selfRef || null, event: info };
+          const probe = { side, f, e: F(otherSide(side)), card: src.card, unit: src.unit, soulHost: src.soulHost || null, ab, bind: { chosen: [], revealed: [], looked: [] }, lastDone: true, auto: true, log: [], hostArea, selfRef: src.selfRef || null, event: info };
           if (!(ab.conds || []).every(c => evalCond(c, probe))) continue;
           markOnce(f, src.card, ab, src.unit);
           announce(src.card, ab);
-          await runAbility(side, src.card, ab, src.unit, { event: info, hostArea, selfRef: src.selfRef || null });
+          await runAbility(side, src.card, ab, src.unit, { event: info, hostArea, selfRef: src.selfRef || null, soulHost: src.soulHost || null });
           if (B.matchOver) return;
         }
       }

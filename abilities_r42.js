@@ -339,6 +339,43 @@
     }, check: () => true
   };
   OV42.push([6356, /at the start of each player's turn, if your opponent's life is 4 or more/i, (ab) => ({ kind: "triggered", trigger: clone(ab.trigger), conds: [], steps: [{ op: "r42LastSymphony" }] })]);
+  // #297 Super Lethal Formation ([Set] impact): "All Ninja on your field gets power+1000 and defense+1000" lasts while it is set; it parsed as a one-shot spell effect (temp boost on cast only).
+  OV42.push([297, /all ninja on your field gets power\+1000/i, (ab) => ({ kind: "static", steps: clone(ab.steps || []) })]);
+  // #4243 Tempest Thunder Knights Formation! ([Set] impact): "The size of all monsters with 'Thunder Knights' in their card names on your field is reduced by 1" is continuous while set;
+  // as a "spell" ability it parsed to a one-shot becomeSizeZero that never applied.
+  OV42.push([4243, /the size of all monsters with .thunder knights/i, (ab) => { const st = (ab.steps || []).find(x => x.np); return st ? { kind: "static", steps: [{ op: "static", kind: "sizeModOthers", np: clone(st.np), delta: -1, origSize: null, origLe: true, src: st.src }] } : null; }]);
+  // #6414 Finish Effect: MIRRORS SPACE ([Set] impact): "[Counter] [Act] ... call a «Super Warrior» monster from this card's soul by paying its [Call Cost]." The «Super Warrior» monsters are
+  // Impact Monsters, which the generic call op (type "Monster" only) never offered; they are called through the impact-monster engine (B.imCallFromZone), paying their gauge / life.
+  OPS.r42MirrorsCall = {
+    async run(s, ctx) {
+      const f = ctx.f, side = ctx.side, host = ctx.soulHost || ctx.card;
+      if (!(root.IMX && B.imCallInfo && B.imCallFromZone) || !host || !Array.isArray(host.soul)) return false;
+      const sw = (c) => c && (c.attrs || []).some(a => lc(a).replace(/\s+/g, "") === "superwarrior");
+      const cands = [];
+      host.soul.forEach((e, si) => {
+        const id = typeof root.getSoulCardId === "function" ? root.getSoulCardId(e) : e, c = core.cardOf(id);
+        if (!sw(c) || !IMX.isImpactMonster(c)) return;
+        const info = B.imCallInfo(side, c, { byEffect: true, ignorePhase: true }), d = info && info.data;
+        if (!info || !info.ok || !d || (d.call.parts || []).length) return;
+        if (!MONSTER_POSITIONS.some(p => !f.monsters[p]) || B.getCurrentSizeUsed(f) + getEffectiveCardSize(f, c) > (f.maxSize || 3)) return;
+        cands.push({ k: "soul", side, host, idx: si, id, card: c, d, unit: null });
+      });
+      if (!cands.length) return false;
+      const ch = await core.pick(cands, { qty: { n: 1 }, raw: "a «Super Warrior» monster from this card's soul", filter: {} }, ctx, { intent: "help", title: `${ctx.card.name} - call a Super Warrior from its soul` });
+      const r = ch && ch[0]; if (!r) return false;
+      const d = r.d || (cands.find(x => x.card === r.card) || {}).d; if (!d) return false;
+      const si = host.soul.findIndex(e => (typeof root.getSoulCardId === "function" ? root.getSoulCardId(e) : e) === r.id);
+      if (si < 0) return false;
+      const entry = host.soul.splice(si, 1)[0];
+      f.hand.push(r.id);
+      for (let g = 0; g < d.call.gauge; g++) f.drop.push(f.gauge.pop());
+      if (d.call.life > 0) f.life = Math.max(1, f.life - d.call.life);
+      const ok = !!B.imCallFromZone(side, "hand", f.hand.lastIndexOf(r.id), {}, null);
+      if (!ok) { const hi = f.hand.lastIndexOf(r.id); if (hi >= 0) f.hand.splice(hi, 1); host.soul.splice(si, 0, entry); }
+      return ok;
+    }, check: () => true
+  };
+  OV42.push([6414, /call a .super warrior. monster from this card's soul/i, (ab) => Object.assign(clone(ab), { steps: [{ op: "r42MirrorsCall" }] })]);
   // #1152 New-Era Great Spell, The Creation ([Set] impact): "When you draw by the effect of a card, put the top card of your deck into your gauge, and you gain 1 life. Once per turn."
   // It used to parse as a one-shot on cast. "effectDraw" fires from OPS.draw (a draw by a card effect, not the draw phase).
   Object.assign(ABX.TRIG_OK, { effectDraw: () => true });
