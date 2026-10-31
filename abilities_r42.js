@@ -308,6 +308,42 @@
   };
   OV42.push([4669, /you gain 1 life and draw a card/i, () => ({ kind: "spell", steps: [{ op: "r42ScapegoatGain" }], once: "turn" })]);
 
+  // #6526 Azi Dahaka "Re:B" (Dragon Ein): when destroyed it goes into the soul of up to one spell on your field (prefers "Dragon Throne" #941),
+  // then equips #2020 Aqulta Gwaneff from hand/deck (same equip logic as #867).
+  OPS.r42AziRebDestroy = {
+    async run(s, ctx) {
+      const f = ctx.f, sid = ctx.card && ctx.card.id;
+      const hosts = f.setSpells || [];
+      const host = hosts.find(c => c.id === 941) || hosts[0];
+      const di = f.drop.lastIndexOf(sid);
+      if (host && di >= 0) { f.drop.splice(di, 1); (host.soul = host.soul || []).push(sid); }
+      if (OPS.r40AziDahakaDestroy867) await OPS.r40AziDahakaDestroy867.run(s, ctx);
+      fresh();
+      return true;
+    }, check: () => true
+  };
+  OV42.push([6526, /when this card is destroyed, put this card into the soul/i, () => ({ kind: "triggered", trigger: { event: "leave", self: true, destroyedOnly: true }, conds: [], steps: [{ op: "r42AziRebDestroy" }] })]);
+
+  // #6526 in the soul of "Dragon Throne": when an item on your field attacks ALONE it attacks all opp monsters + opp, and gets power+10000 and [Triple Attack] this turn.
+  // (Soul cards of set spells are not trigger sources in the engine, so this is applied from a fireAttack hook.)
+  const origFireAttackReb = ABX.fireAttack;
+  ABX.fireAttack = function (attSide, units) {
+    try {
+      const f = B[attSide];
+      const u = units && units.length === 1 && units[0] && units[0].unit;
+      if (f && u && u === f.item && u.abxRebTurn !== B.turnCount) {
+        const throne = (f.setSpells || []).find(c => c.id === 941 && (c.soul || []).some(x => Number(x && typeof x === "object" ? x.id : x) === 6526));
+        if (throne) {
+          u.abxRebTurn = B.turnCount;
+          u.abxAttackAllOpp = B.turnCount;
+          u.tempPower = (u.tempPower || 0) + 10000;
+          if (!u.tempTA) { u.tempTA = true; u.attacksLeft = (u.attacksLeft || 0) + 2; }
+        }
+      }
+    } catch (e) { /* ignore */ }
+    return origFireAttackReb.apply(this, arguments);
+  };
+
   // #5538: remember that Sector Collapse is active this turn (the attack hook below applies it)
   OPS.r42SectorCollapse = { run(s, ctx) { ctx.f.abxSectorCollapse = battle.turnCount; return true; }, check: () => true };
 
