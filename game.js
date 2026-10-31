@@ -8906,6 +8906,7 @@ const battle = {
     }
 
     if (this.imOnDestroyedUnit && window.IMX && IMX.isUnit(m)) this.imOnDestroyedUnit(ownerSide, m);
+    m.abxDestroyed = true;   // (Duel Sieger call costs: only a destroyed monster may be answered by a call)
     this.sendMonsterToDropWithAnimation(side, pos, false);
     if (window.ABX && ABX.fireLeave) ABX.fireLeave(ownerSide, m.card, !!this._destroyByAttack);
     if (window.ABX && ABX.fireOtherDestroyed) ABX.fireOtherDestroyed(ownerSide, m.card, m, pos);
@@ -8953,16 +8954,24 @@ const battle = {
         }
       });
 
-      if (isRetire) {
-        // [Lifelink] only triggers when the monster is destroyed.
-      } else if (deadCard.ll_lose) {
-        ownerFighter.life = 0;
-        this.checkWinCondition();
-      } else if (deadCard.ll > 0 && !(window.ABX && ABX.lifelinkOff && ABX.lifelinkOff(ownerSide, deadCard))) {   // "nullify the [Lifelink] of this card"
-        ownerFighter.life -= deadCard.ll;
-        this.setPrompt(`💔 [Lifelink ${deadCard.ll}] "${deadCard.name}" left the field — ${ownerFighter.name} took ${deadCard.ll} damage!`);
-        this.checkWinCondition();
-      }
+      const applyLifelink = () => {
+        if (isRetire) {
+          // [Lifelink] only triggers when the monster is destroyed.
+        } else if (deadCard.ll_lose) {
+          if (!(window.ABX && ABX.lifelinkLoseOff && ABX.lifelinkLoseOff(m))) {   // Duel Sieger call costs: "nullify the [Lifelink] of ..."
+            ownerFighter.life = 0;
+            this.checkWinCondition();
+          }
+        } else if (deadCard.ll > 0 && !(window.ABX && ABX.lifelinkOff && ABX.lifelinkOff(ownerSide, deadCard, m))) {   // "nullify the [Lifelink] of this card"
+          ownerFighter.life -= deadCard.ll;
+          this.setPrompt(`💔 [Lifelink ${deadCard.ll}] "${deadCard.name}" left the field — ${ownerFighter.name} took ${deadCard.ll} damage!`);
+          this.checkWinCondition();
+        }
+        this.renderBattle();
+      };
+      // a hand card may be called now by nullifying this [Lifelink]: resolve that choice first
+      if (!isRetire && window.ABX && ABX.deferLifelink && ABX.deferLifelink(ownerSide, deadCard, m, applyLifelink)) { /* runs after the call decision */ }
+      else applyLifelink();
       this.renderBattle();
     });
   },

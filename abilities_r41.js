@@ -1177,6 +1177,93 @@
     };
     if (ABX.resetCaches) ABX.resetCaches();
   }
+  /* ---- Duel Sieger: "[Call Cost] [When a <X> on your field is destroyed, nullify the [Lifelink] of <X> & Pay N gauge (& Put a "Y" from your drop zone into this monster's soul)]" ----
+   * #441 #442 #2013 #2689 #5939. Offered right after the destroyed monster (the unit's [Lifelink] / [Lifelink Lose] is nullified before it resolves). #6504: nullify + put on top (a normal call). */
+  const unq = (x) => { x = String(x || "").trim(); return /^".*"$/.test(x) ? x.slice(1, -1) : x; };
+  const DESTROY_SUBJ = /^when an? (.+?) on your field is destroyed,\s*nullify (?:the |that monster's )?\[?lifelink\]?/i;
+  ABX.destroyCallInfo = (card) => {
+    if (!card || (card.type !== "Monster" && card.type !== "Impact")) return null;
+    const CC = /\[Call Cost\]\s*\[(When an? .+? is destroyed,[^\n]*?)\]\s*(?:\n|$)/i;   // (the card's "cost" field is cut at the first "]"; the skill text has the whole line)
+    const m = CC.exec(String(card.skill || "")) || CC.exec(String(card.cost || ""));
+    if (!m) return null;
+    const body = m[1], sm = DESTROY_SUBJ.exec(body); if (!sm) return null;
+    const gm = /pay (\d+|a|one|two|three|four|five) gauge/i.exec(body), dm = /put an? "(.+?)" from your drop zone into (?:this monster's|its|this card's) soul/i.exec(body);
+    const subj = sm[1], zm = /^size (\d+) (?:[«�]([^»�]+)[»�]|monster) with \[?lifelink\]?$/i.exec(subj);
+    return { subject: subj, name: zm ? null : unq(subj), size: zm ? Number(zm[1]) : null, tribe: zm && zm[2] ? zm[2] : null, needLL: !!zm, gauge: gm ? (NUMW[lc(gm[1])] || Number(gm[1])) : 0, soulName: dm ? dm[1] : null };
+  };
+  const hasLL = (c) => !!(c && (c.ll > 0 || c.ll_lose));
+  const destroyMatches = (info, c) => {
+    if (!info || !c) return false;
+    if (info.name != null) return c.name === info.name;
+    if (info.size != null && Number(c.size) !== info.size) return false;
+    if (info.tribe && !(c.attrs || []).some(a => tribeKey(a) === tribeKey(info.tribe))) return false;
+    return !info.needLL || hasLL(c);
+  };
+  const lbl = (info) => info.name != null ? `"${info.name}"` : info.subject;
+  // timingCallInfo is the "cannot be called from the hand in the main phase" check in game.js: these are destroy-timing calls too
+  const tciPrev = ABX.timingCallInfo;
+  ABX.timingCallInfo = (card) => tciPrev(card) || (ABX.destroyCallInfo(card) ? { world: "destroyed monster", destroyTiming: true } : null);
+  ABX.lifelinkLoseOff = (unit) => !!(unit && unit.abxLLNull);
+  const lloPrev = ABX.lifelinkOff;
+  ABX.lifelinkOff = function (side, card, unit) { return !!(unit && unit.abxLLNull) || (lloPrev ? lloPrev.apply(this, arguments) : false); };
+  const destroyCandidates = (side, unit) => {
+    const f = F(side), out = [];
+    f.hand.forEach((id, hi) => { const c = cardOf(id), info = c && ABX.destroyCallInfo(c); if (info && destroyMatches(info, unit.card)) out.push({ hi, c, info }); });
+    return out;
+  };
+  const dropHas = (f, name) => f.drop.some(id => { const c = cardOf(id); return c && c.name === name; });
+  const canDestroyCall = (side, x) => {
+    const f = F(side);
+    return f.gauge.length >= x.info.gauge && (!x.info.soulName || dropHas(f, x.info.soulName)) && ["center", "left", "right"].some(q => !f.monsters[q]);
+  };
+  // game.js (destroyed monster reached the drop zone, [Lifelink] about to resolve): offer the call first; paying the cost nullifies the [Lifelink] / [Lifelink Lose].
+  ABX.deferLifelink = function (side, card, unit, fn) {
+    try {
+      if (!unit || !unit.abxDestroyed || !destroyCandidates(side, unit).some(x => canDestroyCall(side, x))) return false;
+      ABX.queue(async () => {
+        try {
+          const f = F(side);
+          for (const x of destroyCandidates(side, unit)) {
+            if (!canDestroyCall(side, x)) continue;
+            const hi = f.hand.indexOf(x.c.id); if (hi < 0) continue;
+            const pos = ["center", "left", "right"].find(q => !f.monsters[q]);
+            let yes = true;
+            if (!isAuto({ side, auto: false })) {
+              const i = await ABX.ui.pickOption({ title: `Call "${x.c.name}"?`, subtitle: `${lbl(x.info)} was destroyed: nullify its [Lifelink]${x.info.gauge ? ` and pay ${x.info.gauge} gauge` : ""} to call it.`, options: [{ label: "✅ Call it" }, { label: "No" }] });
+              yes = i === 0;
+            }
+            if (!yes) continue;
+            const paid = []; for (let g = 0; g < x.info.gauge; g++) paid.push(f.gauge.pop());
+            const before = f.hand.length;
+            const isImp = x.c.type === "Impact" && typeof B.imCallFromZone === "function";   // Impact Monsters are placed by impact_monsters.js
+            B.abxFreeCall = true;
+            try { if (isImp) B.imCallFromZone(side, "hand", hi, {}, null); else B.completeMonsterCall(side, pos, hi, false, true); } finally { B.abxFreeCall = false; }
+            const nu = isImp ? null : f.monsters[pos];
+            if (f.hand.length === before || (!nu && !isImp)) { paid.forEach(g => f.gauge.push(g)); continue; }   // the call did not happen: refund
+            paid.forEach(g => f.drop.push(g));
+            unit.abxLLNull = true;   // the destroyed monster's [Lifelink] / [Lifelink Lose] is nullified (part of the cost)
+            if (x.info.soulName) { const di = f.drop.findIndex(id => { const c = cardOf(id); return c && c.name === x.info.soulName; }); if (di >= 0 && Array.isArray(nu.soul)) nu.soul.push(f.drop.splice(di, 1)[0]); }
+            break;
+          }
+        } catch (e) { if (ABX.debug) console.error(e); }
+        fn();
+      });
+      return true;
+    } catch (e) { return false; }
+  };
+  // cost parts: the "When a <X> on your field is destroyed, nullify the Lifelink ..." trigger, "Put a "Y" from your drop zone into this monster's soul",
+  // and #6504's "Nullify the [Lifelink] of up to one <X> on your field. Then, put it on top of ..." (the covered monster becomes soul, so its [Lifelink] never triggers)
+  const cpPrev2 = ABX.parseCostPart;
+  ABX.parseCostPart = function (p) {
+    const t = String(p || "").trim().replace(/\.$/, "");
+    if (DESTROY_SUBJ.test(t)) return { ok: true, text: t, destroyTrigger: true };
+    let m = /^put an? "(.+?)" from your drop zone into (?:this monster's|its|this card's) soul$/i.exec(t);
+    if (m) return { ok: true, text: t, destroyDropToSoul: m[1] };
+    m = /^nullify the \[?lifelink\]? of up to one .+? on your field\.?\s*then,?\s*(put (?:it|this card) on top of .+)$/i.exec(t);
+    if (m) { const inner = cpPrev2.call(this, m[1]); if (inner && inner.ok) return Object.assign({}, inner, { text: t, nullLL: true }); }
+    return cpPrev2.apply(this, arguments);
+  };
+  if (ABX.resetCaches) ABX.resetCaches();
   if (ABX.fireLeave) {
     const flPrev = ABX.fireLeave;
     ABX.fireLeave = function (side, card) {
