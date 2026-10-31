@@ -1272,7 +1272,9 @@
   ABX.parseCostPart = function (p) {
     const t = String(p || "").trim().replace(/\.$/, "");
     if (DESTROY_SUBJ.test(t)) return { ok: true, text: t, destroyTrigger: true };
-    let m = /^put an? "(.+?)" from your drop zone into (?:this monster's|its|this card's) soul$/i.exec(t);
+    let m = /^pay (\d+|a|one) gauge\.?\s*if you are not \[?transform\]?(?: into a card)?,\s*pay another (\d+|a|one) gauge$/i.exec(t);   // #1386 (the extra gauge is added in game.js parseCardCost)
+    if (m) return { ok: true, text: t, gauge: NUMW[lc(m[1])] || Number(m[1]), gaugeIfNotTransformed: NUMW[lc(m[2])] || Number(m[2]) };
+    m = /^put an? "(.+?)" from your drop zone into (?:this monster's|its|this card's) soul$/i.exec(t);
     if (m) return { ok: true, text: t, destroyDropToSoul: m[1] };
     m = /^nullify the \[?lifelink\]? of up to one .+? on your field\.?\s*then,?\s*(put (?:it|this card) on top of .+)$/i.exec(t);
     if (m) { const inner = cpPrev2.call(this, m[1]); if (inner && inner.ok) return Object.assign({}, inner, { text: t, nullLL: true }); }

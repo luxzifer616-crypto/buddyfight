@@ -1016,6 +1016,9 @@ function parseCardCost(costStr, skillStr, fighter = null, cardObj = null) {
     const line = costLineMatch[2];
     const gMatch = line.match(/Pay\s+(\d+)\s+gauge/i);
     if (gMatch) gauge = parseInt(gMatch[1], 10);
+    // "If you are not [Transform] into a card, pay another N gauge" (#1386): only a fighter with a [Transform] item on the field pays the base cost
+    const ntMatch = String(skillStr || line).match(/\[(?:Call|Cast|Equip) Cost\][^\n]*?If you are not \[Transform\][^,]*,\s*pay another (\d+) gauge/i);
+    if (ntMatch && !(fighter && getEquippedItems(fighter).some(x => x.unit.card.tr || x.unit.isTransformed))) gauge += parseInt(ntMatch[1], 10);
     const lMatch = line.match(/Pay\s+(\d+)\s+life/i);
     if (lMatch) life = parseInt(lMatch[1], 10);
     const sMatch = line.match(/Put\s+(?:the\s+)?top\s+(?:(one|two|three|\d+)\s+)?cards?\s+of\s+your\s+deck\s+into\s+(?:this\s+(?:card|monster)'s\s+|its\s+)?soul/i);
