@@ -9184,7 +9184,7 @@ const battle = {
             step = 0;
             this.setPrompt("⚔️ Rival gets an extra Attack Phase!");
           }
-          if (this.activeSide === "opp" && step >= attackers.length && !botImpactTried && this.imBotCall) {
+          if (this.activeSide === "opp" && step >= attackers.length && !botImpactTried && this.imBotCall && !(window.ABX && ABX.turnEnded && ABX.turnEnded())) {
             // Final Phase: the bot may call one Impact Monster, and it may attack right away.
             botImpactTried = true;
             const prevPhase = this.phase;

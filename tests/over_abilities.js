@@ -64,5 +64,20 @@ const settle = async () => { for (let i = 0; i < 40; i++) { env.flush(); await n
   ok(can(3617, "plr", "main") === true && can(3617, "opp", "attack") === false, "#3617 Overturn only during your turn");
   ok(can(4019, "opp", "attack") === true && can(4019, "plr", "attack") === false, "#4019 Overkill only in your opponent's attack phase");
   ok(can(3745, "plr", "attack") === true && can(3745, "plr", "main") === false, "#3745 'at the beginning of your attack phase' only in your attack phase");
+  // 10. #5341 REB00T: "nullify the attack. Then, if your opponent's cards attacked 4+ times this turn, end the turn".
+  // The end-turn step was a no-op on the opponent's turn, so the attacker could keep attacking forever.
+  const reb = async (attacks, bot) => {
+    run(`clear(); battle.plr.monsters.center=mku(5341); battle.opp.monsters.center=mku(46); battle.opp.isBot=${bot}; battle.turnCount=7; battle.activeSide='opp'; battle.phase='attack'; ABX.core.turnStats(battle.opp).attacks=${attacks};
+      ABX.battleCtx={active:true,defSide:'plr',attSide:'opp',attUnits:[battle.opp.monsters.center]};
+      (async()=>{ const c=CARD_MAP.get(5341); const ab=ABX.get(c).abilities.find(a=>a.kind==='act'); await ABX.runAbility('plr',c,ab,battle.plr.monsters.center,{preApproved:true,auto:true,event:{name:'act'}}); ABX.battleCtx=null; })()`);
+    await settle();
+    return J(`({turn:battle.turnCount, side:battle.activeSide, ended:ABX.attackPhaseEnded()})`);
+  };
+  let r = await reb(3, false);
+  ok(r.turn === 7 && r.side === "opp" && r.ended === false, `#5341 REB00T after 3 attacks: attack nullified, turn goes on (${JSON.stringify(r)})`);
+  r = await reb(4, false);
+  ok(r.turn === 8 && r.side === "plr", `#5341 REB00T after 4 attacks ends the opponent's turn (${JSON.stringify(r)})`);
+  r = await reb(4, true);
+  ok(r.ended === true, `#5341 REB00T after 4 attacks: a bot attacker can't attack any more (${JSON.stringify(r)})`);
   console.log(fail ? "fail " + fail : "fail 0"); process.exit(fail ? 1 : 0);
 })();

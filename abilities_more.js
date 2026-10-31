@@ -415,6 +415,19 @@
       }
       if (s.phase === "final") {
         const side = ctx.side, turn = B.turnCount;
+        if (B.activeSide !== side) {
+          // Used on the OPPONENT's turn (#5341 REB00T): their turn ends once the battle in progress is over.
+          // No more attacks meanwhile; a bot attacker stops too (its own loop then ends its turn).
+          const actSide = B.activeSide;
+          B.abxEndAttackTurn = turn; B.abxEndTurnTurn = turn;
+          const tryEnd = (n) => {
+            if (B.matchOver || B.turnCount !== turn || B.activeSide !== actSide) return;
+            if ((ABX.battleCtx && ABX.battleCtx.active) || B.pendingDefenseContext) { if (n < 200) setTimeout(() => tryEnd(n + 1), ABX.fast ? 0 : 300); return; }
+            say("🔚 The turn ended."); B.endTurn();
+          };
+          setTimeout(() => tryEnd(0), ABX.fast ? 0 : 300);
+          return true;
+        }
         setTimeout(() => {
           if (B.matchOver || B.turnCount !== turn || B.activeSide !== side) return;
           if (B.phase === "final" && (!B.isLocalTurn || B.isLocalTurn())) { say("🔚 The final phase ended."); B.endTurn(); }
@@ -427,6 +440,7 @@
     check: (s) => ["attack", "final", "main"].includes(s.phase)
   };
   ABX.attackPhaseEnded = () => B.abxEndAttackTurn === B.turnCount;
+  ABX.turnEnded = () => B.abxEndTurnTurn === B.turnCount;   // "end the turn" used on the opponent's turn
 
   /* ---------- keywords / abilities nullified in battle ---------- */
   OPS.nullifyKeyword = {
