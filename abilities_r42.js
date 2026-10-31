@@ -340,6 +340,33 @@
   };
   OV42.push([6356, /at the start of each player's turn, if your opponent's life is 4 or more/i, (ab) => ({ kind: "triggered", trigger: clone(ab.trigger), conds: [], steps: [{ op: "r42LastSymphony" }] })]);
   // #297 Super Lethal Formation ([Set] impact): "All Ninja on your field gets power+1000 and defense+1000" lasts while it is set; it parsed as a one-shot spell effect (temp boost on cast only).
+  // #3619 Abygale [Overturn]: an [Act] (main phase, pay 1 gauge, once per game). At the start of the opponent's NEXT turn it ends
+  // at once, and the user's cards cannot attack during their following turn.
+  OV42.push([3619, /\[overturn\]|end the turn/i, () => ({ kind: "act", trigger: null, once: "game", conds: [{ t: "phase", phase: "main", who: "you" }], steps: [{ op: "pay", gauge: 1, cost: true }, { op: "r42AbygaleArm" }] })]);
+  OPS.r42AbygaleArm = { run(s, ctx) { ctx.f.abxAbygale = 1; ctx.f.overturnUsed = true; return true; }, check: () => true };
+  {
+    const prevTE = ABX.fireTurnEvent;
+    ABX.fireTurnEvent = function (kind) {
+      try {
+        if (kind === "turnStart" && !B.matchOver) {
+          ["plr", "opp"].forEach(side => {
+            const f = F(side);
+            if (f.abxAbygale === 1 && B.activeSide !== side) {   // the opponent's turn begins: end it
+              f.abxAbygale = 2;
+              OPS.endPhase.run({ phase: "final" }, { side, f, e: F(side === "plr" ? "opp" : "plr"), bind: {}, log: [] });
+            } else if (f.abxAbygale === 2 && B.activeSide === side) { f.abxAbygale = 0; f.abxNoAttackTurn = B.turnCount; }   // the user's next turn
+          });
+        }
+      } catch (e) { /* ignore */ }
+      return prevTE.apply(this, arguments);
+    };
+    const lockedOut = (side) => { const f = F(side); return !!f && f.abxNoAttackTurn === B.turnCount && B.activeSide === side; };
+    ABX.attackBanned = lockedOut;
+    const prevLock = B.isFirstRoundAttackLocked;
+    B.isFirstRoundAttackLocked = function () { return lockedOut(this.activeSide) || prevLock.apply(this, arguments); };
+    const prevExec = B.executeAttackResolution;
+    B.executeAttackResolution = function (attSide) { if (lockedOut(attSide)) return; return prevExec.apply(this, arguments); };
+  }
   OV42.push([297, /all ninja on your field gets power\+1000/i, (ab) => ({ kind: "static", steps: clone(ab.steps || []) })]);
   // #4243 Tempest Thunder Knights Formation! ([Set] impact): "The size of all monsters with 'Thunder Knights' in their card names on your field is reduced by 1" is continuous while set;
   // as a "spell" ability it parsed to a one-shot becomeSizeZero that never applied.
@@ -456,7 +483,7 @@
           if (o.action) ab.action = o.action;
           if (o.once) ab.once = o.once;
           if (o.repeatLW) ab.repeatLW = o.repeatLW;
-          if (o.trigger) ab.trigger = o.trigger;
+          if (o.trigger) ab.trigger = o.trigger; else if (o.trigger === null) delete ab.trigger;
           if (o.conds !== undefined) ab.conds = o.conds;
           // #5757: the same effect also happens when it is dropped from the hand
           if (card.id === 5757 && o.kind === "triggered") { const c2 = clone(ab); c2.trigger = { event: "discardedFromHand", self: true }; extra.push(c2); }

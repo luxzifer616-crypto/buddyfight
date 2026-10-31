@@ -123,3 +123,8 @@ Open: Belost is still activated via the game's draw/hand-click prompt rather tha
 - [x] #1406 There are no Places for You to Run!: now inherits the named "Thunder Mine" triggers of cards in its soul (soulShareNamed for set cards).
 - [x] #6414 Mirrors Space: [Counter][Act] "call a Super Warrior from this card's soul" found no candidates ("Super Warrior" monsters are Impact Monsters, the call op only knew type Monster, and a set card had no soul host). New op r42MirrorsCall calls them through the impact-monster engine, paying their call cost, once per turn.
 - Verified working as-is: #6363 Curse Count (damage -1 with a Curse Dragon; top 2 cards of the opponent's deck under their flag).
+
+## #3619 Abygale [Overturn] (fixed 2026-11-01, test: tests/abygale.js)
+- Parsed as an auto trigger: the opponent's turn ended at its start with no activation and no cost. Now an [Act] (your main phase, pay 1 gauge, once per game): the opponent's next turn ends at its start and your cards cannot attack during your following turn.
+- game.js: the generic "Unleash [Overturn]" button is hidden for cards whose [Overturn] is owned by ABX.
+- Still open: other [Overturn] acts (e.g. #3629) do not charge their printed gauge cost via ABX.useAct.

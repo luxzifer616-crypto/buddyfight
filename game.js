@@ -6237,7 +6237,7 @@ const battle = {
         });
       }
 
-      if ((card.ot || card.ok || card.oth) && !f.overturnUsed) {
+      if ((card.ot || card.ok || card.oth) && !f.overturnUsed && !(window.ABX && ABX.actAbilities && ABX.actAbilities(card).some(a => (a.tags || []).some(t => /^kw:(overturn|overkill|overthrow)/.test(t))))) {
         const tag = card.ot ? "Overturn" : card.ok ? "Overkill" : "Overthrow";
         const bSpec = document.createElement("button");
         bSpec.className = "primary-cta-btn";
