@@ -777,8 +777,10 @@
       if (!op || !op.run) { ctx.log.push("unsupported:" + s.op); continue; }
       if (s.optional && !(await decideOptional(s, ctx))) { ctx.lastDone = false; continue; }
       let ok;
+      const prevEffectSide = B.abxEffectSide; B.abxEffectSide = ctx.side;   // whose card effect is running (destroyMonster records it as the destroyer)
       try { ok = await op.run(s, ctx); }
       catch (err) { ctx.log.push("error:" + s.op + ":" + (err && err.message)); if (ABX.debug) console.error(err); ok = false; }
+      finally { B.abxEffectSide = prevEffectSide; }
       ctx.lastDone = ok !== false;
       if (ok !== false && (s.op === "look" || s.op === "reveal")) ctx.lookRan = true;
     }

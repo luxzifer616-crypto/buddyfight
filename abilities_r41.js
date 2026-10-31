@@ -1213,7 +1213,7 @@
   ABX.lifelinkOff = function (side, card, unit) { return !!(unit && unit.abxLLNull) || (lloPrev ? lloPrev.apply(this, arguments) : false); };
   const destroyCandidates = (side, unit) => {
     const f = F(side), out = [];
-    f.hand.forEach((id, hi) => { const c = cardOf(id), info = c && ABX.destroyCallInfo(c); if (info && destroyMatches(info, unit.card) && (!info.pos || unit.abxDestroyedPos === info.pos) && (!info.byOpp || B.activeSide !== side)) out.push({ hi, c, info }); });
+    f.hand.forEach((id, hi) => { const c = cardOf(id), info = c && ABX.destroyCallInfo(c); if (info && destroyMatches(info, unit.card) && (!info.pos || unit.abxDestroyedPos === info.pos) && (!info.byOpp || (unit.abxDestroyedBy && unit.abxDestroyedBy !== side))) out.push({ hi, c, info }); });
     return out;
   };
   const dropHas = (f, name) => f.drop.some(id => { const c = cardOf(id); return c && c.name === name; });
@@ -1257,6 +1257,15 @@
       return true;
     } catch (e) { return false; }
   };
+  // the older text-based effect resolver (game.js) also records whose card effect is destroying (for "destroyed by your opponent's card", #5202)
+  if (typeof B.executeCardAbilityEffect === "function" && !B.executeCardAbilityEffect._r41Eff) {
+    const eaePrev = B.executeCardAbilityEffect;
+    B.executeCardAbilityEffect = function (side) {
+      const prev = B.abxEffectSide; B.abxEffectSide = side;
+      try { return eaePrev.apply(this, arguments); } finally { B.abxEffectSide = prev; }
+    };
+    B.executeCardAbilityEffect._r41Eff = true;
+  }
   // cost parts: the "When a <X> on your field is destroyed, nullify the Lifelink ..." trigger, "Put a "Y" from your drop zone into this monster's soul",
   // and #6504's "Nullify the [Lifelink] of up to one <X> on your field. Then, put it on top of ..." (the covered monster becomes soul, so its [Lifelink] never triggers)
   const cpPrev2 = ABX.parseCostPart;

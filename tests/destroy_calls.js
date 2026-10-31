@@ -33,11 +33,18 @@ const ck = (n, ok, extra) => { ok ? pass++ : fail++; console.log(ok ? "PASS" : "
   run(`setup(43, 'left', 4140, 2); battle.destroyMonster('plr','left');`); await settle();
   ck("4140 not called for another monster", val(`return !called(4140)`));
 
-  // #5202: a character on your field destroyed by your OPPONENT's card (during the opponent's turn here)
-  run(`setup(43, 'left', 5202, 2, 'opp'); battle.destroyMonster('plr','left');`); await settle();
-  ck("5202 called when destroyed on the opponent's turn", val(`return !!called(5202) && battle.plr.gauge.length===0`), val(`return [battle.plr.hand.slice(), battle.plr.gauge.length]`));
+  // #5202: a character on your field destroyed by your OPPONENT's card (attack or effect); not by your own card, not by the rules
+  run(`setup(43, 'left', 5202, 2, 'opp'); battle._destroyByAttack=true; try{ battle.destroyMonster('plr','left'); } finally { battle._destroyByAttack=false; }`); await settle();
+  ck("5202 called when the opponent's attack destroys it", val(`return !!called(5202) && battle.plr.gauge.length===0`), val(`return [battle.plr.hand.slice(), battle.plr.gauge.length]`));
+  run(`setup(43, 'left', 5202, 2, 'plr'); battle.abxEffectSide='opp'; try{ battle.destroyMonster('plr','left'); } finally { battle.abxEffectSide=undefined; }`); await settle();
+  ck("5202 called when an opponent's card effect destroys it (even on your turn)", val(`return !!called(5202)`));
+  run(`setup(43, 'left', 5202, 2, 'opp'); battle.abxEffectSide='plr'; try{ battle.destroyMonster('plr','left'); } finally { battle.abxEffectSide=undefined; }`); await settle();
+  ck("5202 not called when your own effect destroys it (even on their turn)", val(`return !called(5202)`));
   run(`setup(43, 'left', 5202, 2, 'plr'); battle.destroyMonster('plr','left');`); await settle();
-  ck("5202 not called when you destroy your own monster", val(`return !called(5202)`));
+  ck("5202 not called when nobody's card destroyed it", val(`return !called(5202)`));
+  // end to end: an opponent's [Act]-style destroy ability really sets the destroyer
+  run(`setup(43, 'left', 5202, 2, 'plr'); const c=card(1905), ab=ABX.get(c).abilities.find(a=>(a.steps||[]).some(s=>s.op==='destroy')); ABX.core.runAbility('opp', c, ab, null, {auto:true});`); await settle();
+  ck("5202 called when a real opponent destroy ability (#1905) resolves", val(`return !!called(5202)`), val(`return [battle.plr.hand.slice(), battle.plr.monsters.left&&battle.plr.monsters.left.card.id]`));
 
   // #5307: a [Shuichi Akai] (card name) destroyed: pay 2 gauge & top card into its soul
   run(`setup(5200, 'right', 5307, 2); globalThis.__top=battle.plr.deck[0]; battle.destroyMonster('plr','right');`); await settle();
