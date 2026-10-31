@@ -111,3 +111,11 @@ Open: Belost is still activated via the game's draw/hand-click prompt rather tha
 
 - FIXED 2026-10-31: Dragon Ein deck rule only allowed Dragon Monsters/Items; now Dragon cards of every type (Spell, Impact too) + Generic. Dragon Zwei now allows Dragon Monsters + Impact monsters (no Items/Spells). Dragon Drei unchanged (sub-flag of Zwei). Test: tests/dragon_flags.js. Catalog: db.legalFor(969) / "legal: dragon ein|zwei".
 - FIXED 2026-10-31: #5341 REB00T (and #3825 Overkill) "end the turn" did nothing on the opponent's turn (OPS.endPhase final only ended your own turn, and only in the final phase), so the attacker could keep attacking. Now no more attacks, and the turn ends once the battle in progress is over (bot attackers stop and skip their final-phase Impact call). Test: tests/over_abilities.js #10.
+
+## [Set] Impacts (fixed 2026-11-01, test: tests/set_impacts.js)
+- [x] All 11 [Set] impacts (#290 #297 #1152 #1406 #1541 #3180 #3355 #4243 #6356 #6363 #6414) stay in the set zone after casting (never the drop zone).
+- [x] #3180 Death Count ~Requiem~ / #3355 ~Serenade~: "put the top card into this card's soul" sent the card to the DROP (mill op needed a unit) and the 3-soul check (selfSoul) was always false for set cards, so the win / life-1 never happened. mill -> soul and selfSoul now use the [Set] card's own soul; "put this card from the field into the drop zone" now resolves for set cards (their soul goes to the drop with them).
+- [x] #1541 World End: the Demon Lord attack clause ran once on cast and never again; now an `otherAttack` trigger that fires from the set zone (face-down soul). "At the end of your attack phase" (`phaseEnd`) was never fired by anything (also #1711); parser now keeps phase/who and game.js fires it when the attack phase ends (human, bot, effect-ended).
+- [x] #6356 Last Symphony -Epilogue-: set the opponent's life to 3 on the life check alone; now also needs 3 different «Dark Burial» [Set].
+- [x] #1152 New-Era Great Spell: ran once on cast; now "when you draw by a card effect" (new `effectDraw` event from OPS.draw), once per turn.
+- Not behaviour-tested yet: #290/#297 (cast Secret Sword from soul), #1406 (Thunder Mine), #4243 (Thunder Knights move draw), #6363 (Curse Count damage reduction), #6414 Mirrors Space.

@@ -5649,6 +5649,7 @@ const battle = {
       if (ABX.fireTurnEvent) ABX.fireTurnEvent("phaseStart", "attack");
       this.renderBattle();
     } else if (this.phase === "attack") {
+      this.fireAttackPhaseEnd(this.activeSide);
       this.phase = "final";
       this.setPrompt("🔥 Final Phase: Cast an Impact card to finish the fight, or click End Turn!");
       this.renderBattle();
@@ -5665,6 +5666,7 @@ const battle = {
     // If the player clicked End Turn directly from Main or Attack Phase without entering Final Phase,
     // fire Final Phase start triggers first so cards that return/come to hand at the start of Final Phase still trigger!
     if (this.phase !== "final") {
+      if (this.phase === "attack") this.fireAttackPhaseEnd(endingSide);
       this.phase = "final";
     }
     if (this.imTurnEnd) this.imTurnEnd(endingSide);
@@ -8373,9 +8375,13 @@ const battle = {
   },
 
   // "End the attack phase" (ABX): move the attacker to the Final Phase once the current battle is over.
+  // "At the end of your attack phase" triggers (ABX phaseEnd), e.g. [Set] #1541 World End
+  fireAttackPhaseEnd(side) { if (window.ABX && ABX.fireTurnEvent) ABX.fireTurnEvent("phaseEnd", "attack", side); },
+
   abxCheckEndAttack(attSide) {
     if (!(window.ABX && ABX.attackPhaseEnded && ABX.attackPhaseEnded())) return false;
     if (this.activeSide !== attSide || this.phase !== "attack") return false;
+    this.fireAttackPhaseEnd(attSide);
     this.phase = "final";
     if (!this.getFighter(attSide).isBot) this.setPrompt("🛑 Your attack phase was ended by a card effect — Final Phase.");
     return true;
@@ -9188,6 +9194,7 @@ const battle = {
             // Final Phase: the bot may call one Impact Monster, and it may attack right away.
             botImpactTried = true;
             const prevPhase = this.phase;
+            if (prevPhase === "attack") this.fireAttackPhaseEnd("opp");
             this.phase = "final";
             const zone = this.imBotCall(bot);
             if (zone) { attackers.push(zone); this.renderBattle(); setTimeout(runNextBotAttack, 700); return; }

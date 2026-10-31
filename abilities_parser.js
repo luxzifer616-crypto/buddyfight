@@ -1158,11 +1158,11 @@
   tr(/^at the (start|beginning) of (your|your opponent's|each player's|the) turn$/i, (m) => ({ event: "turnStart", who: ownerOf(m[2]) }));
   tr(/^at the end of (your|your opponent's|each player's|the) turn$/i, (m) => ({ event: "turnEnd", who: ownerOf(m[1]) }));
   tr(/^at (?:the )?end of (?:the )?turn$/i, () => ({ event: "turnEnd", who: "any" }));
-  tr(/^at the end of (?:your|each player's) (?:attack|main|final) phase$/i, (m) => ({ event: "phaseEnd" }));
+  tr(/^at the end of (your|each player's) (attack|main|final) phase$/i, (m) => ({ event: "phaseEnd", who: ownerOf(m[1]), phase: lc(m[2]) }));
   tr(/^at the end of (?:the|a) battle(?: that (?:this card|a monster) attacked)?$/i, (m) => ({ event: "battleEnd", self: /this card/i.test(m[0]) }));
   tr(new RegExp("^at the end of the battle (?:that|in which) " + SUBJ_THIS + " attacked$", "i"), () => ({ event: "battleEnd", self: true }));
   tr(/^at the end of the battle of this card$/i, () => ({ event: "battleEnd", self: true }));
-  tr(/^at the end of the (?:final|attack|main) phase$/i, () => ({ event: "phaseEnd" }));
+  tr(/^at the end of the (final|attack|main) phase$/i, (m) => ({ event: "phaseEnd", who: "any", phase: lc(m[1]) }));
   tr(/^(?:when|whenever|each time) you cast (.+)$/i, (m) => ({ event: "youCast", np: parseNP(m[1]) }));
   tr(/^(?:when|whenever|each time) your opponent casts (.+)$/i, (m) => ({ event: "oppCast", np: parseNP(m[1]) }));
   tr(/^(?:when|whenever|each time) (?:a|an) (.+?) enters (?:the field|your field|your opponent's field)$/i, (m) => ({ event: "otherEnter", np: parseNP(m[1] + (/opponent's field/i.test(m[0]) ? " on your opponent's field" : "")), opp: /opponent's field/i.test(m[0]) }));

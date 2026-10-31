@@ -270,7 +270,11 @@
       ids.forEach(id => {
         if (to === "gauge") f.gauge.push(id);
         else if (to === "hand") f.hand.push(id);
-        else if (to === "soul") { if (ctx.unit) ctx.unit.soul.push(id); else f.drop.push(id); }
+        else if (to === "soul") {
+          // "into this card's soul": a unit on the field, or a [Set] card staying in the set zone (its soul is on the set card itself)
+          const host = ctx.unit || (ctx.card && (f.setSpells || []).includes(ctx.card) ? ctx.card : null);
+          if (host) { if (!Array.isArray(host.soul)) host.soul = []; host.soul.push(s.faceDown && typeof root.createSoulEntry === "function" ? root.createSoulEntry(id, true) : id); } else f.drop.push(id);
+        }
         else f.drop.push(id);
       });
       afterChange(); return ids.length > 0;

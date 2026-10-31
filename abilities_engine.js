@@ -300,6 +300,8 @@
         return [{ k: (up && up.startsWith("item")) ? "item" : "unit", side: ctx.side, pos: up, unit: ctx.unit, card: ctx.card, id: ctx.card.id }];
       }
       if (ctx.selfRef) return [ctx.selfRef];
+      // "this card" for a [Set] card that stays in the set zone
+      if (ctx.card && (F(ctx.side).setSpells || []).includes(ctx.card)) return [{ k: "set", side: ctx.side, idx: F(ctx.side).setSpells.indexOf(ctx.card), card: ctx.card, id: ctx.card.id, unit: null }];
       return [];
     }
     const z = np.zone || def || { owner: "any", area: "field" };
@@ -395,7 +397,7 @@
       case "refTribe": { const r = (ctx.bind.revealed || []).concat(ctx.bind.looked || [], ctx.bind.chosen || []).filter(x => x && x.card).pop(); return !!r && tribeEq(r.card, c.tribe); }
       case "selfPosAny": return !!ctx.unit && c.pos.includes((posOfUnit(f, ctx.unit) || "").replace("center2", "center"));
       case "selfRested":      case "selfRested": return !!ctx.unit && (!!ctx.unit.rested === c.v);
-      case "selfSoul": return !!ctx.unit && cmpN((ctx.unit.soul || []).length, c);
+      case "selfSoul": { const h = ctx.unit || (ctx.card && Array.isArray(ctx.card.soul) ? ctx.card : null); return !!h && cmpN((h.soul || []).length, c); }   // a [Set] card's soul lives on the set card itself
       case "selfSoulName": return !!ctx.unit && (ctx.unit.soul || []).some(id => lc((cardOf(id) || {}).name).includes(c.name));
       case "selfSet": return (f.setSpells || []).includes(ctx.card);
       case "life": return cmpN((c.who === "you" ? f : e).life, c);
@@ -546,6 +548,8 @@
       const i = (f.setSpells || []).indexOf(ref.card);
       if (i < 0) return null;
       f.setSpells.splice(i, 1);
+      // a [Set] card that leaves the set zone takes its soul to the drop zone with it
+      if (Array.isArray(ref.card.soul) && ref.card.soul.length) { f.drop.push(...ref.card.soul.map(x => (typeof root.getSoulCardId === "function" ? root.getSoulCardId(x) : x))); }   // the departed copy keeps its soul list so later steps of the same ability ("if there are 3+ souls") still read it
       return ref.card.id;
     }
     if (ref.k === "soul") {
@@ -1022,7 +1026,7 @@
       if (ABX.applyBattleNullify) ABX.applyBattleNullify(attSide, units.map(u => u.unit), defSide, defUnit);
       await fireTriggers((t, src, side) => (t.event === "attack" && t.self && tgtOK(t) && side === attSide && us.has(src.unit)) ||
         (t.event === "link" && t.self && units.length > 1 && side === attSide && us.has(src.unit) && (!ABX.linkWithOK || ABX.linkWithOK(t, src.unit, units, attSide))) ||
-        (t.event === "otherAttack" && side === attSide && src.unit && !us.has(src.unit) && !t.np.self && units.some(u => matchFilter(u.unit.card, t.np.filter || {}, { unit: u.unit, side: attSide }, { f: F(attSide) }))) ||
+        (t.event === "otherAttack" && side === attSide && (src.unit || (src.card && (F(side).setSpells || []).includes(src.card))) && !us.has(src.unit) && !t.np.self && units.some(u => matchFilter(u.unit.card, t.np.filter || {}, { unit: u.unit, side: attSide }, { f: F(attSide) }))) ||
         (t.event === "oppAttack" && side === defSide && (!t.fighterTarget || !defUnit)) ||
         (t.event === "attacked" && t.self && side === defSide && defUnit && src.unit === defUnit), { name: "attack", attSide, defSide, attUnits: units.map(u => u.unit), defUnit });
     }).catch(() => {});
@@ -1073,6 +1077,7 @@
         if (kind === "turnStart") return (t.event === "turnStart" || (t.event === "phaseStart" && t.phase === "turn")) && whoOK(t, side, activeAtFire);
         if (kind === "turnEnd") return t.event === "turnEnd" && whoOK(t, side, activeAtFire);
         if (kind === "phaseStart") return t.event === "phaseStart" && t.phase === phase && whoOK(t, side, activeAtFire);
+        if (kind === "phaseEnd") return t.event === "phaseEnd" && (!t.phase || t.phase === phase) && whoOK(t, side, activeAtFire);
         return false;
       }, { name: kind, activeSide: activeAtFire, turnAtFire });
       // Handle drop-zone cards that return to hand at the start of final phase / end of turn (#5536 Liim, #6036 Zeff Hiter)
