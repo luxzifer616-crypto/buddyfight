@@ -24,6 +24,9 @@
 
   const buddyCallRow = (name) => ({ kind: "triggered", trigger: { event: "enter", self: true }, conds: [{ t: "enterByBuddyCall" }], steps: [{ op: "r42BuddyCall", name }] });
 
+  let _exactNames = null;
+  const exactNameSet = () => _exactNames || (_exactNames = new Set((typeof ALL_CARDS !== "undefined" ? ALL_CARDS : (root.ALL_CARDS || [])).map(c => String(c.name || "").toLowerCase())));
+  const OVER_SELF_PAY = new Set([6512, 4115]);   // their ops already pay the printed cost
   const OV42 = [
     /* ---- catalog check: #2920 Vermolt only triggers when it enters the CENTER ---- */
     [2920, /when this card enters your center/i, (ab) => ({ kind: "triggered", trigger: { event: "enter", self: true }, conds: [{ t: "selfPos", pos: "center" }], steps: clone(ab.steps || []) })],
@@ -372,6 +375,29 @@
   OV42.push([4175, /being link attacked/i, () => ({ kind: "act", tags: ["counter", "act"], counter: true, conds: [{ t: "xLinkAttack", v: true }], steps: [{ op: "discard", n: 1, cost: true, src: "discard a hand card" }, { op: "pay", life: 1, cost: true, src: "pay 1 life" }, { op: "nullifyAttack", src: "nullify the attack", gate: "ifYouDo" }] })]);
   // #1094 Twin Demon Dragon, Zahhak: the quoted names are EXACT names ("... Azi Dahaka \"Re:B\"" is a different card)
   OV42.push([1094, /demonic demise dragon, azi dahaka/i, (ab) => { const steps = clone(ab.steps || []); walk(steps, x => { if (x.filter && x.filter.names) { x.filter.namesExact = x.filter.names; delete x.filter.names; } }); return { kind: "triggered", trigger: clone(ab.trigger), conds: [], steps }; }]);
+  // #3824 Overturn Ice Emperor, Miserea: was a dead static. [Overturn] [Pay 2 gauge during your main phase] (the cost is added by the generic Overturn pass)
+  OV42.push([3824, /\[overturn\]/i, () => ({ kind: "act", tags: ["kw:overturn"], trigger: null, once: "game", conds: [{ t: "phase", phase: "main", who: "you" }], steps: [{ op: "r42Miserea" }] })]);
+  OPS.r42Miserea = {
+    run(s, ctx) {
+      const self = ctx.unit;
+      ["plr", "opp"].forEach(sd => {
+        const pf = F(sd);
+        // nullify all abilities of cards on the field
+        core.fieldUnits(pf, true).forEach(x => { if (x.unit) x.unit.abxNullified = B.turnCount; });
+        // return all other cards from hand, gauge, drop zone and field to the deck
+        ["left", "center", "right"].forEach(p => { const u = pf.monsters[p]; if (u && u !== self) { pf.deck.push(u.card.id, ...(u.soul || []).map(e => (e && e.id != null) ? e.id : e)); pf.monsters[p] = null; } });
+        ["item", "item2"].forEach(k => { const u = pf[k]; if (u && u !== self) { pf.deck.push(u.card.id, ...(u.soul || []).map(e => (e && e.id != null) ? e.id : e)); pf[k] = null; } });
+        (pf.setSpells || []).splice(0).forEach(c => pf.deck.push(c.id, ...(c.soul || []).map(e => (e && e.id != null) ? e.id : e)));
+        pf.deck.push(...pf.hand.splice(0), ...pf.gauge.splice(0), ...pf.drop.splice(0));
+        for (let k = pf.deck.length - 1; k > 0; k--) { const r = Math.floor(Math.random() * (k + 1)); [pf.deck[k], pf.deck[r]] = [pf.deck[r], pf.deck[k]]; }
+        pf.hand.push(...pf.deck.splice(0, 6));
+        pf.gauge.push(...pf.deck.splice(0, 2));
+      });
+      if (B.renderBattle) B.renderBattle();
+      return true;
+    },
+    check: () => true
+  };
   OV42.push([297, /all ninja on your field gets power\+1000/i, (ab) => ({ kind: "static", steps: clone(ab.steps || []) })]);
   // #4243 Tempest Thunder Knights Formation! ([Set] impact): "The size of all monsters with 'Thunder Knights' in their card names on your field is reduced by 1" is continuous while set;
   // as a "spell" ability it parsed to a one-shot becomeSizeZero that never applied.
@@ -471,7 +497,21 @@
     const r = prev.apply(this, arguments);
     try {
       if (!card || !r || !Array.isArray(r.abilities)) return r;
-      if (!OV42.some(o => o[0] === card.id) && ![5422, 5748, 5759].includes(card.id)) return r;
+      // A bare quoted name ("Dragon Throne") means that exact card name, not "contains" (that is `with "X" in its card name`).
+      // The parser stores both as filter.names (substring): make the bare ones exact when such a card exists.
+      if (/"/.test(card.skill || "")) {
+        const exact = exactNameSet();
+        r.abilities.forEach(ab => walk(ab.steps, x => {
+          const f = x && x.filter;
+          if (!f || !Array.isArray(f.names) || !f.names.length || f.namesExact) return;
+          if (/\bin (?:its|their) (?:card )?names?\b|\bwith (?:the )?name\b/i.test(String(x.raw || ""))) return;
+          const ex = f.names.filter(n => exact.has(n));
+          if (!ex.length) return;
+          const rest = f.names.filter(n => !exact.has(n));
+          f.namesExact = ex; if (rest.length) f.names = rest; else delete f.names;
+        }));
+      }
+      if (!OV42.some(o => o[0] === card.id) && ![5422, 5748, 5759].includes(card.id) && !/\[(?:overturn|overkill|overthrow)\]\s*\[/i.test(card.skill || "")) return r;
       const extra = [];
       r.abilities.forEach(ab => {
         const raw = String(ab.cleaned || ab.raw || "");
@@ -493,6 +533,18 @@
           // #5757: the same effect also happens when it is dropped from the hand
           if (card.id === 5757 && o.kind === "triggered") { const c2 = clone(ab); c2.trigger = { event: "discardedFromHand", self: true }; extra.push(c2); }
           break;
+        }
+        // [Overturn] / [Overkill] / [Overthrow] [<activation cost / timing>]: the printed cost must be paid when the ability is used
+        if (ab.kind === "act" && Array.isArray(ab.steps) && (ab.tags || []).some(t => /(?:^|:)(overturn|overkill|overthrow)/.test(t)) && !OVER_SELF_PAY.has(card.id)) {
+          const br = /\[(?:overturn|overkill|overthrow)\]\s*\[([^\]]*)\]/i.exec(full);
+          if (br && !(ab.steps[0] && ab.steps[0].cost)) {
+            const txt = br[1], costs = [];
+            let m;
+            if ((m = /pay (\d+) gauge/i.exec(txt))) costs.push({ op: "pay", gauge: +m[1], cost: true, src: "pay " + m[1] + " gauge" });
+            if ((m = /pay (\d+) life/i.exec(txt))) costs.push({ op: "pay", life: +m[1], cost: true, src: "pay " + m[1] + " life" });
+            if (!/life would become/i.test(txt) && /(?:discard|drop) (?:a|one) (?:card|hand card)(?: from your hand)?|(?:discard|drop) a hand card/i.test(txt)) costs.push({ op: "discard", n: 1, cost: true, src: "discard a hand card" });
+            if (costs.length) ab.steps = costs.concat(ab.steps);
+          }
         }
       });
       extra.forEach(x => r.abilities.push(x));

@@ -140,3 +140,9 @@ Open: Belost is still activated via the game's draw/hand-click prompt rather tha
 
 ## #1094 Twin Demon Dragon, Zahhak (fixed 2026-11-01, test: tests/zahhak.js)
 - Search used substring name matching, so it also fetched #6526 Demonic Demise Dragon, Azi Dahaka "Re:B". Quoted names are now exact (`filter.namesExact`, abilities_engine.js matchFilter). Pay 2 life / Azi Dahaka / Dragon Throne fetch verified.
+
+## Audit sweep: suspicious cards (2026-11-01, tests: tests/overcost.js)
+- ~50 [Overturn]/[Overkill]/[Overthrow] acts never charged their printed activation cost (pay N gauge / pay N life / discard-drop a hand card). Now added generically in abilities_r42.js (cards whose op already pays: #6512, #4115). game.js Unleash button hidden for ABX-owned ones.
+- #3824 Overturn Ice Emperor, Miserea was a dead static: now an [Overturn] act (pay 2 gauge, main phase): nullify field abilities, all other cards back to both decks, shuffle, draw 6, 2 to gauge.
+- Bare quoted names ("Dragon Throne") are now exact when such a card exists (113 filters, abilities_r42.js); `with "X" in its name` stays substring.
+- Still open (audit): #3902 Shining Dragoner Jackknife and #5161 El Quixote [Overturn] are dead statics (need a nullify-card-used counter / "drop a Knight from hand then equip two Knight items"); #3747/#5163 run through the generic text executor; timing of "when ... would" Overturns (#3595, #3822, #3843, #4163) is not enforced.
