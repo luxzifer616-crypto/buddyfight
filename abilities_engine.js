@@ -216,6 +216,7 @@
       if (f.notTypes.some(x => x === "monster" ? isMon2 : x === "item" ? card.type === "Item" : x === "spell" ? card.type === "Spell" : x === "impact" ? card.type === "Impact" : false)) return false;
     }
     if (f.notTribes && f.notTribes.length) { if (f.notTribes.some(tb => tribeEq(card, tb))) return false; }
+    if (f.namesExact && f.namesExact.length && !f.namesExact.includes(lc(card.name))) return false;
     if (f.names && f.names.length) { const n = lc(card.name); if (!f.names.some(x => n.includes(x))) return false; }
     if (f.exactNames && f.exactNames.length) { const n3 = lc(card.name); if (!f.exactNames.some(x => n3 === x)) return false; }
     if (f.notNames && f.notNames.length) { const n2 = lc(card.name); if (f.notNames.some(x => n2.includes(x))) return false; }

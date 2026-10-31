@@ -370,6 +370,8 @@
   // Aqulta Gwaneff counters: #942 only against a single (non-link) attack, #4175 only while being link attacked
   OV42.push([942, /attacks you alone/i, () => ({ kind: "act", tags: ["counter", "act"], counter: true, conds: [{ t: "xLinkAttack", v: false }], steps: [{ op: "nullifyAttack", src: "nullify the attack" }] })]);
   OV42.push([4175, /being link attacked/i, () => ({ kind: "act", tags: ["counter", "act"], counter: true, conds: [{ t: "xLinkAttack", v: true }], steps: [{ op: "discard", n: 1, cost: true, src: "discard a hand card" }, { op: "pay", life: 1, cost: true, src: "pay 1 life" }, { op: "nullifyAttack", src: "nullify the attack", gate: "ifYouDo" }] })]);
+  // #1094 Twin Demon Dragon, Zahhak: the quoted names are EXACT names ("... Azi Dahaka \"Re:B\"" is a different card)
+  OV42.push([1094, /demonic demise dragon, azi dahaka/i, (ab) => { const steps = clone(ab.steps || []); walk(steps, x => { if (x.filter && x.filter.names) { x.filter.namesExact = x.filter.names; delete x.filter.names; } }); return { kind: "triggered", trigger: clone(ab.trigger), conds: [], steps }; }]);
   OV42.push([297, /all ninja on your field gets power\+1000/i, (ab) => ({ kind: "static", steps: clone(ab.steps || []) })]);
   // #4243 Tempest Thunder Knights Formation! ([Set] impact): "The size of all monsters with 'Thunder Knights' in their card names on your field is reduced by 1" is continuous while set;
   // as a "spell" ability it parsed to a one-shot becomeSizeZero that never applied.

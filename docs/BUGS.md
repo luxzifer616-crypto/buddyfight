@@ -137,3 +137,6 @@ Open: Belost is still activated via the game's draw/hand-click prompt rather tha
 - #942 [Counter][Act] had no condition (usable against link attacks too): now only when the attack is NOT a link attack.
 - #4175 [Counter][Act] had no condition: now only while being link attacked (discard 1 + pay 1 life, then nullify).
 - #942 "nullify the [Soulguard] of monsters this card attacks" did nothing: a monster it destroys in battle ignores [Soulguard] (no soul spent, any soul count). game.js `sgNullified` in destroyMonster.
+
+## #1094 Twin Demon Dragon, Zahhak (fixed 2026-11-01, test: tests/zahhak.js)
+- Search used substring name matching, so it also fetched #6526 Demonic Demise Dragon, Azi Dahaka "Re:B". Quoted names are now exact (`filter.namesExact`, abilities_engine.js matchFilter). Pay 2 life / Azi Dahaka / Dragon Throne fetch verified.
