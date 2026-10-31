@@ -8821,9 +8821,9 @@ const battle = {
         defenderSurvived = true;
         this.setPrompt(`🛡️ "${defender.card.name}" prevented destruction by card effect and remained on the field!`);
       } else {
-        this._destroyByAttack = true;
+        this._destroyByAttack = true; this._attackersNow = attUnits.map(x => x.unit);
         let destroyed;
-        try { destroyed = this.destroyMonster(defSide, targetPos); } finally { this._destroyByAttack = false; }
+        try { destroyed = this.destroyMonster(defSide, targetPos); } finally { this._destroyByAttack = false; this._attackersNow = null; }
         destroyedFlag = !!destroyed;
         defenderSurvived = !destroyed;
         if ((targetPos === "center" || targetPos === "center2") && anyPenetrate && destroyed) {
@@ -8891,7 +8891,9 @@ const battle = {
     // "The next time this card would be destroyed this turn, it remains on the field" (ABX saveOnce)
     if (window.ABX && ABX.core && ABX.core.useSave && ABX.core.useSave(ownerSide, m)) { this.renderBattle(); return false; }
     const abxSG = !!(window.ABX && ABX.staticBonus && ABX.staticBonus(ownerFighter, m).sg);
-    if ((m.card.sg || m.tempSG || abxSG) && !(window.ABX && ABX.kwLost && ABX.kwLost(m, "soulguard")) && m.soul && m.soul.length > 0) {
+    // #942 Demonic Demise Sword, Aqulta Gwaneff: nullify the [Soulguard] of monsters this card attacks (no soul is spent, the monster is destroyed)
+    const sgNullified = !!this._destroyByAttack && (this._attackersNow || []).some(u => u && u.card && /nullify the \[soulguard\] of monsters this card attacks/i.test(u.card.skill || ""));
+    if (!sgNullified && (m.card.sg || m.tempSG || abxSG) && !(window.ABX && ABX.kwLost && ABX.kwLost(m, "soulguard")) && m.soul && m.soul.length > 0) {
       const discardedSoul = m.soul.pop();
       const wasFaceDown = isSoulEntryFaceDown(discardedSoul);
       const soulCardId = getSoulCardId(discardedSoul);

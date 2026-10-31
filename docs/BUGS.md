@@ -132,3 +132,8 @@ Open: Belost is still activated via the game's draw/hand-click prompt rather tha
 ## Stand-by-ability re-attack + ability-only equips (fixed 2026-11-01, test: tests/restand.js)
 - A unit that had attacked out (rested, attacksLeft 0) and was stood by an ability (#2371 / #6521 Great Demonic End Dragon [Counter][Act], any [Stand] op) stayed unable to attack. Now its attacks are restored (Double Attack = 2). abilities_r42.js `restandOp`.
 - "You may not equip this card other than by the ability of ..." (#942, #2020, #4175 Aqulta Gwaneff swords) was ignored: they could be equipped from hand. Now blocked for hand/banner/bot (`equipOnlyByAbility` in game.js); Azi Dahaka's ability equips still work.
+
+## Aqulta Gwaneff counters + Soulguard (fixed 2026-11-01, test: tests/gwaneff.js)
+- #942 [Counter][Act] had no condition (usable against link attacks too): now only when the attack is NOT a link attack.
+- #4175 [Counter][Act] had no condition: now only while being link attacked (discard 1 + pay 1 life, then nullify).
+- #942 "nullify the [Soulguard] of monsters this card attacks" did nothing: a monster it destroys in battle ignores [Soulguard] (no soul spent, any soul count). game.js `sgNullified` in destroyMonster.
