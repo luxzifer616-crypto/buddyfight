@@ -98,9 +98,13 @@ const setup = (id, extra) => run(`(function(){
   ok(JSON.stringify(stat()) === JSON.stringify(base), "#297 the bonus ends when it leaves the set zone");
   // #290 + Secret Sword (#293): in the soul of Lethal Formation, cast when the opponent casts an impact
   const oppImp = J(`ALL_CARDS.find(c=>c.type==='Impact'&&!c.set&&c.power==null&&/Deal \\d+ damage/.test(c.skill||'')).id`);
-  put(290, 0, `me.setSpells[0].soul=[293]; battle.activeSide='opp';battle.turn='opp';battle.phase='final';`);
+  put(290, 0, `me.setSpells[0].soul=[293]; me.gauge=me.deck.splice(0,10); battle.activeSide='opp';battle.turn='opp';battle.phase='final';`);
   run(`ABX.fireCast('opp',CARD_MAP.get(${oppImp}))`); await tick();
   ok(J(`battle.plr.setSpells[0].soul.length`) === 0 && J(`battle.plr.drop.includes(293)`) && J(`battle.opp.life`) === 7, "#293 in the soul of #290: cast when the opponent casts an impact (3 damage, soul emptied)");
+  ok(J(`battle.plr.gauge.length`) === 7, "#293 casting it pays its [Cast Cost] (3 gauge)");
+  put(290, 0, `me.setSpells[0].soul=[293]; me.gauge=me.deck.splice(0,2); battle.activeSide='opp';battle.turn='opp';battle.phase='final';`);
+  run(`ABX.fireCast('opp',CARD_MAP.get(${oppImp}))`); await tick();
+  ok(J(`battle.plr.setSpells[0].soul.length`) === 1 && J(`battle.opp.life`) === 10, "#293 with only 2 gauge it cannot be cast and stays in the soul");
   // #1406 There are no Places for You to Run!: cast cost = 2 drop cards into its soul; inherits "Thunder Mine"
   setup(1406, ``); run(`battle.castImpactFromHand('plr',0)`); flush(); await wait(10); flush();
   ok(J(`battle.plr.setSpells.length`) === 1 && J(`battle.plr.setSpells[0].soul.length`) === 2 && J(`battle.plr.drop.length`) === 6 - 0 + 2 - 2, "#1406 cast cost puts two drop cards into its soul (drop: -2 +2 gauge paid)");

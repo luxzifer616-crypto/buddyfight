@@ -206,7 +206,7 @@
     const np = NP("a " + m[1]);
     return np ? { op: "castFromSelfSoul", np, pay: true } : null;
   });
-  ar(/^(?:you may )?cast (?:it|this card)(?: by paying its \[cast cost\])?$/i, (m) => ({ op: "castSelfFromSoul", pay: /paying/i.test(m[0]) }));
+  ar(/^(?:you may )?cast (?:it|this card)(?: by paying its \[cast cost\])?$/i, (m) => ({ op: "castSelfFromSoul", pay: true }));   // casting by an effect always pays the [Cast Cost] (only "without paying" skips it; that wording does not match this rule), e.g. the Secret Swords #293-#295 #1616 #2615
 
   // Impact-monster-only call lock (#2561)
   ar(/^you cannot call monsters other than impact monsters,?\s*and you may call impact monsters multiple times in one turn$/i,
