@@ -768,6 +768,7 @@
       if (s.pay) cands = cands.filter(r => { const cost = parseCardCost(r.card.cost, r.card.skill, f, r.card); return f.gauge.length >= (cost.gauge || 0) && !(cost.life > 0 && f.life <= cost.life); });
       // [Release Condition!] items can only be equipped while their condition is met
       if (typeof getReleaseConditionStatus === "function") cands = cands.filter(r => getReleaseConditionStatus(r.card, f).met);
+      if (typeof abilityMayEquip === "function") cands = cands.filter(r => abilityMayEquip(r.card, ctx.card));
       if (!cands.length) return false;
       const ch = await core.pick(cands, { qty: { n: 1, upTo: !!s.upTo }, raw: s.np.raw }, ctx, { intent: "help", title: `${ctx.card.name} — equip` });
       const r = ch[0]; if (!r) return false;

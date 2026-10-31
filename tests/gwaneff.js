@@ -35,5 +35,7 @@ run(`ABX.fast=true; ABX.autoPlay=true; window.alert=function(){};
     ABX.useAct('opp',CARD_MAP.get(4175),me.item); return 1;})()`);
   await wait(30); flush(); await wait(30); flush();
   ck("#4175 used vs link: discarded 1 card, paid 1 life, attack nullified", val(`return battle.opp.hand.length===1 && battle.opp.life===9 && !!(ABX.battleCtx&&ABX.battleCtx.nullified);`));
+  ck("abilityMayEquip: an Azi Dahaka card may equip #942 / #2020 / #4175", val(`return [867,2019,4174,6526].every(s=>[942,2020,4175].every(i=>abilityMayEquip(CARD_MAP.get(i),CARD_MAP.get(s))));`));
+  ck("abilityMayEquip: an unrelated card's ability may not equip them; normal items unaffected", val(`return [942,2020,4175].every(i=>!abilityMayEquip(CARD_MAP.get(i),plain)) && abilityMayEquip(ALL_CARDS.find(c=>c.type==='Item'&&!c.skill),plain);`));
   console.log(`pass ${pass} fail ${fail}`); process.exit(fail ? 1 : 0);
 })();

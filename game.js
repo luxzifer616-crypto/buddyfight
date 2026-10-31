@@ -1480,6 +1480,15 @@ function equipOnlyByAbility(card) {
   return m ? (m[1] || m[2]) : null;
 }
 
+// An ability may equip an "only by the ability of X" item only when its source card is X (or shares X's name after the comma, e.g. any "..., Azi Dahaka").
+function abilityMayEquip(card, srcCard) {
+  const only = equipOnlyByAbility(card);
+  if (!only) return true;
+  if (!srcCard) return false;
+  const tail = (n) => String(n || "").split(",").pop().replace(/[\s"]+/g, " ").trim().toLowerCase();
+  return (only.match(/"[^"]+"/g) || []).some(q => { const t = tail(q.replace(/"/g, "")); return t && tail(srcCard.name).includes(t); });
+}
+
 function getReleaseConditionStatus(card, fighter) {
   const text = getReleaseConditionText(card);
   if (!text || !fighter) return { has: false, met: true, reasons: [], parts: [] };
