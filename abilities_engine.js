@@ -429,7 +429,7 @@
   /* ============================================================
    * 5. TARGET SELECTION
    * ============================================================ */
-  function sideIsAuto(side) { return F(side).isBot || ABX.autoPlay === true || ABX.remoteAutoSide === side; }   // remoteAutoSide: the online friend's answer runs here, its small picks are made automatically
+  function sideIsAuto(side) { return F(side).isBot || ABX.autoPlay === true || ABX.remoteAutoSide === side || (B.mode === "online_p2p" && side === "opp"); }   // remoteAutoSide: the online friend's answer runs here, its small picks are made automatically
 
   // How "valuable" a card is (for bot picks / which cards to throw away)
   function valueOf(card) { if (!card) return 0; return (card.power || 0) / 1000 + (card.defense || 0) / 2000 + (card.crit || 0) * 2 + (card.size == null ? 0 : card.size) + (card.type === "Monster" ? 1 : 0); }
