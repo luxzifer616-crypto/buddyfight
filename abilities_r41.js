@@ -1180,21 +1180,26 @@
   /* ---- Duel Sieger: "[Call Cost] [When a <X> on your field is destroyed, nullify the [Lifelink] of <X> & Pay N gauge (& Put a "Y" from your drop zone into this monster's soul)]" ----
    * #441 #442 #2013 #2689 #5939. Offered right after the destroyed monster (the unit's [Lifelink] / [Lifelink Lose] is nullified before it resolves). #6504: nullify + put on top (a normal call). */
   const unq = (x) => { x = String(x || "").trim(); return /^".*"$/.test(x) ? x.slice(1, -1) : x; };
-  const DESTROY_SUBJ = /^when an? (.+?) on your field is destroyed,\s*nullify (?:the |that monster's )?\[?lifelink\]?/i;
+  const DESTROY_SUBJ = /^when an? (.+?) on your (field|center|left|right) is destroyed( by your opponent's card)?,\s*/i;
   ABX.destroyCallInfo = (card) => {
     if (!card || (card.type !== "Monster" && card.type !== "Impact")) return null;
-    const CC = /\[Call Cost\]\s*\[(When an? .+? is destroyed,[^\n]*?)\]\s*(?:\n|$)/i;   // (the card's "cost" field is cut at the first "]"; the skill text has the whole line)
+    const CC = /\[Call Cost\]\s*\[(When an? .+? is destroyed[^,\n]*,[^\n]*?)\]\s*(?:\n|$)/i;   // (the card's "cost" field is cut at the first "]"; the skill text has the whole line)
     const m = CC.exec(String(card.skill || "")) || CC.exec(String(card.cost || ""));
     if (!m) return null;
     const body = m[1], sm = DESTROY_SUBJ.exec(body); if (!sm) return null;
     const gm = /pay (\d+|a|one|two|three|four|five) gauge/i.exec(body), dm = /put an? "(.+?)" from your drop zone into (?:this monster's|its|this card's) soul/i.exec(body);
     const subj = sm[1], zm = /^size (\d+) (?:[«�]([^»�]+)[»�]|monster) with \[?lifelink\]?$/i.exec(subj);
-    return { subject: subj, name: zm ? null : unq(subj), size: zm ? Number(zm[1]) : null, tribe: zm && zm[2] ? zm[2] : null, needLL: !!zm, gauge: gm ? (NUMW[lc(gm[1])] || Number(gm[1])) : 0, soulName: dm ? dm[1] : null };
+    const hm = /^monster with "(.+)" in its card name$/i.exec(subj) || /^\[(.+)\]$/.exec(subj), am = /^(?:monster|character)$/i.test(subj);
+    return { subject: subj, name: zm || hm || am ? null : unq(subj), nameHas: hm ? hm[1] : null, any: am, size: zm ? Number(zm[1]) : null, tribe: zm && zm[2] ? zm[2] : null, needLL: !!zm,
+      gauge: gm ? (NUMW[lc(gm[1])] || Number(gm[1])) : 0, soulName: dm ? dm[1] : null, pos: sm[2] === "field" ? null : lc(sm[2]), byOpp: !!sm[3],
+      nullLL: /\bnullify\b/i.test(body), soulTop: /put the top card of your deck into (?:this card's|its|this monster's) soul/i.test(body) };
   };
   const hasLL = (c) => !!(c && (c.ll > 0 || c.ll_lose));
   const destroyMatches = (info, c) => {
     if (!info || !c) return false;
     if (info.name != null) return c.name === info.name;
+    if (info.nameHas) return String(c.name || "").toLowerCase().includes(info.nameHas.toLowerCase());
+    if (info.any) return true;
     if (info.size != null && Number(c.size) !== info.size) return false;
     if (info.tribe && !(c.attrs || []).some(a => tribeKey(a) === tribeKey(info.tribe))) return false;
     return !info.needLL || hasLL(c);
@@ -1208,13 +1213,13 @@
   ABX.lifelinkOff = function (side, card, unit) { return !!(unit && unit.abxLLNull) || (lloPrev ? lloPrev.apply(this, arguments) : false); };
   const destroyCandidates = (side, unit) => {
     const f = F(side), out = [];
-    f.hand.forEach((id, hi) => { const c = cardOf(id), info = c && ABX.destroyCallInfo(c); if (info && destroyMatches(info, unit.card)) out.push({ hi, c, info }); });
+    f.hand.forEach((id, hi) => { const c = cardOf(id), info = c && ABX.destroyCallInfo(c); if (info && destroyMatches(info, unit.card) && (!info.pos || unit.abxDestroyedPos === info.pos) && (!info.byOpp || B.activeSide !== side)) out.push({ hi, c, info }); });
     return out;
   };
   const dropHas = (f, name) => f.drop.some(id => { const c = cardOf(id); return c && c.name === name; });
   const canDestroyCall = (side, x) => {
     const f = F(side);
-    return f.gauge.length >= x.info.gauge && (!x.info.soulName || dropHas(f, x.info.soulName)) && ["center", "left", "right"].some(q => !f.monsters[q]);
+    return f.gauge.length >= x.info.gauge && (!x.info.soulName || dropHas(f, x.info.soulName)) && (!x.info.soulTop || f.deck.length > 0) && ["center", "left", "right"].some(q => !f.monsters[q]);
   };
   // game.js (destroyed monster reached the drop zone, [Lifelink] about to resolve): offer the call first; paying the cost nullifies the [Lifelink] / [Lifelink Lose].
   ABX.deferLifelink = function (side, card, unit, fn) {
@@ -1241,7 +1246,8 @@
             const nu = isImp ? null : f.monsters[pos];
             if (f.hand.length === before || (!nu && !isImp)) { paid.forEach(g => f.gauge.push(g)); continue; }   // the call did not happen: refund
             paid.forEach(g => f.drop.push(g));
-            unit.abxLLNull = true;   // the destroyed monster's [Lifelink] / [Lifelink Lose] is nullified (part of the cost)
+            if (x.info.nullLL) unit.abxLLNull = true;   // the destroyed monster's [Lifelink] / [Lifelink Lose] is nullified (part of the cost)
+            if (x.info.soulTop && nu && Array.isArray(nu.soul) && f.deck.length) nu.soul.push(f.deck.shift());
             if (x.info.soulName) { const di = f.drop.findIndex(id => { const c = cardOf(id); return c && c.name === x.info.soulName; }); if (di >= 0 && Array.isArray(nu.soul)) nu.soul.push(f.drop.splice(di, 1)[0]); }
             break;
           }

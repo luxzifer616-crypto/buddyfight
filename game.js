@@ -8906,7 +8906,7 @@ const battle = {
     }
 
     if (this.imOnDestroyedUnit && window.IMX && IMX.isUnit(m)) this.imOnDestroyedUnit(ownerSide, m);
-    m.abxDestroyed = true;   // (Duel Sieger call costs: only a destroyed monster may be answered by a call)
+    m.abxDestroyed = true; m.abxDestroyedPos = pos;   // (Duel Sieger call costs: only a destroyed monster may be answered by a call)
     this.sendMonsterToDropWithAnimation(side, pos, false);
     if (window.ABX && ABX.fireLeave) ABX.fireLeave(ownerSide, m.card, !!this._destroyByAttack);
     if (window.ABX && ABX.fireOtherDestroyed) ABX.fireOtherDestroyed(ownerSide, m.card, m, pos);
