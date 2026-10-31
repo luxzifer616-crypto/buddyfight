@@ -681,7 +681,7 @@ function getFlagConfig(flagCard) {
       hand: 4,
       gauge: 2,
       maxSize: 3,
-      ruleSummary: "Life: 12 • Hand: 4 • Gauge: 2 • «Dragon» Monsters & Items only (no Spells / Impacts)"
+      ruleSummary: "Life: 12 • Hand: 4 • Gauge: 2 • «Dragon» cards (Monsters, Items, Spells, Impacts) + Generic"
     };
   }
   if (n.includes("dragon zwei")) {
@@ -692,7 +692,7 @@ function getFlagConfig(flagCard) {
       hand: 4,
       gauge: 2,
       maxSize: 3,
-      ruleSummary: "Life: 20 • Hand: 4 • Gauge: 2 • «Dragon» Monsters only (no Items / Spells / Impacts) + Dragon Drei"
+      ruleSummary: "Life: 20 • Hand: 4 • Gauge: 2 • «Dragon» Monsters & Impact Monsters only (no Items / Spells) + Dragon Drei"
     };
   }
   if (n.includes("dragon drei")) {
@@ -909,11 +909,13 @@ function checkCardLegalityForFlag(card, flagCard, editingLostDeck = false, buddy
 
   let nativeMatch = false;
 
-  // Dragon Ein: only Monsters and Items that have "Dragon" in their name, world or tribe (no Spells, no Impacts, no Generic).
-  // Dragon Zwei: same, but Monsters only (no Items). Dragon Drei is allowed as a sub-flag above.
+  // Dragon Ein: cards with "Dragon" in their name, world or tribe (Monster, Item, Spell, Impact) + <Generic> cards.
+  // Dragon Zwei: Dragon Monsters and Impact monsters only (no Items / Spells / Generic). Dragon Drei is allowed as a sub-flag above.
   if (cfg.key === "dragon_ein" || cfg.key === "dragon_zwei") {
-    const allowedTypes = cfg.key === "dragon_ein" ? ["Monster", "Item"] : ["Monster"];
-    const ok = (allowedTypes.includes(card.type) && hasDragonInCard(card)) || (cfg.key === "dragon_ein" && card.type === "Spell" && /flag is "Dragon Ein"/i.test(card.skill || ""));
+    const allowedTypes = cfg.key === "dragon_ein" ? ["Monster", "Item", "Spell", "Impact"] : ["Monster", "Impact"];
+    const ok = (allowedTypes.includes(card.type) && hasDragonInCard(card))
+      || (cfg.key === "dragon_ein" && isTrueGenericCard(card))
+      || (cfg.key === "dragon_ein" && card.type === "Spell" && /flag is "Dragon Ein"/i.test(card.skill || ""));
     if (ok) return { allowed: true, maxCopies: 4 };
   } else if (cfg.key === "chaos") {
     nativeMatch = attrs.some(a => a.includes("chaos")) || nameLower.includes("chaos") || isTrueGenericCard(card);

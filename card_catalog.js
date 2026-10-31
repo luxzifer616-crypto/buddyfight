@@ -215,6 +215,7 @@
     find(opts) {
       const o = opts || {};
       const norm = (a) => (a || []).map(k => String(k).toLowerCase());
+      if ([].concat(o.all || [], o.any || [], o.none || []).some(k => String(k).toLowerCase().startsWith("legal:"))) this.ensureLegality();
       const all = norm(o.all), any = norm(o.any), none = norm(o.none);
       let ids = null;
       const meet = (s) => { ids = ids === null ? new Set(s) : new Set([...ids].filter(i => s.has(i))); };
@@ -226,6 +227,32 @@
       if (o.world) out = out.filter(e => e.card.worlds && e.card.worlds.includes(o.world));
       if (o.name) { const n = String(o.name).toLowerCase(); out = out.filter(e => (e.name || "").toLowerCase().includes(n)); }
       return o.limit ? out.slice(0, o.limit) : out;
+    }
+    /* ---- Legality category: which cards a flag lets you use (uses the game's own checkCardLegalityForFlag) ----
+     *   db.find({ any: ["legal: dragon ein"] })      db.legalFor(969)      db.legalFor("dragon zwei")
+     * Flags: Dragon Ein (969: Dragon cards of every type + Generic), Dragon Zwei (2370: Dragon Monsters + Impact monsters).
+     * Dragon Drei (2789) is a sub-flag that is only legal inside a Zwei deck; it is listed under "legal: dragon zwei". */
+    static get LEGAL_FLAGS() { return { "legal: dragon ein": 969, "legal: dragon zwei": 2370 }; }
+    ensureLegality() {
+      if (this._legalDone) return this;
+      const g = typeof window !== "undefined" ? window : globalThis;
+      const cmap = typeof CARD_MAP !== "undefined" ? CARD_MAP : null;   // top-level const in game.js: not a window property
+      if (typeof g.checkCardLegalityForFlag !== "function" || !cmap) return this;   // game.js not loaded yet
+      for (const [kw, flagId] of Object.entries(CardCatalog.LEGAL_FLAGS)) {
+        const flag = cmap.get(flagId); if (!flag) continue;
+        if (!this.index.has(kw)) this.index.set(kw, new Set());
+        const set = this.index.get(kw);
+        for (const e of this.entries.values()) {
+          if (e.type === "Flag" && !(kw === "legal: dragon zwei" && e.id === 2789)) continue;
+          if (g.checkCardLegalityForFlag(e.card, flag).allowed) { set.add(e.id); e.keywordSet.add(kw); }
+        }
+      }
+      this._legalDone = true; return this;
+    }
+    legalFor(flag) {
+      const id = typeof flag === "number" ? flag : CardCatalog.LEGAL_FLAGS["legal: " + String(flag).toLowerCase()];
+      const kw = Object.keys(CardCatalog.LEGAL_FLAGS).find(k => CardCatalog.LEGAL_FLAGS[k] === id || (id === 3060 && k === "legal: dragon ein"));
+      return kw ? this.find({ any: [kw] }) : [];
     }
     keywordCounts() {
       return [...this.index.entries()]
