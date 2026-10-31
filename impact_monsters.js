@@ -201,6 +201,7 @@
     const call = { raw, gauge: 0, life: 0, parts: [], unsupported: [], reduced: null };
     if (!raw) return call;
     if (/^on top of this monster/i.test(raw)) { call.onlyByEffect = true; return call; }
+    if (/^when an? .+? is destroyed,\s*nullify/i.test(raw)) call.onlyByEffect = true;   // Duel Sieger (#2013): only answers a destroyed monster (abilities_r41.js), never the Final Phase
     raw.split(/\s*&\s*|,\s+and\s+(?=put|destroy|return|pay)/i).forEach(seg => {
       if (!seg.trim()) return;
       const part = parseCostPart(seg);

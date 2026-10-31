@@ -69,6 +69,11 @@ const ck = (n, ok, extra) => { ok ? pass++ : fail++; console.log(ok ? "PASS" : "
   // #6504: not callable from the hand in the main phase? it is: it goes on top of an originally size 3 «Dragon Chief Emperor» on the field
   ck("6504 has an on-top cost", val(`return !!ABX.onTopCost(card(6504))`));
 
+  // #2013 (Impact Monster) cannot be called in the Final Phase without the "destroyed" timing
+  ck("2013 not callable in the Final Phase", val(`fresh(); battle.plr.gauge=[1,2,3,4]; battle.plr.hand=[2013]; battle.turnCount=3; battle.phase='final'; const i=battle.imCallInfo('plr', card(2013)); return i.ok===false && i.reasons.some(r=>/only be called by another card/.test(r))`));
+  // data: cards whose text prints [Lifelink N] now have that ll value (#441 was 0)
+  ck("441 has ll 5", val(`return card(441).ll===5`));
+
   console.log(`pass ${pass} fail ${fail}`);
   process.exit(fail ? 1 : 0);
 })();
