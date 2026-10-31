@@ -5601,11 +5601,15 @@ const battle = {
 
     this.phase = "start";
     this.phase = "main";
-    this.setPrompt(`🔄 Turn ${this.turnCount}: ${f.name}'s Start Phase — Drawing 1 card from Deck...`);
+    // First Round Rule: the first player does not draw on Turn 1 (they can only Charge & Draw).
+    const firstRound = this.turnCount === 1;
+    this.setPrompt(firstRound
+      ? `🔄 Turn 1: ${f.name}'s Start Phase — First Round: no draw this turn (you can only Charge & Draw).`
+      : `🔄 Turn ${this.turnCount}: ${f.name}'s Start Phase — Drawing 1 card from Deck...`);
     this.renderBattle();
 
     const gen = this.matchGen;
-    this.drawCardsWithAnimation(side, 1, () => {
+    this.drawCardsWithAnimation(side, firstRound ? 0 : 1, () => {
       if (gen !== this.matchGen || this.matchOver) return;
       if (side === "plr" || !f.isBot) {
         this.setPrompt("Main Phase: Click any card for its Detail Banner, Call, Equip, Cast, Search Deck, [Move] to Center, or Charge & Draw!");
