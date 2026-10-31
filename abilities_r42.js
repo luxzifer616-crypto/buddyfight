@@ -544,6 +544,29 @@
   };
   core.guardStandLock = guardOp;
   Object.keys(OPS).forEach(name => guardOp(OPS[name]));
+  // A card stood by an ability can attack again: a unit that attacked out (attacksLeft 0, rested) must get its attacks back when an effect stands it
+  // (e.g. #2371 / #6521 Great Demonic End Dragon's [Counter][Act] [Stand] this card).
+  const maxAttacks = (side, u) => {
+    try { const eff = getUnitEffectiveCombatStats(F(side), u); return eff.qa ? 4 : eff.ta ? 3 : eff.da ? 2 : (u.card.atk_max || 1); } catch (e) { return u.card.atk_max || 1; }
+  };
+  const restandOp = (op) => {
+    if (!op || typeof op.run !== "function" || op._r42Restand) return op;
+    const orig = op.run;
+    op.run = function () {
+      const snap = [];
+      ["plr", "opp"].forEach(sd => core.fieldUnits(F(sd), true).forEach(x => { if (x.unit && x.unit.rested && !(x.unit.attacksLeft > 0)) snap.push({ u: x.unit, sd }); }));
+      if (!snap.length) return orig.apply(this, arguments);
+      const fix = () => snap.forEach(x => { if (!x.u.rested && !(x.u.attacksLeft > 0)) x.u.attacksLeft = maxAttacks(x.sd, x.u); });
+      const r = orig.apply(this, arguments);
+      if (r && typeof r.then === "function") return r.then(v => { fix(); return v; }, e => { fix(); throw e; });
+      fix();
+      return r;
+    };
+    op._r42Restand = true;
+    return op;
+  };
+  core.restandOp = restandOp;
+  Object.keys(OPS).forEach(name => restandOp(OPS[name]));
   // [Double / Triple / Quadruple Attack] stand the card again after its attack: a locked card stays rested after its first attack.
   const prevBattleEnd = ABX.fireBattleEnd;
   ABX.fireBattleEnd = function (attSide, units) {

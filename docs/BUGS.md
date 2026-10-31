@@ -128,3 +128,7 @@ Open: Belost is still activated via the game's draw/hand-click prompt rather tha
 - Parsed as an auto trigger: the opponent's turn ended at its start with no activation and no cost. Now an [Act] (your main phase, pay 1 gauge, once per game): the opponent's next turn ends at its start and your cards cannot attack during your following turn.
 - game.js: the generic "Unleash [Overturn]" button is hidden for cards whose [Overturn] is owned by ABX.
 - Still open: other [Overturn] acts (e.g. #3629) do not charge their printed gauge cost via ABX.useAct.
+
+## Stand-by-ability re-attack + ability-only equips (fixed 2026-11-01, test: tests/restand.js)
+- A unit that had attacked out (rested, attacksLeft 0) and was stood by an ability (#2371 / #6521 Great Demonic End Dragon [Counter][Act], any [Stand] op) stayed unable to attack. Now its attacks are restored (Double Attack = 2). abilities_r42.js `restandOp`.
+- "You may not equip this card other than by the ability of ..." (#942, #2020, #4175 Aqulta Gwaneff swords) was ignored: they could be equipped from hand. Now blocked for hand/banner/bot (`equipOnlyByAbility` in game.js); Azi Dahaka's ability equips still work.

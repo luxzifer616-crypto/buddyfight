@@ -1474,6 +1474,12 @@ function checkReleaseClause(clause, fighter) {
 }
 
 // { has, met, reasons, parts } for a card's release condition (has=false when the card has none)
+// "You may not equip this card other than by the ability of "<Name>"" -> the card can't be equipped from hand normally (only by card effects).
+function equipOnlyByAbility(card) {
+  const m = String(card && card.skill || "").match(/you (?:may not|cannot|can't) equip this card(?: other than| except)? by the abilit(?:y|ies) of ("[^"]+"(?:\s*(?:,|or)\s*"[^"]+")*)|you (?:may not|cannot|can't) equip this card other than by the abilit(?:y|ies) of ("[^"]+")/i);
+  return m ? (m[1] || m[2]) : null;
+}
+
 function getReleaseConditionStatus(card, fighter) {
   const text = getReleaseConditionText(card);
   if (!text || !fighter) return { has: false, met: true, reasons: [], parts: [] };
@@ -6052,6 +6058,8 @@ const battle = {
         const bEq = document.createElement("button");
         bEq.className = "primary-cta-btn";
         const relSt = getReleaseConditionStatus(card, f);
+        const onlyBy = equipOnlyByAbility(card);
+        if (onlyBy) { relSt.met = false; relSt.reasons = [`Only by the ability of ${onlyBy}`]; }
         bEq.textContent = relSt.met ? `🗡️ Equip Item (${cost.gauge} Gauge)` : `🔒 ${relSt.reasons[0]}`;
         bEq.disabled = !relSt.met;
         bEq.onclick = () => {
@@ -7734,6 +7742,11 @@ const battle = {
     }
 
     // [Release Condition!] (Dragon Force ...) must be met to equip
+    const onlyBy = equipOnlyByAbility(c);
+    if (onlyBy) {
+      if (!f.isBot) alert(`"${c.name}" cannot be equipped normally — only by the ability of ${onlyBy}.`);
+      return;
+    }
     const rel = getReleaseConditionStatus(c, f);
     if (!rel.met) {
       if (!f.isBot) alert(`Cannot ${modeLabel.toLowerCase()} "${c.name}" yet:\n• ${rel.reasons.join("\n• ")}`);
@@ -9122,7 +9135,7 @@ const battle = {
       if (!stillThisMatch()) return;
       const itemIdx = bot.hand.findIndex(cid => {
         const c = CARD_MAP.get(cid);
-        return c && c.type === "Item" && parseCardCost(c.cost, c.skill, bot, c).gauge <= bot.gauge.length && getReleaseConditionStatus(c, bot).met;
+        return c && c.type === "Item" && !equipOnlyByAbility(c) && parseCardCost(c.cost, c.skill, bot, c).gauge <= bot.gauge.length && getReleaseConditionStatus(c, bot).met;
       });
       if (itemIdx !== -1 && !bot.item) {  // (bot.item is also set while its Endruler flag is active)
         this.equipCardFromHand("opp", itemIdx, "Equip");
